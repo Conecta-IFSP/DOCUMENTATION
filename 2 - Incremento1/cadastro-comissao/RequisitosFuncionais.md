@@ -1,4 +1,4 @@
-# 3. Requisitos funcionais
+# Requisitos funcionais
 
 ## RF-COM-01 — Listar e filtrar comissões
 
