@@ -1,4 +1,4 @@
-# 8. Requisitos não funcionais
+# Requisitos não funcionais
 
 ## RNF-COM-01 — Segurança
 
