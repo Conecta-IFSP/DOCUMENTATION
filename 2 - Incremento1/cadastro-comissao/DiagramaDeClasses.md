@@ -2,48 +2,81 @@
 
 ```mermaid
 classDiagram
+    direction LR
+
     class Usuario {
-        ObjectId _id
-        string nome
-        string email
-        boolean ativo
+        +ObjectId _id
+        +String nome
+        +String email
+        +String senha_hash
+        +TipoUsuario tipo
+        +TemaUsuario tema
+        +Boolean ativo
+        +Date criado_em
+        +Date atualizado_em
     }
 
     class Organizacao {
-        ObjectId _id
-        string nome
-        StatusOrganizacao status
-        MembroOrganizacao[] membros
+        +ObjectId _id
+        +String nome
+        +String descricao
+        +StatusOrganizacao status
+        +ObjectId criada_por
+        +MembroOrganizacao[] membros
+        +Date criado_em
+        +Date atualizado_em
     }
 
     class MembroOrganizacao {
-        ObjectId usuario_id
-        PapelOrganizacao papel
-        StatusMembroOrganizacao status
+        +ObjectId usuario_id
+        +PapelOrganizacao papel
+        +StatusMembroOrganizacao status
+        +Date solicitado_em
+        +Date aprovado_em
     }
 
-    class Comissao {
-        ObjectId _id
-        string nome
-        string descricao
-        ObjectId organizacao_id
-        MembroComissao[] membros
-        boolean ativo
-        Date criado_em
-        Date atualizado_em
+    class TipoUsuario {
+        <<enumeration>>
+        USUARIO
+        ADMIN_SISTEMA
     }
 
-    class MembroComissao {
-        ObjectId usuario_id
-        PapelComissao papel
-        Date adicionado_em
+    class TemaUsuario {
+        <<enumeration>>
+        claro
+        escuro
+        sistema
     }
 
-    Organizacao "1" --> "0..*" Comissao : possui
-    Organizacao "1" *-- "0..*" MembroOrganizacao : possui
-    Comissao "1" *-- "0..*" MembroComissao : possui
-    Usuario "1" --> "0..*" MembroOrganizacao : participa
-    Usuario "1" --> "0..*" MembroComissao : participa
+    class StatusOrganizacao {
+        <<enumeration>>
+        PENDENTE
+        APROVADA
+        REVOGADA
+    }
+
+    class PapelOrganizacao {
+        <<enumeration>>
+        ADMIN
+        MEMBRO
+    }
+
+    class StatusMembroOrganizacao {
+        <<enumeration>>
+        PENDENTE
+        APROVADO
+        REJEITADO
+    }
+
+    Usuario "1" --> "0..*" Organizacao : cria
+    Organizacao "1" *-- "0..*" MembroOrganizacao : contém
+    Usuario "1" --> "0..*" MembroOrganizacao : possui vínculo
+
+    Usuario --> TipoUsuario : tipo
+    Usuario --> TemaUsuario : tema
+    Organizacao --> StatusOrganizacao : status
+    MembroOrganizacao --> PapelOrganizacao : papel
+    MembroOrganizacao --> StatusMembroOrganizacao : status
 ```
 
 ## Explicação
