@@ -1,4 +1,4 @@
-# 2. Diagrama de casos de uso
+# Diagrama de casos de uso
 
 ```mermaid
 flowchart LR
