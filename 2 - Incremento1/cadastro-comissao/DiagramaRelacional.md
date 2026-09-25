@@ -1,4 +1,4 @@
-# 6. Diagrama relacional
+# Diagrama relacional
 
 > O sistema real usa **MongoDB**, que é um banco de documentos. O diagrama abaixo é uma representação relacional equivalente para atender à documentação solicitada.
 
@@ -50,7 +50,7 @@ erDiagram
 
 ---
 
-# 7. Dicionário de dados do modelo relacional
+# Dicionário de dados do modelo relacional
 
 ## Tabela `COMISSAO`
 
