@@ -105,7 +105,7 @@ classDiagram
 | `criado_em` | Date | Automático | Data de criação. |
 | `atualizado_em` | Date | Automático | Data da última atualização. |
 
-## Classe `MembroOrganizacao` — campos usados pelo módulo
+## Classe `MembroOrganizacao` 
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -113,7 +113,7 @@ classDiagram
 | `papel` | enum | `ADMIN` ou `MEMBRO`. |
 | `status` | enum | `PENDENTE`, `APROVADO` ou `REJEITADO`. |
 
-## Classe `Usuario` — campos usados pelo módulo
+## Classe `Usuario` 
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -122,7 +122,7 @@ classDiagram
 | `email` | string | E-mail do usuário. |
 | `ativo` | boolean | Indica se a conta está ativa. |
 
-## Classe `Comissao` — campos usados pelo módulo
+## Classe `Comissao` 
 
 | Campo | Tipo | Descrição |
 |---|---|---|
