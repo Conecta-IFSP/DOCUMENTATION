@@ -27,8 +27,8 @@ flowchart LR
     UC5 --> Servidor
     UC6 --> Servidor
 
-    classDef actor fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
-    classDef uc fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef actor stroke:#1976d2,stroke-width:2px;
+    classDef uc stroke:#7b1fa2,stroke-width:2px;
 
     class Usuario,AdminSis,Servidor actor;
     class UC1,UC2,UC3,UC4,UC5,UC6 uc;
