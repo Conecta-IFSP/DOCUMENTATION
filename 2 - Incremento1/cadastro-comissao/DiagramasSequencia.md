@@ -1,4 +1,4 @@
-# 9. Diagramas de sequência
+# Diagramas de sequência
 
 ## SD-COM-01 — Listar e filtrar comissões
 
@@ -213,7 +213,7 @@ sequenceDiagram
 
 ---
 
-# 10. Resumo das rotas usadas
+# Resumo das rotas usadas
 
 | Método | Rota | Função |
 |---|---|---|
