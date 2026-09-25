@@ -1,4 +1,4 @@
-# 4. Diagrama de classes
+# Diagrama de classes
 
 ```mermaid
 classDiagram
@@ -55,7 +55,7 @@ classDiagram
 - O integrante da comissão pode ser `MEMBRO` ou `RESPONSAVEL`.
 
 ---
-# 5. Dicionário de dados das classes
+# Dicionário de dados das classes
 
 ## Classe `Comissao`
 
