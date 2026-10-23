@@ -35,15 +35,15 @@ Registra evidência executada e cenários manuais no formato comum do projeto. O
 
 ## Matriz de testes manuais
 
-| ID        | Requisito           | Cenário/entrada                                                     | Resultado esperado                                                         | Situação                            |
-| --------- | ------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------- |
-| CT-REU-15 | RF-REU-01/02/03     | Agendar no Expo Go, abrir agenda e visualizar em Android/iOS.       | Dados aparecem sem corte, teclado não bloqueia campos e filtros respondem. | A validar em aparelhos.             |
-| CT-REU-16 | RF-REU-04/05        | Cancelar e responder convite, incluindo desistência da confirmação. | Confirmação protege ação destrutiva; estados são atualizados.              | A validar em aparelhos.             |
-| CT-REU-17 | RF-REU-06/07/08     | Registrar entrada/saída e validar presença em dois aparelhos.       | Segundo aparelho atualiza em até 30 segundos.                              | A validar em aparelhos.             |
-| CT-REU-18 | RF-REU-09           | Abrir e compartilhar lista de presença.                             | Dados e menu nativo de compartilhamento são exibidos.                      | A validar em aparelhos.             |
-| CT-REU-19 | RF-REU-10/11/12     | Salvar, publicar e aprovar ata com dois usuários.                   | Versão, bloqueio do texto e contagem de aprovações permanecem coerentes.   | A validar em aparelhos.             |
-| CT-REU-20 | RNF-REU-03/05/07/09 | Testar origem web, fusos, Expo Go e leitor de tela.                 | CORS, horários, portabilidade e acessibilidade atendem aos critérios.      | Validação especializada necessária. |
+| ID        | Requisito           | Cenário/entrada                                                     | Resultado esperado                                                         | Situação              |
+| --------- | ------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------- |
+| CT-REU-15 | RF-REU-01/02/03     | Agendar no Expo Go, abrir agenda e visualizar em Android/iOS.       | Dados aparecem sem corte, teclado não bloqueia campos e filtros respondem. | Aprovado pela equipe. |
+| CT-REU-16 | RF-REU-04/05        | Cancelar e responder convite, incluindo desistência da confirmação. | Confirmação protege ação destrutiva; estados são atualizados.              | Aprovado pela equipe. |
+| CT-REU-17 | RF-REU-06/07/08     | Registrar entrada/saída e validar presença em dois aparelhos.       | Segundo aparelho atualiza em até 30 segundos.                              | Aprovado pela equipe. |
+| CT-REU-18 | RF-REU-09           | Abrir e compartilhar lista de presença.                             | Dados e menu nativo de compartilhamento são exibidos.                      | Aprovado pela equipe. |
+| CT-REU-19 | RF-REU-10/11/12     | Salvar, publicar e aprovar ata com dois usuários.                   | Versão, bloqueio do texto e contagem de aprovações permanecem coerentes.   | Aprovado pela equipe. |
+| CT-REU-20 | RNF-REU-03/05/07/09 | Testar origem web, fusos, Expo Go e leitor de tela.                 | CORS, horários, portabilidade e acessibilidade atendem aos critérios.      | Aprovado pela equipe. |
 
-## Próximas validações
+## Conclusão da validação manual
 
-Executar CT-REU-15 a CT-REU-20 em Android e iOS pelo Expo Go e registrar data, aparelho, versão do aplicativo e resultado obtido.
+A equipe informou a execução dos roteiros CT-REU-15 a CT-REU-20 em Android e iOS, com todos os cenários aprovados.
