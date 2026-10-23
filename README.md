@@ -9,7 +9,8 @@ Aqui estão reunidos os documentos produzidos durante o desenvolvimento do proje
 ```text
 DOCUMENTATION/
 ├── 1 - PropostaInicial/
-└── 2 - Incremento1/
+├── 2 - Incremento1/
+└── 3 - Incremento2/
 ```
 
 ### 1 - Proposta Inicial
@@ -19,6 +20,10 @@ Contém os documentos relacionados à definição inicial do projeto, como objet
 ### 2 - Incremento 1
 
 Contém a documentação referente ao primeiro incremento desenvolvido no projeto.
+
+### 3 - Incremento 2
+
+Contém a documentação das reuniões das comissões: agendamento, convite, presença e lista de presença.
 
 ## Repositórios relacionados
 
