@@ -7,13 +7,13 @@ Esta pasta reúne a documentação do incremento de reuniões das comissões do 
 | Item | Documento | Descrição |
 |---|---|---|
 | 1 | [Diagrama de Casos de Uso](1%20-%20casos-uso-reunioes.md) | Apresenta os atores e os 9 casos de uso do incremento. |
-| 2 | [Requisitos Funcionais](2%20-%20requisitos-funcionais-reunioes.md) | Descreve cada caso de uso como requisito funcional, de RF-01 a RF-09, no formulário padrão. |
+| 2 | [Requisitos Funcionais](2%20-%20requisitos-funcionais-reunioes.md) | Descreve as funções implementadas, de RF-01 a RF-12, incluindo o fluxo versionado de atas. |
 | 3 | [Diagrama de Classes](3%20-%20diagrama-classes-reunioes.md) | Representa as classes de dados, do servidor e do aplicativo e seus relacionamentos. |
 | 3 | [Dicionário de Dados - Classes](3%20-%20dicionario-dados-classes-reunioes.md) | Descreve o que cada classe representa, seus atributos, tipos e regras. |
 | 4 | [Diagrama Relacional](4%20-%20diagrama-relacional-reunioes.md) | Apresenta a visão lógica relacional dos dados das reuniões. |
 | 4 | [Dicionário de Dados - Modelo Relacional](4%20-%20dicionario-dados-relacional-reunioes.md) | Descreve cada tabela e campo, as chaves e as restrições. |
 | 5 | [Requisitos Não Funcionais](5%20-%20requisitos-nao-funcionais-reunioes.md) | Define os requisitos RNF-01 a RNF-10, com critério de aceitação e forma de verificação. |
-| 6 | [Diagramas de Sequência](6%20-%20diagramas-sequencia-reunioes.md) | Contém um diagrama de sequência para cada requisito funcional, de RF-01 a RF-09. |
+| 6 | [Diagramas de Sequência](6%20-%20diagramas-sequencia-reunioes.md) | Contém os diagramas originais de RF-01 a RF-09; o fluxo de atas está especificado nos requisitos e no catálogo geral da API. |
 | 7 | [Testes Realizados](7%20-%20testes-reunioes.md) | Registra os casos de teste CT-01 a CT-38 e seus resultados. |
 
 ## Escopo do Incremento
@@ -26,6 +26,7 @@ A documentação contempla os seguintes fluxos:
 - registro de entrada e saída pelo participante e validação da presença pelo organizador;
 - geração da lista de presença;
 - cancelamento de reunião.
+- criação versionada, publicação e aprovação de ata após o encerramento.
 
 ## Rastreabilidade
 

@@ -1,5 +1,7 @@
 # Testes Realizados - Reuniões
 
+> Atualização de 23/10/2026: na branch `homolog`, a suíte do backend inclui `atas-presencas.spec.ts`, que cobre salvamento versionado, publicação, aprovação, autorização e conflitos concorrentes da ata. A execução completa do backend resultou em 13 arquivos e 182 testes aprovados.
+
 Este documento registra os casos de teste do incremento de reuniões: os testes automatizados do servidor e do aplicativo, o teste de ponta a ponta com o servidor e o aplicativo em execução e o roteiro de teste em aparelho.
 
 ---
@@ -8,8 +10,8 @@ Este documento registra os casos de teste do incremento de reuniões: os testes 
 
 | Projeto | Comando | Ferramenta |
 |---|---|---|
-| BACKEND | `npm test` | Vitest 4.1.11 com Node.js 24.14.0 |
-| FRONTEND | `node --test tests/horarios.test.cjs` | Executor de testes do Node.js 24.14.0 |
+| BACKEND | `npm test` | Vitest 4.1.11 com Node.js 24.11.0 |
+| FRONTEND | `node --test tests/horarios.test.cjs` | Executor de testes do Node.js 24.11.0 |
 
 Os testes automatizados do servidor executam as regras de negócio com as coleções simuladas em memória e com a data e hora atuais fixadas, sem depender de banco de dados ou de rede.
 

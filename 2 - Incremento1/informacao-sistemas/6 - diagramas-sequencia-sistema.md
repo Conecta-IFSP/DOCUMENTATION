@@ -1,74 +1,69 @@
-# Diagramas de Sequência
+# Diagramas de sequência — Informações do sistema
 
-## 1. Status do sistema
+Todos os fluxos passam por `ApiKeyGuard`, `JwtAuthGuard` e `AdminSistemaGuard` antes de chegar ao controller.
+
+## SD-SIS-01 — Status
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as Admin do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaSistema
+    participant C as SistemaController
+    participant S as SistemaService
     participant DB as MongoDB
-
-    Admin->>Front: Abre tela Sistema
-    Front->>API: GET /sistema/status
-    API->>API: Lê memória/CPU (módulo os)
-    API->>DB: countDocuments() x3
-    DB-->>API: Totais
-    API-->>Front: status do servidor + banco
-    Front->>Admin: Exibe cards
+    A->>T: abre a tela
+    T->>C: GET /sistema/status
+    C->>S: status()
+    S->>S: lê CPU, memória e uptime pelo módulo os
+    S->>DB: conta documentos para validar disponibilidade
+    S-->>T: métricas do backend e estado do banco
 ```
 
-## 2. Relatórios
+## SD-SIS-02 — Relatórios
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as Admin do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaSistema
+    participant C as SistemaController
+    participant S as SistemaService
     participant DB as MongoDB
-
-    Admin->>Front: Abre tela Sistema
-    Front->>API: GET /sistema/relatorios
-    API->>DB: countDocuments() com filtros
-    DB-->>API: Totais
-    API-->>Front: usuarios/organizacoes/comissoes
-    Front->>Admin: Exibe 3 colunas
+    A->>T: consulta relatórios
+    T->>C: GET /sistema/relatorios
+    C->>S: relatorios()
+    S->>DB: countDocuments com filtros de situação
+    S-->>T: totais de usuários, organizações e comissões
 ```
 
-## 3. Popular dados de teste
+## SD-SIS-03 — Popular dados de teste
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as Admin do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaSistema
+    participant C as SistemaController
+    participant S as SistemaService
     participant DB as MongoDB
-
-    Admin->>Front: Clica "Popular dados de teste" e confirma
-    Front->>API: POST /sistema/popular-teste
-    API->>DB: insertOne x3 usuarios + organizacao + comissao
-    DB-->>API: Criados
-    API-->>Front: usuarios criados + senha padrão
-    Front->>Admin: Exibe aviso de sucesso
+    A->>T: confirma criação dos dados
+    T->>C: POST /sistema/popular-teste
+    C->>S: popularDadosDeTeste()
+    S->>DB: cria três usuários, organização e comissão
+    S-->>T: dados criados
 ```
 
-## 4. Reset do sistema
+## SD-SIS-04 — Reset
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as Admin do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaSistema
+    participant C as SistemaController
+    participant S as SistemaService
     participant DB as MongoDB
-
-    Admin->>Front: Clica "Resetar sistema" e confirma
-    Front->>API: POST /sistema/reset
-    API->>DB: deleteMany usuarios (exceto admin), organizacoes, comissoes
-    DB-->>API: Confirmação
-    API-->>Front: sucesso
-    Front->>Admin: Recarrega tela zerada
+    A->>T: confirma a ação destrutiva
+    T->>C: POST /sistema/reset
+    C->>S: reset()
+    S->>DB: remove reuniões, comissões e organizações
+    S->>DB: remove usuários exceto ADMIN_SISTEMA
+    S-->>T: status=sistema_resetado e data
 ```

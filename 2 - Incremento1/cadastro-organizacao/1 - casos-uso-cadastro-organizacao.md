@@ -11,6 +11,9 @@ flowchart LR
     UC4["UC4 - Revogar organização"]
     UC5["UC5 - Editar dados da organização"]
     UC6["UC6 - Excluir organização revogada"]
+    UC7["UC-ORG-07 - Entrar ou renovar código"]
+    UC8["UC-ORG-08 - Convidar e responder convite"]
+    UC9["UC-ORG-09 - Alterar administrador"]
 
     Servidor["Servidor"]
 
@@ -20,6 +23,9 @@ flowchart LR
     AdminSis --> UC4
     AdminSis --> UC5
     AdminSis --> UC6
+    Usuario --> UC7
+    Usuario --> UC8
+    Usuario --> UC9
     UC1 --> Servidor
     UC2 --> Servidor
     UC3 --> Servidor
@@ -42,3 +48,6 @@ flowchart LR
 - **UC4 - Revogar organização:** o administrador recusa uma organização pendente ou suspende uma já aprovada.
 - **UC5 - Editar dados da organização:** o administrador corrige o nome e a descrição de uma organização.
 - **UC6 - Excluir organização revogada:** o administrador apaga em definitivo uma organização revogada e as comissões dela.
+- **UC-ORG-07 - Entrar ou renovar código:** usuário solicita acesso com código; administrador da organização pode invalidá-lo e gerar outro.
+- **UC-ORG-08 - Convidar e responder convite:** administrador convida por e-mail cadastrado; destinatário aceita ou recusa.
+- **UC-ORG-09 - Alterar administrador:** administrador promove membro aprovado ou rebaixa outro sem deixar a organização sem administrador.

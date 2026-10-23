@@ -1,24 +1,24 @@
-# Requisitos Não Funcionais - Configurações de Usuário
+# Requisitos não funcionais — Configurações de usuário
 
-| Código | Categoria | Descrição |
-|---|---|---|
-| RNF-01 | Segurança | Perfil e troca de senha exigem JWT válido; o backend identifica a conta pelo `sub` do token, sem aceitar um ID de usuário enviado pela interface. |
-| RNF-02 | Segurança | Senhas são armazenadas com bcrypt e fator de custo 10; a senha em texto é usada somente durante a comparação ou geração do hash. |
-| RNF-03 | Segurança | O token de recuperação possui 32 bytes aleatórios, validade de 30 minutos, uso único e armazenamento somente como hash SHA-256. |
-| RNF-04 | Privacidade | A solicitação de recuperação sempre devolve a mesma mensagem, exista ou não uma conta ativa, dificultando a enumeração de e-mails cadastrados. |
-| RNF-05 | Segurança | A URL recebida do Expo Go só é aceita com protocolo `exp://` ou `exps://`, host definido, sem parâmetros prévios e com a rota exata de redefinição. |
-| RNF-06 | Integridade | E-mails são normalizados e únicos; a nova senha autenticada não pode repetir a senha atual; campos não previstos nos DTOs são removidos pelo `ValidationPipe`. |
-| RNF-07 | Usabilidade | A interface valida nome, e-mail, senha e confirmação antes da chamada e apresenta mensagens junto ao campo ou à ação. Botões ficam indisponíveis durante o envio. |
-| RNF-08 | Consistência | O tema selecionado só é aplicado depois que o backend confirma o salvamento; falhas mantêm a aparência anterior. |
-| RNF-09 | Portabilidade | O mesmo código React Native atende Android e iOS pelo Expo. No Expo Go, `Linking.createURL()` produz o endereço adequado à sessão atual. |
-| RNF-10 | Persistência | A preferência de tema é gravada no MongoDB para acompanhar a conta e no SecureStore para estar disponível desde a abertura do aplicativo; na web, usa `localStorage`. |
-| RNF-11 | Ambiente local | Na execução com Expo Go, celular e computador devem estar na mesma rede, e os processos do frontend e do backend devem permanecer ativos durante a recuperação. |
-| RNF-12 | Manutenibilidade | Controllers apenas recebem as requisições; regras de negócio ficam em `UsuariosService` e `AuthService`, e validações de entrada ficam nos DTOs e utilitários do frontend. |
+| Código | Qualidade | Critério verificável | Verificação/evidência | Situação |
+|---|---|---|---|---|
+| RNF-CFG-01 | Autorização | Rotas `/usuarios/me*` recusam ausência/invalidade de JWT com `401` e nunca aceitam ID de usuário no corpo. | Testes de guards/controllers; `JwtAuthGuard` e `req.usuario.sub`. | Implementado |
+| RNF-CFG-02 | Proteção de senha | Nenhuma resposta ou consulta comum expõe `senha_hash`; hashes novos usam bcrypt custo 10. | Inspeção do schema/service e testes. | Implementado |
+| RNF-CFG-03 | Recuperação segura | Código e token têm validade de 30 min, uso único e somente hash SHA-256 persistido. | Testes de `AuthService`. | Implementado |
+| RNF-CFG-04 | Privacidade | Solicitação de recuperação retorna exatamente a mesma mensagem para e-mail existente e inexistente. | Teste automatizado com os dois cenários. | Implementado |
+| RNF-CFG-05 | Validação | Nome, e-mail, tema e senha são validados no frontend e por DTO no backend; propriedades extras são removidas pelo `ValidationPipe`. | `validacao.ts`, DTOs e `main.ts`. | Implementado; nome mínimo diverge: 3 no app e 2 na API |
+| RNF-CFG-06 | Proteção local | Ao abrir troca de e-mail/senha e antes de redefinir senha, o app solicita credencial do aparelho quando existe nível cadastrado. | Teste manual Android/iOS com e sem biometria. | Implementado; não se aplica à web e é dispensado sem credencial |
+| RNF-CFG-07 | Consistência do tema | Falha no `PATCH /usuarios/me` restaura a preferência anterior local e visual. | Teste manual simulando erro HTTP. | Implementado |
+| RNF-CFG-08 | Persistência | Tema fica em MongoDB e na chave local `conecta_mais_tema`; JWT fica em `conecta_mais_token`. | Inspeção de `TemaContext`/`api.ts`. | Implementado |
+| RNF-CFG-09 | Usabilidade | Formulários impedem envio inválido, desabilitam ações durante requisição e exibem mensagens em português. | Inspeção e teste manual. | Implementado |
+| RNF-CFG-10 | Compatibilidade | Fluxos principais devem ser testados em Android e web; autenticação local é nativa e possui fallback. | Roteiro manual em dois ambientes. | Teste completo pendente |
+| RNF-CFG-11 | Desempenho | Em rede local estável, leitura/alteração de perfil deve completar em até 2 s no percentil 95, excluindo tempo do SMTP/biometria. | Medição de 30 execuções por rota. | Meta proposta; não medida |
+| RNF-CFG-12 | Resiliência | Se a sessão receber `401` em rota protegida, o app remove somente o token correspondente e avisa a navegação; `403/500` não encerram sessão. | `tests/sessao-api.test.cjs`: 5 casos aprovados. | Implementado |
 
-## Limites atuais conhecidos
+## Limitações que não devem ser descritas como atendidas
 
-- A troca ou redefinição de senha não invalida JWTs emitidos anteriormente.
-- Não há limitação de frequência específica para pedidos de recuperação; uma evolução recomendada é adicionar rate limiting.
-- A página intermediária da recuperação usa HTTP na rede local porque o projeto permanece no Expo Go; uma versão publicada deveria usar HTTPS e links universais.
-- A interface exige nome com no mínimo 3 caracteres, enquanto o backend aceita 2; a regra deve ser padronizada em uma revisão futura.
+- Não existe revogação de JWT após troca/redefinição de senha.
+- Não existe rate limit para códigos de e-mail ou recuperação.
+- A ação de trocar senha não faz logout automático.
+- A chave global da API é pública no bundle Expo e não substitui autorização.
 

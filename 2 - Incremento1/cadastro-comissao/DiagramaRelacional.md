@@ -70,7 +70,7 @@ erDiagram
 |---|---|---|---|
 | `comissao_id` | CHAR(24) | PK/FK | Comissão. |
 | `usuario_id` | CHAR(24) | PK/FK | Usuário integrante. |
-| `papel` | VARCHAR(11) |  | `MEMBRO` ou `RESPONSAVEL`. |
+| `papel` | VARCHAR(11) |  | `MEMBRO` ou `RESPONSAVEL`; a comissão deve possuir exatamente um responsável. |
 | `adicionado_em` | TIMESTAMP |  | Data da inclusão. |
 
 A chave primária é composta por `comissao_id + usuario_id`, evitando repetir o mesmo usuário na mesma comissão.

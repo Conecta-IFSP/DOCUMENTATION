@@ -85,7 +85,7 @@ classDiagram
 - Cada **Comissão** pertence a uma única organização.
 - Uma comissão pode ter nenhum, um ou vários integrantes.
 - Um usuário pode participar de várias comissões.
-- O integrante da comissão pode ser `MEMBRO` ou `RESPONSAVEL`.
+- O integrante da comissão pode ser `MEMBRO` ou `RESPONSAVEL`, mas o array deve conter **exatamente um** responsável e usuários únicos.
 
 ---
 # Dicionário de dados das classes

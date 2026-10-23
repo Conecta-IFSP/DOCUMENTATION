@@ -1,126 +1,30 @@
-# Diagrama de Casos de Uso
-
-> **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros.
->
-> Este documento apresenta somente os casos de uso relacionados ao incremento solicitado.  
-> A autenticação do usuário é considerada uma pré-condição para as funcionalidades que exigem acesso à plataforma.
-
----
-
-## Visão Geral
+# Casos de uso — Cadastro e acesso de usuário
 
 ```mermaid
 flowchart LR
-    Anon["👤 Usuário Não Autenticado"]
-    Usuario["👤 Usuário Comum"]
-    AdminOrg["🛡️ Admin da Organização"]
-
-    subgraph Sistema["Conecta+ - Cadastro e Gestão de Usuários"]
-        Cadastro(["UC1 - Cadastrar-se na plataforma"])
-        Acesso(["Solicitação de acesso à organização"])
-        Gestao(["Gestão de membros da organização"])
-    end
-
-    Anon --> Cadastro
-    Usuario --> Acesso
-    AdminOrg --> Gestao
-
-    classDef actor stroke:#1976d2,stroke-width:2px;
-    classDef modulo stroke:#7b1fa2,stroke-width:2px;
-
-    class Anon,Usuario,AdminOrg actor;
-    class Cadastro,Acesso,Gestao modulo;
+    V[Visitante] --> C1((UC-USR-01\nCadastrar conta local))
+    V --> C2((UC-USR-02\nConfirmar e-mail))
+    V --> C3((UC-USR-03\nEntrar com senha))
+    V --> C4((UC-USR-04\nEntrar com Google))
+    U[Usuário autenticado] --> C5((UC-USR-05\nSolicitar acesso por código))
+    U --> C6((UC-USR-06\nResponder convite))
+    A[Administrador da organização] --> C7((UC-USR-07\nConvidar usuário))
+    A --> C8((UC-USR-08\nAnalisar solicitação))
+    A --> C9((UC-USR-09\nGerenciar membro e papel))
+    M[Serviço de e-mail] -. código .-> C2
+    G[Google] -. identidade .-> C4
 ```
 
----
+## Especificação resumida
 
-## 1. Cadastro de Usuário
-
-```mermaid
-flowchart LR
-    Anon["👤 Usuário Não Autenticado"]
-
-    subgraph Sistema["Conecta+"]
-        UC1(["UC1 - Cadastrar-se na plataforma"])
-    end
-
-    Anon --> UC1
-
-    classDef actor stroke:#1976d2,stroke-width:2px;
-    classDef uc stroke:#7b1fa2,stroke-width:2px;
-
-    class Anon actor;
-    class UC1 uc;
-```
-
-### Caso de uso
-
-- **UC1 - Cadastrar-se na plataforma:** permite que uma pessoa ainda não cadastrada crie sua conta de usuário no Conecta+.
-
----
-
-## 2. Solicitação de Acesso à Organização
-
-```mermaid
-flowchart LR
-    Usuario["👤 Usuário Comum"]
-
-    subgraph Sistema["Conecta+"]
-        UC2(["UC2 - Visualizar organizações disponíveis"])
-        UC3(["UC3 - Solicitar acesso à organização"])
-        UC4(["UC4 - Acompanhar status da solicitação"])
-    end
-
-    Usuario --> UC2
-    Usuario --> UC3
-    Usuario --> UC4
-
-    classDef actor stroke:#1976d2,stroke-width:2px;
-    classDef uc stroke:#7b1fa2,stroke-width:2px;
-
-    class Usuario actor;
-    class UC2,UC3,UC4 uc;
-```
-
-### Casos de uso
-
-- **UC2 - Visualizar organizações disponíveis:** permite ao usuário consultar organizações aprovadas disponíveis para solicitação de acesso.
-- **UC3 - Solicitar acesso à organização:** permite ao usuário enviar uma solicitação para participar de uma organização.
-- **UC4 - Acompanhar status da solicitação:** permite ao usuário verificar se sua solicitação está pendente, aprovada ou rejeitada.
-
----
-
-## 3. Gestão de Membros da Organização
-
-```mermaid
-flowchart LR
-    AdminOrg["🛡️ Admin da Organização"]
-
-    subgraph Sistema["Conecta+"]
-        UC5(["UC5 - Visualizar solicitações pendentes"])
-        UC6(["UC6 - Aprovar solicitação de acesso"])
-        UC7(["UC7 - Rejeitar solicitação de acesso"])
-        UC8(["UC8 - Visualizar membros da organização"])
-        UC9(["UC9 - Remover membro da organização"])
-    end
-
-    AdminOrg --> UC5
-    AdminOrg --> UC6
-    AdminOrg --> UC7
-    AdminOrg --> UC8
-    AdminOrg --> UC9
-
-    classDef actor stroke:#1976d2,stroke-width:2px;
-    classDef uc stroke:#7b1fa2,stroke-width:2px;
-
-    class AdminOrg actor;
-    class UC5,UC6,UC7,UC8,UC9 uc;
-```
-
-### Casos de uso
-
-- **UC5 - Visualizar solicitações pendentes:** permite ao administrador visualizar usuários aguardando análise para ingresso na organização.
-- **UC6 - Aprovar solicitação de acesso:** permite ao administrador autorizar o ingresso de um usuário na organização.
-- **UC7 - Rejeitar solicitação de acesso:** permite ao administrador negar uma solicitação de ingresso.
-- **UC8 - Visualizar membros da organização:** permite ao administrador consultar os usuários que possuem acesso aprovado à organização.
-- **UC9 - Remover membro da organização:** permite ao administrador remover o acesso de um membro da organização.
+| Caso      | Ator              | Pré-condição                                            | Fluxo/pós-condição                                                                      | Exceções principais                                                                     |
+| --------- | ----------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| UC-USR-01 | Visitante         | e-mail não cadastrado                                   | informa nome/e-mail/senha/confirmação; cria conta `LOCAL`, não verificada; envia código | entrada inválida `400`, duplicidade `409`, falha SMTP `503` e conta provisória removida |
+| UC-USR-02 | Visitante         | conta local não verificada e código válido por 30 min   | informa `XXX-XXXX`; define `email_verificado=true` e remove código                      | inválido/expirado `400`                                                                 |
+| UC-USR-03 | Visitante         | conta ativa, verificada, com senha local                | valida bcrypt e recebe JWT de 1 h                                                       | credenciais genéricas inválidas `401`                                                   |
+| UC-USR-04 | Visitante         | conta Google com e-mail verificado                      | OAuth/OIDC cria ou vincula conta e recebe JWT                                           | token, audience, issuer ou expiração inválidos `400`                                    |
+| UC-USR-05 | Usuário           | organização aprovada e código atual                     | cria/reabre vínculo `PENDENTE`                                                          | código inválido `404`, vínculo incompatível `409`                                       |
+| UC-USR-06 | Convidado         | vínculo `CONVIDADO`                                     | aceita como `APROVADO` ou recusa removendo vínculo                                      | convite inexistente/alterado `404/409`                                                  |
+| UC-USR-07 | Admin organização | organização aprovada; usuário comum ativo               | convite por e-mail cria vínculo `CONVIDADO`                                             | não encontrado `404`; já membro/pendente/convidado `409`                                |
+| UC-USR-08 | Admin organização | vínculo alvo `PENDENTE` ou `REJEITADO` para reaprovação | grava `APROVADO`/`REJEITADO` e data                                                     | permissão/estado concorrente `403/409`                                                  |
+| UC-USR-09 | Admin organização | alvo aprovado                                           | promove/rebaixa ou remove membro comum; remoção limpa comissões                         | não remove admin; não rebaixa último admin                                              |

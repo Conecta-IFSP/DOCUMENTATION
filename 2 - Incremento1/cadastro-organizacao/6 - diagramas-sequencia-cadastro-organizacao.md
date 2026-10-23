@@ -1,115 +1,145 @@
-# Diagramas de Sequência - Cadastro de Organização
+# Diagramas de sequência — Cadastro de organização
 
-## 1. Cadastrar organização (RF-01)
+Os participantes nomeiam classes reais da branch `homolog`. O aplicativo chama o controller; o controller delega ao service; o service consulta o MongoDB via Mongoose.
+
+## SD-ORG-01 — Cadastrar organização
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Usuario as Usuário Comum
-    participant Front as Frontend
-    participant API as Backend
+    actor U as Usuário
+    participant T as TelaNovaOrganizacao
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
-
-    Usuario->>Front: Informa nome e descrição e confirma
-    Front->>API: POST /organizacoes {nome, descricao}
-    API->>DB: Consulta organização com o mesmo nome
-    DB-->>API: Nome disponível
-    API->>DB: Cria organização pendente com o criador como administrador
-    DB-->>API: Organização criada
-    API-->>Front: 201 - Cadastro realizado
-    Front->>Usuario: Informa que aguarda autorização
+    U->>T: nome, cidade e descrição
+    T->>C: POST /organizacoes
+    C->>S: criar(dto, usuarioId)
+    S->>DB: verifica nome sem diferenciar maiúsculas
+    S->>DB: cria PENDENTE, código e criador ADMIN/APROVADO
+    S-->>T: organização criada
 ```
 
-## 2. Consultar organizações cadastradas (RF-02)
+## SD-ORG-02 — Consultar e pesquisar
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor AdminSis as Administrador do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor U as Usuário ou Admin do sistema
+    participant T as TelaOrganizacoes
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
-
-    AdminSis->>Front: Abre "Gerenciar organizações"
-    Front->>API: GET /organizacoes
-    API->>DB: Busca todas as organizações
-    DB-->>API: Organizações com situação e responsável
-    API-->>Front: 200 - Lista completa
-    Front->>AdminSis: Exibe a lista com as pendentes no topo
+    U->>T: informa termo opcional
+    T->>C: GET /organizacoes?busca=termo
+    C->>S: listar(usuario, busca)
+    S->>DB: filtra nome/cidade e escopo permitido
+    DB-->>T: organizações ordenadas por criação
 ```
 
-## 3. Autorizar cadastro de organização (RF-03)
+## SD-ORG-03 — Alterar dados ou situação
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor AdminSis as Administrador do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaGestaoOrganizacoes
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
-
-    AdminSis->>Front: Confirma a autorização da organização
-    Front->>API: PATCH /organizacoes/{id} {status: "APROVADA"}
-    API->>DB: Grava a situação aprovada
-    DB-->>API: Organização atualizada
-    API-->>Front: 200 - Organização aprovada
-    Front->>AdminSis: Atualiza a lista com a nova situação
+    A->>T: edita dados, aprova ou revoga
+    T->>C: PATCH /organizacoes/:id
+    C->>S: atualizar(id, dto, usuario)
+    S->>DB: valida unicidade e grava campos permitidos
+    DB-->>T: organização atualizada
 ```
 
-## 4. Revogar organização (RF-04)
+## SD-ORG-04 — Excluir revogada
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor AdminSis as Administrador do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador do sistema
+    participant T as TelaGestaoOrganizacoes
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
-
-    AdminSis->>Front: Confirma a revogação da organização
-    Front->>API: PATCH /organizacoes/{id} {status: "REVOGADA"}
-    API->>DB: Grava a situação revogada
-    DB-->>API: Organização atualizada
-    API-->>Front: 200 - Organização revogada
-    Front->>AdminSis: Exibe a organização como revogada
+    A->>T: confirma exclusão
+    T->>C: DELETE /organizacoes/:id
+    C->>S: remover(id)
+    S->>DB: exclui somente se status=REVOGADA
+    S->>DB: exclui comissões vinculadas
+    S-->>T: confirmação
 ```
 
-## 5. Editar dados da organização (RF-05)
+## SD-ORG-05 — Entrar e renovar código
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor AdminSis as Administrador do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor U as Usuário
+    actor A as Administrador da organização
+    participant T as Aplicativo
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
-
-    AdminSis->>Front: Altera nome e descrição e confirma
-    Front->>API: PATCH /organizacoes/{id} {nome, descricao}
-    API->>DB: Consulta organização com o mesmo nome
-    DB-->>API: Nome disponível
-    API->>DB: Grava os novos dados
-    DB-->>API: Organização atualizada
-    API-->>Front: 200 - Dados atualizados
-    Front->>AdminSis: Exibe a organização atualizada
+    alt entrada
+        U->>T: código de 10 caracteres
+        T->>C: POST /organizacoes/entrar
+        C->>S: entrarComCodigo(codigo, usuarioId)
+        S->>DB: busca APROVADA e adiciona MEMBRO/PENDENTE
+    else renovação
+        A->>T: solicita novo código
+        T->>C: POST /organizacoes/:id/codigo
+        C->>S: renovarCodigo(id, adminId)
+        S->>DB: substitui código após autorizar ADMIN/APROVADO
+    end
 ```
 
-## 6. Excluir organização revogada (RF-06)
+## SD-ORG-06 — Convidar e responder
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor AdminSis as Administrador do Sistema
-    participant Front as Frontend
-    participant API as Backend
+    actor A as Administrador da organização
+    actor U as Convidado
+    participant T as Aplicativo
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
     participant DB as MongoDB
+    A->>T: e-mail do usuário
+    T->>C: POST /organizacoes/:id/convites
+    C->>S: convidar(...)
+    S->>DB: cria vínculo MEMBRO/CONVIDADO
+    U->>T: aceita ou recusa
+    T->>C: PATCH /organizacoes/:id/convite
+    C->>S: responderConvite(...)
+    S->>DB: aprova ou remove vínculo
+```
 
-    AdminSis->>Front: Confirma a exclusão da organização revogada
-    Front->>API: DELETE /organizacoes/{id}
-    API->>DB: Exclui a organização, somente se estiver revogada
-    DB-->>API: Organização excluída
-    API->>DB: Exclui as comissões da organização
-    DB-->>API: Comissões excluídas
-    API-->>Front: 200 - Exclusão concluída
-    Front->>AdminSis: Remove a organização da lista
+## SD-ORG-07 — Analisar solicitação
+
+```mermaid
+sequenceDiagram
+    actor A as Administrador da organização
+    participant T as TelaMembros
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
+    participant DB as MongoDB
+    A->>T: aprova ou rejeita
+    T->>C: PATCH /organizacoes/:id/membros/:usuarioId
+    C->>S: alterarStatusMembro(...)
+    S->>DB: atualiza com comparação do estado original
+    DB-->>T: vínculo atualizado ou 409 por concorrência
+```
+
+## SD-ORG-08 — Alterar papel
+
+```mermaid
+sequenceDiagram
+    actor A as Administrador da organização
+    participant T as TelaMembros
+    participant C as OrganizacoesController
+    participant S as OrganizacoesService
+    participant DB as MongoDB
+    A->>T: promove ou rebaixa
+    T->>C: PATCH /organizacoes/:id/membros/:usuarioId/papel
+    C->>S: alterarPapelMembro(...)
+    S->>DB: atualiza membro aprovado
+    S->>S: impede rebaixar o último ADMIN
+    S-->>T: organização atualizada
 ```

@@ -30,7 +30,7 @@ Os requisitos não funcionais abaixo definem critérios de qualidade, segurança
 |---|---|
 | **Categoria** | Desempenho |
 | **Descrição** | As operações de cadastro, consulta de organizações, solicitação de acesso e gestão de membros devem apresentar resposta ao usuário em até 2 segundos em condições normais de utilização. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Alta |
 
 O requisito se aplica principalmente às operações de:
@@ -105,7 +105,7 @@ Dessa forma, um usuário comum não pode aprovar, rejeitar ou remover membros de
 |---|---|
 | **Categoria** | Confiabilidade / Usabilidade |
 | **Descrição** | Os dados fornecidos pelos usuários devem ser validados antes de serem persistidos ou utilizados pelo sistema. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Alta |
 
 A validação deve ocorrer tanto na interface quanto no backend.
@@ -153,7 +153,7 @@ Na implementação MongoDB, as alterações de status e remoções são realizad
 |---|---|
 | **Categoria** | Usabilidade |
 | **Descrição** | O sistema deve informar claramente ao usuário o estado e o resultado das operações realizadas. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Alta |
 
 A interface deve fornecer feedback para situações como:
@@ -190,7 +190,7 @@ Mensagem de sucesso
 |---|---|
 | **Categoria** | Segurança / Privacidade |
 | **Descrição** | Informações sensíveis devem ser protegidas e somente os dados necessários para a funcionalidade devem ser apresentados aos usuários. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Crítica |
 
 O sistema deve evitar a exposição de dados sensíveis, especialmente:
@@ -212,7 +212,7 @@ Nas listagens de membros são apresentados somente os dados necessários para a 
 |---|---|
 | **Categoria** | Acessibilidade |
 | **Descrição** | Os principais elementos interativos da interface devem fornecer informações adequadas para tecnologias assistivas. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Média |
 
 Elementos como botões e ações importantes devem possuir descrições acessíveis sempre que necessário.
@@ -240,7 +240,7 @@ A interface também deve diferenciar visualmente situações como:
 |---|---|
 | **Categoria** | Manutenibilidade |
 | **Descrição** | A implementação deve utilizar tipagem, validação e separação de responsabilidades para facilitar manutenção e evolução do sistema. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-USR-01 a RF-USR-07 |
 | **Prioridade** | Média |
 
 O projeto utiliza TypeScript com modo estrito, permitindo identificar inconsistências de tipo durante o desenvolvimento.

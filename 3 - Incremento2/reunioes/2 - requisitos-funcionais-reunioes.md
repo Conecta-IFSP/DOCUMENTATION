@@ -153,3 +153,38 @@
 | **Fluxos Alternativos** | **FA-01: Compartilhar a lista**<br>1. O participante seleciona "Compartilhar".<br>2. O sistema monta um texto com o título, a data, o horário e a situação de cada participante.<br>3. O sistema abre o menu de compartilhamento do aparelho com esse texto. |
 | **Fluxos de Exceção** | **FE-01: Usuário não participa**<br>1. O usuário não consta em `participantes`.<br>2. O sistema informa "Você não participa desta reunião".<br><br>**FE-02: Falha ao compartilhar**<br>1. O aparelho não conclui o compartilhamento.<br>2. O sistema informa "Não foi possível compartilhar.". |
 
+---
+
+## RF-10 - Salvar rascunho da ata
+
+| Campo | Descrição |
+|---|---|
+| **Ator Principal** | Responsável da comissão |
+| **Objetivo** | Registrar ou atualizar a ata de uma reunião encerrada. |
+| **Entrada** | `PATCH /reunioes/:id/ata`, com `conteudo` de 20 a 20.000 caracteres e a `versao` atualmente exibida. |
+| **Pré-Condições** | Usuário autenticado; reunião `AGENDADA` e encerrada; usuário responsável pela comissão; ata inexistente ou em `RASCUNHO`. |
+| **Pós-Condições** | O conteúdo é salvo como `RASCUNHO`, a versão é incrementada e o autor e a data de atualização são registrados. |
+| **Exceções** | Versão divergente retorna conflito; ata já enviada não pode ser editada; gravação concorrente não sobrescreve a versão mais recente. |
+
+## RF-11 - Enviar ata para aprovação
+
+| Campo | Descrição |
+|---|---|
+| **Ator Principal** | Responsável da comissão |
+| **Objetivo** | Encaminhar o rascunho aos participantes com presença confirmada. |
+| **Entrada** | `POST /reunioes/:id/ata/publicar`, com a `versao` atual. |
+| **Pré-Condições** | Reunião encerrada; ata em `RASCUNHO`; versão atual; ao menos uma presença `CONFIRMADA`. |
+| **Pós-Condições** | A ata passa para `EM_APROVACAO`; os presentes confirmados tornam-se aprovadores e a lista de aprovações começa vazia. |
+| **Exceções** | Rascunho ausente, versão divergente ou nenhuma presença confirmada impedem a operação. |
+
+## RF-12 - Aprovar ata
+
+| Campo | Descrição |
+|---|---|
+| **Ator Principal** | Participante com presença confirmada |
+| **Objetivo** | Registrar a aprovação individual da versão publicada. |
+| **Entrada** | `POST /reunioes/:id/ata/aprovar`, com a `versao` atual. |
+| **Pré-Condições** | Reunião encerrada; ata em `EM_APROVACAO`; usuário incluído em `aprovadores`. |
+| **Pós-Condições** | O usuário entra em `aprovacoes`; quando todos aprovam, a situação muda para `APROVADA`. Uma repetição pelo mesmo usuário é idempotente. |
+| **Exceções** | Versão divergente, usuário fora dos aprovadores ou ata fora de aprovação impedem a operação. |
+

@@ -1,6 +1,6 @@
-# Diagrama Relacional - Configurações de Usuário
+# Diagrama relacional — Configurações de usuário
 
-O MongoDB armazena os dados em um único documento da coleção `usuarios`. O modelo abaixo representa essa estrutura de forma relacional para manter o padrão da documentação do projeto.
+O MongoDB armazena todo o módulo em um único documento da coleção `usuarios`. O diagrama abaixo separa grupos lógicos de campos apenas para leitura; não existem tabelas físicas de recuperação ou troca de e-mail.
 
 ```mermaid
 erDiagram
@@ -9,22 +9,32 @@ erDiagram
         String nome
         String email UK
         String senha_hash
-        String senhaHash
         String tipo
         String tema
-        String reset_senha_token_hash
-        Date reset_senha_expira_em
+        Boolean email_verificado
         Boolean ativo
+        String provedor_autenticacao
         Date criado_em
         Date atualizado_em
     }
+    RECUPERACAO_TEMPORARIA {
+        String reset_senha_codigo_hash
+        String reset_senha_token_hash
+        Date reset_senha_expira_em
+    }
+    TROCA_EMAIL_TEMPORARIA {
+        String email_pendente
+        String email_pendente_codigo_hash
+        Date email_pendente_expira_em
+    }
+    USUARIO ||--o| RECUPERACAO_TEMPORARIA : "campos opcionais embutidos"
+    USUARIO ||--o| TROCA_EMAIL_TEMPORARIA : "campos opcionais embutidos"
 ```
 
-## Relacionamentos e decisões
+## Decisões
 
-- Configurações de usuário não criam uma nova coleção: todos os campos pertencem ao documento `USUARIO`.
-- `email` possui restrição de unicidade e é normalizado antes de ser salvo.
-- `tema` aceita somente os valores definidos em `TemaUsuario`.
-- `senha_hash`, `senhaHash`, `reset_senha_token_hash` e `reset_senha_expira_em` não aparecem nas consultas comuns por usarem `select: false` no schema.
-- Os campos `reset_senha_token_hash` e `reset_senha_expira_em` existem apenas enquanto há uma recuperação pendente e são apagados depois do uso.
+- O e-mail tem índice único criado pelo schema Mongoose.
+- Códigos e tokens em texto não são persistidos; somente SHA-256.
+- A senha é persistida apenas como bcrypt.
+- Os grupos temporários são apagados após uso; não representam histórico.
 

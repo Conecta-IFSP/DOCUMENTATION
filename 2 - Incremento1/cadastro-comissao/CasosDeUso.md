@@ -36,7 +36,7 @@ flowchart LR
 | UC-COM-05 | Desativar comissão | Deixa a comissão inativa sem apagar seus dados. |
 | UC-COM-06 | Reativar comissão | Torna uma comissão inativa ativa novamente. |
 | UC-COM-07 | Adicionar integrante | Adiciona um usuário à equipe. |
-| UC-COM-08 | Alterar papel do integrante | Troca o papel entre `MEMBRO` e `RESPONSAVEL`. |
+| UC-COM-08 | Substituir responsável | Define um novo responsável em operação atômica e rebaixa o anterior para `MEMBRO`. |
 | UC-COM-09 | Remover integrante | Retira o usuário somente da comissão. |
 
 ---

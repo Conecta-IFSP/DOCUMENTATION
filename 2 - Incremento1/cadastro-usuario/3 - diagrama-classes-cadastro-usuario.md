@@ -14,6 +14,9 @@ classDiagram
         +String senha_hash
         +TipoUsuario tipo
         +TemaUsuario tema
+        +Boolean email_verificado
+        +ProvedorAutenticacao provedor_autenticacao
+        +String google_id
         +Boolean ativo
         +Date criado_em
         +Date atualizado_em
@@ -22,9 +25,11 @@ classDiagram
     class Organizacao {
         +ObjectId _id
         +String nome
+        +String cidade
         +String descricao
         +StatusOrganizacao status
         +ObjectId criada_por
+        +String codigo_acesso
         +MembroOrganizacao[] membros
         +Date criado_em
         +Date atualizado_em
@@ -69,6 +74,7 @@ classDiagram
         PENDENTE
         APROVADO
         REJEITADO
+        CONVIDADO
     }
 
     Usuario "1" --> "0..*" Organizacao : cria

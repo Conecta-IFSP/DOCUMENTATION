@@ -16,9 +16,12 @@ Representa uma conta de usuário cadastrada na plataforma.
 | `_id` | `ObjectId` | Sim | Identificador único do usuário, gerado pelo MongoDB. |
 | `nome` | `String` | Sim | Nome do usuário. O valor é armazenado sem espaços desnecessários nas extremidades. |
 | `email` | `String` | Sim | E-mail utilizado para identificação e autenticação do usuário. Deve ser único e é normalizado para letras minúsculas. |
-| `senha_hash` | `String` | Sim | Hash da senha do usuário. A senha original não é armazenada. |
+| `senha_hash` | `String` | Não | Hash bcrypt da senha local; pode faltar em conta exclusivamente Google. A senha original não é armazenada. |
 | `tipo` | `TipoUsuario` | Sim | Tipo global do usuário na plataforma. O valor padrão é `USUARIO`. |
 | `tema` | `TemaUsuario` | Sim | Preferência de tema da interface. O valor padrão é `sistema`. |
+| `email_verificado` | `Boolean` | Sim | Indica que o endereço foi confirmado; conta Google validada também inicia confirmada. |
+| `google_id` | `String` | Não | Identificador único do Google, oculto nas respostas comuns. |
+| `provedor_autenticacao` | `ProvedorAutenticacao` | Sim | `LOCAL`, `GOOGLE` ou `AMBOS`. |
 | `ativo` | `Boolean` | Sim | Indica se a conta está ativa. O valor padrão é `true`. |
 | `criado_em` | `Date` | Sim | Data e hora de criação da conta, preenchida automaticamente. |
 | `atualizado_em` | `Date` | Sim | Data e hora da última atualização do usuário, preenchida automaticamente. |
@@ -70,9 +73,11 @@ Representa uma organização cadastrada na plataforma.
 |---|---|---:|---|
 | `_id` | `ObjectId` | Sim | Identificador único da organização, gerado pelo MongoDB. |
 | `nome` | `String` | Sim | Nome da organização. |
+| `cidade` | `String` | Sim | Cidade informada no cadastro. |
 | `descricao` | `String` | Não | Descrição opcional da organização. |
 | `status` | `StatusOrganizacao` | Sim | Situação atual da organização. O valor padrão é `PENDENTE`. |
 | `criada_por` | `ObjectId` | Sim | Referência ao usuário que cadastrou a organização. |
+| `codigo_acesso` | `String` | Sim | Código único de 10 caracteres, normalmente oculto. |
 | `membros` | `MembroOrganizacao[]` | Sim | Lista de vínculos entre usuários e a organização. |
 | `criado_em` | `Date` | Sim | Data e hora de criação da organização. |
 | `atualizado_em` | `Date` | Sim | Data e hora da última atualização da organização. |
@@ -172,6 +177,7 @@ Define a situação do vínculo entre um usuário e uma organização.
 | `PENDENTE` | Solicitação aguardando análise pelo administrador da organização. |
 | `APROVADO` | Usuário autorizado a participar da organização. |
 | `REJEITADO` | Solicitação de acesso recusada pelo administrador. |
+| `CONVIDADO` | Convite enviado por administrador e ainda não respondido. |
 
 ### Transições de estado
 

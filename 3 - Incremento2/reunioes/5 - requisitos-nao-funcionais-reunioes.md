@@ -29,7 +29,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 | **Descrição** | Toda requisição às rotas de reuniões deve conter o cabeçalho `X-API-Key` com a chave definida na variável `API_ACCESS_TOKEN` do servidor. A comparação deve levar o mesmo tempo independentemente do valor recebido, para que a chave não possa ser descoberta pelo tempo de resposta. |
 | **Critério de Aceitação** | Uma requisição sem o cabeçalho ou com um valor diferente recebe a resposta `401` sem executar nenhuma operação. Com o servidor sem a variável `API_ACCESS_TOKEN`, toda requisição recebe `503`. |
 | **Forma de Verificação** | Enviar requisições às rotas de reuniões sem o cabeçalho e com um valor incorreto e conferir a resposta `401`. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Crítica |
 
 ---
@@ -42,7 +42,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 | **Descrição** | As rotas de reuniões devem exigir o cabeçalho `Authorization: Bearer <token>`, com um token JWT assinado pelo servidor que expira 1 hora depois de emitido. A cada requisição, o servidor deve conferir que a conta do token existe e está ativa. |
 | **Critério de Aceitação** | Uma requisição sem token, com token adulterado ou emitido há mais de 1 hora recebe `401`. Uma requisição com token válido de uma conta desativada depois do login também recebe `401`. |
 | **Forma de Verificação** | Testes automatizados de acesso com token expirado e com conta desativada, executados com `npm test` no servidor. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Crítica |
 
 ---
@@ -55,7 +55,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 | **Descrição** | A API deve permitir chamadas de navegador apenas das origens `localhost`, `127.0.0.1`, do esquema do aplicativo `conectamais://` e do endereço definido na variável `FRONTEND_URL`. Os únicos cabeçalhos aceitos são `Content-Type`, `Authorization` e `X-API-Key`. |
 | **Critério de Aceitação** | Uma requisição de pré-verificação (`OPTIONS`) vinda de outra origem recebe a resposta sem o cabeçalho `Access-Control-Allow-Origin`, e o navegador bloqueia a chamada. Uma requisição de origem autorizada recebe esse cabeçalho com a própria origem. |
 | **Forma de Verificação** | Enviar `OPTIONS /reunioes` com `Origin: https://exemplo.com` e com `Origin: http://localhost:8081` e comparar os cabeçalhos das respostas. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Média |
 
 ---
@@ -107,7 +107,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 | **Descrição** | O aplicativo deve ser desenvolvido uma única vez em React Native com Expo SDK 57 e gerado para Android, iOS e navegador. |
 | **Critério de Aceitação** | O mesmo código gera o aplicativo Android, para a versão 7.0 (API 24) ou superior, o aplicativo iOS e a versão web, e os fluxos de agendamento, convite e presença funcionam nos três. |
 | **Forma de Verificação** | Executar os fluxos de reunião em um aparelho Android, em um aparelho iOS e no navegador. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Alta |
 
 ---
@@ -133,7 +133,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 | **Descrição** | Os botões e itens tocáveis das telas de reunião devem ter altura mínima de 40 pontos e um nome acessível, pelo texto visível ou por um rótulo próprio, para os leitores de tela TalkBack e VoiceOver. |
 | **Critério de Aceitação** | Com o TalkBack ativo, todos os botões das telas de reunião são anunciados pelo nome da ação, como "Confirmar presença de Ana Souza". Nenhum alvo de toque tem menos de 40 pontos de altura. |
 | **Forma de Verificação** | Percorrer as telas de reunião com o TalkBack ativo e medir os alvos de toque com o inspetor de layout. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Média |
 
 ---
@@ -144,7 +144,7 @@ Os requisitos não funcionais abaixo definem critérios de segurança, confiabil
 |---|---|
 | **Categoria** | Manutenibilidade |
 | **Descrição** | Cada requisito funcional das reuniões deve ter ao menos um caso de teste automatizado que verifique suas regras de negócio. |
-| **Critério de Aceitação** | O comando `npm test` no servidor termina sem falhas, e cada requisito de RF-01 a RF-09 está associado a pelo menos um caso de teste automatizado. |
+| **Critério de Aceitação** | O comando `npm test` no servidor termina sem falhas; os fluxos de ata possuem cobertura em `atas-presencas.spec.ts`, e os demais requisitos permanecem associados aos casos de teste registrados. |
 | **Forma de Verificação** | Executar `npm test` no servidor e `node --test tests/*.cjs` no aplicativo. |
-| **Aplicação** | RF-01 a RF-09 |
+| **Aplicação** | RF-01 a RF-12 |
 | **Prioridade** | Alta |

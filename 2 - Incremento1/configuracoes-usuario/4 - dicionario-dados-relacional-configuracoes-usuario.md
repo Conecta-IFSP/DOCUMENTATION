@@ -1,36 +1,35 @@
-# Dicionário de Dados - Modelo Relacional - Configurações de Usuário
+# Dicionário relacional — Configurações de usuário
 
-## USUARIO
+## Coleção `usuarios`
 
-| Coluna | Tipo | Chave | Nulo | Descrição |
-|---|---|---|---|---|
-| `_id` | ObjectId | PK | Não | Identificador da conta. |
-| `nome` | varchar | — | Não | Nome da pessoa usuária. |
-| `email` | varchar | UNIQUE | Não | E-mail normalizado para minúsculas; não pode pertencer a outra conta. |
-| `senha_hash` | varchar | — | Não | Hash bcrypt da senha atual; não é retornado nas consultas comuns. |
-| `senhaHash` | varchar | — | Sim | Hash legado, mantido temporariamente para contas antigas. |
-| `tipo` | enum | — | Não | `USUARIO` ou `ADMIN_SISTEMA`. |
-| `tema` | enum | — | Não | `claro`, `escuro` ou `sistema`; padrão `sistema`. |
-| `reset_senha_token_hash` | varchar | — | Sim | SHA-256 do token de recuperação. Nunca armazena o token original. |
-| `reset_senha_expira_em` | timestamp | — | Sim | Prazo do token; definido para 30 minutos após a solicitação. |
-| `ativo` | boolean | — | Não | Contas inativas não podem autenticar nem solicitar recuperação. |
-| `criado_em` | timestamp | — | Não | Data de criação, preenchida pelo Mongoose. |
-| `atualizado_em` | timestamp | — | Não | Data da última alteração, preenchida pelo Mongoose. |
+| Caminho | Tipo BSON/lógico | Obrigatório | Índice/padrão | Descrição e restrição |
+|---|---|---:|---|---|
+| `_id` | `ObjectId` | Sim | PK MongoDB | identificador da conta |
+| `nome` | `String` | Sim | — | nome com espaços externos removidos |
+| `email` | `String` | Sim | único | normalizado em minúsculas |
+| `senha_hash` | `String` | Não | `select:false` | bcrypt custo 10 |
+| `tipo` | `String` | Sim | `USUARIO` | `USUARIO` ou `ADMIN_SISTEMA` |
+| `tema` | `String` | Sim | `sistema` | `sistema`, `claro` ou `escuro` |
+| `reset_senha_codigo_hash` | `String` | Não | `select:false` | SHA-256 do código de 7 caracteres |
+| `reset_senha_token_hash` | `String` | Não | `select:false` | SHA-256 do token hexadecimal de 64 caracteres |
+| `reset_senha_expira_em` | `Date` | Não | `select:false` | limite de 30 minutos iniciado na solicitação |
+| `email_pendente` | `String` | Não | `select:false` | novo endereço normalizado |
+| `email_pendente_codigo_hash` | `String` | Não | `select:false` | SHA-256 do código de confirmação |
+| `email_pendente_expira_em` | `Date` | Não | `select:false` | limite de 30 minutos |
+| `email_verificado` | `Boolean` | Sim | `true` no schema | contas locais novas informam `false` explicitamente |
+| `ativo` | `Boolean` | Sim | `true` | conta inativa falha no `JwtAuthGuard` |
+| `provedor_autenticacao` | `String` | Sim | `LOCAL` | `LOCAL`, `GOOGLE` ou `AMBOS` |
+| `criado_em` | `Date` | Sim | timestamp | criação automática |
+| `atualizado_em` | `Date` | Sim | timestamp | última gravação automática |
 
-## Valores de `tema`
+## Ciclo da recuperação
 
-| Valor | Significado |
-|---|---|
-| `claro` | Usa sempre a paleta clara. |
-| `escuro` | Usa sempre a paleta escura. |
-| `sistema` | Acompanha a preferência clara ou escura configurada no aparelho. |
+1. Solicitação define `reset_senha_codigo_hash` e `reset_senha_expira_em` e apaga token antigo.
+2. Verificação correta define `reset_senha_token_hash` e apaga o código.
+3. Redefinição correta atualiza `senha_hash` e apaga token e expiração.
+4. Solicitação posterior substitui os valores anteriores.
 
-## Ciclo dos campos de recuperação
+## Ciclo da troca de e-mail
 
-| Momento | `reset_senha_token_hash` | `reset_senha_expira_em` |
-|---|---|---|
-| Sem recuperação pendente | Ausente | Ausente |
-| Após solicitar recuperação | SHA-256 do novo token | Horário atual + 30 minutos |
-| Após redefinir a senha | Removido | Removido |
-| Após expirar | Permanece sem validade até nova solicitação ou limpeza | Data anterior ao horário atual |
-
+1. Solicitação define `email_pendente`, `email_pendente_codigo_hash` e `email_pendente_expira_em`.
+2. Confirmação repete a verificação de unicidade, copia `email_pendente` para `email` e apaga os três campos.

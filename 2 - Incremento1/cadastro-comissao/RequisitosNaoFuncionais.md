@@ -1,10 +1,10 @@
 # Requisitos não funcionais
 
-## RNF-COM-01 — Segurança
+## RNF-COM-01 — Autorização verificável
 
-Todas as rotas de comissão devem exigir usuário autenticado.
+Todas as rotas de comissão exigem `X-API-Key`, JWT válido e tipo `USUARIO`.
 
-Além do login, o backend deve conferir se o usuário é administrador aprovado da organização antes de permitir o gerenciamento.
+Além do login, o service confere vínculo `ADMIN/APROVADO` em organização `APROVADA` para escrita; leitura exige vínculo aprovado e restringe membros às comissões das quais participam. A verificação ocorre no servidor em todas as requisições.
 
 ## RNF-COM-02 — Validação dos dados
 
@@ -21,7 +21,9 @@ A validação é feita no backend pelos DTOs e pelo `ValidationPipe`.
 
 ## RNF-COM-03 — Integridade dos dados
 
-O mesmo usuário não deve aparecer duas vezes na mesma comissão.
+O schema recusa gravação se houver usuário repetido ou quantidade de responsáveis diferente de um.
+
+Alterações da equipe usam compare-and-swap: se outra gravação mudar a equipe entre leitura e escrita, a operação retorna `409` em vez de sobrescrever o estado mais novo.
 
 Ao remover um integrante, somente o vínculo com a comissão deve ser removido. O usuário e seu vínculo com a organização devem continuar existentes.
 
@@ -38,6 +40,12 @@ Ações importantes, como desativar comissão e remover integrante, devem pedir 
 ## RNF-COM-06 — Compatibilidade
 
 O aplicativo deve funcionar em **Android e iOS**, utilizando React Native com Expo.
+
+Critério de aceitação: cadastrar, consultar e gerenciar uma comissão em ao menos um aparelho Android e um iOS, sem rolagem horizontal e com todas as ações alcançáveis. Teste iOS não foi registrado nesta revisão.
+
+## RNF-COM-08 — Desempenho
+
+Em rede local estável e com até 1.000 comissões, `GET /comissoes` deve responder em até 2 segundos no percentil 95. A medição deve usar 30 execuções após aquecimento. Trata-se de meta; não há medição registrada.
 
 ## RNF-COM-07 — Organização do código
 

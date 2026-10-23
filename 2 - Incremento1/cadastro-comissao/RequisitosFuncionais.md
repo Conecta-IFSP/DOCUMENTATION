@@ -33,20 +33,21 @@
 | Campo | Descrição |
 |---|---|
 | **Descrição** | O sistema deve permitir o cadastro de uma nova comissão. |
-| **Entradas** | Organização, nome e descrição opcional. |
+| **Entradas** | `nome` (2–100), `descricao?` (até 1000), `organizacao_id` e `responsavel_id`. |
 | **Origem** | Tela Nova comissão. |
 | **Saída** | Comissão criada. |
 | **Destino** | MongoDB e tela de gerenciamento da comissão. |
-| **Ação** | O frontend envia um `POST /comissoes`. O backend valida os dados e grava a comissão no MongoDB. |
+| **Ação** | `TelaNovaComissao` envia `POST /comissoes`. `CreateComissaoDto` valida os campos; `ComissoesService.criar()` exige que o solicitante administre a organização aprovada e que o responsável esteja ativo e aprovado nela; `ComissaoModel.create()` grava o documento. |
 | **Pré-condição** | Usuário autenticado, ativo e administrador aprovado da organização escolhida. |
-| **Pós-condição** | A comissão é criada com `ativo = true` e `membros = []`. |
+| **Pós-condição** | A comissão é criada com `ativo = true` e `membros` contendo exatamente o `responsavel_id` com papel `RESPONSAVEL`. |
 | **Efeitos colaterais** | O MongoDB gera o ID e o sistema registra as datas de criação e atualização. |
 
 ### Dados do cadastro
 
 - **Nome:** obrigatório, entre 2 e 100 caracteres.
-- **Descrição:** opcional.
+- **Descrição:** opcional, até 1000 caracteres.
 - **Organização:** obrigatória e deve ser uma organização que o usuário administra.
+- **Responsável:** obrigatório, ativo e aprovado na organização.
 
 ## RF-COM-04 — Editar comissão
 
@@ -97,28 +98,28 @@
 | Campo | Descrição |
 |---|---|
 | **Descrição** | O sistema deve permitir adicionar um usuário à equipe da comissão. |
-| **Entradas** | ID da comissão, ID do usuário e papel (`MEMBRO` ou `RESPONSAVEL`). |
+| **Entradas** | ID da comissão e `usuario_id`. O papel aceito neste fluxo é somente `MEMBRO`. |
 | **Origem** | Seção Adicionar integrante. |
 | **Saída** | Comissão com o novo integrante. |
 | **Destino** | Array `membros` da comissão no MongoDB. |
-| **Ação** | O frontend envia `POST /comissoes/:id/membros`. O backend valida o usuário e usa `$push` para adicioná-lo. |
+| **Ação** | O frontend envia `POST /comissoes/:id/membros`. O service valida elegibilidade, duplicidade e responsável único e substitui a equipe por compare-and-swap. `papel=RESPONSAVEL` é recusado; usa-se RF-COM-08. |
 | **Pré-condição** | Comissão ativa. O usuário deve estar ativo e aprovado na mesma organização. |
 | **Pós-condição** | O usuário passa a fazer parte da comissão. |
 | **Efeitos colaterais** | O sistema impede que o mesmo usuário seja adicionado duas vezes. |
 
-## RF-COM-08 — Alterar papel do integrante
+## RF-COM-08 — Substituir o responsável
 
 | Campo | Descrição |
 |---|---|
-| **Descrição** | O sistema deve permitir trocar o papel de um integrante. |
-| **Entradas** | ID da comissão, ID do usuário e novo papel. |
-| **Origem** | Botão Tornar membro ou Tornar responsável. |
-| **Saída** | Integrante com o novo papel. |
+| **Descrição** | O sistema permite substituir o único responsável por outro integrante elegível. |
+| **Entradas** | ID da comissão e `usuario_id` do novo responsável. |
+| **Origem** | Ação **Definir responsável** na equipe. |
+| **Saída** | Comissão com exatamente um responsável. |
 | **Destino** | Array `membros` da comissão. |
-| **Ação** | O frontend envia `PATCH /comissoes/:id/membros/:usuarioId`. O backend altera somente o campo `papel`. |
-| **Pré-condição** | Comissão ativa e usuário já pertencente à comissão. |
-| **Pós-condição** | O papel fica como `MEMBRO` ou `RESPONSAVEL`. |
-| **Efeitos colaterais** | Ser `RESPONSAVEL` não dá permissão de administrador da organização. |
+| **Ação** | Envia `PATCH /comissoes/:id/responsavel` com `{usuario_id}`. `definirResponsavel()` promove o alvo, inclui-o se necessário e rebaixa todos os demais para `MEMBRO` em uma escrita atômica validada. |
+| **Pré-condição** | Solicitante administra a organização; alvo está ativo e aprovado nela. |
+| **Pós-condição** | Exatamente um item de `membros` possui papel `RESPONSAVEL`. |
+| **Efeitos colaterais** | O responsável anterior continua na equipe como `MEMBRO`. |
 
 ## RF-COM-09 — Remover integrante
 
@@ -130,7 +131,7 @@
 | **Saída** | Comissão sem aquele integrante. |
 | **Destino** | Array `membros` da comissão. |
 | **Ação** | O frontend envia `DELETE /comissoes/:id/membros/:usuarioId`. O backend usa `$pull` para retirar o integrante. |
-| **Pré-condição** | Comissão ativa e usuário pertencente à comissão. |
+| **Pré-condição** | Comissão ativa; usuário pertencente à comissão com papel `MEMBRO`. O responsável deve ser substituído antes de ser removido. |
 | **Pós-condição** | O usuário deixa de fazer parte da comissão. |
 | **Efeitos colaterais** | O usuário continua cadastrado no sistema e continua pertencendo à organização. |
 
