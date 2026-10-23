@@ -1,18 +1,29 @@
-# Testes — Cadastro e acesso de usuário
+# Testes — Cadastro de usuário
 
-Backend `6f2ffc4`: 182 testes aprovados em 23/10/2026. Arquivos diretamente relacionados: `auth.service.spec.ts`, `auth.controller.spec.ts`, `usuarios.service.spec.ts`, `usuarios.controller.spec.ts`, `usuarios-acesso.spec.ts` e `organizacoes-acesso.spec.ts`.
+> Padrão do Incremento 1 · Módulo USR
 
-| Código | Regra |
-|---|---|
-| CT-USR-01 | cadastro normaliza e-mail, gera bcrypt e exige confirmação |
-| CT-USR-02 | falha de envio inicial remove conta não confirmada |
-| CT-USR-03 | código correto confirma; inválido/expirado falha |
-| CT-USR-04 | login recusa conta inativa/não confirmada/credencial errada |
-| CT-USR-05 | Google valida token e cria/vincula provedor |
-| CT-USR-06 | código de organização cria ou reabre pendência |
-| CT-USR-07 | convite e resposta respeitam estados/duplicidade |
-| CT-USR-08 | análise concorrente devolve conflito |
-| CT-USR-09 | último administrador não pode ser rebaixado |
-| CT-USR-10 | remover membro preserva conta e limpa comissões da organização |
+## Resumo
 
-Teste manual pendente: cadastro completo com entrega real de e-mail, login Google em Android/iOS/web e fluxos de convite/código em dois aparelhos.
+Registra evidência executada e cenários manuais no formato comum do Incremento 1.
+
+## Evidência automatizada
+
+| Data       | Projeto/branch               | Comando     | Resultado                          | Arquivos relacionados                                             |
+| ---------- | ---------------------------- | ----------- | ---------------------------------- | ----------------------------------------------------------------- |
+| 23/10/2026 | BACKEND `homolog` `6f2ffc4`  | `npm test`  | 13 arquivos e 182 testes aprovados | `auth.*.spec.ts`, `usuarios.*.spec.ts`, `usuarios-acesso.spec.ts` |
+| 23/10/2026 | FRONTEND `homolog` `792fab4` | testes Node | 9 testes aprovados                 | `sessao-api.test.cjs`, `horarios.test.cjs`                        |
+
+## Matriz de testes manuais
+
+| ID        | Requisito    | Cenário/entrada                      | Resultado esperado                                         | Situação                         |
+| --------- | ------------ | ------------------------------------ | ---------------------------------------------------------- | -------------------------------- |
+| CT-USR-01 | RF-USR-01    | Cadastrar e confirmar código         | Conta só autentica depois da confirmação.                  | Coberto no backend; UI pendente. |
+| CT-USR-02 | RF-USR-02    | Login válido/inválido/não confirmado | JWT apenas no cenário válido; falhas recebem 401 genérico. | Coberto no backend; UI pendente. |
+| CT-USR-03 | RF-USR-03    | Login Google e cancelamento          | Conta criada/vinculada ou fluxo cancelado sem sessão.      | Integração manual pendente.      |
+| CT-USR-04 | RF-USR-04    | Entrar com código válido/inválido    | Pendência criada ou erro sem vínculo.                      | Coberto no backend; UI pendente. |
+| CT-USR-05 | RF-USR-05/06 | Convidar, aceitar/recusar e analisar | Transições corretas e conflitos detectados.                | Coberto no backend; UI pendente. |
+| CT-USR-06 | RF-USR-07    | Alterar papel/remover/último admin   | Papel válido; último admin e remoção indevida recusados.   | Coberto no backend; UI pendente. |
+
+## Pendências
+
+Executar cadastro, Google e teclado em Expo Go/Android e registrar evidência do aparelho.

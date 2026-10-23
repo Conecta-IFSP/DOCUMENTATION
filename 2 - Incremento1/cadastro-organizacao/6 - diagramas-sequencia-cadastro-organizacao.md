@@ -1,5 +1,11 @@
 # Diagramas de sequência — Cadastro de organização
 
+> Padrão do Incremento 1 · Módulo ORG
+
+## Resumo
+
+Mostra a ordem das chamadas entre ator, telas, `OrganizacoesController`, `OrganizacoesService` e MongoDB.
+
 Os participantes nomeiam classes reais da branch `homolog`. O aplicativo chama o controller; o controller delega ao service; o service consulta o MongoDB via Mongoose.
 
 ## SD-ORG-01 — Cadastrar organização

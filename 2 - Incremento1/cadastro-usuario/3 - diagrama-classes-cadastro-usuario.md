@@ -1,4 +1,10 @@
-# Diagrama de Classes - Cadastro e Gestão de Usuários
+# Diagrama de classes — Cadastro de usuário
+
+> Padrão do Incremento 1 · Módulo USR
+
+## Resumo
+
+Representa conta, provedor de autenticação, organização e vínculo do usuário, com seus estados e cardinalidades.
 
 > **Projeto:** Conecta+  
 > **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros

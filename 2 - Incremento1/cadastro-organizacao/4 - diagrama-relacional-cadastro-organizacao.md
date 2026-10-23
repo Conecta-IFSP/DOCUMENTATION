@@ -1,4 +1,10 @@
-# Diagrama Relacional - Cadastro de Organização
+# Diagrama relacional — Cadastro de organização
+
+> Padrão do Incremento 1 · Módulo ORG · Visão lógica sobre MongoDB
+
+## Resumo
+
+Representa organizações, vínculos embutidos, criador e comissões associadas em forma relacional para facilitar a leitura.
 
 ```mermaid
 erDiagram

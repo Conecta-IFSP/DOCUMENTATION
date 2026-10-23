@@ -1,122 +1,126 @@
-# Requisitos Funcionais - Cadastro de Organização
+# Requisitos funcionais — Cadastro de organização
 
-| Código | Caso de Uso                        | Ator                     |
-| ------ | ---------------------------------- | ------------------------ |
-| RF-01  | Cadastrar organização              | Usuário Comum            |
-| RF-02  | Consultar organizações cadastradas | Administrador do Sistema |
-| RF-03  | Autorizar cadastro de organização  | Administrador do Sistema |
-| RF-04  | Revogar organização                | Administrador do Sistema |
-| RF-05  | Editar dados da organização        | Administrador do Sistema |
-| RF-06  | Excluir organização revogada       | Administrador do Sistema |
+> Padrão do Incremento 1 · Módulo ORG
 
----
+## Resumo
 
-## RF-01 - Cadastrar organização
+Define RF-ORG-01 a RF-ORG-09. Todos usam `X-API-Key`; rotas privadas exigem JWT e os guards/regras indicados.
 
-| Campo                  | Descrição                                                                                                                                                                                                                              |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | Permitir que o usuário cadastre uma nova organização, que fica aguardando a autorização do administrador do sistema.                                                                                                                   |
-| **Entradas**           | • Nome (2–100)<br>• Cidade (2–60)<br>• Descrição opcional (até 200)                                                                                                                                                                    |
-| **Origem**             | Usuário autenticado, pela tela de cadastro de organização.                                                                                                                                                                             |
-| **Saída**              | • Organização criada com situação “pendente”<br>• Mensagem de erro quando o nome já existe                                                                                                                                             |
-| **Destino**            | Lista “Minhas organizações” do usuário e fila de autorização do administrador do sistema.                                                                                                                                              |
-| **Ação**               | O sistema valida o nome e a descrição, verifica que não existe outra organização com o mesmo nome — sem distinguir maiúsculas —, grava a organização com situação pendente e registra quem cadastrou como administrador aprovado dela. |
-| **Pré-condição**       | Usuário autenticado, com conta ativa, e que não seja administrador do sistema.                                                                                                                                                         |
-| **Pós-condição**       | Organização gravada como pendente, com o criador vinculado a ela como administrador aprovado.                                                                                                                                          |
-| **Efeitos colaterais** | A organização entra na fila de autorização do administrador do sistema. Nome repetido não grava nada.                                                                                                                                  |
+## Visão geral
 
----
+| ID        | Requisito                 | Rota principal                           | Ator                         |
+| --------- | ------------------------- | ---------------------------------------- | ---------------------------- |
+| RF-ORG-01 | Cadastrar organização     | `POST /organizacoes`                     | Usuário                      |
+| RF-ORG-02 | Consultar organizações    | `GET /organizacoes`                      | Usuário/Admin do sistema     |
+| RF-ORG-03 | Aprovar organização       | `PATCH /organizacoes/:id`                | Admin do sistema             |
+| RF-ORG-04 | Revogar organização       | `PATCH /organizacoes/:id`                | Admin do sistema             |
+| RF-ORG-05 | Editar organização        | `PATCH /organizacoes/:id`                | Admin do sistema             |
+| RF-ORG-06 | Excluir organização       | `DELETE /organizacoes/:id`               | Admin do sistema             |
+| RF-ORG-07 | Entrar e renovar código   | `POST /organizacoes/entrar`              | Usuário/Admin da organização |
+| RF-ORG-08 | Convidar e responder      | `POST .../convites`, `PATCH .../convite` | Admin/Convidado              |
+| RF-ORG-09 | Gerenciar vínculo e papel | `PATCH .../membros/:usuarioId`           | Admin da organização         |
 
-## RF-02 - Consultar organizações cadastradas
+## Especificações
 
-| Campo                  | Descrição                                                                                                                                                                                                                             |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | Permitir que o administrador do sistema consulte todas as organizações cadastradas e a situação de cada uma.                                                                                                                          |
-| **Entradas**           | Consulta opcional `busca` (até 100 caracteres); a conta é identificada pelo token de acesso.                                                                                                                                          |
-| **Origem**             | Administrador do sistema, pela tela de gerenciar organizações.                                                                                                                                                                        |
-| **Saída**              | • Lista das organizações com nome, descrição, situação e responsável pelo cadastro                                                                                                                                                    |
-| **Destino**            | Tela de gerenciar organizações, com as pendentes no topo.                                                                                                                                                                             |
-| **Ação**               | `GET /organizacoes?busca=termo` escapa caracteres de regex, filtra `nome` sem diferenciar maiúsculas, popula `criada_por` e ordena por `criado_em` decrescente. Admin do sistema vê todas; usuário comum recebe apenas seus vínculos. |
-| **Pré-condição**       | Solicitante é administrador do sistema, com conta ativa.                                                                                                                                                                              |
-| **Pós-condição**       | Nenhuma alteração nos dados; a operação é de consulta.                                                                                                                                                                                |
-| **Efeitos colaterais** | Contas que não são administradoras do sistema recebem apenas as organizações a que têm direito.                                                                                                                                       |
+### RF-ORG-01 — Cadastrar organização
 
----
+| Item              | Especificação                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Entrada**       | `nome` 2–100, `cidade` 2–60 e `descricao?` até 200.                                                                       |
+| **Pré-condições** | Conta ativa do tipo `USUARIO`; nome disponível.                                                                           |
+| **Processamento** | `OrganizacoesController.criar()` → `OrganizacoesService.criar()`; valida unicidade, gera código e cria o vínculo inicial. |
+| **Persistência**  | `organizacoes`: `PENDENTE`, criador em `criada_por` e `membros` como `ADMIN/APROVADO`.                                    |
+| **Saída**         | Organização criada, sem expor campos protegidos indevidos.                                                                |
+| **Erros**         | 400 dados inválidos; 409 nome duplicado; 403 tipo não permitido.                                                          |
 
-## RF-03 - Autorizar cadastro de organização
+### RF-ORG-02 — Consultar organizações
 
-| Campo                  | Descrição                                                                                                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | Permitir que o administrador do sistema autorize o cadastro de uma organização pendente.                                                                        |
-| **Entradas**           | • Organização<br>• Situação “aprovada”                                                                                                                          |
-| **Origem**             | Administrador do sistema, pela tela de gerenciar organizações.                                                                                                  |
-| **Saída**              | • Organização com situação “aprovada”<br>• Mensagem de erro quando a organização não é encontrada                                                               |
-| **Destino**            | Lista de organizações disponíveis para solicitação de acesso.                                                                                                   |
-| **Ação**               | O sistema confere que quem pede é administrador do sistema e grava a nova situação da organização.                                                              |
-| **Pré-condição**       | Solicitante é administrador do sistema, com conta ativa; a organização existe e não está aprovada.                                                              |
-| **Pós-condição**       | Organização com situação aprovada.                                                                                                                              |
-| **Efeitos colaterais** | A organização passa a aceitar solicitações de acesso e a permitir o cadastro de comissões. Uma organização revogada pode ser reativada por esta mesma operação. |
+| Item              | Especificação                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Entrada**       | `GET /organizacoes?busca=termo`, busca opcional até 100.                                                           |
+| **Pré-condições** | JWT válido e conta ativa.                                                                                          |
+| **Processamento** | Escapa regex, pesquisa nome/cidade e ordena por `criado_em`; admin global vê todas e usuário vê vínculos próprios. |
+| **Persistência**  | Somente leitura de `organizacoes` e população de usuários necessários.                                             |
+| **Saída**         | Lista no escopo autorizado.                                                                                        |
+| **Erros**         | 401 sessão inválida; 400 busca fora do limite.                                                                     |
 
----
+### RF-ORG-03 — Aprovar organização
 
-## RF-04 - Revogar organização
+| Item              | Especificação                                                 |
+| ----------------- | ------------------------------------------------------------- |
+| **Entrada**       | `PATCH /organizacoes/:id` com `status=APROVADA`.              |
+| **Pré-condições** | Ator `ADMIN_SISTEMA`; organização existente.                  |
+| **Processamento** | `AdminSistemaGuard` autoriza e o service atualiza a situação. |
+| **Persistência**  | `organizacoes.status=APROVADA`.                               |
+| **Saída**         | Organização atualizada.                                       |
+| **Erros**         | 403 sem tipo global; 404 ID inexistente.                      |
 
-| Campo                  | Descrição                                                                                                                                              |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Descrição**          | Permitir que o administrador do sistema revogue uma organização, recusando um cadastro pendente ou suspendendo uma organização aprovada.               |
-| **Entradas**           | • Organização<br>• Situação “revogada”                                                                                                                 |
-| **Origem**             | Administrador do sistema, pela tela de gerenciar organizações.                                                                                         |
-| **Saída**              | • Organização com situação “revogada”                                                                                                                  |
-| **Destino**            | Lista de organizações, marcada como revogada.                                                                                                          |
-| **Ação**               | O sistema confere a permissão do solicitante e grava a situação revogada.                                                                              |
-| **Pré-condição**       | Solicitante é administrador do sistema, com conta ativa; a organização existe e não está revogada.                                                     |
-| **Pós-condição**       | Organização com situação revogada.                                                                                                                     |
-| **Efeitos colaterais** | A organização deixa de aparecer para novos pedidos de acesso, a gestão de comissões dela fica bloqueada e a exclusão definitiva passa a ser permitida. |
+### RF-ORG-04 — Revogar organização
 
----
+| Item              | Especificação                                                   |
+| ----------------- | --------------------------------------------------------------- |
+| **Entrada**       | `PATCH /organizacoes/:id` com `status=REVOGADA`.                |
+| **Pré-condições** | Ator `ADMIN_SISTEMA`; confirmação na interface.                 |
+| **Processamento** | Atualiza a situação após autorização.                           |
+| **Persistência**  | `organizacoes.status=REVOGADA`.                                 |
+| **Saída**         | Organização bloqueada para novos acessos e gestão de comissões. |
+| **Erros**         | 403 sem permissão; 404 inexistente.                             |
 
-## RF-05 - Editar dados da organização
+### RF-ORG-05 — Editar organização
 
-| Campo                  | Descrição                                                                                                                     |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | Permitir que o administrador do sistema corrija o nome e a descrição de uma organização.                                      |
-| **Entradas**           | • Nome (de 2 a 100 caracteres)<br>• Descrição (até 200 caracteres)                                                            |
-| **Origem**             | Administrador do sistema, pela tela de gerenciar organizações.                                                                |
-| **Saída**              | • Organização com os dados atualizados<br>• Mensagem de erro quando o nome já pertence a outra organização                    |
-| **Destino**            | Lista de organizações e telas que mostram o nome da organização.                                                              |
-| **Ação**               | O sistema valida os campos enviados, verifica que o nome não pertence a outra organização e grava apenas o que foi informado. |
-| **Pré-condição**       | Solicitante é administrador do sistema, com conta ativa; a organização existe.                                                |
-| **Pós-condição**       | Dados da organização atualizados.                                                                                             |
-| **Efeitos colaterais** | Nome repetido não grava nada; o novo nome aparece para todos os membros.                                                      |
+| Item              | Especificação                                                 |
+| ----------------- | ------------------------------------------------------------- |
+| **Entrada**       | `PATCH /organizacoes/:id` com nome, cidade e/ou descrição.    |
+| **Pré-condições** | Ator `ADMIN_SISTEMA`; organização existente.                  |
+| **Processamento** | Valida campos, verifica unicidade e grava apenas os enviados. |
+| **Persistência**  | Campos informados e `atualizado_em`.                          |
+| **Saída**         | Organização atualizada.                                       |
+| **Erros**         | 400 entrada inválida; 409 nome duplicado; 403/404.            |
 
----
+### RF-ORG-06 — Excluir organização
 
-## RF-06 - Excluir organização revogada
+| Item              | Especificação                                                 |
+| ----------------- | ------------------------------------------------------------- |
+| **Entrada**       | `DELETE /organizacoes/:id`.                                   |
+| **Pré-condições** | `ADMIN_SISTEMA`, confirmação explícita e situação `REVOGADA`. |
+| **Processamento** | Exclui organização e depois suas comissões.                   |
+| **Persistência**  | Remove de `organizacoes` e `comissoes`.                       |
+| **Saída**         | Confirmação de exclusão.                                      |
+| **Erros**         | 400 se não revogada; 403/404.                                 |
 
-| Campo                  | Descrição                                                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | Permitir que o administrador do sistema exclua em definitivo uma organização já revogada.                                 |
-| **Entradas**           | • Organização<br>• Confirmação da exclusão                                                                                |
-| **Origem**             | Administrador do sistema, pela tela de gerenciar organizações.                                                            |
-| **Saída**              | • Confirmação da exclusão<br>• Mensagem pedindo que a organização seja revogada antes                                     |
-| **Destino**            | Lista de organizações, de onde o registro desaparece.                                                                     |
-| **Ação**               | O sistema exclui a organização somente se a situação for revogada e, em seguida, apaga as comissões que pertenciam a ela. |
-| **Pré-condição**       | Solicitante é administrador do sistema, com conta ativa; a organização está revogada.                                     |
-| **Pós-condição**       | Organização e comissões dela removidas do banco.                                                                          |
-| **Efeitos colaterais** | As comissões da organização são apagadas junto, com suas equipes. Organização não revogada não é excluída.                |
+### RF-ORG-07 — Entrar por código e renovar código
 
----
+| Item              | Especificação                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| **Entrada**       | `{codigo}` em `POST /organizacoes/entrar`; renovação em `POST /organizacoes/:id/codigo`. |
+| **Pré-condições** | Entrada em organização aprovada; renovação por `ADMIN/APROVADO`.                         |
+| **Processamento** | Normaliza dez caracteres; entrada cria/reabre pendência; renovação gera valor único.     |
+| **Persistência**  | `membros[]` ou `codigo_acesso`.                                                          |
+| **Saída**         | Organização/vínculo atualizado ou novo código apenas ao administrador.                   |
+| **Erros**         | 404 código/organização; 409 vínculo incompatível; 403 sem papel.                         |
 
-## RF-ORG-07 — Entrar por código e renovar código
+### RF-ORG-08 — Convidar e responder convite
 
-`POST /organizacoes/entrar` recebe `{codigo}`; `POST /organizacoes/:id/codigo` renova o código para administrador aprovado. O código tem 10 caracteres, é único e oculto em consultas comuns. Entrada só encontra organização `APROVADA` e cria/reabre vínculo `PENDENTE`.
+| Item              | Especificação                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| **Entrada**       | E-mail em `POST /organizacoes/:id/convites`; `{aceitar}` em `PATCH /organizacoes/:id/convite`. |
+| **Pré-condições** | Organização aprovada; convite por admin aprovado; alvo ativo e comum.                          |
+| **Processamento** | Cria `CONVIDADO`; resposta aceita como `APROVADO` ou remove o vínculo.                         |
+| **Persistência**  | `organizacoes.membros[]`.                                                                      |
+| **Saída**         | Organização atualizada.                                                                        |
+| **Erros**         | 404 usuário/convite; 409 estado ou vínculo; 403 sem autorização.                               |
 
-## RF-ORG-08 — Convidar e responder convite
+### RF-ORG-09 — Gerenciar status e papel do membro
 
-`POST /organizacoes/:id/convites` recebe `{email}` e cria vínculo `CONVIDADO` para usuário comum ativo. `PATCH /organizacoes/:id/convite` recebe `{aceitar}`; aceitar muda para `APROVADO`, recusar remove o subdocumento.
+| Item              | Especificação                                                                   |
+| ----------------- | ------------------------------------------------------------------------------- |
+| **Entrada**       | `status=APROVADO                                                                | REJEITADO`ou`papel=ADMIN | MEMBRO` nas rotas de membro. |
+| **Pré-condições** | Solicitante `ADMIN/APROVADO`; alvo no estado permitido.                         |
+| **Processamento** | Atualiza com filtro do estado original; impede rebaixar o último administrador. |
+| **Persistência**  | `membros.$.status`, `papel` e `aprovado_em`.                                    |
+| **Saída**         | Organização atualizada.                                                         |
+| **Erros**         | 400 transição inválida; 403 permissão; 404 alvo; 409 concorrência.              |
 
-## RF-ORG-09 — Promover ou rebaixar administrador
+## Rastreabilidade
 
-`PATCH /organizacoes/:id/membros/:usuarioId/papel` recebe `ADMIN` ou `MEMBRO`. O alvo precisa estar aprovado e a atualização recusa rebaixar o último administrador.
-
----
+RF-ORG-01 a RF-ORG-09 correspondem a UC-ORG-01 a UC-ORG-09 e aos testes CT-ORG.

@@ -1,78 +1,117 @@
 # Casos de uso — Configurações de usuário
 
+> Padrão do Incremento 1 · Fonte: FRONTEND `homolog` (`792fab4`) e BACKEND `homolog` (`6f2ffc4`)
+
+## Resumo
+
+Este documento descreve a alteração de perfil, e-mail, senha e tema, a recuperação de conta por código e o encerramento local da sessão. O fluxo de recuperação não utiliza links, `localhost` nem IP do computador.
+
+## Diagrama geral
+
 ```mermaid
 flowchart LR
-    V[Visitante] --> UC4((UC-CFG-04\nRecuperar conta))
-    U[Usuário autenticado] --> UC1((UC-CFG-01\nAlterar perfil))
-    U --> UC2((UC-CFG-02\nTrocar e-mail))
-    U --> UC3((UC-CFG-03\nTrocar senha))
-    U --> UC5((UC-CFG-05\nEscolher tema))
-    U --> UC6((UC-CFG-06\nSair da conta))
-    SO[Sistema operacional] -. confirma identidade .-> UC2
-    SO -. confirma identidade .-> UC3
-    SO -. confirma identidade quando disponível .-> UC4
-    MAIL[Serviço de e-mail] -. entrega código .-> UC2
-    MAIL -. entrega código .-> UC4
+    U[Usuário autenticado] --> UC01((UC-CFG-01\nAlterar perfil))
+    U --> UC02((UC-CFG-02\nTrocar e-mail))
+    U --> UC03((UC-CFG-03\nTrocar senha))
+    V[Visitante] --> UC04((UC-CFG-04\nRecuperar conta))
+    U --> UC05((UC-CFG-05\nEscolher tema))
+    U --> UC06((UC-CFG-06\nSair da conta))
+    E[Serviço de e-mail] -. código .-> UC02
+    E -. código .-> UC04
+    SO[Sistema operacional] -. autenticação local .-> UC02
+    SO -. autenticação local .-> UC03
 ```
 
-## UC-CFG-01 — Alterar nome do perfil
+## Resumo dos casos de uso
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Usuário autenticado |
-| Gatilho | Selecionar **Perfil** e alterar o nome |
-| Pré-condições | JWT válido; conta ativa; perfil carregado por `GET /usuarios/me` |
-| Fluxo principal | 1. `TelaPerfil` exibe nome e e-mail. 2. O usuário altera o nome. 3. `react-hook-form` valida ao menos 3 caracteres na interface. 4. A tela envia `PATCH /usuarios/me` com `{nome}`. 5. O backend aceita ao menos 2 caracteres, grava `usuarios.nome` e retorna o perfil. 6. A sessão é atualizada sem trocar de tela. |
-| Alternativas | Entrada inválida: formulário não envia. JWT inválido: `401` e sessão local removida. Conta inexistente: `404`. |
-| Pós-condições | `usuarios.nome` e `atualizado_em` alterados; cabeçalhos que usam a sessão exibem o novo nome. |
+| ID        | Nome            | Ator principal      | Resultado                               |
+| --------- | --------------- | ------------------- | --------------------------------------- |
+| UC-CFG-01 | Alterar perfil  | Usuário autenticado | Nome atualizado na mesma tela.          |
+| UC-CFG-02 | Trocar e-mail   | Usuário autenticado | Novo e-mail confirmado por código.      |
+| UC-CFG-03 | Trocar senha    | Usuário autenticado | Hash da senha alterado.                 |
+| UC-CFG-04 | Recuperar conta | Visitante           | Nova senha definida por código e token. |
+| UC-CFG-05 | Escolher tema   | Usuário autenticado | Tema aplicado e sincronizado.           |
+| UC-CFG-06 | Sair da conta   | Usuário autenticado | Token local removido.                   |
 
-## UC-CFG-02 — Trocar e-mail
+## Especificações
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Usuário autenticado |
-| Atores secundários | Sistema operacional e serviço de e-mail |
-| Pré-condições | JWT válido; novo e-mail diferente e ainda não usado |
-| Fluxo principal | 1. Ao abrir a opção E-mail, o app solicita autenticação local quando disponível. 2. O usuário informa o novo endereço. 3. `POST /usuarios/me/email/solicitar` gera código de 7 caracteres, guarda apenas SHA-256 e envia ao novo endereço. 4. O usuário informa o código. 5. `POST /usuarios/me/email/confirmar` valida e altera `usuarios.email`. 6. A sessão recarrega o perfil. |
-| Alternativas | E-mail atual ou duplicado: `400`. Código incorreto/expirado: `400`. Envio SMTP falha: a API devolve erro. |
-| Pós-condições | E-mail normalizado e confirmado; campos pendentes removidos. |
+### UC-CFG-01 — Alterar perfil
 
-## UC-CFG-03 — Trocar senha autenticada
+| Campo                       | Especificação                                                                                                                                                                                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Alterar o nome e refletir o resultado sem trocar de tela.                                                                                                                                                                    |
+| **Ator principal**          | Usuário autenticado.                                                                                                                                                                                                         |
+| **Gatilho**                 | Selecionar **Salvar** no perfil.                                                                                                                                                                                             |
+| **Pré-condições**           | JWT válido; perfil carregado por `GET /usuarios/me`.                                                                                                                                                                         |
+| **Fluxo principal**         | 1. A tela carrega nome e e-mail.<br>2. O usuário altera o nome.<br>3. `react-hook-form` valida.<br>4. O app envia `PATCH /usuarios/me`.<br>5. O backend grava e retorna o perfil.<br>6. A sessão é atualizada na mesma tela. |
+| **Alternativas e exceções** | Entrada inválida não é enviada. Token inválido: 401 e sessão local limpa. Usuário ausente: 404.                                                                                                                              |
+| **Pós-condições**           | `usuarios.nome` e `atualizado_em` alterados.                                                                                                                                                                                 |
+| **Rastreabilidade**         | RF-CFG-01 · SD-CFG-01 · CT-CFG-01/02.                                                                                                                                                                                        |
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Usuário autenticado com senha local |
-| Pré-condições | JWT válido; autenticação local concluída quando disponível; senha local existente |
-| Fluxo principal | 1. O usuário informa senha atual, nova senha e confirmação. 2. O app valida mínimo de 8 caracteres e igualdade da confirmação. 3. Envia `PATCH /usuarios/me/senha`. 4. O serviço compara a atual e impede repetição. 5. Grava novo hash bcrypt com custo 10. |
-| Alternativas | Conta somente Google: orienta usar recuperação. Senha atual errada ou nova igual: `400`. |
-| Pós-condições | `usuarios.senha_hash` e `atualizado_em` alterados. A sessão atual permanece ativa. |
+### UC-CFG-02 — Trocar e-mail
 
-## UC-CFG-04 — Recuperar conta
+| Campo                       | Especificação                                                                                                                                                                                                                                                                                                       |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Alterar endereço somente após confirmar código no novo e-mail.                                                                                                                                                                                                                                                      |
+| **Ator principal**          | Usuário autenticado.                                                                                                                                                                                                                                                                                                |
+| **Atores secundários**      | Sistema operacional e serviço de e-mail.                                                                                                                                                                                                                                                                            |
+| **Gatilho**                 | Abrir **E-mail** nas configurações.                                                                                                                                                                                                                                                                                 |
+| **Pré-condições**           | JWT válido; endereço diferente e disponível.                                                                                                                                                                                                                                                                        |
+| **Fluxo principal**         | 1. O app solicita autenticação local quando disponível.<br>2. Envia `POST /usuarios/me/email/solicitar`.<br>3. O backend grava hash SHA-256 do código e expiração e envia o e-mail.<br>4. O usuário informa o código.<br>5. `POST /usuarios/me/email/confirmar` altera o e-mail.<br>6. A sessão recarrega o perfil. |
+| **Alternativas e exceções** | Sem biometria configurada, o app continua. E-mail atual/duplicado ou código inválido/expirado: 400. Falha SMTP: erro informado.                                                                                                                                                                                     |
+| **Pós-condições**           | E-mail normalizado e campos pendentes removidos.                                                                                                                                                                                                                                                                    |
+| **Rastreabilidade**         | RF-CFG-02 · SD-CFG-02 · CT-CFG-03/04.                                                                                                                                                                                                                                                                               |
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Visitante |
-| Atores secundários | Serviço de e-mail e sistema operacional |
-| Pré-condições | Acesso à tela pública e à caixa postal da conta |
-| Fluxo principal | 1. O visitante informa o e-mail. 2. `POST /auth/recuperar-conta` gera e envia código de 7 caracteres válido por 30 minutos. 3. `POST /auth/verificar-recuperacao` troca o código correto por token aleatório de 32 bytes. 4. O app solicita autenticação local quando disponível. 5. O visitante informa e confirma nova senha. 6. `POST /auth/redefinir-senha` valida o hash do token e grava bcrypt. |
-| Alternativas | E-mail inexistente recebe a mesma mensagem genérica. Código/token inválido ou expirado: `400`. |
-| Pós-condições | Código e token inutilizados; nova senha persistida. O usuário ainda precisa entrar. |
+### UC-CFG-03 — Trocar senha
 
-## UC-CFG-05 — Escolher tema
+| Campo                       | Especificação                                                                                                                                                                                                                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Trocar senha de conta local mediante senha atual.                                                                                                                                                                                                     |
+| **Ator principal**          | Usuário autenticado com senha local.                                                                                                                                                                                                                  |
+| **Atores secundários**      | Sistema operacional, quando há autenticação local disponível.                                                                                                                                                                                         |
+| **Gatilho**                 | Abrir **Senha** e salvar.                                                                                                                                                                                                                             |
+| **Pré-condições**           | JWT válido e `senha_hash` existente.                                                                                                                                                                                                                  |
+| **Fluxo principal**         | 1. O usuário informa senha atual, nova e confirmação.<br>2. O app valida mínimo de oito e igualdade.<br>3. Envia `PATCH /usuarios/me/senha`.<br>4. O backend compara a atual, impede repetição e grava bcrypt custo 10.<br>5. A tela informa sucesso. |
+| **Alternativas e exceções** | Conta só Google orienta recuperação. Senha atual errada ou nova igual: 400.                                                                                                                                                                           |
+| **Pós-condições**           | Novo hash persistido; JWT atual continua válido.                                                                                                                                                                                                      |
+| **Rastreabilidade**         | RF-CFG-03 · SD-CFG-03 · CT-CFG-05/06.                                                                                                                                                                                                                 |
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Usuário autenticado |
-| Pré-condições | Perfil carregado |
-| Fluxo principal | 1. Usuário escolhe `sistema`, `claro` ou `escuro`. 2. A interface aplica a escolha imediatamente e grava no SecureStore/localStorage. 3. Envia `PATCH /usuarios/me` com `{tema}`. 4. Em sucesso, mantém a escolha. |
-| Alternativa | Se a API falhar, a tela restaura a preferência anterior e informa o erro. |
-| Pós-condições | Preferência sincronizada entre armazenamento local e `usuarios.tema`. |
+### UC-CFG-04 — Recuperar conta
 
-## UC-CFG-06 — Sair da conta
+| Campo                       | Especificação                                                                                                                                                                                                                                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Redefinir senha com código digitado no aplicativo, sem link externo.                                                                                                                                                                                                                                                    |
+| **Ator principal**          | Visitante.                                                                                                                                                                                                                                                                                                              |
+| **Atores secundários**      | Serviço de e-mail.                                                                                                                                                                                                                                                                                                      |
+| **Gatilho**                 | Selecionar **Esqueci minha senha**.                                                                                                                                                                                                                                                                                     |
+| **Pré-condições**           | Acesso à caixa postal da conta.                                                                                                                                                                                                                                                                                         |
+| **Fluxo principal**         | 1. Informa e-mail em `POST /auth/recuperar-conta`.<br>2. Recebe código de sete caracteres válido por 30 minutos.<br>3. Envia código a `POST /auth/verificar-recuperacao` e recebe token de uso único.<br>4. Informa nova senha.<br>5. `POST /auth/redefinir-senha` valida o token e grava bcrypt.<br>6. Volta ao login. |
+| **Alternativas e exceções** | E-mail inexistente recebe resposta genérica. Código ou token inválido/expirado: 400.                                                                                                                                                                                                                                    |
+| **Pós-condições**           | Código e token inutilizados; nova senha persistida.                                                                                                                                                                                                                                                                     |
+| **Rastreabilidade**         | RF-CFG-04 · SD-CFG-04 · CT-CFG-07/08/14.                                                                                                                                                                                                                                                                                |
 
-| Campo | Especificação |
-|---|---|
-| Ator principal | Usuário autenticado |
-| Fluxo principal | 1. Usuário seleciona **Sair da conta**. 2. `SessaoContext.sair()` remove o JWT do SecureStore/localStorage e limpa o usuário em memória. 3. As rotas protegidas deixam de existir na pilha e o login é exibido. |
-| Pós-condições | Não há token local. O JWT emitido não é revogado no servidor e expira naturalmente em 1 hora. |
+### UC-CFG-05 — Escolher tema
 
+| Campo                       | Especificação                                                                                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Aplicar `sistema`, `claro` ou `escuro` e sincronizar a preferência.                                                                                                     |
+| **Ator principal**          | Usuário autenticado.                                                                                                                                                    |
+| **Gatilho**                 | Selecionar uma opção de tema.                                                                                                                                           |
+| **Pré-condições**           | Perfil carregado.                                                                                                                                                       |
+| **Fluxo principal**         | 1. A interface aplica a opção imediatamente.<br>2. Salva no SecureStore/localStorage.<br>3. Envia `PATCH /usuarios/me` com `tema`.<br>4. Mantém a escolha após sucesso. |
+| **Alternativas e exceções** | Se a API falhar, restaura o tema anterior e informa o erro.                                                                                                             |
+| **Pós-condições**           | Preferência local e `usuarios.tema` sincronizados.                                                                                                                      |
+| **Rastreabilidade**         | RF-CFG-05 · SD-CFG-05 · CT-CFG-09/10.                                                                                                                                   |
+
+### UC-CFG-06 — Sair da conta
+
+| Campo                       | Especificação                                                                                                                                                                                 |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Resumo**                  | Encerrar a sessão no aparelho.                                                                                                                                                                |
+| **Ator principal**          | Usuário autenticado.                                                                                                                                                                          |
+| **Gatilho**                 | Selecionar **Sair da conta**.                                                                                                                                                                 |
+| **Pré-condições**           | Sessão local existente.                                                                                                                                                                       |
+| **Fluxo principal**         | 1. `SessaoContext.sair()` remove o JWT do SecureStore/localStorage.<br>2. Limpa o usuário em memória.<br>3. O roteamento protegido deixa de ser renderizado.<br>4. A tela de login é exibida. |
+| **Alternativas e exceções** | Falha de remoção local deve limpar ao menos o estado em memória e impedir acesso protegido.                                                                                                   |
+| **Pós-condições**           | Sem token local; JWT do servidor expira naturalmente em uma hora.                                                                                                                             |
+| **Rastreabilidade**         | RF-CFG-06 · SD-CFG-06 · CT-CFG-11.                                                                                                                                                            |

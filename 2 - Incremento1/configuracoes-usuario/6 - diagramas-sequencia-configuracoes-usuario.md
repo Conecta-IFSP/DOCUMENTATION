@@ -1,8 +1,14 @@
 # Diagramas de sequência — Configurações de usuário
 
+> Padrão do Incremento 1 · Módulo CFG
+
+## Resumo
+
+Mostra os fluxos entre telas Expo, contexts, controllers, services, MongoDB e e-mail.
+
 Os participantes abaixo correspondem a componentes e métodos existentes.
 
-## SD-CFG-01 — Alterar nome e tema
+## SD-CFG-01 — Alterar perfil
 
 ```mermaid
 sequenceDiagram
@@ -148,7 +154,32 @@ sequenceDiagram
     S-->>T: sucesso
 ```
 
-## SD-CFG-05 — Encerrar sessão
+## SD-CFG-05 — Escolher tema
+
+```mermaid
+sequenceDiagram
+    actor U as Usuário
+    participant T as TelaPerfil
+    participant TC as TemaContext
+    participant SS as SecureStore
+    participant A as api()
+    participant C as UsuariosController
+    participant S as UsuariosService
+    participant M as UsuarioModel
+    U->>T: seleciona sistema, claro ou escuro
+    T->>TC: definirPreferencia(novoTema)
+    TC->>SS: setItemAsync('conecta_mais_tema', novoTema)
+    T->>A: PATCH /usuarios/me {tema}
+    A->>C: atualizarMeuPerfil(dto)
+    C->>S: atualizarPerfil(usuarioId, dto)
+    S->>M: findByIdAndUpdate({tema})
+    alt API falha
+        T->>TC: definirPreferencia(temaAnterior)
+        TC->>SS: restaura armazenamento
+    end
+```
+
+## SD-CFG-06 — Encerrar sessão
 
 ```mermaid
 sequenceDiagram
@@ -164,4 +195,3 @@ sequenceDiagram
     S->>R: renderiza com guard=false
     R-->>U: exibe login
 ```
-

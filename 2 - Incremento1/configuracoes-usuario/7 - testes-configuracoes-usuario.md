@@ -1,42 +1,30 @@
 # Testes — Configurações de usuário
 
-## Ambiente da revisão
+> Padrão do Incremento 1 · Módulo CFG
 
-| Item | Valor |
-|---|---|
-| Data | 23/10/2026 |
-| Backend | branch `homolog`, commit `6f2ffc4` |
-| Frontend | branch `homolog`, commit `792fab4` |
-| Node.js / npm | 24.11.0 / 11.6.1 |
-| Backend | `npm run build`: aprovado; `npm test`: 13 arquivos, 182 testes aprovados |
-| Frontend | 9 testes Node aprovados; lint sem diagnóstico; typecheck pendente de regeneração das typed routes do Expo |
+## Resumo
 
-## Casos automatizados cobertos pelo código atual
+Registra evidência executada e cenários manuais no formato comum do Incremento 1.
 
-| Código | Requisito | Cenário | Resultado esperado |
-|---|---|---|---|
-| CT-CFG-01 | RF-CFG-01 | `GET /usuarios/me` com JWT válido | retorna somente o próprio perfil |
-| CT-CFG-02 | RF-CFG-01 | atualizar nome/tema | persiste campos permitidos; e-mail direto é recusado |
-| CT-CFG-03 | RF-CFG-02 | solicitar e confirmar e-mail | grava campos temporários, valida código e efetiva o novo endereço |
-| CT-CFG-04 | RF-CFG-03 | senha atual errada/igual/nova válida | dois erros `400`; cenário válido grava novo hash |
-| CT-CFG-05 | RF-CFG-04 | recuperar e-mail existente e inexistente | mesma mensagem externa nos dois cenários |
-| CT-CFG-06 | RF-CFG-04 | código correto, incorreto e expirado | somente correto produz token e consome código |
-| CT-CFG-07 | RF-CFG-04 | redefinir com token válido/expirado | válido altera senha e consome token; expirado falha |
-| CT-CFG-08 | RNF-CFG-12 | `401` em rota protegida | remove sessão e notifica navegação |
-| CT-CFG-09 | RNF-CFG-12 | `403` ou `500` | mantém sessão local |
-| CT-CFG-10 | RNF-CFG-12 | resposta `401` de requisição antiga | não remove token de uma sessão mais nova |
+## Evidência automatizada
 
-## Roteiro manual obrigatório
+| Data       | Projeto/branch               | Comando         | Resultado                          | Arquivos relacionados                              |
+| ---------- | ---------------------------- | --------------- | ---------------------------------- | -------------------------------------------------- |
+| 23/10/2026 | BACKEND `homolog` `6f2ffc4`  | `npm test`      | 13 arquivos e 182 testes aprovados | `auth.service.spec.ts`, `usuarios.service.spec.ts` |
+| 23/10/2026 | BACKEND `homolog`            | `npm run build` | Aprovado                           | TypeScript/NestJS                                  |
+| 23/10/2026 | FRONTEND `homolog` `792fab4` | testes Node     | 9 testes aprovados                 | sessão/API e horários                              |
 
-| Código | Ambiente | Passos | Critério de aprovação | Resultado desta revisão |
-|---|---|---|---|---|
-| CT-CFG-11 | Android com biometria | abrir E-mail e Senha pelo perfil | sistema solicita biometria/PIN antes de navegar | Não executado |
-| CT-CFG-12 | Android sem biometria | repetir fluxo | ação continua usando a sessão JWT, sem travar | Não executado |
-| CT-CFG-13 | Android/web | escolher cada tema e simular erro da API | tema muda imediatamente; no erro volta ao anterior | Não executado |
-| CT-CFG-14 | Android | recuperação completa pelo código | não usa link/localhost; código leva à nova senha | Não executado |
-| CT-CFG-15 | Android | focar todos os campos com teclado aberto | campo e ação atual permanecem alcançáveis | Não executado |
-| CT-CFG-16 | sessão autenticada | trocar senha | senha muda, mas sessão permanece ativa | Comportamento conhecido; recomendação de logout não implementada |
+## Matriz de testes manuais
 
-## Pendência de qualidade
+| ID        | Requisito | Cenário/entrada                         | Resultado esperado                                        | Situação                         |
+| --------- | --------- | --------------------------------------- | --------------------------------------------------------- | -------------------------------- |
+| CT-CFG-01 | RF-CFG-01 | Alterar nome sem trocar de tela         | Cabeçalho e formulário atualizados imediatamente.         | Pendente em aparelho.            |
+| CT-CFG-02 | RF-CFG-02 | Solicitar e confirmar novo e-mail       | Só muda após código correto; duplicado/expirado recusado. | Coberto no backend; UI pendente. |
+| CT-CFG-03 | RF-CFG-03 | Trocar senha atual/correta/incorreta    | Hash muda apenas com senha atual válida e nova diferente. | Coberto no backend; UI pendente. |
+| CT-CFG-04 | RF-CFG-04 | Recuperar por código no celular         | Fluxo termina sem link, `localhost` ou IP.                | Teste Expo Go pendente.          |
+| CT-CFG-05 | RF-CFG-05 | Alterar tema com sucesso/falha simulada | Mantém em sucesso e restaura em falha.                    | Pendente em aparelho.            |
+| CT-CFG-06 | RF-CFG-06 | Sair e tentar voltar à rota privada     | Token removido e login exibido.                           | Pendente em aparelho.            |
 
-O `npm run typecheck` do frontend encontrou referências de rota ausentes no arquivo gerado de typed routes. O código não foi alterado nesta revisão; antes de declarar o frontend aprovado, deve-se regenerar `.expo/types` pela ferramenta Expo e repetir o comando.
+## Pendências
+
+Executar CT-CFG-01 a CT-CFG-06 em Expo Go/Android; o typecheck do frontend ainda depende de regenerar as rotas tipadas do Expo.

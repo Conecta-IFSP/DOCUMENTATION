@@ -1,5 +1,11 @@
 # Dicionário de classes — Configurações de usuário
 
+> Padrão do Incremento 1 · Módulo CFG
+
+## Resumo
+
+Explica responsabilidades, operações e dependências das classes exibidas no diagrama.
+
 ## `Usuario`
 
 Schema Mongoose da coleção `usuarios`. Os campos sensíveis marcados com `select: false` só são lidos explicitamente pelo service responsável.

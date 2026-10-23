@@ -1,4 +1,10 @@
-# Diagrama de Classes
+# Diagrama de classes — Informações do sistema
+
+> Padrão do Incremento 1 · Módulo SIS
+
+## Resumo
+
+Representa `SistemaController`, `SistemaService` e as coleções reutilizadas pelo módulo.
 
 ```mermaid
 classDiagram

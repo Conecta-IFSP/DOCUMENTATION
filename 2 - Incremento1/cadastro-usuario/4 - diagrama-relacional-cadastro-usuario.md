@@ -1,4 +1,10 @@
-# Diagrama Relacional - Cadastro e Gestão de Usuários
+# Diagrama relacional — Cadastro de usuário
+
+> Padrão do Incremento 1 · Módulo USR · Visão lógica sobre MongoDB
+
+## Resumo
+
+Representa usuários, organizações e vínculos embutidos em forma relacional para explicitar chaves e cardinalidades.
 
 > **Projeto:** Conecta+  
 > **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros  

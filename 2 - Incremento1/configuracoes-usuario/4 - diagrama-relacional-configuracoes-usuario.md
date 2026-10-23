@@ -1,5 +1,11 @@
 # Diagrama relacional — Configurações de usuário
 
+> Padrão do Incremento 1 · Módulo CFG · Visão lógica sobre MongoDB
+
+## Resumo
+
+Representa os campos persistentes e temporários da conta usados nas alterações e recuperações.
+
 O MongoDB armazena todo o módulo em um único documento da coleção `usuarios`. O diagrama abaixo separa grupos lógicos de campos apenas para leitura; não existem tabelas físicas de recuperação ou troca de e-mail.
 
 ```mermaid
@@ -37,4 +43,3 @@ erDiagram
 - Códigos e tokens em texto não são persistidos; somente SHA-256.
 - A senha é persistida apenas como bcrypt.
 - Os grupos temporários são apagados após uso; não representam histórico.
-

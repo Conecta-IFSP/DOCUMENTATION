@@ -1,14 +1,22 @@
-# Requisitos Não Funcionais - Cadastro de Organização
+# Requisitos não funcionais — Cadastro de organização
 
-| Código | Descrição |
-|---|---|
-| RNF-01 | As rotas de organização exigem token válido, e o papel e a situação da conta são conferidos a cada requisição: conta desativada perde o acesso na requisição seguinte |
-| RNF-02 | Autorizar, revogar, editar e excluir exigem `ADMIN_SISTEMA`, verificado no servidor e não apenas escondendo opções na tela (`AdminSistemaGuard`) |
-| RNF-03 | O cadastro de organização é recusado para `ADMIN_SISTEMA`, que administra a plataforma e não participa de organizações (`UsuarioComumGuard`) |
-| RNF-04 | Alterações simultâneas na mesma organização não corrompem os dados: em conflito, o sistema recusa a operação e pede para atualizar a tela |
-| RNF-05 | Revogação e exclusão, por serem irreversíveis, exigem confirmação explícita antes de executar |
-| RNF-06 | A listagem de organizações devolve apenas os campos usados na tela, mantendo a resposta rápida na tela de gestão |
+> Padrão do Incremento 1 · Módulo ORG
 
-**Válidos para toda a plataforma**, e por isso não repetidos aqui: mensagens em português junto do campo ou da ação, tema claro e escuro com alvos de toque de no mínimo 44 pontos, mesmo código-fonte em Android e iOS, campos em snake_case no banco e na API, e regras cobertas por testes automatizados.
+## Resumo
 
-**Fora do escopo:** privacidade e gestão dos dados de membros, tratadas no requisito de cadastro de usuário, e reinicialização de subsistemas, tratada no requisito de informações do sistema.
+Os requisitos abaixo usam o mesmo formato verificável dos demais módulos.
+
+## Requisitos
+
+| ID         | Qualidade             | Critério e medida                                                                      | Condição                                         | Verificação/evidência                              | Situação                             |
+| ---------- | --------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------- | ------------------------------------ |
+| RNF-ORG-01 | Segurança             | Todas as rotas exigem chave da API e JWT; tipo, conta e papel são revalidados.         | Qualquer operação.                               | Guards globais, guards do módulo e testes 401/403. | Atendido.                            |
+| RNF-ORG-02 | Autorização           | Apenas `ADMIN_SISTEMA` altera situação ou exclui; apenas admin aprovado gere vínculos. | Operações administrativas.                       | Inspeção de controllers/services e testes.         | Atendido.                            |
+| RNF-ORG-03 | Integridade           | Nome e código são únicos; organização mantém ao menos um admin aprovado.               | Cadastro, renovação e alteração de papel.        | Índices/consultas e testes de último admin.        | Atendido.                            |
+| RNF-ORG-04 | Concorrência          | Estado alterado por outra requisição gera 409 em vez de sobrescrita.                   | Análise de vínculo e outras mutações protegidas. | Filtros de estado em `findOneAndUpdate()`.         | Atendido.                            |
+| RNF-ORG-05 | Segurança operacional | Revogação e exclusão exigem confirmação explícita no app.                              | Ações destrutivas.                               | Roteiro manual CT-ORG.                             | Verificação manual pendente.         |
+| RNF-ORG-06 | Desempenho            | Busca deve responder em até 2 s em condição normal de desenvolvimento.                 | Até 100 organizações.                            | Medição via Postman/DevTools.                      | Critério proposto; medição pendente. |
+
+## Rastreabilidade
+
+Aplica-se a RF-ORG-01 a RF-ORG-09 e CT-ORG-01 a CT-ORG-09.

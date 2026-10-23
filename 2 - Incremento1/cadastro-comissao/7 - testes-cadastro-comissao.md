@@ -1,18 +1,29 @@
-# Testes — Comissões
+# Testes — Cadastro de comissão
 
-Em 23/10/2026, `npm test` no backend `6f2ffc4` aprovou 182 testes; os arquivos `comissoes.service.spec.ts`, `comissoes.controller.spec.ts` e `comissoes.regras.spec.ts` fazem parte da execução.
+> Padrão do Incremento 1 · Módulo COM
 
-| Código | Regra verificada | Resultado esperado |
-|---|---|---|
-| CT-COM-01 | criação por administrador com responsável elegível | ativa, um `RESPONSAVEL` |
-| CT-COM-02 | criação sem permissão/alvo inelegível | `400/403` sem gravação |
-| CT-COM-03 | listar por vínculo | admin vê todas da organização; membro só as próprias |
-| CT-COM-04 | impedir zero ou vários responsáveis | validação recusa estado inválido |
-| CT-COM-05 | substituir responsável | alvo promovido e anterior rebaixado em uma gravação |
-| CT-COM-06 | impedir remoção do responsável | `400`, exige substituição anterior |
-| CT-COM-07 | concorrência na equipe | compare-and-swap devolve `409` |
-| CT-COM-08 | desativar e reativar | equipe preservada; gestão bloqueada enquanto inativa |
+## Resumo
 
-## Roteiro manual pendente
+Registra evidência executada e cenários manuais no formato comum do Incremento 1.
 
-Em Android e iOS: criar comissão escolhendo organização e responsável, abrir detalhe em tela pequena, adicionar/remover membro, substituir responsável, cancelar e confirmar desativação. Registrar dispositivo, versão do sistema, passos e capturas; esta revisão não executou o roteiro em aparelho.
+## Evidência automatizada
+
+| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                                                                   |
+| ---------- | --------------------------- | --------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `comissoes.controller.spec.ts`, `comissoes.service.spec.ts`, `comissoes.regras.spec.ts` |
+| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                       |
+
+## Matriz de testes manuais
+
+| ID        | Requisito       | Cenário/entrada                             | Resultado esperado                                      | Situação                         |
+| --------- | --------------- | ------------------------------------------- | ------------------------------------------------------- | -------------------------------- |
+| CT-COM-01 | RF-COM-01/02    | Listar e abrir comissão permitida           | Lista e detalhes exibidos; acesso alheio recusado.      | Pendente em aparelho.            |
+| CT-COM-02 | RF-COM-03       | Criar com responsável aprovado              | Comissão ativa com exatamente um responsável.           | Pendente em aparelho.            |
+| CT-COM-03 | RF-COM-04/05/06 | Editar, desativar e reativar                | Dados e situação atualizados; equipe preservada.        | Pendente em aparelho.            |
+| CT-COM-04 | RF-COM-07       | Adicionar membro aprovado e repetir         | Primeira inclusão funciona; repetição retorna conflito. | Coberto no backend; UI pendente. |
+| CT-COM-05 | RF-COM-08       | Substituir responsável                      | Novo promovido e anterior rebaixado na mesma resposta.  | Coberto no backend; UI pendente. |
+| CT-COM-06 | RF-COM-09       | Tentar remover responsável e remover membro | Responsável recusado; membro removido após confirmação. | Coberto no backend; UI pendente. |
+
+## Pendências
+
+Executar o roteiro no Expo Go/Android e registrar data, aparelho e resultado obtido.

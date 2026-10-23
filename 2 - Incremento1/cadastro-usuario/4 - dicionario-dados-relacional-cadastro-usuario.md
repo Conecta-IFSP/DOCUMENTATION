@@ -1,4 +1,10 @@
-# Dicionário de Dados - Modelo Relacional
+# Dicionário relacional — Cadastro de usuário
+
+> Padrão do Incremento 1 · Módulo USR
+
+## Resumo
+
+Detalha os campos e domínios da visão lógica de usuários, organizações e membros e sua correspondência com MongoDB.
 
 > **Projeto:** Conecta+  
 > **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros  
@@ -9,31 +15,31 @@
 
 ## Visão Geral
 
-| Tabela | Descrição |
-|---|---|
-| `usuario` | Armazena os usuários cadastrados na plataforma. |
-| `organizacao` | Representa as organizações cadastradas no sistema. |
+| Tabela               | Descrição                                                |
+| -------------------- | -------------------------------------------------------- |
+| `usuario`            | Armazena os usuários cadastrados na plataforma.          |
+| `organizacao`        | Representa as organizações cadastradas no sistema.       |
 | `membro_organizacao` | Representa o vínculo entre um usuário e uma organização. |
 
 > No banco MongoDB real, `membro_organizacao` é armazenado como um subdocumento dentro de `organizacao.membros[]`. Neste documento ele é representado como uma tabela associativa para facilitar a compreensão do modelo relacional.
 
 ---
 
-# 1. Tabela `usuario`
+## 1. Tabela `usuario`
 
 Representa as contas cadastradas na plataforma.
 
-| Campo | Tipo | Chave | Nulo | Default | Descrição |
-|---|---|---|---|---|---|
-| `_id` | `ObjectId` | PK | Não | Automático | Identificador único do usuário. |
-| `nome` | `String` | - | Não | - | Nome do usuário. |
-| `email` | `String` | UK | Não | - | E-mail do usuário. Deve ser único e é armazenado em letras minúsculas. |
-| `senha_hash` | `String` | - | Não | - | Hash da senha do usuário. |
-| `tipo` | `TipoUsuario` | - | Não | `USUARIO` | Tipo global do usuário na plataforma. |
-| `tema` | `TemaUsuario` | - | Não | `sistema` | Preferência de tema da interface. |
-| `ativo` | `Boolean` | - | Não | `true` | Indica se a conta está ativa. |
-| `criado_em` | `Date` | - | Não | Automático | Data e hora de criação da conta. |
-| `atualizado_em` | `Date` | - | Não | Automático | Data e hora da última atualização. |
+| Campo           | Tipo          | Chave | Nulo | Default    | Descrição                                                              |
+| --------------- | ------------- | ----- | ---- | ---------- | ---------------------------------------------------------------------- |
+| `_id`           | `ObjectId`    | PK    | Não  | Automático | Identificador único do usuário.                                        |
+| `nome`          | `String`      | -     | Não  | -          | Nome do usuário.                                                       |
+| `email`         | `String`      | UK    | Não  | -          | E-mail do usuário. Deve ser único e é armazenado em letras minúsculas. |
+| `senha_hash`    | `String`      | -     | Não  | -          | Hash da senha do usuário.                                              |
+| `tipo`          | `TipoUsuario` | -     | Não  | `USUARIO`  | Tipo global do usuário na plataforma.                                  |
+| `tema`          | `TemaUsuario` | -     | Não  | `sistema`  | Preferência de tema da interface.                                      |
+| `ativo`         | `Boolean`     | -     | Não  | `true`     | Indica se a conta está ativa.                                          |
+| `criado_em`     | `Date`        | -     | Não  | Automático | Data e hora de criação da conta.                                       |
+| `atualizado_em` | `Date`        | -     | Não  | Automático | Data e hora da última atualização.                                     |
 
 ### Restrições
 
@@ -46,19 +52,19 @@ Representa as contas cadastradas na plataforma.
 
 ---
 
-# 2. Tabela `organizacao`
+## 2. Tabela `organizacao`
 
 Representa uma organização cadastrada na plataforma.
 
-| Campo | Tipo | Chave | Nulo | Default | Descrição |
-|---|---|---|---|---|---|
-| `_id` | `ObjectId` | PK | Não | Automático | Identificador único da organização. |
-| `nome` | `String` | - | Não | - | Nome da organização. |
-| `descricao` | `String` | - | Sim | `NULL` | Descrição opcional da organização. |
-| `status` | `StatusOrganizacao` | - | Não | `PENDENTE` | Situação atual da organização. |
-| `criada_por` | `ObjectId` | FK | Não | - | Referência ao usuário que cadastrou a organização. |
-| `criado_em` | `Date` | - | Não | Automático | Data e hora de criação da organização. |
-| `atualizado_em` | `Date` | - | Não | Automático | Data e hora da última atualização. |
+| Campo           | Tipo                | Chave | Nulo | Default    | Descrição                                          |
+| --------------- | ------------------- | ----- | ---- | ---------- | -------------------------------------------------- |
+| `_id`           | `ObjectId`          | PK    | Não  | Automático | Identificador único da organização.                |
+| `nome`          | `String`            | -     | Não  | -          | Nome da organização.                               |
+| `descricao`     | `String`            | -     | Sim  | `NULL`     | Descrição opcional da organização.                 |
+| `status`        | `StatusOrganizacao` | -     | Não  | `PENDENTE` | Situação atual da organização.                     |
+| `criada_por`    | `ObjectId`          | FK    | Não  | -          | Referência ao usuário que cadastrou a organização. |
+| `criado_em`     | `Date`              | -     | Não  | Automático | Data e hora de criação da organização.             |
+| `atualizado_em` | `Date`              | -     | Não  | Automático | Data e hora da última atualização.                 |
 
 ### Chave estrangeira
 
@@ -78,18 +84,18 @@ organizacao.criada_por → usuario._id
 
 ---
 
-# 3. Tabela `membro_organizacao`
+## 3. Tabela `membro_organizacao`
 
 Representa o relacionamento entre um usuário e uma organização.
 
-| Campo | Tipo | Chave | Nulo | Default | Descrição |
-|---|---|---|---|---|---|
-| `organizacao_id` | `ObjectId` | PK, FK | Não | - | Identificador da organização relacionada ao vínculo. |
-| `usuario_id` | `ObjectId` | PK, FK | Não | - | Identificador do usuário relacionado à organização. |
-| `papel` | `PapelOrganizacao` | - | Não | - | Define o papel do usuário dentro da organização. |
-| `status` | `StatusMembroOrganizacao` | - | Não | `PENDENTE` | Situação do vínculo ou solicitação de acesso. |
-| `solicitado_em` | `Date` | - | Não | Data atual | Data e hora de criação da solicitação ou vínculo. |
-| `aprovado_em` | `Date` | - | Sim | `NULL` | Data e hora em que o vínculo foi aprovado. |
+| Campo            | Tipo                      | Chave  | Nulo | Default    | Descrição                                            |
+| ---------------- | ------------------------- | ------ | ---- | ---------- | ---------------------------------------------------- |
+| `organizacao_id` | `ObjectId`                | PK, FK | Não  | -          | Identificador da organização relacionada ao vínculo. |
+| `usuario_id`     | `ObjectId`                | PK, FK | Não  | -          | Identificador do usuário relacionado à organização.  |
+| `papel`          | `PapelOrganizacao`        | -      | Não  | -          | Define o papel do usuário dentro da organização.     |
+| `status`         | `StatusMembroOrganizacao` | -      | Não  | `PENDENTE` | Situação do vínculo ou solicitação de acesso.        |
+| `solicitado_em`  | `Date`                    | -      | Não  | Data atual | Data e hora de criação da solicitação ou vínculo.    |
+| `aprovado_em`    | `Date`                    | -      | Sim  | `NULL`     | Data e hora em que o vínculo foi aprovado.           |
 
 ### Chave primária composta
 
@@ -122,42 +128,42 @@ membro_organizacao.usuario_id → usuario._id
 
 ---
 
-# 4. Domínio `TipoUsuario`
+## 4. Domínio `TipoUsuario`
 
-| Valor | Descrição |
-|---|---|
-| `USUARIO` | Usuário comum da plataforma. |
+| Valor           | Descrição                           |
+| --------------- | ----------------------------------- |
+| `USUARIO`       | Usuário comum da plataforma.        |
 | `ADMIN_SISTEMA` | Administrador global da plataforma. |
 
 > O administrador de uma organização não é identificado por `ADMIN_SISTEMA`. A administração de uma organização é determinada pelo vínculo em `membro_organizacao`.
 
 ---
 
-# 5. Domínio `TemaUsuario`
+## 5. Domínio `TemaUsuario`
 
-| Valor | Descrição |
-|---|---|
-| `claro` | Interface em tema claro. |
-| `escuro` | Interface em tema escuro. |
+| Valor     | Descrição                                         |
+| --------- | ------------------------------------------------- |
+| `claro`   | Interface em tema claro.                          |
+| `escuro`  | Interface em tema escuro.                         |
 | `sistema` | Utiliza o tema definido pelo sistema operacional. |
 
 ---
 
-# 6. Domínio `StatusOrganizacao`
+## 6. Domínio `StatusOrganizacao`
 
-| Valor | Descrição |
-|---|---|
-| `PENDENTE` | Organização aguardando aprovação. |
-| `APROVADA` | Organização ativa e disponível para solicitações e gestão de membros. |
+| Valor      | Descrição                                                                           |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `PENDENTE` | Organização aguardando aprovação.                                                   |
+| `APROVADA` | Organização ativa e disponível para solicitações e gestão de membros.               |
 | `REVOGADA` | Organização desativada e indisponível para novas solicitações ou gestão de membros. |
 
 ---
 
-# 7. Domínio `PapelOrganizacao`
+## 7. Domínio `PapelOrganizacao`
 
-| Valor | Descrição |
-|---|---|
-| `ADMIN` | Administrador da organização. |
+| Valor    | Descrição                                                    |
+| -------- | ------------------------------------------------------------ |
+| `ADMIN`  | Administrador da organização.                                |
 | `MEMBRO` | Usuário comum vinculado ou solicitando acesso à organização. |
 
 Para ser considerado administrador ativo da organização, o vínculo deve possuir:
@@ -169,13 +175,14 @@ status = APROVADO
 
 ---
 
-# 8. Domínio `StatusMembroOrganizacao`
+## 8. Domínio `StatusMembroOrganizacao`
 
-| Valor | Descrição |
-|---|---|
-| `PENDENTE` | Solicitação aguardando análise do administrador. |
-| `APROVADO` | Usuário autorizado a participar da organização. |
-| `REJEITADO` | Solicitação recusada pelo administrador da organização. |
+| Valor       | Descrição                                                |
+| ----------- | -------------------------------------------------------- |
+| `PENDENTE`  | Solicitação aguardando análise do administrador.         |
+| `APROVADO`  | Usuário autorizado a participar da organização.          |
+| `REJEITADO` | Solicitação recusada pelo administrador da organização.  |
+| `CONVIDADO` | Convite criado e ainda não respondido pelo destinatário. |
 
 ### Transições permitidas
 
@@ -183,6 +190,10 @@ status = APROVADO
 PENDENTE ──────> APROVADO
     │
     └──────────> REJEITADO
+
+CONVIDADO ─────> APROVADO
+    │
+    └──────────> REMOVIDO
 
 APROVADO ──────> REMOVIDO
 ```
@@ -193,13 +204,13 @@ Na implementação atual, um vínculo com status `REJEITADO` continua armazenado
 
 ---
 
-# 9. Relacionamentos
+## 9. Relacionamentos
 
-| Entidade de Origem | Cardinalidade | Entidade de Destino | Descrição |
-|---|---|---|---|
-| `usuario` | 1 : N | `organizacao` | Um usuário pode estar relacionado ao cadastro de várias organizações. |
-| `usuario` | 1 : N | `membro_organizacao` | Um usuário pode possuir vínculos com várias organizações. |
-| `organizacao` | 1 : N | `membro_organizacao` | Uma organização pode possuir vários vínculos de usuários. |
+| Entidade de Origem | Cardinalidade | Entidade de Destino  | Descrição                                                             |
+| ------------------ | ------------- | -------------------- | --------------------------------------------------------------------- |
+| `usuario`          | 1 : N         | `organizacao`        | Um usuário pode estar relacionado ao cadastro de várias organizações. |
+| `usuario`          | 1 : N         | `membro_organizacao` | Um usuário pode possuir vínculos com várias organizações.             |
+| `organizacao`      | 1 : N         | `membro_organizacao` | Uma organização pode possuir vários vínculos de usuários.             |
 
 A relação entre usuários e organizações por participação é, conceitualmente, **N:M**, sendo resolvida pela entidade associativa:
 
@@ -209,17 +220,17 @@ membro_organizacao
 
 ---
 
-# 10. Correspondência entre o Modelo Relacional e o MongoDB
+## 10. Correspondência entre o Modelo Relacional e o MongoDB
 
-| Modelo Relacional | Implementação MongoDB |
-|---|---|
-| `usuario` | Coleção `usuarios` |
-| `organizacao` | Coleção `organizacoes` |
-| `membro_organizacao` | Array `organizacoes.membros[]` |
-| `usuario._id` | `ObjectId` do documento do usuário |
-| `organizacao._id` | `ObjectId` do documento da organização |
-| `organizacao.criada_por` | Referência `ObjectId` para `Usuario` |
-| `membro_organizacao.usuario_id` | Referência `ObjectId` para `Usuario` |
+| Modelo Relacional                   | Implementação MongoDB                                 |
+| ----------------------------------- | ----------------------------------------------------- |
+| `usuario`                           | Coleção `usuarios`                                    |
+| `organizacao`                       | Coleção `organizacoes`                                |
+| `membro_organizacao`                | Array `organizacoes.membros[]`                        |
+| `usuario._id`                       | `ObjectId` do documento do usuário                    |
+| `organizacao._id`                   | `ObjectId` do documento da organização                |
+| `organizacao.criada_por`            | Referência `ObjectId` para `Usuario`                  |
+| `membro_organizacao.usuario_id`     | Referência `ObjectId` para `Usuario`                  |
 | `membro_organizacao.organizacao_id` | Implícito por estar dentro do documento `Organizacao` |
 
 O modelo relacional deste documento é utilizado para representar de forma explícita as relações existentes no banco MongoDB utilizado pelo Conecta+.

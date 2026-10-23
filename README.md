@@ -4,11 +4,11 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 ## Base usada nesta revisão
 
-| Repositório     | Branch de referência                 |                     Commit auditado |
-| --------------- | ------------------------------------ | ----------------------------------: |
-| `FRONTEND`      | `homolog`                            |                           `792fab4` |
-| `BACKEND`       | `homolog`                            |                           `6f2ffc4` |
-| `DOCUMENTATION` | `main` — não existe `homolog` remota | `84cc8ec` antes desta revisão local |
+| Repositório     | Branch de referência |                Commit auditado |
+| --------------- | -------------------- | -----------------------------: |
+| `FRONTEND`      | `homolog`            |                      `792fab4` |
+| `BACKEND`       | `homolog`            |                      `6f2ffc4` |
+| `DOCUMENTATION` | `homolog`            | Este histórico de documentação |
 
 Esta documentação descreve o comportamento implementado nesses commits. Alterações posteriores no código devem atualizar também os requisitos, diagramas, dicionários e testes afetados.
 
@@ -36,6 +36,16 @@ DOCUMENTATION/
 ```
 
 Cada módulo deve possuir: visão geral, casos de uso, requisitos funcionais, diagrama e dicionário de classes, diagrama e dicionário relacional, requisitos não funcionais, diagramas de sequência e testes.
+
+### Incremento 1
+
+- [Cadastro de comissão](2%20-%20Incremento1/cadastro-comissao/README.md)
+- [Cadastro de organização](2%20-%20Incremento1/cadastro-organizacao/README.md)
+- [Cadastro de usuário](2%20-%20Incremento1/cadastro-usuario/README.md)
+- [Configurações de usuário](2%20-%20Incremento1/configuracoes-usuario/README.md)
+- [Informações do sistema](2%20-%20Incremento1/informacao-sistemas/README.md)
+
+Cada pasta do Incremento 1 contém exatamente os mesmos dez artefatos técnicos e segue o modelo definido em [Padrão da documentação](PADRAO-DOCUMENTACAO.md).
 
 ## Repositórios relacionados
 

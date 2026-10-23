@@ -1,22 +1,28 @@
-# Testes - Informações do Sistema
+# Testes — Informações do sistema
+
+> Padrão do Incremento 1 · Módulo SIS
+
+## Resumo
+
+Registra evidência executada e cenários manuais no formato comum do Incremento 1.
 
 ## Evidência automatizada
 
-Em 23/10/2026, na branch `homolog` do BACKEND (`6f2ffc4`):
+| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                            |
+| ---------- | --------------------------- | --------------- | ---------------------------------- | ------------------------------------------------ |
+| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | Suíte global; não há spec exclusivo de `sistema` |
+| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                |
 
-- `npm run build`: aprovado;
-- `npm test`: 13 arquivos e 182 testes aprovados;
-- ferramenta: Vitest 4.1.11, Node.js 24.11.0.
+## Matriz de testes manuais
 
-Os testes de serviço verificam as regras do sistema em conjunto com os demais módulos. Ainda é necessário manter um roteiro manual de integração para conferir banco real, credenciais e mensagens exibidas no aparelho.
+| ID        | Requisito | Cenário/entrada                             | Resultado esperado                                     | Situação            |
+| --------- | --------- | ------------------------------------------- | ------------------------------------------------------ | ------------------- |
+| CT-SIS-01 | RF-SIS-01 | Status sem chave, como usuário e como admin | 401, 403 e 200, respectivamente.                       | Pendente integrado. |
+| CT-SIS-02 | RF-SIS-02 | Consultar relatórios como admin             | Totais coerentes com o banco.                          | Pendente integrado. |
+| CT-SIS-03 | RF-SIS-03 | Cancelar e confirmar população              | Cancelamento não chama API; confirmação cria cenário.  | Pendente integrado. |
+| CT-SIS-04 | RF-SIS-04 | Cancelar reset                              | Nenhum dado removido.                                  | Pendente integrado. |
+| CT-SIS-05 | RF-SIS-04 | Confirmar reset                             | Dados operacionais removidos; admin global preservado. | Pendente integrado. |
 
-## Roteiro manual mínimo
+## Pendências
 
-| ID | Cenário | Resultado esperado |
-|---|---|---|
-| CT-SIS-01 | Usuário comum consulta `/sistema/status` | HTTP 403. |
-| CT-SIS-02 | Administrador consulta status e relatórios | HTTP 200 com métricas e contagens. |
-| CT-SIS-03 | Requisição sem `X-API-Key` | HTTP 401 antes do controlador. |
-| CT-SIS-04 | Administrador confirma `popular-teste` | Dados de demonstração são criados sem remover o administrador. |
-| CT-SIS-05 | Administrador cancela a confirmação de reset no aplicativo | Nenhuma requisição destrutiva é enviada. |
-| CT-SIS-06 | Administrador confirma o reset | Organizações, comissões, reuniões e usuários comuns são removidos; `ADMIN_SISTEMA` permanece. |
+Adicionar testes automatizados específicos para `SistemaService` e executar o roteiro em banco isolado.

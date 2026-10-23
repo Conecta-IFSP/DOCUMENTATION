@@ -1,18 +1,29 @@
-# Testes — Organizações
+# Testes — Cadastro de organização
 
-Execução de 23/10/2026: backend `6f2ffc4`, `npm test`, 182 testes aprovados em 13 arquivos. Cobertura relacionada: `organizacoes.service.spec.ts`, `organizacoes.controller.spec.ts` e `organizacoes-acesso.spec.ts`.
+> Padrão do Incremento 1 · Módulo ORG
 
-| Código | Regra |
-|---|---|
-| CT-ORG-01 | cadastro exige nome/cidade válidos e nome disponível |
-| CT-ORG-02 | pesquisa filtra nome e limita visibilidade por tipo/vínculo |
-| CT-ORG-03 | somente admin do sistema altera status/exclui |
-| CT-ORG-04 | exclusão exige `REVOGADA` e remove comissões |
-| CT-ORG-05 | código inválido não revela organização; válido cria pendência |
-| CT-ORG-06 | convite exige usuário ativo e trata duplicidades |
-| CT-ORG-07 | aceitar/recusar convite altera/remove vínculo |
-| CT-ORG-08 | administrador analisa pendência e pode reverter rejeição |
-| CT-ORG-09 | rebaixamento do último administrador é recusado |
-| CT-ORG-10 | remoção de membro também o retira das comissões |
+## Resumo
 
-Teste manual ainda necessário: confirmar modais destrutivos, busca em Android/iOS, cópia/renovação de código e atualização da tela ao voltar ao foco.
+Registra evidência executada e cenários manuais no formato comum do Incremento 1.
+
+## Evidência automatizada
+
+| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                                                                            |
+| ---------- | --------------------------- | --------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `organizacoes.controller.spec.ts`, `organizacoes.service.spec.ts`, `organizacoes-acesso.spec.ts` |
+| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                                |
+
+## Matriz de testes manuais
+
+| ID        | Requisito       | Cenário/entrada                             | Resultado esperado                                                 | Situação                         |
+| --------- | --------------- | ------------------------------------------- | ------------------------------------------------------------------ | -------------------------------- |
+| CT-ORG-01 | RF-ORG-01       | Cadastrar nome, cidade e descrição          | Organização pendente; criador admin aprovado.                      | Coberto no backend; UI pendente. |
+| CT-ORG-02 | RF-ORG-02       | Buscar por nome/cidade                      | Resultado filtrado dentro do escopo.                               | Pendente em aparelho.            |
+| CT-ORG-03 | RF-ORG-03/04/05 | Aprovar, revogar e editar como admin global | Mudanças permitidas; usuário comum recebe 403.                     | Coberto no backend; UI pendente. |
+| CT-ORG-04 | RF-ORG-06       | Excluir aprovada e depois revogada          | Primeira tentativa recusada; segunda remove organização/comissões. | Pendente integrado.              |
+| CT-ORG-05 | RF-ORG-07       | Entrar e renovar código                     | Vínculo pendente; código antigo deixa de funcionar.                | Coberto no backend; UI pendente. |
+| CT-ORG-06 | RF-ORG-08/09    | Convidar, responder, promover e rebaixar    | Estados válidos; último admin preservado.                          | Coberto no backend; UI pendente. |
+
+## Pendências
+
+Executar o roteiro no Expo Go/Android e registrar data, aparelho e resultado obtido.

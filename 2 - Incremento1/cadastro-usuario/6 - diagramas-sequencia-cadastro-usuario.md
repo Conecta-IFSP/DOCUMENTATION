@@ -1,4 +1,10 @@
-# Diagramas de sequência — Cadastro e acesso de usuário
+# Diagramas de sequência — Cadastro de usuário
+
+> Padrão do Incremento 1 · Módulo USR
+
+## Resumo
+
+Mostra os fluxos entre telas, controllers, services, MongoDB, Google e serviço de e-mail.
 
 Os nomes correspondem à branch `homolog`. Toda chamada passa pelo `ApiKeyGuard`; rotas privadas também usam `JwtAuthGuard` e `UsuarioComumGuard`.
 

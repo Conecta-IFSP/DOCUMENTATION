@@ -1,4 +1,10 @@
-# Dicionário de Dados - Modelo Relacional - Cadastro de Organização
+# Dicionário relacional — Cadastro de organização
+
+> Padrão do Incremento 1 · Módulo ORG
+
+## Resumo
+
+Detalha campos, tipos, chaves lógicas, nulabilidade e restrições da organização e de seus membros embutidos.
 
 ## ORGANIZACAO
 

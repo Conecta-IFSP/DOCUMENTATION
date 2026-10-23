@@ -21,6 +21,21 @@ Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínc
 
 ## 3. Estrutura de cada módulo
 
+Cada pasta do Incremento 1 possui exatamente dez documentos técnicos. O nome do módulo no arquivo é escrito em `kebab-case`:
+
+```text
+README.md
+1 - casos-uso-<modulo>.md
+2 - requisitos-funcionais-<modulo>.md
+3 - diagrama-classes-<modulo>.md
+3 - dicionario-dados-classes-<modulo>.md
+4 - diagrama-relacional-<modulo>.md
+4 - dicionario-dados-relacional-<modulo>.md
+5 - requisitos-nao-funcionais-<modulo>.md
+6 - diagramas-sequencia-<modulo>.md
+7 - testes-<modulo>.md
+```
+
 | Ordem | Documento                 | Conteúdo obrigatório                                                                               |
 | ----: | ------------------------- | -------------------------------------------------------------------------------------------------- |
 |     — | `README.md`               | objetivo, escopo, atores, arquivos e matriz de rastreabilidade                                     |
@@ -45,6 +60,29 @@ Um caso de uso representa uma meta observável de um ator, e não uma tela ou um
 - **fluxos alternativos e exceções** com o código HTTP relevante;
 - **pós-condições** persistidas e efeitos colaterais;
 - referência ao requisito funcional e aos testes correspondentes.
+
+Todos os documentos de casos de uso seguem, nesta ordem:
+
+1. título `Casos de uso — <Módulo>`;
+2. identificação do padrão e da fonte;
+3. `Resumo` do escopo;
+4. `Diagrama geral`;
+5. `Resumo dos casos de uso`, com ID, nome, ator e resultado;
+6. `Especificações`, com uma subseção por caso.
+
+Cada especificação usa a tabela abaixo. `Atores secundários` é incluído somente quando existir.
+
+| Campo                   | Conteúdo obrigatório                             |
+| ----------------------- | ------------------------------------------------ |
+| Resumo                  | Meta observável do ator.                         |
+| Ator principal          | Papel que inicia o caso.                         |
+| Atores secundários      | Serviço ou papel externo relevante.              |
+| Gatilho                 | Evento que inicia o fluxo.                       |
+| Pré-condições           | Estados verificáveis exigidos antes da execução. |
+| Fluxo principal         | Passos numerados do caminho de sucesso.          |
+| Alternativas e exceções | Desvios, erros e códigos HTTP relevantes.        |
+| Pós-condições           | Dados e estados após a conclusão.                |
+| Rastreabilidade         | RF, SD e CT relacionados.                        |
 
 ## 5. Regras para requisitos funcionais
 
@@ -104,3 +142,16 @@ Participantes válidos incluem tela/componente concreto, `api()`, guards, contro
 ## 9. Controle de revisão
 
 Toda revisão deve registrar os commits do frontend e backend usados como fonte, executar os testes possíveis e não transformar resultado não executado em “aprovado”. O arquivo de teste informa data, ambiente e comando utilizado.
+
+## 10. Elementos comuns a todos os artefatos
+
+Todo documento técnico possui:
+
+- um único título de nível 1 no formato `<Artefato> — <Módulo>`;
+- identificação `Padrão do Incremento 1 · Módulo <SIGLA>`;
+- seção `Resumo` antes do conteúdo técnico;
+- seção de rastreabilidade ou referência rastreável no conteúdo;
+- linguagem no presente para o que está implementado;
+- marcação explícita de qualquer medição ou teste ainda pendente.
+
+O `README.md` de cada módulo usa sempre as seções `Resumo`, `Escopo`, `Índice padronizado`, `Rastreabilidade` e `Base de conferência`.
