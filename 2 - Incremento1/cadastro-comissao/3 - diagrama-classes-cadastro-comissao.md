@@ -1,6 +1,6 @@
 # Diagrama de classes — Cadastro de comissão
 
-> Padrão do Incremento 1 · Classes efetivamente envolvidas na branch `homolog`.
+> Padrão do Incremento 1 · Classes confirmadas no código auditado.
 
 ## Resumo
 

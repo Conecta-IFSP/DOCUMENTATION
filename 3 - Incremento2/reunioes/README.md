@@ -1,48 +1,37 @@
-# Documentação - Reuniões
+# Reuniões
 
-Esta pasta reúne a documentação do incremento de reuniões das comissões do projeto Conecta+.
+> Incremento 2 · Módulo REU · Documentação técnica e funcional
 
-## Documentos
+## Resumo
 
-| Item | Documento | Descrição |
-|---|---|---|
-| 1 | [Diagrama de Casos de Uso](1%20-%20casos-uso-reunioes.md) | Apresenta os atores e os 9 casos de uso do incremento. |
-| 2 | [Requisitos Funcionais](2%20-%20requisitos-funcionais-reunioes.md) | Descreve as funções implementadas, de RF-01 a RF-12, incluindo o fluxo versionado de atas. |
-| 3 | [Diagrama de Classes](3%20-%20diagrama-classes-reunioes.md) | Representa as classes de dados, do servidor e do aplicativo e seus relacionamentos. |
-| 3 | [Dicionário de Dados - Classes](3%20-%20dicionario-dados-classes-reunioes.md) | Descreve o que cada classe representa, seus atributos, tipos e regras. |
-| 4 | [Diagrama Relacional](4%20-%20diagrama-relacional-reunioes.md) | Apresenta a visão lógica relacional dos dados das reuniões. |
-| 4 | [Dicionário de Dados - Modelo Relacional](4%20-%20dicionario-dados-relacional-reunioes.md) | Descreve cada tabela e campo, as chaves e as restrições. |
-| 5 | [Requisitos Não Funcionais](5%20-%20requisitos-nao-funcionais-reunioes.md) | Define os requisitos RNF-01 a RNF-10, com critério de aceitação e forma de verificação. |
-| 6 | [Diagramas de Sequência](6%20-%20diagramas-sequencia-reunioes.md) | Contém os diagramas originais de RF-01 a RF-09; o fluxo de atas está especificado nos requisitos e no catálogo geral da API. |
-| 7 | [Testes Realizados](7%20-%20testes-reunioes.md) | Registra os casos de teste CT-01 a CT-38 e seus resultados. |
+Abrange agendamento, agenda, convites, presença, lista de presença e ata versionada. As regras centrais restringem o agendamento ao responsável da comissão, protegem operações concorrentes e exigem aprovação da ata pelos participantes com presença confirmada.
 
-## Escopo do Incremento
+## Escopo
 
-A documentação contempla os seguintes fluxos:
+- agendar, consultar, visualizar e cancelar reuniões;
+- responder convites e registrar entrada e saída;
+- confirmar ou recusar registros de presença;
+- gerar e compartilhar a lista de presença;
+- salvar, publicar e aprovar uma ata versionada.
 
-- agendamento de reunião pelo responsável da comissão, com convite a toda a comissão ou a integrantes escolhidos;
-- consulta da agenda de reuniões e das reuniões de cada comissão;
-- resposta ao convite;
-- registro de entrada e saída pelo participante e validação da presença pelo organizador;
-- geração da lista de presença;
-- cancelamento de reunião.
-- criação versionada, publicação e aprovação de ata após o encerramento.
+## Índice padronizado
+
+|  Nº | Artefato                                                                   | Finalidade                                          |
+| --: | -------------------------------------------------------------------------- | --------------------------------------------------- |
+|   1 | [Casos de uso](1%20-%20casos-uso-reunioes.md)                              | Atores, resumo, fluxos e exceções.                  |
+|   2 | [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md)         | Comportamentos verificáveis.                        |
+|   3 | [Diagrama de classes](3%20-%20diagrama-classes-reunioes.md)                | Estrutura de domínio, serviços e telas.             |
+|   3 | [Dicionário de classes](3%20-%20dicionario-dados-classes-reunioes.md)      | Significado de classes, atributos e operações.      |
+|   4 | [Diagrama relacional](4%20-%20diagrama-relacional-reunioes.md)             | Visão lógica dos documentos MongoDB.                |
+|   4 | [Dicionário relacional](4%20-%20dicionario-dados-relacional-reunioes.md)   | Campos, tipos, chaves e restrições.                 |
+|   5 | [Requisitos não funcionais](5%20-%20requisitos-nao-funcionais-reunioes.md) | Critérios mensuráveis de qualidade.                 |
+|   6 | [Diagramas de sequência](6%20-%20diagramas-sequencia-reunioes.md)          | Interação entre telas, controller, service e banco. |
+|   7 | [Testes](7%20-%20testes-reunioes.md)                                       | Evidências e roteiro de verificação.                |
 
 ## Rastreabilidade
 
-| Caso de uso | Requisito | Diagrama de sequência | Casos de teste |
-|---|---|---|---|
-| UC01 - Agendar reunião | RF-01 | RF-01 | CT-01 a CT-09, CT-24 a CT-28, CT-30, CT-38 |
-| UC02 - Consultar agenda de reuniões | RF-02 | RF-02 | CT-10, CT-31 |
-| UC03 - Visualizar reunião | RF-03 | RF-03 | CT-11, CT-28 |
-| UC04 - Cancelar reunião | RF-04 | RF-04 | CT-12, CT-13, CT-36 |
-| UC05 - Responder convite | RF-05 | RF-05 | CT-14, CT-32 |
-| UC06 - Registrar entrada | RF-06 | RF-06 | CT-15 a CT-18, CT-33 |
-| UC07 - Registrar saída | RF-07 | RF-07 | CT-19, CT-33 |
-| UC08 - Confirmar ou recusar presença | RF-08 | RF-08 | CT-20, CT-21, CT-34 |
-| UC09 - Gerar lista de presença | RF-09 | RF-09 | CT-22, CT-23, CT-28, CT-35 |
+`UC-REU-01..12 ↔ RF-REU-01..12 ↔ SD-REU-01..12 ↔ CT-REU`
 
-## Repositórios
+## Base de conferência
 
-- [Backend](https://github.com/Conecta-IFSP/BACKEND)
-- [Frontend](https://github.com/Conecta-IFSP/FRONTEND)
+FRONTEND `792fab4` e BACKEND `6f2ffc4`, conferidos em 23/10/2026.

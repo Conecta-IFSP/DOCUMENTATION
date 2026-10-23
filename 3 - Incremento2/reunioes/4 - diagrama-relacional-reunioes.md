@@ -1,18 +1,25 @@
-# Diagrama Relacional - Reuniões
+# Diagrama relacional — Reuniões
 
-O banco do sistema é o MongoDB, que guarda os participantes e as presenças dentro do documento da reunião. Este diagrama representa esses dados como tabelas relacionais, para mostrar as chaves e os relacionamentos entre eles.
+> Padrão do Incremento 2 · Visão lógica relacional de documentos MongoDB
+
+## Resumo
+
+No MongoDB, participantes, presenças e ata ficam embutidos no documento de `reunioes`. O diagrama os separa logicamente para explicitar cardinalidades, chaves e restrições.
+
+## Diagrama
 
 ```mermaid
 erDiagram
-    USUARIO ||--o{ REUNIAO : "organiza"
-    COMISSAO ||--o{ REUNIAO : "realiza"
-    ORGANIZACAO ||--o{ COMISSAO : "possui"
-    ORGANIZACAO ||--|{ MEMBRO_ORGANIZACAO : "tem"
-    USUARIO ||--o{ MEMBRO_ORGANIZACAO : "participa"
-    COMISSAO ||--|{ MEMBRO_COMISSAO : "tem"
-    USUARIO ||--o{ MEMBRO_COMISSAO : "integra"
-    REUNIAO ||--|{ PARTICIPANTE_REUNIAO : "convida"
-    USUARIO ||--o{ PARTICIPANTE_REUNIAO : "é convidado"
+    ORGANIZACAO ||--o{ COMISSAO : possui
+    COMISSAO ||--o{ REUNIAO : realiza
+    USUARIO ||--o{ REUNIAO : organiza
+    REUNIAO ||--|{ REUNIAO_PARTICIPANTE : contem
+    USUARIO ||--o{ REUNIAO_PARTICIPANTE : participa
+    REUNIAO_PARTICIPANTE ||--o| REUNIAO_PRESENCA : registra
+    REUNIAO ||--o| REUNIAO_ATA : documenta
+    USUARIO ||--o{ REUNIAO_ATA : redige
+    REUNIAO_ATA ||--o{ ATA_APROVADOR : define
+    USUARIO ||--o{ ATA_APROVADOR : aprova
 
     REUNIAO {
         ObjectId _id PK
@@ -27,50 +34,58 @@ erDiagram
         Date criado_em
         Date atualizado_em
     }
-
-    PARTICIPANTE_REUNIAO {
+    REUNIAO_PARTICIPANTE {
         ObjectId reuniao_id PK,FK
         ObjectId usuario_id PK,FK
         String convite
-        Date presenca_entrada
-        Date presenca_saida
-        String presenca_situacao
-        String presenca_marcada_por
     }
-
+    REUNIAO_PRESENCA {
+        ObjectId reuniao_id PK,FK
+        ObjectId usuario_id PK,FK
+        Date entrada
+        Date saida
+        String situacao
+        String marcada_por
+    }
+    REUNIAO_ATA {
+        ObjectId reuniao_id PK,FK
+        String conteudo
+        Int versao
+        String situacao
+        ObjectId autor_id FK
+        Date atualizada_em
+    }
+    ATA_APROVADOR {
+        ObjectId reuniao_id PK,FK
+        ObjectId usuario_id PK,FK
+        Boolean aprovou
+    }
     COMISSAO {
         ObjectId _id PK
-        String nome
         ObjectId organizacao_id FK
         Boolean ativo
     }
-
-    MEMBRO_COMISSAO {
-        ObjectId comissao_id PK,FK
-        ObjectId usuario_id PK,FK
-        String papel
-    }
-
     ORGANIZACAO {
         ObjectId _id PK
-        String nome
         String status
     }
-
-    MEMBRO_ORGANIZACAO {
-        ObjectId organizacao_id PK,FK
-        ObjectId usuario_id PK,FK
-        String papel
-        String status
-    }
-
     USUARIO {
         ObjectId _id PK
         String nome
-        String email UK
-        String tipo
         Boolean ativo
     }
 ```
 
-As tabelas `COMISSAO`, `MEMBRO_COMISSAO`, `ORGANIZACAO`, `MEMBRO_ORGANIZACAO` e `USUARIO` pertencem ao Incremento 1 e aparecem apenas com as colunas usadas pelas reuniões.
+## Mapeamento físico
+
+| Visão lógica           | MongoDB                                       |
+| ---------------------- | --------------------------------------------- |
+| `REUNIAO`              | coleção `reunioes`                            |
+| `REUNIAO_PARTICIPANTE` | `reunioes.participantes[]`                    |
+| `REUNIAO_PRESENCA`     | `reunioes.participantes[].presenca`           |
+| `REUNIAO_ATA`          | `reunioes.ata`                                |
+| `ATA_APROVADOR`        | `reunioes.ata.aprovadores[]` e `aprovacoes[]` |
+
+## Rastreabilidade
+
+RF-REU-01, RF-REU-05 a RF-REU-12.

@@ -6,7 +6,7 @@
 
 Mostra os fluxos entre telas, controllers, services, MongoDB, Google e serviço de e-mail.
 
-Os nomes correspondem à branch `homolog`. Toda chamada passa pelo `ApiKeyGuard`; rotas privadas também usam `JwtAuthGuard` e `UsuarioComumGuard`.
+Os nomes correspondem ao código auditado. Toda chamada passa pelo `ApiKeyGuard`; rotas privadas também usam `JwtAuthGuard` e `UsuarioComumGuard`.
 
 ## SD-USR-01 — Cadastro local e confirmação
 

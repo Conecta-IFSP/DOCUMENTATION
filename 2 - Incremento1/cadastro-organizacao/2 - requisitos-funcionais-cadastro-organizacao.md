@@ -90,14 +90,14 @@ Define RF-ORG-01 a RF-ORG-09. Todos usam `X-API-Key`; rotas privadas exigem JWT 
 
 ### RF-ORG-07 — Entrar por código e renovar código
 
-| Item              | Especificação                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| **Entrada**       | `{codigo}` em `POST /organizacoes/entrar`; renovação em `POST /organizacoes/:id/codigo`. |
-| **Pré-condições** | Entrada em organização aprovada; renovação por `ADMIN/APROVADO`.                         |
-| **Processamento** | Normaliza dez caracteres; entrada cria/reabre pendência; renovação gera valor único.     |
-| **Persistência**  | `membros[]` ou `codigo_acesso`.                                                          |
-| **Saída**         | Organização/vínculo atualizado ou novo código apenas ao administrador.                   |
-| **Erros**         | 404 código/organização; 409 vínculo incompatível; 403 sem papel.                         |
+| Item              | Especificação                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| **Entrada**       | `{codigo}` em `POST /organizacoes/entrar`; renovação em `POST /organizacoes/:id/codigo`.          |
+| **Pré-condições** | Entrada em organização aprovada; renovação por `ADMIN/APROVADO`.                                  |
+| **Processamento** | Normaliza dez caracteres; entrada cria/reabre solicitação em análise; renovação gera valor único. |
+| **Persistência**  | `membros[]` ou `codigo_acesso`.                                                                   |
+| **Saída**         | Organização/vínculo atualizado ou novo código apenas ao administrador.                            |
+| **Erros**         | 404 código/organização; 409 vínculo incompatível; 403 sem papel.                                  |
 
 ### RF-ORG-08 — Convidar e responder convite
 

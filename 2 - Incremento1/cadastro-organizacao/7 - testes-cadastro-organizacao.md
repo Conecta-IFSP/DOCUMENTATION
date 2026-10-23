@@ -8,10 +8,10 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 
 ## Evidência automatizada
 
-| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                                                                            |
-| ---------- | --------------------------- | --------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `organizacoes.controller.spec.ts`, `organizacoes.service.spec.ts`, `organizacoes-acesso.spec.ts` |
-| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                                |
+| Data       | Projeto/commit    | Comando         | Resultado                          | Arquivos relacionados                                                                            |
+| ---------- | ----------------- | --------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `organizacoes.controller.spec.ts`, `organizacoes.service.spec.ts`, `organizacoes-acesso.spec.ts` |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                                |
 
 ## Matriz de testes manuais
 
@@ -24,6 +24,6 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 | CT-ORG-05 | RF-ORG-07       | Entrar e renovar código                     | Vínculo pendente; código antigo deixa de funcionar.                | Coberto no backend; UI pendente. |
 | CT-ORG-06 | RF-ORG-08/09    | Convidar, responder, promover e rebaixar    | Estados válidos; último admin preservado.                          | Coberto no backend; UI pendente. |
 
-## Pendências
+## Próximas validações
 
 Executar o roteiro no Expo Go/Android e registrar data, aparelho e resultado obtido.

@@ -98,7 +98,7 @@ Os requisitos são escritos no presente e descrevem o sistema implementado. Não
 - códigos de erro e condições que os produzem;
 - tela que inicia a operação e atualização da interface.
 
-Melhorias ainda não implementadas devem aparecer como **pendência**, não como requisito atendido.
+Melhorias ainda não implementadas devem ser marcadas como **não implementadas**, nunca como requisito atendido.
 
 ## 6. Regras para requisitos não funcionais
 

@@ -4,11 +4,11 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 ## Base usada nesta revisão
 
-| Repositório     | Branch de referência |                Commit auditado |
-| --------------- | -------------------- | -----------------------------: |
-| `FRONTEND`      | `homolog`            |                      `792fab4` |
-| `BACKEND`       | `homolog`            |                      `6f2ffc4` |
-| `DOCUMENTATION` | `homolog`            | Este histórico de documentação |
+| Repositório     | Referência auditada    |
+| --------------- | ---------------------- |
+| `FRONTEND`      | commit `792fab4`       |
+| `BACKEND`       | commit `6f2ffc4`       |
+| `DOCUMENTATION` | documentação publicada |
 
 Esta documentação descreve o comportamento implementado nesses commits. Alterações posteriores no código devem atualizar também os requisitos, diagramas, dicionários e testes afetados.
 

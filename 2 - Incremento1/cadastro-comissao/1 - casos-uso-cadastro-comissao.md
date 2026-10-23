@@ -1,6 +1,6 @@
 # Casos de uso — Cadastro de comissão
 
-> Padrão do Incremento 1 · Fonte: FRONTEND `homolog` (`792fab4`) e BACKEND `homolog` (`6f2ffc4`)
+> Padrão do Incremento 1 · Fontes: FRONTEND `792fab4` e BACKEND `6f2ffc4`
 
 ## Resumo
 

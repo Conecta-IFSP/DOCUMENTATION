@@ -8,10 +8,10 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 
 ## Evidência automatizada
 
-| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                            |
-| ---------- | --------------------------- | --------------- | ---------------------------------- | ------------------------------------------------ |
-| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | Suíte global; não há spec exclusivo de `sistema` |
-| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                |
+| Data       | Projeto/commit    | Comando         | Resultado                          | Arquivos relacionados                            |
+| ---------- | ----------------- | --------------- | ---------------------------------- | ------------------------------------------------ |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | Suíte global; não há spec exclusivo de `sistema` |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm run build` | Aprovado                           | TypeScript/NestJS                                |
 
 ## Matriz de testes manuais
 
@@ -23,6 +23,6 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 | CT-SIS-04 | RF-SIS-04 | Cancelar reset                              | Nenhum dado removido.                                  | Pendente integrado. |
 | CT-SIS-05 | RF-SIS-04 | Confirmar reset                             | Dados operacionais removidos; admin global preservado. | Pendente integrado. |
 
-## Pendências
+## Próximas validações
 
 Adicionar testes automatizados específicos para `SistemaService` e executar o roteiro em banco isolado.

@@ -33,4 +33,4 @@ Abrange cadastro local com confirmação de e-mail, login local/Google e partici
 
 ## Base de conferência
 
-FRONTEND `homolog` (`792fab4`) e BACKEND `homolog` (`6f2ffc4`), conferidos em 23/10/2026.
+FRONTEND `792fab4` e BACKEND `6f2ffc4`, conferidos em 23/10/2026.

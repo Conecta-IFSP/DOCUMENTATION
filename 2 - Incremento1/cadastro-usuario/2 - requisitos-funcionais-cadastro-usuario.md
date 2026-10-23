@@ -55,14 +55,14 @@ Define RF-USR-01 a RF-USR-07. Todas as chamadas exigem `X-API-Key`; operações 
 
 ### RF-USR-04 — Solicitar acesso por código
 
-| Item              | Especificação                                              |
-| ----------------- | ---------------------------------------------------------- |
-| **Entrada**       | Código de dez caracteres em `POST /organizacoes/entrar`.   |
-| **Pré-condições** | Organização aprovada e vínculo permitido.                  |
-| **Processamento** | Normaliza, busca `codigo_acesso` e cria ou reabre vínculo. |
-| **Persistência**  | `organizacoes.membros[]` como `MEMBRO/PENDENTE`.           |
-| **Saída**         | Organização atualizada.                                    |
-| **Erros**         | 404 código; 409 membro/pendência/convite já existente.     |
+| Item              | Especificação                                                       |
+| ----------------- | ------------------------------------------------------------------- |
+| **Entrada**       | Código de dez caracteres em `POST /organizacoes/entrar`.            |
+| **Pré-condições** | Organização aprovada e vínculo permitido.                           |
+| **Processamento** | Normaliza, busca `codigo_acesso` e cria ou reabre vínculo.          |
+| **Persistência**  | `organizacoes.membros[]` como `MEMBRO/PENDENTE`.                    |
+| **Saída**         | Organização atualizada.                                             |
+| **Erros**         | 404 código; 409 membro/solicitação em análise/convite já existente. |
 
 ### RF-USR-05 — Convidar e responder
 

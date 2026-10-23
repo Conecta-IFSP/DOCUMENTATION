@@ -8,11 +8,11 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 
 ## Evidência automatizada
 
-| Data       | Projeto/branch               | Comando         | Resultado                          | Arquivos relacionados                              |
-| ---------- | ---------------------------- | --------------- | ---------------------------------- | -------------------------------------------------- |
-| 23/10/2026 | BACKEND `homolog` `6f2ffc4`  | `npm test`      | 13 arquivos e 182 testes aprovados | `auth.service.spec.ts`, `usuarios.service.spec.ts` |
-| 23/10/2026 | BACKEND `homolog`            | `npm run build` | Aprovado                           | TypeScript/NestJS                                  |
-| 23/10/2026 | FRONTEND `homolog` `792fab4` | testes Node     | 9 testes aprovados                 | sessão/API e horários                              |
+| Data       | Projeto/commit     | Comando         | Resultado                          | Arquivos relacionados                              |
+| ---------- | ------------------ | --------------- | ---------------------------------- | -------------------------------------------------- |
+| 23/10/2026 | BACKEND `6f2ffc4`  | `npm test`      | 13 arquivos e 182 testes aprovados | `auth.service.spec.ts`, `usuarios.service.spec.ts` |
+| 23/10/2026 | BACKEND `6f2ffc4`  | `npm run build` | Aprovado                           | TypeScript/NestJS                                  |
+| 23/10/2026 | FRONTEND `792fab4` | testes Node     | 9 testes aprovados                 | sessão/API e horários                              |
 
 ## Matriz de testes manuais
 
@@ -25,6 +25,6 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 | CT-CFG-05 | RF-CFG-05 | Alterar tema com sucesso/falha simulada | Mantém em sucesso e restaura em falha.                    | Pendente em aparelho.            |
 | CT-CFG-06 | RF-CFG-06 | Sair e tentar voltar à rota privada     | Token removido e login exibido.                           | Pendente em aparelho.            |
 
-## Pendências
+## Próximas validações
 
 Executar CT-CFG-01 a CT-CFG-06 em Expo Go/Android; o typecheck do frontend ainda depende de regenerar as rotas tipadas do Expo.

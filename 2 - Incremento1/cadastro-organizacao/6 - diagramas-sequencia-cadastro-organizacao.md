@@ -6,7 +6,7 @@
 
 Mostra a ordem das chamadas entre ator, telas, `OrganizacoesController`, `OrganizacoesService` e MongoDB.
 
-Os participantes nomeiam classes reais da branch `homolog`. O aplicativo chama o controller; o controller delega ao service; o service consulta o MongoDB via Mongoose.
+Os participantes nomeiam classes confirmadas no código auditado. O aplicativo chama o controller; o controller delega ao service; o service consulta o MongoDB via Mongoose.
 
 ## SD-ORG-01 — Cadastrar organização
 

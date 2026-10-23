@@ -16,25 +16,25 @@ O frontend é uma aplicação React Native com Expo Router. O backend é uma API
 
 ## 2. Camadas do frontend
 
-| Camada | Responsabilidade | Exemplos |
-|---|---|---|
-| Rotas/telas | interação, formulários e navegação | `src/app/login`, `src/app/(abas)`, `src/app/reunioes` |
+| Camada      | Responsabilidade                      | Exemplos                                                         |
+| ----------- | ------------------------------------- | ---------------------------------------------------------------- |
+| Rotas/telas | interação, formulários e navegação    | `src/app/login`, `src/app/(abas)`, `src/app/reunioes`            |
 | Componentes | elementos reutilizáveis e responsivos | `CampoTexto`, `Confirmacao`, `TelaComCabecalho`, `FolhaInferior` |
-| Contextos | sessão, tema e mensagens | `SessaoContext`, `TemaContext`, `ToastContext` |
-| Serviços | HTTP, OAuth e autenticação local | `api.ts`, `google.ts`, `autenticacao-local.ts` |
-| Utilitários | validações e regras de apresentação | `validacao.ts`, `reunioes.ts`, `sugestoes-horario.ts` |
+| Contextos   | sessão, tema e mensagens              | `SessaoContext`, `TemaContext`, `ToastContext`                   |
+| Serviços    | HTTP, OAuth e autenticação local      | `api.ts`, `google.ts`, `autenticacao-local.ts`                   |
+| Utilitários | validações e regras de apresentação   | `validacao.ts`, `reunioes.ts`, `sugestoes-horario.ts`            |
 
 Os formulários usam `react-hook-form`; a tela principal usa `react-native-keyboard-controller` para evitar que o teclado cubra campos no Android. Telas com dados mutáveis usam `useFocusEffect` para recarregar ao receber foco.
 
 ## 3. Camadas do backend
 
-| Camada | Responsabilidade |
-|---|---|
-| Controllers | mapear rotas, DTOs, parâmetros e guards |
-| DTOs | validar e transformar entradas com `class-validator` e `class-transformer` |
-| Services | aplicar regras de negócio e coordenar persistência |
-| Schemas/Models | definir documentos e operações Mongoose |
-| Guards | validar chave da API, JWT, tipo de usuário e vínculo |
+| Camada         | Responsabilidade                                                           |
+| -------------- | -------------------------------------------------------------------------- |
+| Controllers    | mapear rotas, DTOs, parâmetros e guards                                    |
+| DTOs           | validar e transformar entradas com `class-validator` e `class-transformer` |
+| Services       | aplicar regras de negócio e coordenar persistência                         |
+| Schemas/Models | definir documentos e operações Mongoose                                    |
+| Guards         | validar chave da API, JWT, tipo de usuário e vínculo                       |
 
 O `ValidationPipe` global usa `whitelist: true` e `transform: true`: propriedades sem decoradores são removidas e valores compatíveis podem ser transformados antes do controller.
 
@@ -51,76 +51,76 @@ O JWT expira em **1 hora**. No aplicativo nativo ele é salvo por `expo-secure-s
 
 ## 5. Bibliotecas do frontend
 
-Versões resolvidas pelo `package-lock.json` da branch `homolog`, commit `792fab4`:
+Versões resolvidas pelo `package-lock.json` do commit `792fab4`:
 
-| Biblioteca | Versão | Uso no projeto |
-|---|---:|---|
-| Expo | 57.0.31 | runtime, bundler e ferramentas do aplicativo |
-| React | 19.2.3 | componentes e estado |
-| React Native | 0.86.3 | interface nativa Android/iOS |
-| Expo Router | 57.0.29 | rotas por arquivos e proteção de telas |
-| React Hook Form | 7.90.0 | estado, validação e envio dos formulários |
-| React Native Keyboard Controller | 1.21.9 | ajuste da tela ao teclado, principalmente Android |
-| Expo Secure Store | 57.0.4 | JWT e preferência de tema no dispositivo |
-| Expo Local Authentication | 57.0.3 | biometria ou credencial do aparelho em ações de conta |
-| Expo Auth Session | 57.0.16 | fluxo OAuth no navegador |
-| Google Sign-In | 16.1.5 | login Google nativo |
-| Expo Linking | 57.0.13 | deep links e callbacks |
-| Expo Constants | 57.0.22 | configuração Expo e descoberta do host local |
-| Expo Clipboard | 57.0.2 | cópia do código de acesso da organização |
-| Expo Linear Gradient | 57.0.2 | fundos visuais |
-| Expo Font | 57.0.4 | carregamento das fontes |
-| Poppins para Expo | 0.4.1 | família tipográfica |
-| Ionicons para React Native | 14.0.0 | ícones |
-| Gesture Handler | 2.32.0 | gestos nativos |
-| Reanimated | 4.5.1 | animações nativas |
-| Safe Area Context | 5.7.0 | respeito às áreas seguras do aparelho |
-| React Native Screens | 4.26.2 | telas nativas usadas pela navegação |
-| React Native Web | 0.21.2 | execução no navegador |
-| TypeScript | 6.0.3 | tipagem e verificação estática |
-| ESLint | 9.39.5 | análise de estilo e problemas de código |
+| Biblioteca                       |  Versão | Uso no projeto                                        |
+| -------------------------------- | ------: | ----------------------------------------------------- |
+| Expo                             | 57.0.31 | runtime, bundler e ferramentas do aplicativo          |
+| React                            |  19.2.3 | componentes e estado                                  |
+| React Native                     |  0.86.3 | interface nativa Android/iOS                          |
+| Expo Router                      | 57.0.29 | rotas por arquivos e proteção de telas                |
+| React Hook Form                  |  7.90.0 | estado, validação e envio dos formulários             |
+| React Native Keyboard Controller |  1.21.9 | ajuste da tela ao teclado, principalmente Android     |
+| Expo Secure Store                |  57.0.4 | JWT e preferência de tema no dispositivo              |
+| Expo Local Authentication        |  57.0.3 | biometria ou credencial do aparelho em ações de conta |
+| Expo Auth Session                | 57.0.16 | fluxo OAuth no navegador                              |
+| Google Sign-In                   |  16.1.5 | login Google nativo                                   |
+| Expo Linking                     | 57.0.13 | deep links e callbacks                                |
+| Expo Constants                   | 57.0.22 | configuração Expo e descoberta do host local          |
+| Expo Clipboard                   |  57.0.2 | cópia do código de acesso da organização              |
+| Expo Linear Gradient             |  57.0.2 | fundos visuais                                        |
+| Expo Font                        |  57.0.4 | carregamento das fontes                               |
+| Poppins para Expo                |   0.4.1 | família tipográfica                                   |
+| Ionicons para React Native       |  14.0.0 | ícones                                                |
+| Gesture Handler                  |  2.32.0 | gestos nativos                                        |
+| Reanimated                       |   4.5.1 | animações nativas                                     |
+| Safe Area Context                |   5.7.0 | respeito às áreas seguras do aparelho                 |
+| React Native Screens             |  4.26.2 | telas nativas usadas pela navegação                   |
+| React Native Web                 |  0.21.2 | execução no navegador                                 |
+| TypeScript                       |   6.0.3 | tipagem e verificação estática                        |
+| ESLint                           |  9.39.5 | análise de estilo e problemas de código               |
 
 ## 6. Bibliotecas do backend
 
-Versões resolvidas pelo `package-lock.json` da branch `homolog`, commit `6f2ffc4`:
+Versões resolvidas pelo `package-lock.json` do commit `6f2ffc4`:
 
-| Biblioteca | Versão | Uso no projeto |
-|---|---:|---|
-| NestJS Common/Core | 12.0.1 | framework e injeção de dependências |
-| NestJS Platform Express | 12.0.1 | servidor HTTP Express |
-| NestJS Config | 12.0.0 | variáveis de ambiente |
-| NestJS JWT | 12.0.1 | assinatura e validação do JWT |
-| NestJS Mongoose | 12.0.0 | integração com MongoDB |
-| Mongoose | 9.9.5 | schemas, consultas e persistência |
-| bcrypt | 6.0.0 | hash e comparação de senhas, custo 10 |
-| class-validator | 0.15.1 | validação declarativa dos DTOs |
-| class-transformer | 0.5.1 | transformação de entradas |
-| Nodemailer | 10.0.10 | envio de códigos de confirmação e recuperação |
-| RxJS | 7.8.2 | infraestrutura reativa usada pelo NestJS |
-| Vitest | 4.1.11 | testes automatizados |
-| Supertest | 7.2.2 | testes HTTP |
-| Oxlint | 1.82.0 | análise estática |
-| Prettier | 3.9.6 | formatação |
-| TypeScript | 6.0.3 | compilação e tipagem |
+| Biblioteca              |  Versão | Uso no projeto                                |
+| ----------------------- | ------: | --------------------------------------------- |
+| NestJS Common/Core      |  12.0.1 | framework e injeção de dependências           |
+| NestJS Platform Express |  12.0.1 | servidor HTTP Express                         |
+| NestJS Config           |  12.0.0 | variáveis de ambiente                         |
+| NestJS JWT              |  12.0.1 | assinatura e validação do JWT                 |
+| NestJS Mongoose         |  12.0.0 | integração com MongoDB                        |
+| Mongoose                |   9.9.5 | schemas, consultas e persistência             |
+| bcrypt                  |   6.0.0 | hash e comparação de senhas, custo 10         |
+| class-validator         |  0.15.1 | validação declarativa dos DTOs                |
+| class-transformer       |   0.5.1 | transformação de entradas                     |
+| Nodemailer              | 10.0.10 | envio de códigos de confirmação e recuperação |
+| RxJS                    |   7.8.2 | infraestrutura reativa usada pelo NestJS      |
+| Vitest                  |  4.1.11 | testes automatizados                          |
+| Supertest               |   7.2.2 | testes HTTP                                   |
+| Oxlint                  |  1.82.0 | análise estática                              |
+| Prettier                |   3.9.6 | formatação                                    |
+| TypeScript              |   6.0.3 | compilação e tipagem                          |
 
 O backend usa também os módulos nativos `node:crypto` para códigos, tokens e comparação temporal segura, `node:os` para métricas do servidor e `fetch` do Node para endpoints OAuth do Google.
 
 ## 7. Variáveis de ambiente
 
-| Aplicação | Variável | Finalidade | Sensível? |
-|---|---|---|---|
-| Frontend | `EXPO_PUBLIC_API_URL` | endereço base da API | Não |
-| Frontend | `EXPO_PUBLIC_API_ACCESS_TOKEN` | valor enviado em `X-API-Key` | Público no bundle; não usar como segredo |
-| Frontend | `EXPO_PUBLIC_GOOGLE_*` | IDs e URIs públicas do OAuth | Não são segredos |
-| Backend | `MONGODB_URI` | conexão MongoDB | Sim quando contém credenciais |
-| Backend | `JWT_SECRET` | assinatura dos JWTs | Sim |
-| Backend | `API_ACCESS_TOKEN` | valor esperado pelo `ApiKeyGuard` | Sim no servidor |
-| Backend | `ROOT_USER_*` | administrador inicial | Sim para a senha |
-| Backend | `MAIL_*` | conexão SMTP e remetente | Sim para usuário/senha |
-| Backend | `GOOGLE_CLIENT_ID` e IDs móveis | clientes OAuth permitidos | Não são segredo |
-| Backend | `GOOGLE_CLIENT_SECRET` | segredo OAuth web | Sim |
-| Backend | `FRONTEND_URL` | origem/callback web autorizado | Não |
-| Backend | `TEST_USER_*` e `TEST_USERS_PASSWORD` | massa criada por `/sistema/popular-teste` | Senha é sensível |
+| Aplicação | Variável                              | Finalidade                                | Sensível?                                |
+| --------- | ------------------------------------- | ----------------------------------------- | ---------------------------------------- |
+| Frontend  | `EXPO_PUBLIC_API_URL`                 | endereço base da API                      | Não                                      |
+| Frontend  | `EXPO_PUBLIC_API_ACCESS_TOKEN`        | valor enviado em `X-API-Key`              | Público no bundle; não usar como segredo |
+| Frontend  | `EXPO_PUBLIC_GOOGLE_*`                | IDs e URIs públicas do OAuth              | Não são segredos                         |
+| Backend   | `MONGODB_URI`                         | conexão MongoDB                           | Sim quando contém credenciais            |
+| Backend   | `JWT_SECRET`                          | assinatura dos JWTs                       | Sim                                      |
+| Backend   | `API_ACCESS_TOKEN`                    | valor esperado pelo `ApiKeyGuard`         | Sim no servidor                          |
+| Backend   | `ROOT_USER_*`                         | administrador inicial                     | Sim para a senha                         |
+| Backend   | `MAIL_*`                              | conexão SMTP e remetente                  | Sim para usuário/senha                   |
+| Backend   | `GOOGLE_CLIENT_ID` e IDs móveis       | clientes OAuth permitidos                 | Não são segredo                          |
+| Backend   | `GOOGLE_CLIENT_SECRET`                | segredo OAuth web                         | Sim                                      |
+| Backend   | `FRONTEND_URL`                        | origem/callback web autorizado            | Não                                      |
+| Backend   | `TEST_USER_*` e `TEST_USERS_PASSWORD` | massa criada por `/sistema/popular-teste` | Senha é sensível                         |
 
 ## 8. Verificação da base
 

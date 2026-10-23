@@ -8,10 +8,10 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 
 ## Evidência automatizada
 
-| Data       | Projeto/branch              | Comando         | Resultado                          | Arquivos relacionados                                                                   |
-| ---------- | --------------------------- | --------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
-| 23/10/2026 | BACKEND `homolog` `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `comissoes.controller.spec.ts`, `comissoes.service.spec.ts`, `comissoes.regras.spec.ts` |
-| 23/10/2026 | BACKEND `homolog`           | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                       |
+| Data       | Projeto/commit    | Comando         | Resultado                          | Arquivos relacionados                                                                   |
+| ---------- | ----------------- | --------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm test`      | 13 arquivos e 182 testes aprovados | `comissoes.controller.spec.ts`, `comissoes.service.spec.ts`, `comissoes.regras.spec.ts` |
+| 23/10/2026 | BACKEND `6f2ffc4` | `npm run build` | Aprovado                           | TypeScript/NestJS                                                                       |
 
 ## Matriz de testes manuais
 
@@ -24,6 +24,6 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 | CT-COM-05 | RF-COM-08       | Substituir responsável                      | Novo promovido e anterior rebaixado na mesma resposta.  | Coberto no backend; UI pendente. |
 | CT-COM-06 | RF-COM-09       | Tentar remover responsável e remover membro | Responsável recusado; membro removido após confirmação. | Coberto no backend; UI pendente. |
 
-## Pendências
+## Próximas validações
 
 Executar o roteiro no Expo Go/Android e registrar data, aparelho e resultado obtido.
