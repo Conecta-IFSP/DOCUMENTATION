@@ -72,14 +72,14 @@ sequenceDiagram
         T->>A: POST /usuarios/me/email/solicitar {email}
         A->>C: solicitarAlteracaoEmail(req,dto)
         C->>S: solicitarAlteracaoEmail(sub,email)
-        S->>M: verificar unicidade; save(campos pendentes)
+        S->>M: verificar unicidade e salvar campos temporários
         S->>E: sendMail(código)
         U->>T: informa código
         T->>A: POST /usuarios/me/email/confirmar {email,codigo}
         A->>C: confirmarAlteracaoEmail(req,dto)
         C->>S: confirmarAlteracaoEmail(sub,email,codigo)
-        S->>M: findById(+campos pendentes)
-        S->>M: save(email; unset pendentes)
+        S->>M: buscar usuário com campos temporários
+        S->>M: salvar e-mail e limpar campos temporários
         T->>T: sessao.atualizar()
     end
 ```
@@ -141,7 +141,7 @@ sequenceDiagram
     T->>A: POST /auth/verificar-recuperacao {email,codigo}
     C->>S: verificarRecuperacao(dto)
     S->>M: findOne(+código + expiração)
-    S->>M: save(hash do token; unset código)
+    S->>M: salvar hash do token e limpar código
     S-->>T: token temporário
     V->>T: informa nova senha e confirmação
     T->>L: autenticarComDispositivo()
@@ -150,7 +150,7 @@ sequenceDiagram
     C->>S: redefinirSenha(dto)
     S->>M: findOne({token_hash,expiração,ativo:true})
     S->>B: hash(nova_senha,10)
-    S->>M: save(senha; unset token/expiração)
+    S->>M: salvar senha e limpar token e expiração
     S-->>T: sucesso
 ```
 
