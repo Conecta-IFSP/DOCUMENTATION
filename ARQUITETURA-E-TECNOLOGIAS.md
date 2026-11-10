@@ -12,7 +12,7 @@ flowchart LR
     API -->|token e tokeninfo| GOOGLE
 ```
 
-O frontend é uma aplicação React Native com Expo Router. O backend é uma API REST NestJS. O MongoDB persiste `usuarios`, `organizacoes`, `comissoes` e `reunioes`; vínculos, participantes, presenças e atas são subdocumentos embutidos.w
+O frontend é uma aplicação React Native com Expo Router. O backend é uma API REST NestJS. O MongoDB persiste `usuarios`, `organizacoes`, `comissoes`, `reunioes` e `contadores`; vínculos, participantes, presenças, atas e avaliações das atas são subdocumentos embutidos. Os arquivos anexados às pautas ficam no GridFS, nas coleções `anexos.files` e `anexos.chunks`. A coleção `contadores` guarda a numeração das atas por comissão e ano.
 
 ## 2. Camadas do frontend
 
@@ -21,8 +21,8 @@ O frontend é uma aplicação React Native com Expo Router. O backend é uma API
 | Rotas/telas | interação, formulários e navegação    | `src/app/login`, `src/app/(abas)`, `src/app/reunioes`            |
 | Componentes | elementos reutilizáveis e responsivos | `CampoTexto`, `Confirmacao`, `TelaComCabecalho`, `FolhaInferior` |
 | Contextos   | sessão, tema e mensagens              | `SessaoContext`, `TemaContext`, `ToastContext`                   |
-| Serviços    | HTTP, OAuth e autenticação local      | `api.ts`, `google.ts`, `autenticacao-local.ts`                   |
-| Utilitários | validações e regras de apresentação   | `validacao.ts`, `reunioes.ts`, `sugestoes-horario.ts`            |
+| Serviços    | HTTP, OAuth, autenticação local, anexos e PDF | `api.ts`, `google.ts`, `autenticacao-local.ts`, `anexos.ts`, `pdfAta.ts` |
+| Utilitários | validações e regras de apresentação   | `validacao.ts`, `reunioes.ts`, `sugestoes-horario.ts`, `diferenca.ts` |
 
 Os formulários usam `react-hook-form`; a tela principal usa `react-native-keyboard-controller` para evitar que o teclado cubra campos no Android. Telas com dados mutáveis usam `useFocusEffect` para recarregar ao receber foco.
 
@@ -51,34 +51,42 @@ O JWT expira em **1 hora**. No aplicativo nativo ele é salvo por `expo-secure-s
 
 ## 5. Bibliotecas do frontend
 
-Versões resolvidas pelo `package-lock.json` do commit `792fab4`:
+Versões resolvidas pelo `package-lock.json` da branch `homolog` em 09/11/2026, após a migração para o Expo SDK 58 (commit `9cb23ad`) e a inclusão das bibliotecas dos Incrementos 2 e 3:
 
-| Biblioteca                       |  Versão | Uso no projeto                                        |
-| -------------------------------- | ------: | ----------------------------------------------------- |
-| Expo                             | 57.0.31 | runtime, bundler e ferramentas do aplicativo          |
-| React                            |  19.2.3 | componentes e estado                                  |
-| React Native                     |  0.86.3 | interface nativa Android/iOS                          |
-| Expo Router                      | 57.0.29 | rotas por arquivos e proteção de telas                |
-| React Hook Form                  |  7.90.0 | estado, validação e envio dos formulários             |
-| React Native Keyboard Controller |  1.21.9 | ajuste da tela ao teclado, principalmente Android     |
-| Expo Secure Store                |  57.0.4 | JWT e preferência de tema no dispositivo              |
-| Expo Local Authentication        |  57.0.3 | biometria ou credencial do aparelho em ações de conta |
-| Expo Auth Session                | 57.0.16 | fluxo OAuth no navegador                              |
-| Google Sign-In                   |  16.1.5 | login Google nativo                                   |
-| Expo Linking                     | 57.0.13 | deep links e callbacks                                |
-| Expo Constants                   | 57.0.22 | configuração Expo e descoberta do host local          |
-| Expo Clipboard                   |  57.0.2 | cópia do código de acesso da organização              |
-| Expo Linear Gradient             |  57.0.2 | fundos visuais                                        |
-| Expo Font                        |  57.0.4 | carregamento das fontes                               |
-| Poppins para Expo                |   0.4.1 | família tipográfica                                   |
-| Ionicons para React Native       |  14.0.0 | ícones                                                |
-| Gesture Handler                  |  2.32.0 | gestos nativos                                        |
-| Reanimated                       |   4.5.1 | animações nativas                                     |
-| Safe Area Context                |   5.7.0 | respeito às áreas seguras do aparelho                 |
-| React Native Screens             |  4.26.2 | telas nativas usadas pela navegação                   |
-| React Native Web                 |  0.21.2 | execução no navegador                                 |
-| TypeScript                       |   6.0.3 | tipagem e verificação estática                        |
-| ESLint                           |  9.39.5 | análise de estilo e problemas de código               |
+| Biblioteca                       |  Versão | Uso no projeto                                                     |
+| -------------------------------- | ------: | ------------------------------------------------------------------ |
+| Expo                             | 58.0.23 | runtime, bundler e ferramentas do aplicativo                       |
+| React                            |  19.3.0 | componentes e estado                                               |
+| React Native                     |  0.88.1 | interface nativa Android/iOS                                       |
+| Expo Router                      | 58.0.30 | rotas por arquivos e proteção de telas                             |
+| React Hook Form                  |  7.90.0 | estado, validação e envio dos formulários                          |
+| React Native Keyboard Controller |  1.22.7 | ajuste da tela ao teclado, principalmente Android                  |
+| Expo Secure Store                |  58.0.2 | JWT e preferência de tema no dispositivo                           |
+| Expo Local Authentication        |  58.0.2 | biometria, Face ID ou PIN ao aprovar a ata e em ações de conta     |
+| Expo Print                       |  58.0.8 | geração do PDF da ata aprovada                                     |
+| DateTimePicker da comunidade     |   9.2.1 | seletor de hora nativo do Android e do iOS                          |
+| Expo Sharing                     | 58.0.22 | entrega do PDF ao menu de compartilhamento do aparelho             |
+| Expo Document Picker             |  58.0.4 | escolha dos arquivos anexados à pauta                              |
+| Expo File System                 | 58.0.13 | envio, download e abertura dos anexos                              |
+| Expo Auth Session                | 58.0.17 | fluxo OAuth no navegador                                           |
+| Google Sign-In                   |  16.1.5 | login Google nativo                                                |
+| Expo Linking                     | 58.0.16 | deep links e callbacks                                             |
+| Expo Constants                   | 58.0.15 | configuração Expo e descoberta do host local                       |
+| Expo Clipboard                   |  58.0.4 | cópia do código de acesso da organização                           |
+| Expo Linear Gradient             |  58.0.3 | fundos visuais                                                     |
+| Expo Font                        | 58.0.11 | carregamento das fontes                                            |
+| Expo Build Properties            | 58.0.12 | ajustes da compilação nativa Android                               |
+| Expo Dev Client                  | 58.0.18 | execução de versões de desenvolvimento                             |
+| Poppins para Expo                |   0.4.1 | família tipográfica                                                |
+| Ionicons para React Native       |  14.0.0 | ícones                                                             |
+| Gesture Handler                  |   3.3.0 | gestos nativos                                                     |
+| Reanimated                       |   4.7.1 | animações nativas                                                  |
+| React Native Worklets            |  0.13.0 | execução das animações na thread de UI, exigida pelo Reanimated 4  |
+| Safe Area Context                | 5.11.1  | respeito às áreas seguras do aparelho                              |
+| React Native Screens             |  4.30.1 | telas nativas usadas pela navegação                                |
+| React Native Web                 |  0.21.4 | execução no navegador                                              |
+| TypeScript                       |   6.0.3 | tipagem e verificação estática                                     |
+| ESLint                           |  9.39.5 | análise de estilo e problemas de código                            |
 
 ## 6. Bibliotecas do backend
 
@@ -103,7 +111,7 @@ Versões resolvidas pelo `package-lock.json` do commit `6f2ffc4`:
 | Prettier                |   3.9.6 | formatação                                    |
 | TypeScript              |   6.0.3 | compilação e tipagem                          |
 
-O backend usa também os módulos nativos `node:crypto` para códigos, tokens e comparação temporal segura, `node:os` para métricas do servidor e `fetch` do Node para endpoints OAuth do Google.
+O backend usa também os módulos nativos `node:crypto` para códigos, tokens e comparação temporal segura, `node:os` para métricas do servidor, `node:events` para esperar o fim da gravação dos anexos no GridFS e `fetch` do Node para endpoints OAuth do Google. Os anexos são lidos e gravados pelo `GridFSBucket` do driver MongoDB, exposto pelo Mongoose, e recebidos pelo `FileInterceptor` do `@nestjs/platform-express`.
 
 ## 7. Variáveis de ambiente
 
@@ -124,10 +132,14 @@ O backend usa também os módulos nativos `node:crypto` para códigos, tokens e 
 
 ## 8. Verificação da base
 
-Em 23/10/2026, com Node.js 24.11.0 e npm 11.6.1:
+Em 09/11/2026, com Node.js 24.19.0 e npm 11.17.0, na branch `homolog` com as alterações do Incremento 3:
 
-- backend: `npm run build` concluído; `npm test` com **13 arquivos e 182 testes aprovados**;
-- frontend: 9 testes Node aprovados e lint sem diagnóstico após instalar dependências;
-- frontend: `npm run typecheck` aponta rotas ausentes no arquivo gerado de typed routes do Expo. Como o arquivo é gerado pelo ambiente Expo, o resultado deve ser repetido após regenerar `.expo/types`; até isso ocorrer, a verificação de tipos não pode ser registrada como aprovada.
+- backend: `npm test` com **14 arquivos e 204 testes aprovados**; `npm run build` concluído; `npm run lint` sem diagnóstico;
+- frontend: `npx tsc --noEmit` sem erro e `npx eslint src` sem diagnóstico, com o arquivo de typed routes do Expo já regenerado;
+- aplicativo: APK de release gerado para `x86_64` e executado nos emuladores Android 16 e Android 7.0, com o fluxo das atas conferido tela a tela.
 
-Nenhum resultado de desempenho foi medido nesta revisão. Metas de tempo presentes nos RNFs são critérios de aceitação, não evidência de medição.
+Em 10/11/2026, com o seletor de hora nativo já incluído, um novo APK de release foi gerado e o formulário de reunião foi percorrido nos emuladores Android 16 e Android 7.0: escolha de início e término pelo relógio do sistema, "Dia inteiro", aviso de término anterior ao início e agendamento completo.
+
+Em 23/10/2026, na entrega do Incremento 2, a base era Node.js 24.11.0 e npm 11.6.1, com 13 arquivos e 182 testes aprovados.
+
+Nenhum resultado de desempenho foi medido nestas revisões. Metas de tempo presentes nos RNFs são critérios de aceitação, não evidência de medição. O aplicativo não foi executado em aparelho iOS, por falta de equipamento.

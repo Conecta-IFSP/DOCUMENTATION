@@ -1,79 +1,145 @@
 # Diagramas de sequência — Reuniões
 
-> Padrão do Incremento 2 · Módulo REU
+> Padrão da disciplina · Módulo REU · Revisado em 10/11/2026
 
 ## Resumo
 
-Cada diagrama usa participantes e métodos confirmados no código: telas Expo, `ReunioesController`, `ReunioesService` e models Mongoose. `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard` protegem todas as rotas do módulo.
+Há um diagrama para cada requisito funcional, com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o módulo `api`, o `ReunioesController`, o `ReunioesService` e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de horário, aparecem em notas.
+
+Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota.
 
 ## SD-REU-01 — Agendar reunião
 
 ```mermaid
 sequenceDiagram
-    actor U as Responsável
-    participant T as TelaNovaReuniao
+    autonumber
+    actor U as Presidente
+    participant F as FormularioReuniao
+    participant N as TelaNovaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
+    participant CM as ComissaoModel
     participant M as ReuniaoModel
-    U->>T: informa reunião e convidados
-    T->>C: POST /reunioes
+    U->>F: salvar()
+    F->>F: calcularHorario(dados)
+    F->>N: aoSalvar(envio)
+    N->>A: api("/reunioes", "POST", dados)
+    Note over A,C: POST /reunioes
+    A->>C: criar(dto, req)
     C->>S: criar(dto, usuarioId)
-    S->>S: autorizarResponsavel() e validarHorario()
+    S->>S: autorizarResponsavel(comissaoId, usuarioId)
+    S->>CM: findById(comissaoId)
+    CM-->>S: comissao
+    S->>S: lerData(dto.inicio, mensagem)
+    S->>S: lerData(dto.fim, mensagem)
+    S->>S: validarHorario(inicio, fim)
+    Note over S: Confere se cada convidado está em comissao.membros
     S->>M: create(reuniao)
-    M-->>T: reunião AGENDADA
+    M-->>S: reuniao
+    S->>S: popular(reuniao)
+    S->>S: apresentar(reuniao, usuarioId)
+    S-->>C: reuniao
+    C-->>A: 201 reuniao
+    A-->>N: Resultado com a reuniao
+    N->>N: router.replace("/reunioes/[id]", id)
+    N-->>F: null
 ```
 
 ## SD-REU-02 — Consultar agenda
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
     participant T as TelaAgenda
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: abre agenda/filtros
-    T->>C: GET /reunioes?de&ate&comissao_id
+    U->>T: carregar()
+    T->>A: api("/reunioes")
+    Note over A,C: GET /reunioes?de=&ate=&comissao_id=
+    A->>C: listar(req, de, ate, comissaoId)
     C->>S: listar(usuarioId, filtros)
-    S->>M: find(participante, período, comissão)
-    M-->>S: reuniões ordenadas
-    S-->>T: reuniões populadas
+    S->>S: validarUsuario(usuarioId)
+    Note over S: Consulta: participantes.usuario_id igual ao usuário,<br/>fim maior ou igual a "de", inicio menor ou igual a "ate",<br/>comissao_id igual ao informado
+    S->>M: find(consulta)
+    S->>M: populate("comissao_id", "nome organizacao_id")
+    S->>M: populate("participantes.usuario_id", "nome email")
+    S->>M: sort(inicio crescente)
+    M-->>S: reunioes
+    S->>S: apresentar(reuniao, usuarioId)
+    S-->>C: reunioes
+    C-->>A: 200 reunioes
+    A-->>T: Resultado com as reunioes
+    T->>T: definirReunioes(lista.dados)
 ```
 
 ## SD-REU-03 — Visualizar reunião
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
     participant T as TelaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: seleciona reunião
-    T->>C: GET /reunioes/:id
+    U->>T: buscar()
+    T->>A: api("/reunioes/:id")
+    Note over A,C: GET /reunioes/:id
+    A->>C: buscarPorId(id, req)
     C->>S: buscarPorId(id, usuarioId)
+    S->>S: carregar(id, usuarioId)
     S->>M: findById(id)
-    S->>S: validar participação e popular()
-    S-->>T: reunião + sou_dono
+    M-->>S: reuniao
+    Note over S: Sem o usuário em participantes, responde 403
+    S->>S: popular(reuniao)
+    S->>S: apresentar(reuniao, usuarioId)
+    S-->>C: reuniao
+    C-->>A: 200 reuniao
+    A-->>T: Resultado com a reuniao
+    T->>T: definirReuniao(resultado.dados)
+    Note over T: buscar() é chamada de novo a cada 30 segundos
 ```
 
 ## SD-REU-04 — Cancelar reunião
 
 ```mermaid
 sequenceDiagram
-    actor U as Organizador
+    autonumber
+    actor U as Presidente
     participant T as TelaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: confirma cancelamento
-    T->>C: PATCH /reunioes/:id {CANCELADA}
+    Note over U,T: Mais opções, Cancelar reunião e confirmação
+    U->>T: executar("cancelar", acao, "Reunião cancelada.")
+    T->>A: api("/reunioes/:id", "PATCH", situacao CANCELADA)
+    Note over A,C: PATCH /reunioes/:id
+    A->>C: atualizar(id, dto, req)
     C->>S: atualizar(id, dto, usuarioId)
-    S->>M: findOneAndUpdate(organizador, AGENDADA, fim futuro)
-    alt estado atual
-        M-->>T: reunião CANCELADA
-    else estado mudou
-        S-->>T: 409 conflito
+    S->>S: cancelar(id, usuarioId)
+    S->>S: carregarComoDono(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAgendada(reuniao)
+    Note over S: Recusa se reuniao.fim já passou
+    S->>M: findOneAndUpdate(filtro com _id, criada_por, AGENDADA e fim futuro, $set situacao)
+    alt reunião encontrada pelo filtro
+        M-->>S: reuniao cancelada
+        S->>S: responder(atualizada, usuarioId, conflito)
+        S-->>C: reuniao
+        C-->>A: 200 reuniao
+        A-->>T: Resultado com a reuniao
+    else reunião mudou no intervalo
+        M-->>S: null
+        S-->>C: ConflictException
+        C-->>A: 409 A reunião mudou
+        A-->>T: Resultado com o erro
     end
 ```
 
@@ -81,145 +147,326 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
-    participant T as TelaAgenda/TelaReuniao
+    participant T as TelaAgenda
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: aceita ou recusa
-    T->>C: PATCH /reunioes/:id/convite
+    U->>T: responder(reuniao, aceito)
+    T->>A: api("/reunioes/:id/convite", "PATCH", aceito)
+    Note over A,C: PATCH /reunioes/:id/convite
+    A->>C: responderConvite(id, dto, req)
     C->>S: responderConvite(id, aceito, usuarioId)
-    S->>M: findOneAndUpdate(participante e estado válidos)
-    M-->>T: convite atualizado
+    S->>S: carregar(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    Note over S: Recusa quem agendou a reunião
+    S->>S: exigirAgendada(reuniao)
+    Note over S: Recusa se a reunião terminou ou,<br/>na recusa do convite, se já há entrada marcada
+    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e participantes.usuario_id, $set participantes.$.convite)
+    M-->>S: reuniao atualizada
+    S->>S: responder(atualizada, usuarioId, conflito)
+    S-->>C: reuniao
+    C-->>A: 200 reuniao
+    A-->>T: Resultado com a reuniao
+    T->>T: definirReunioes(lista atualizada)
 ```
 
 ## SD-REU-06 — Registrar entrada
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
     participant T as TelaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: marca entrada
-    T->>C: POST /reunioes/:id/entrada
+    U->>T: executar("entrada", acao, "Entrada marcada.")
+    T->>A: api("/reunioes/:id/entrada", "POST")
+    Note over A,C: POST /reunioes/:id/entrada
+    A->>C: marcarEntrada(id, req)
     C->>S: marcarEntrada(id, usuarioId)
-    S->>S: validar janela, convite e ausência
-    S->>M: findOneAndUpdate(presenca inexistente)
-    M-->>T: presença criada
+    S->>S: carregar(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAgendada(reuniao)
+    Note over S: Recusa antes de inicio, depois de fim,<br/>com convite RECUSADO ou com presenca já criada
+    S->>M: findOneAndUpdate(filtro com participante sem presenca e convite não recusado, $set participantes.$.presenca)
+    M-->>S: reuniao atualizada
+    S->>S: responder(atualizada, usuarioId, conflito)
+    S-->>C: reuniao
+    C-->>A: 201 reuniao
+    A-->>T: Resultado com a reuniao
+    T->>T: definirReuniao(resultado.dados)
 ```
 
 ## SD-REU-07 — Registrar saída
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
     participant T as TelaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: marca saída
-    T->>C: POST /reunioes/:id/saida
+    U->>T: executar("saida", acao, "Saída marcada.")
+    T->>A: api("/reunioes/:id/saida", "POST")
+    Note over A,C: POST /reunioes/:id/saida
+    A->>C: marcarSaida(id, req)
     C->>S: marcarSaida(id, usuarioId)
-    S->>S: calcular min(agora, fim)
-    S->>M: findOneAndUpdate(entrada existente, saída ausente)
-    M-->>T: saída registrada
+    S->>S: carregar(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAgendada(reuniao)
+    Note over S: Recusa sem entrada, com presença recusada ou com saída já marcada.<br/>O horário gravado é o menor entre agora e reuniao.fim
+    S->>M: findOneAndUpdate(filtro com participante sem presenca.saida, $set participantes.$.presenca.saida)
+    M-->>S: reuniao atualizada
+    S->>S: responder(atualizada, usuarioId, conflito)
+    S-->>C: reuniao
+    C-->>A: 201 reuniao
+    A-->>T: Resultado com a reuniao
+    T->>T: definirReuniao(resultado.dados)
 ```
 
 ## SD-REU-08 — Confirmar ou recusar presença
 
 ```mermaid
 sequenceDiagram
-    actor U as Organizador
+    autonumber
+    actor U as Presidente
     participant T as TelaReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: escolhe participante e situação
-    T->>C: PATCH /reunioes/:id/presencas/:usuarioId
-    C->>S: atualizarPresenca(id, alvoId, situacao, usuarioId)
-    S->>S: validar organizador e início
-    S->>M: findOneAndUpdate(presenca)
-    M-->>T: presença atualizada
+    U->>T: marcarPresenca(pessoa, situacao)
+    T->>T: executar(chave, acao)
+    T->>A: api("/reunioes/:id/presencas/:usuarioId", "PATCH", situacao)
+    Note over A,C: PATCH /reunioes/:id/presencas/:usuarioId
+    A->>C: atualizarPresenca(id, usuarioId, dto, req)
+    C->>S: atualizarPresenca(id, participanteId, situacao, usuarioId)
+    S->>S: validarId(participanteId)
+    S->>S: carregarComoDono(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAgendada(reuniao)
+    Note over S: Recusa antes de reuniao.inicio, se a pessoa não participa<br/>ou ao recusar quem não marcou entrada
+    alt participante já tem presenca
+        S->>M: findOneAndUpdate(filtro com participante e presenca existente, $set participantes.$.presenca.situacao)
+    else participante sem presenca
+        S->>M: findOneAndUpdate(filtro com participante sem presenca, $set participantes.$.presenca)
+    end
+    M-->>S: reuniao atualizada
+    S->>S: responder(atualizada, usuarioId, conflito)
+    S-->>C: reuniao
+    C-->>A: 200 reuniao
+    A-->>T: Resultado com a reuniao
 ```
 
 ## SD-REU-09 — Gerar lista de presença
 
 ```mermaid
 sequenceDiagram
+    autonumber
     actor U as Participante
     participant T as TelaRegistrosReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: abre aba Presença
-    T->>C: GET /reunioes/:id/lista-presenca
+    participant UM as UsuarioModel
+    U->>T: carregarLista()
+    T->>A: api("/reunioes/:id/lista-presenca")
+    Note over A,C: GET /reunioes/:id/lista-presenca
+    A->>C: gerarListaPresenca(id, req)
     C->>S: gerarListaPresenca(id, usuarioId)
+    S->>S: carregar(id, usuarioId)
     S->>M: findById(id)
-    S->>S: calcular situação e minutos
-    S-->>T: lista sem alterar dados
+    M-->>S: reuniao
+    S->>UM: find(_id dentro de participantes.usuario_id)
+    S->>UM: select("nome")
+    UM-->>S: pessoas
+    Note over S: Para cada participante: situacao de presenca ou SEM_REGISTRO,<br/>minutos entre entrada e saida, arredondados para baixo
+    S-->>C: lista de presença
+    C-->>A: 200 lista
+    A-->>T: Resultado com a lista
+    T->>T: definirLista(resposta.dados)
+    U->>T: compartilhar()
+    T->>T: Share.share(message)
 ```
 
-## SD-REU-10 — Salvar rascunho da ata
+## SD-REU-13 — Editar reunião
 
 ```mermaid
 sequenceDiagram
-    actor U as Responsável
-    participant T as TelaRegistrosReuniao
+    autonumber
+    actor U as Presidente
+    participant F as FormularioReuniao
+    participant E as TelaEditarReuniao
+    participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: salva conteúdo
-    T->>C: PATCH /reunioes/:id/ata {conteudo, versao}
-    C->>S: salvarAta(id, dto, usuarioId)
-    S->>S: validar responsável, encerramento e versão
-    S->>M: findOneAndUpdate(versao atual)
-    alt versão atual
-        M-->>T: RASCUNHO com versão + 1
-    else versão obsoleta
-        S-->>T: 409 conflito
+    Note over F,E: O formulário abre preenchido com a reunião buscada por api("/reunioes/:id")
+    U->>F: salvar()
+    F->>F: calcularHorario(dados)
+    F->>E: aoSalvar(envio)
+    E->>A: api("/reunioes/:id", "PATCH", campos)
+    Note over A,C: PATCH /reunioes/:id
+    A->>C: atualizar(id, dto, req)
+    C->>S: atualizar(id, dto, usuarioId)
+    S->>S: editar(id, campos, usuarioId)
+    S->>S: carregarComoDono(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAgendada(reuniao)
+    alt data ou horário mudaram
+        Note over S: Recusa se reuniao.inicio já passou
+        S->>S: validarHorario(inicio, fim)
+    end
+    opt dto com convidados_ids
+        S->>S: autorizarResponsavel(comissaoId, usuarioId)
+    end
+    S->>M: findOneAndUpdate(filtro com _id, AGENDADA, fim futuro e atualizado_em, $set campos)
+    alt reunião encontrada pelo filtro
+        M-->>S: reuniao atualizada
+        S->>S: responder(atualizada, usuarioId, conflito)
+        S-->>C: reuniao
+        C-->>A: 200 reuniao
+        A-->>E: Resultado com a reuniao
+        E-->>F: null
+        F->>E: aoConcluir()
+    else reunião mudou durante a edição
+        M-->>S: null
+        S-->>C: ConflictException
+        C-->>A: 409 A reunião mudou
+        A-->>E: Resultado com o erro
+        E-->>F: mensagem de erro
     end
 ```
 
-## SD-REU-11 — Enviar ata para aprovação
+## SD-REU-14 — Anexar arquivo à pauta
 
 ```mermaid
 sequenceDiagram
-    actor U as Responsável
-    participant T as TelaRegistrosReuniao
+    autonumber
+    actor U as Presidente
+    participant T as TelaReuniao
+    participant X as anexos
     participant C as ReunioesController
     participant S as ReunioesService
+    participant G as GridFSBucket
     participant M as ReuniaoModel
-    U->>T: confirma publicação
-    T->>C: POST /reunioes/:id/ata/publicar {versao}
-    C->>S: publicarAta(id, versao, usuarioId)
-    S->>S: selecionar presenças CONFIRMADA
-    S->>M: findOneAndUpdate(RASCUNHO e versão atual)
-    M-->>T: ata EM_APROVACAO e aprovadores
+    U->>T: adicionarAnexos()
+    T->>X: escolherArquivos()
+    X-->>T: arquivos escolhidos
+    T->>X: validarArquivos(novos, jaAnexados)
+    X-->>T: null
+    loop para cada arquivo
+        T->>X: enviarAnexo(reuniaoId, arquivo)
+        Note over X,C: POST /reunioes/:id/anexos, multipart, limite de 10 MB no FileInterceptor
+        X->>C: adicionarAnexo(id, arquivo, req)
+        C->>S: adicionarAnexo(id, arquivo, usuarioId)
+        S->>S: carregarComoDono(id, usuarioId)
+        S->>M: findById(id)
+        M-->>S: reuniao
+        S->>S: exigirAnexosAbertos(reuniao)
+        Note over S: Confere o tipo em TIPOS_ANEXO e o limite MAXIMO_ANEXOS
+        S->>S: arquivos()
+        S->>G: openUploadStream(nome, opcoes)
+        G-->>S: envio com o id do arquivo
+        S->>M: findOneAndUpdate(filtro com _id, AGENDADA e menos de 10 anexos, $push anexos)
+        alt reunião encontrada pelo filtro
+            M-->>S: reuniao atualizada
+        else reunião mudou durante o envio
+            M-->>S: null
+            S->>G: delete(envio.id)
+        end
+        S->>S: responder(atualizada, usuarioId, conflito)
+        S-->>C: reuniao
+        C-->>X: 201 reuniao
+        X-->>T: Resultado com a reuniao
+    end
+    T->>T: definirSucesso(mensagem)
 ```
 
-## SD-REU-12 — Aprovar ata
+## SD-REU-15 — Baixar anexo da pauta
 
 ```mermaid
 sequenceDiagram
-    actor U as Aprovador
-    participant T as TelaRegistrosReuniao
+    autonumber
+    actor U as Participante
+    participant T as TelaReuniao
+    participant X as anexos
+    participant FS as File
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: confirma aprovação
-    T->>C: POST /reunioes/:id/ata/aprovar {versao}
-    C->>S: aprovarAta(id, versao, usuarioId)
-    S->>S: validar aprovador e evitar duplicidade
-    S->>M: findOneAndUpdate(versão atual)
-    alt todos aprovaram
-        M-->>T: ata APROVADA
-    else ainda faltam aprovações
-        M-->>T: ata EM_APROVACAO
-    end
+    participant G as GridFSBucket
+    U->>T: abrir(item)
+    T->>X: abrirAnexo(reuniaoId, anexo)
+    X->>FS: downloadFileAsync(url, destino, opcoes)
+    Note over FS,C: GET /reunioes/:id/anexos/:anexoId
+    FS->>C: abrirAnexo(id, anexoId, req)
+    C->>S: abrirAnexo(id, anexoId, usuarioId)
+    S->>S: carregar(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: buscarAnexo(reuniao, anexoId)
+    S->>S: arquivos()
+    S->>G: openDownloadStream(anexo._id)
+    G-->>S: fluxo de leitura
+    S-->>C: anexo e conteudo
+    C-->>FS: 200 StreamableFile
+    FS-->>X: arquivo no cache
+    X->>FS: canPreview(arquivo, opcoes)
+    FS-->>X: true
+    X->>FS: preview(arquivo, opcoes)
+    X-->>T: null
+```
+
+## SD-REU-16 — Remover anexo da pauta
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Presidente
+    participant T as TelaReuniao
+    participant X as anexos
+    participant A as api
+    participant C as ReunioesController
+    participant S as ReunioesService
+    participant M as ReuniaoModel
+    participant G as GridFSBucket
+    U->>T: confirmarRemocao(item)
+    Note over U,T: O sistema pergunta "Remover o anexo?" e o presidente confirma
+    T->>T: executar("anexo", acao, "Anexo removido.")
+    T->>X: removerAnexo(reuniaoId, anexoId)
+    X->>A: api("/reunioes/:id/anexos/:anexoId", "DELETE")
+    Note over A,C: DELETE /reunioes/:id/anexos/:anexoId
+    A->>C: removerAnexo(id, anexoId, req)
+    C->>S: removerAnexo(id, anexoId, usuarioId)
+    S->>S: carregarComoDono(id, usuarioId)
+    S->>M: findById(id)
+    M-->>S: reuniao
+    S->>S: exigirAnexosAbertos(reuniao)
+    S->>S: buscarAnexo(reuniao, anexoId)
+    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e anexos._id, $pull anexos)
+    M-->>S: reuniao sem o anexo
+    S->>S: arquivos()
+    S->>G: delete(anexo._id)
+    S->>S: responder(atualizada, usuarioId, conflito)
+    S-->>C: reuniao
+    C-->>A: 200 reuniao
+    A-->>T: Resultado com a reuniao
 ```
 
 ## Rastreabilidade
 
-SD-REU-01 a SD-REU-12 correspondem, na mesma ordem, a UC-REU-01 a UC-REU-12 e RF-REU-01 a RF-REU-12.
+SD-REU-01 a SD-REU-09 e SD-REU-13 a SD-REU-16 correspondem aos requisitos funcionais de mesmo número. Os diagramas da ata estão em [SD-ATA-01 a SD-ATA-08](../../4%20-%20Incremento3/atas/6%20-%20diagramas-sequencia-atas.md).

@@ -4,13 +4,13 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 ## Base usada nesta revisão
 
-| Repositório     | Referência auditada    |
-| --------------- | ---------------------- |
-| `FRONTEND`      | commit `792fab4`       |
-| `BACKEND`       | commit `6f2ffc4`       |
-| `DOCUMENTATION` | documentação publicada |
+| Repositório     | Referência auditada                                     |
+| --------------- | --------------------------------------------------------- |
+| `FRONTEND`      | branch `homolog`, Incremento 3 sobre o commit `9cb23ad`  |
+| `BACKEND`       | branch `homolog`, Incremento 3 sobre o commit `6f2ffc4`  |
+| `DOCUMENTATION` | documentação publicada                                    |
 
-Esta documentação descreve o comportamento implementado nesses commits. Alterações posteriores no código devem atualizar também os requisitos, diagramas, dicionários e testes afetados.
+Esta documentação descreve o comportamento implementado nessa base, conferido em 09/11/2026. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
 
 ## Leitura recomendada
 
@@ -31,8 +31,10 @@ DOCUMENTATION/
 │   ├── cadastro-comissao/
 │   ├── configuracoes-usuario/
 │   └── informacao-sistemas/
-└── 3 - Incremento2/
-    └── reunioes/
+├── 3 - Incremento2/
+│   └── reunioes/
+└── 4 - Incremento3/
+    └── atas/
 ```
 
 Cada módulo deve possuir: visão geral, casos de uso, requisitos funcionais, diagrama e dicionário de classes, diagrama e dicionário relacional, requisitos não funcionais, diagramas de sequência e testes.
@@ -46,6 +48,14 @@ Cada módulo deve possuir: visão geral, casos de uso, requisitos funcionais, di
 - [Informações do sistema](2%20-%20Incremento1/informacao-sistemas/README.md)
 
 Cada pasta do Incremento 1 contém exatamente os mesmos dez artefatos técnicos e segue o modelo definido em [Padrão da documentação](PADRAO-DOCUMENTACAO.md).
+
+### Incremento 2
+
+- [Reuniões](3%20-%20Incremento2/reunioes/README.md): agendamento, convites, entrada e saída, lista de presença e anexos da pauta.
+
+### Incremento 3
+
+- [Atas de reunião](4%20-%20Incremento3/atas/README.md): redação, envio com prazo, aprovação e reprovação, versões e PDF.
 
 ## Repositórios relacionados
 

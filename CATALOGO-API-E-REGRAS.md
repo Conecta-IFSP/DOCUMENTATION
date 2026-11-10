@@ -1,6 +1,6 @@
 # Catálogo da API e regras implementadas
 
-Fonte: `BACKEND`, commit `6f2ffc4`. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
+Fonte: `BACKEND`, branch `homolog` com as alterações do Incremento 3 (sobre o commit `6f2ffc4`), conferido em 09/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
 
 ## Autenticação e cadastro
 
@@ -86,26 +86,39 @@ Todas exigem JWT e `ADMIN_SISTEMA`.
 | `GET /sistema/status`         | `node:os` + `countDocuments` | memória, CPU, uptime e contagens de usuários/organizações/comissões      |
 | `GET /sistema/relatorios`     | `countDocuments`             | totais/ativos, organizações pendentes/aprovadas e comissões ativas       |
 | `POST /sistema/popular-teste` | variáveis `TEST_USER_*`      | cria 3 usuários, 1 organização e 1 comissão; falha se variáveis ausentes |
-| `POST /sistema/reset`         | quatro models                | apaga usuários não administradores, organizações, comissões e reuniões   |
+| `POST /sistema/reset`         | quatro models + GridFS       | apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks` e os contadores de numeração das atas |
 
-## Reuniões, presenças e atas
+## Reuniões, presenças e anexos
 
 Todas exigem JWT e `USUARIO`. O service valida participação e papel de responsável.
 
-| Método e rota                              | Regra principal                                                              |
-| ------------------------------------------ | ---------------------------------------------------------------------------- |
-| `GET /reunioes?de=&ate=&comissao_id=`      | lista reuniões do participante, com filtros opcionais                        |
-| `POST /reunioes`                           | somente responsável da comissão ativa; cria participantes e convite          |
-| `GET /reunioes/:id`                        | somente participante                                                         |
-| `PATCH /reunioes/:id`                      | organizador; implementação aceita apenas cancelamento (`situacao=CANCELADA`) |
-| `PATCH /reunioes/:id/convite`              | participante não organizador responde antes do término                       |
-| `POST /reunioes/:id/entrada`               | participante não recusado, durante o horário, uma vez                        |
-| `POST /reunioes/:id/saida`                 | participante com entrada; limita saída ao término                            |
-| `PATCH /reunioes/:id/presencas/:usuarioId` | organizador confirma/recusa presença                                         |
-| `GET /reunioes/:id/lista-presenca`         | participante; calcula duração e `SEM_REGISTRO`                               |
-| `PATCH /reunioes/:id/ata`                  | responsável salva rascunho versionado                                        |
-| `POST /reunioes/:id/ata/publicar`          | responsável publica versão para aprovação                                    |
-| `POST /reunioes/:id/ata/aprovar`           | participante aprova a versão atual; service controla quorum/estado           |
+| Método e rota                              | Regra principal                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `GET /reunioes?de=&ate=&comissao_id=`      | lista reuniões do participante, com filtros opcionais                                             |
+| `POST /reunioes`                           | somente responsável da comissão ativa; cria participantes e convite; `local` é opcional e `dia_inteiro` marca a reunião de dia inteiro |
+| `GET /reunioes/:id`                        | somente participante                                                                               |
+| `PATCH /reunioes/:id`                      | organizador; cancela (`situacao=CANCELADA`) ou edita título, local, data, horário, pauta e convidados |
+| `PATCH /reunioes/:id/convite`              | participante não organizador responde antes do término                                            |
+| `POST /reunioes/:id/entrada`               | participante não recusado, durante o horário, uma vez                                             |
+| `POST /reunioes/:id/saida`                 | participante com entrada; limita saída ao término                                                 |
+| `PATCH /reunioes/:id/presencas/:usuarioId` | organizador confirma/recusa presença                                                              |
+| `GET /reunioes/:id/lista-presenca`         | participante; calcula duração e `SEM_REGISTRO`                                                    |
+| `POST /reunioes/:id/anexos`                | organizador envia arquivo de até 10 MB para a pauta, no máximo 10 por reunião (GridFS)            |
+| `GET /reunioes/:id/anexos/:anexoId`        | participante baixa o anexo                                                                         |
+| `DELETE /reunioes/:id/anexos/:anexoId`     | organizador remove o anexo e o arquivo no GridFS                                                  |
+
+## Atas
+
+Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A ata só existe depois do término da reunião.
+
+| Método e rota                     | Regra principal                                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `GET /reunioes/atas/pendentes`    | lista as atas que esperam avaliação do usuário e as atas dele que foram reprovadas                   |
+| `PATCH /reunioes/:id/ata`         | responsável salva rascunho versionado                                                                  |
+| `POST /reunioes/:id/ata/publicar` | responsável envia a versão para aprovação, com prazo de 24, 72 ou 168 horas; congela os presentes      |
+| `POST /reunioes/:id/ata/aprovar`  | presente aprova a versão atual; com todas as aprovações a ata é numerada por comissão e ano           |
+| `POST /reunioes/:id/ata/reprovar` | presente reprova a versão atual, com trecho e justificativa opcionais; a ata volta para o responsável |
+| `POST /reunioes/:id/ata/nova`     | responsável cancela a ata reprovada e abre a versão seguinte com o mesmo texto                        |
 
 ## Códigos HTTP usuais
 

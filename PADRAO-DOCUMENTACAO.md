@@ -17,11 +17,11 @@ Este arquivo define o formato obrigatório dos documentos do Conecta+. O objetiv
 | Classes, DTOs e enums   | `PascalCase`      | `CreateOrganizacaoDto` |
 | Métodos TypeScript      | `camelCase`       | `buscarPorId()`        |
 
-Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínculos; `COM` comissões; `CFG` configurações de usuário; `SIS` informações do sistema; `REU` reuniões, presença e ata.
+Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínculos; `COM` comissões; `CFG` configurações de usuário; `SIS` informações do sistema; `REU` reuniões, convites e presença; `ATA` atas de reunião.
 
 ## 3. Estrutura de cada módulo
 
-Cada pasta do Incremento 1 possui exatamente dez documentos técnicos. O nome do módulo no arquivo é escrito em `kebab-case`:
+O modelo é o documento de requisitos de exemplo da disciplina (material "Aula 1 - Revisão", slide "Exemplo de documento de requisitos"). Cada pasta de módulo possui dez documentos, com o nome do módulo em `kebab-case`:
 
 ```text
 README.md
@@ -36,101 +36,94 @@ README.md
 7 - testes-<modulo>.md
 ```
 
-| Ordem | Documento                 | Conteúdo obrigatório                                                                               |
-| ----: | ------------------------- | -------------------------------------------------------------------------------------------------- |
-|     — | `README.md`               | objetivo, escopo, atores, arquivos e matriz de rastreabilidade                                     |
-|     1 | casos de uso              | ator, objetivo, gatilho, pré-condições, fluxo principal, alternativas, pós-condições e regras      |
-|     2 | requisitos funcionais     | entrada, rota, autenticação, controller/service, coleção, consulta/gravação, resposta e erros      |
-|     3 | diagrama de classes       | classes reais ou abstrações explicitamente identificadas; atributos, métodos existentes e relações |
-|     3 | dicionário de classes     | finalidade, atributos, tipos, obrigatoriedade, restrições e métodos                                |
-|     4 | diagrama relacional       | visão lógica das coleções e documentos embutidos do MongoDB                                        |
-|     4 | dicionário relacional     | coleção, caminho do campo, tipo BSON/lógico, restrições, padrão, índice e significado              |
-|     5 | requisitos não funcionais | critério mensurável, forma de verificação e evidência no código/teste                              |
-|     6 | diagramas de sequência    | participantes que correspondem a componentes reais e chamadas com métodos existentes               |
-|     7 | testes                    | pré-condições, entrada, passos, resultado esperado, resultado obtido e requisito coberto           |
+| Ordem | Documento                 | Conteúdo obrigatório                                                                      |
+| ----: | ------------------------- | ----------------------------------------------------------------------------------------- |
+|     — | `README.md`               | resumo, escopo, atores, índice e rastreabilidade                                          |
+|     1 | casos de uso              | diagrama de casos de uso em UML, papel de cada ator e requisitos funcionais de usuário    |
+|     2 | requisitos funcionais     | cada caso de uso como requisito funcional de sistema, apenas no formulário padrão         |
+|     3 | diagrama de classes       | classes por camada, com tipos nos atributos e nos métodos, e ligações com multiplicidade  |
+|     3 | dicionário de classes     | atributos, tipos, obrigatoriedade, regras e métodos                                       |
+|     4 | diagrama relacional       | visão lógica das coleções e dos dados embutidos do MongoDB                                |
+|     4 | dicionário relacional     | campo, tipo de dado, pode ser nulo, chave primária, chave estrangeira, outros e descrição |
+|     5 | requisitos não funcionais | requisitos de usuário e de sistema, com classificação, medida e forma de verificação      |
+|     6 | diagramas de sequência    | um diagrama por requisito funcional, com mensagens numeradas                              |
+|     7 | testes                    | ambiente, comando, cenário, resultado esperado e resultado obtido                         |
 
-## 4. Regras para casos de uso
+Os módulos **REU** (Incremento 2) e **ATA** (Incremento 3) já seguem esta versão do padrão, revisada em 10/11/2026. Os cinco módulos do Incremento 1 ainda estão na versão anterior, com fluxograma no lugar do diagrama de casos de uso e tabelas próprias de caso de uso.
 
-Um caso de uso representa uma meta observável de um ator, e não uma tela ou uma sequência genérica de cliques. Cada descrição deve informar:
+## 4. Casos de uso e requisitos de usuário
 
-- **ator principal** e, quando existir, ator secundário;
-- **gatilho** que inicia o fluxo;
-- **pré-condições** verificáveis;
-- **fluxo principal** numerado;
-- **fluxos alternativos e exceções** com o código HTTP relevante;
-- **pós-condições** persistidas e efeitos colaterais;
-- referência ao requisito funcional e aos testes correspondentes.
+O requisito de **usuário** é uma descrição breve; o de **sistema** é a descrição completa. O documento de casos de uso traz só o nível de usuário:
 
-Todos os documentos de casos de uso seguem, nesta ordem:
+1. **Diagrama de casos de uso** em UML: atores (bonecos), casos de uso (elipses com verbo e substantivo) dentro da fronteira do sistema, e uma linha de associação entre o ator e cada caso de uso, rotulada com o código do requisito funcional. Generalização entre atores e `«extend»` ou `«include»` entre casos de uso entram quando existem. O diagrama é um arquivo SVG, porque o Mermaid não desenha esse tipo de diagrama; fluxograma não é diagrama de casos de uso.
+2. **Atores:** um parágrafo por ator, dizendo quem ele é no sistema e o que pode e o que não pode fazer.
+3. **Requisitos funcionais de usuário:** uma frase por requisito, no formato "Requisito RF-XXX-NN — Nome. O sistema deve permitir a … fazer …".
 
-1. título `Casos de uso — <Módulo>`;
-2. identificação do padrão e da fonte;
-3. `Resumo` do escopo;
-4. `Diagrama geral`;
-5. `Resumo dos casos de uso`, com ID, nome, ator e resultado;
-6. `Especificações`, com uma subseção por caso.
+O texto é escrito para quem não conhece o código: sem código HTTP, sem nome de rota e sem jargão. O detalhe técnico fica no requisito de sistema.
 
-Cada especificação usa a tabela abaixo. `Atores secundários` é incluído somente quando existir.
+## 5. Requisitos funcionais de sistema
 
-| Campo                   | Conteúdo obrigatório                             |
-| ----------------------- | ------------------------------------------------ |
-| Resumo                  | Meta observável do ator.                         |
-| Ator principal          | Papel que inicia o caso.                         |
-| Atores secundários      | Serviço ou papel externo relevante.              |
-| Gatilho                 | Evento que inicia o fluxo.                       |
-| Pré-condições           | Estados verificáveis exigidos antes da execução. |
-| Fluxo principal         | Passos numerados do caminho de sucesso.          |
-| Alternativas e exceções | Desvios, erros e códigos HTTP relevantes.        |
-| Pós-condições           | Dados e estados após a conclusão.                |
-| Rastreabilidade         | RF, SD e CT relacionados.                        |
+Cada caso de uso é descrito **apenas** no formulário padrão, uma tabela cujo cabeçalho é o código e o nome do requisito:
 
-## 5. Regras para requisitos funcionais
+| Campo              | O que escrever                                                                                                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Função             | Uma frase com o que o requisito faz.                                                                                                                                                           |
+| Descrição          | O que acontece com os dados: qual coleção ou campo é lido ou gravado.                                                                                                                          |
+| Entradas           | Cada dado de entrada com tipo, tamanho e formato, por exemplo "texto de 3 a 120 caracteres".                                                                                                   |
+| Origem             | De onde vêm as entradas: o ator, o banco de dados ou os dois.                                                                                                                                  |
+| Saída              | O que o requisito devolve, com os campos relevantes.                                                                                                                                           |
+| Destino            | Para onde vai a saída: a tela e o campo ou coleção gravados.                                                                                                                                   |
+| Ação               | O passo a passo completo: onde o usuário toca, o que a tela mostra, com quais controles e valores iniciais, quais validações são feitas e como, e quais funções de quais classes são chamadas. |
+| Pré-condição       | O que precisa ser verdade antes.                                                                                                                                                               |
+| Pós-condição       | O que o sistema mostra no sucesso e em cada erro.                                                                                                                                              |
+| Efeitos colaterais | O que muda além da saída, ou "Nenhum".                                                                                                                                                         |
 
-Os requisitos são escritos no presente e descrevem o sistema implementado. Não se usa apenas “a API busca os dados”. Deve-se informar, quando aplicável:
+No campo **Ação** não basta dizer "valida", "filtra" ou "ordena". É preciso dizer **como**: qual campo é comparado com qual, se a comparação é por igualdade ou por intervalo, por qual campo e em qual sentido a lista é ordenada, e qual método faz isso.
 
-- método e endereço HTTP;
-- cabeçalhos `X-API-Key` e `Authorization`;
-- DTO e validações;
-- controller e método de serviço;
-- coleção e campos consultados/alterados;
-- filtros, ordenação e projeção;
-- corpo e formato da resposta;
-- códigos de erro e condições que os produzem;
-- tela que inicia a operação e atualização da interface.
+Melhorias ainda não implementadas são marcadas como **não implementadas**, nunca como requisito atendido.
 
-Melhorias ainda não implementadas devem ser marcadas como **não implementadas**, nunca como requisito atendido.
+## 6. Requisitos não funcionais
 
-## 6. Regras para requisitos não funcionais
+Também em dois níveis. O de **usuário** é uma frase com a qualidade esperada. O de **sistema** precisa ser de fácil verificação e traz:
 
-Um RNF precisa ser verificável. Evitam-se expressões vagas como “rápido”, “adequado”, “seguro” ou “alguns dados”. Cada item contém:
+| Campo         | Pergunta respondida                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| Classificação | Em qual ramo da árvore de Sommerville o requisito está: produto, organizacional ou externo, e o subtipo. |
+| Critério      | Qual propriedade de qualidade é exigida?                                                                 |
+| Medida        | Qual limite ou condição torna o requisito aprovado?                                                      |
+| Condição      | Em qual ambiente, carga ou situação?                                                                     |
+| Verificação   | Qual teste, inspeção ou ferramenta comprova?                                                             |
+| Evidência     | Onde a implementação correspondente está localizada?                                                     |
+| Situação      | Atendido, com data, ou o que falta medir.                                                                |
 
-| Campo       | Pergunta respondida                                  |
-| ----------- | ---------------------------------------------------- |
-| Critério    | Qual propriedade de qualidade é exigida?             |
-| Medida      | Qual limite ou condição torna o requisito aprovado?  |
-| Condição    | Em qual ambiente, carga ou situação?                 |
-| Verificação | Qual teste, inspeção ou ferramenta comprova?         |
-| Evidência   | Onde a implementação correspondente está localizada? |
-
-Quando ainda não existe medição, o documento declara “critério proposto; medição pendente”, sem afirmar conformidade.
+Evitam-se expressões vagas como "rápido", "adequado" ou "seguro". Quando ainda não existe medição, o documento diz isso, sem afirmar conformidade.
 
 ## 7. Regras para diagramas
 
 ### 7.1 Classes
 
-- Entidades persistentes usam o nome do schema (`Usuario`, `Organizacao`, `Comissao`, `Reuniao`).
-- Controllers, services, DTOs e guards podem aparecer quando o diagrama é de implementação.
-- “Frontend”, “Backend”, “Banco” e “JSON” não são classes.
-- Todo método mostrado deve existir no código; rotas HTTP ficam em notas ou no dicionário, não como nome de método.
-- Composição é usada para subdocumentos que não existem fora do documento pai.
+- As classes são agrupadas em pacotes, um por camada: **Aplicativo**, **API** e **Dados**.
+- Todo atributo tem tipo. Todo método tem o tipo de cada parâmetro e o tipo do retorno.
+- Só entram classes e métodos que existem no código; rotas HTTP ficam em tabela à parte, não como nome de método.
+- "Frontend", "Backend", "Banco" e "JSON" não são classes.
+- **Composição** (losango cheio) para dados gravados dentro de outro documento; **associação** (seta cheia) para referência por identificador a um documento de outra coleção; **herança** (triângulo vazio) entre classes; **dependência** (seta tracejada) para uso em uma chamada. Toda composição e associação leva multiplicidade nas duas pontas.
 
-### 7.2 Modelo relacional
+### 7.2 Modelo relacional e dicionário de dados
 
-O banco real é MongoDB. Os diagramas ER são **visões lógicas**, usadas para facilitar a leitura. Documentos embutidos são identificados como tal; não são descritos como tabelas físicas independentes.
+O banco real é MongoDB. O diagrama relacional é uma **visão lógica**: dados embutidos aparecem como entidades para mostrar chaves e cardinalidades, e o texto diz onde cada entidade fica de verdade.
+
+O dicionário descreve cada campo com as sete informações do exemplo da disciplina: campo, tipo de dado, pode ser nulo, chave primária (exclusiva ou inclusiva), chave estrangeira (com a entidade e o campo de destino), outros e descrição. Toda entidade do diagrama tem a sua tabela no dicionário.
+
+Para cada identificador, o dicionário diz **quem o cria, em que formato, com qual valor inicial e com qual incremento**. "Gerado pelo MongoDB" não é suficiente.
 
 ### 7.3 Sequência
 
-Participantes válidos incluem tela/componente concreto, `api()`, guards, controller, service e model Mongoose. Mensagens devem usar nomes reais, por exemplo `ComissoesController.criar()` e `ComissoesService.criar()`. Consultas MongoDB podem aparecer como `ComissaoModel.create()` ou `find()`, nunca como “seleciona o hash”.
+- Um diagrama para cada requisito funcional, com o mesmo número.
+- As linhas de vida são classes ou módulos do código: tela, `api`, controller, service e model.
+- Toda mensagem é a chamada de um método existente, com seus parâmetros, por exemplo `criar(dto, usuarioId)` ou `findById(id)`. A ação do usuário também é a chamada do método da tela que ele dispara.
+- As mensagens são numeradas (`autonumber`), e os retornos voltam por toda a cadeia, na ordem inversa.
+- Uma regra que não é um método, como comparar dois horários, vai em uma nota, não em uma mensagem. A rota HTTP também vai em nota.
+- O Mermaid quebra com ponto e vírgula dentro de mensagem; os argumentos são separados por vírgula.
 
 ## 8. Segurança e transparência
 
@@ -148,7 +141,7 @@ Toda revisão deve registrar os commits do frontend e backend usados como fonte,
 Todo documento técnico possui:
 
 - um único título de nível 1 no formato `<Artefato> — <Módulo>`;
-- identificação `Padrão do Incremento 1 · Módulo <SIGLA>`;
+- identificação `Padrão da disciplina · Módulo <SIGLA>` e a data da revisão;
 - seção `Resumo` antes do conteúdo técnico;
 - seção de rastreabilidade ou referência rastreável no conteúdo;
 - linguagem no presente para o que está implementado;

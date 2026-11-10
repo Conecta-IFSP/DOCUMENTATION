@@ -1,200 +1,69 @@
 # Casos de uso — Reuniões
 
-> Padrão do Incremento 2 · Fontes: FRONTEND `792fab4` e BACKEND `6f2ffc4`
+> Padrão da disciplina · Módulo REU · Revisado em 10/11/2026 sobre a branch `homolog`
 
 ## Resumo
 
-Este documento descreve como participantes e responsáveis de comissão administram reuniões, convites, presença e atas. Toda operação exige usuário autenticado e ativo; as ações administrativas dependem do papel exercido na comissão.
+Este documento mostra quem usa as reuniões e o que cada pessoa pode fazer. Cada caso de uso é descrito em detalhe, como requisito funcional no formulário padrão, em [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md).
 
-## Diagrama geral
+Os casos de uso da ata saíram deste módulo no Incremento 3 e estão em [Atas de reunião](../../4%20-%20Incremento3/atas/1%20-%20casos-uso-atas.md).
 
-```mermaid
-flowchart LR
-    P[Participante convidado] --> UC02((UC-REU-02\nConsultar agenda))
-    P --> UC03((UC-REU-03\nVisualizar reunião))
-    P --> UC05((UC-REU-05\nResponder convite))
-    P --> UC06((UC-REU-06\nRegistrar entrada))
-    P --> UC07((UC-REU-07\nRegistrar saída))
-    P --> UC09((UC-REU-09\nGerar lista de presença))
-    P --> UC12((UC-REU-12\nAprovar ata))
-    R[Responsável da comissão] --> UC01((UC-REU-01\nAgendar reunião))
-    R --> UC04((UC-REU-04\nCancelar reunião))
-    R --> UC08((UC-REU-08\nValidar presença))
-    R --> UC10((UC-REU-10\nSalvar rascunho da ata))
-    R --> UC11((UC-REU-11\nPublicar ata))
-```
+## Diagrama de casos de uso
 
-## Resumo dos casos de uso
+![Diagrama de casos de uso das reuniões](diagrama-casos-uso-reunioes.svg)
 
-| ID        | Nome                          | Ator principal                       | Resultado                                        |
-| --------- | ----------------------------- | ------------------------------------ | ------------------------------------------------ |
-| UC-REU-01 | Agendar reunião               | Responsável da comissão              | Reunião criada com participantes convidados.     |
-| UC-REU-02 | Consultar agenda              | Participante convidado               | Reuniões autorizadas exibidas por período.       |
-| UC-REU-03 | Visualizar reunião            | Participante convidado               | Dados atualizados da reunião exibidos.           |
-| UC-REU-04 | Cancelar reunião              | Organizador                          | Reunião futura marcada como cancelada.           |
-| UC-REU-05 | Responder convite             | Participante convidado               | Convite aceito ou recusado.                      |
-| UC-REU-06 | Registrar entrada             | Participante convidado               | Entrada registrada durante a reunião.            |
-| UC-REU-07 | Registrar saída               | Participante presente                | Saída registrada sem ultrapassar o término.      |
-| UC-REU-08 | Confirmar ou recusar presença | Organizador                          | Situação da presença atualizada.                 |
-| UC-REU-09 | Gerar lista de presença       | Participante convidado               | Situação e permanência exibidas.                 |
-| UC-REU-10 | Salvar rascunho da ata        | Responsável da comissão              | Ata salva com nova versão.                       |
-| UC-REU-11 | Enviar ata para aprovação     | Responsável da comissão              | Texto congelado e aprovadores definidos.         |
-| UC-REU-12 | Aprovar ata                   | Participante com presença confirmada | Aprovação registrada; unanimidade conclui a ata. |
+Figura 1 — Diagrama de casos de uso das reuniões. Fonte: equipe Conecta+.
 
-## Especificações
+Cada linha entre um ator e um caso de uso leva o código do requisito funcional que o descreve.
 
-### UC-REU-01 — Agendar reunião
+## Atores
 
-| Campo                  | Especificação                                                                                                                                                                                                                                                           |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Criar uma reunião futura para uma comissão ativa.                                                                                                                                                                                                                       |
-| **Ator principal**     | Responsável da comissão.                                                                                                                                                                                                                                                |
-| **Gatilho**            | Seleção de “Nova reunião”.                                                                                                                                                                                                                                              |
-| **Pré-condições**      | Usuário ativo, responsável da comissão, vínculo aprovado e organização aprovada.                                                                                                                                                                                        |
-| **Fluxo principal**    | 1. Informa comissão, título, local, início, fim, pauta e convidados.<br>2. Confirma o agendamento.<br>3. O sistema valida horário, comissão e convidados.<br>4. Cria a reunião com situação `AGENDADA`; organizador entra aceito e os demais convites ficam `PENDENTE`. |
-| **Alternativas/erros** | Horário passado ou invertido, comissão inativa, convidado externo ou usuário sem permissão impedem o cadastro.                                                                                                                                                          |
-| **Pós-condições**      | Reunião armazenada e disponível na agenda dos convidados.                                                                                                                                                                                                               |
-| **Rastreabilidade**    | RF-REU-01 · SD-REU-01 · CT-REU-01.                                                                                                                                                                                                                                      |
+**Participante da reunião.** É o usuário que foi convidado para a reunião: seu nome está na lista de participantes. Ele consulta a agenda, abre a reunião, aceita ou recusa o convite, marca a própria entrada e a própria saída, vê a lista de presença e baixa os arquivos anexados à pauta. Não altera os dados da reunião.
 
-### UC-REU-02 — Consultar agenda
+**Presidente da comissão.** É o membro da comissão com o papel de responsável. Só ele agenda reuniões para a comissão. Depois de agendar, é ele quem edita ou cancela a reunião, confirma ou recusa a presença dos outros e anexa ou remove arquivos da pauta. A seta de generalização indica que o presidente também é um participante da reunião: ele faz tudo o que o participante faz, com uma diferença, não responde ao convite, porque já entra como confirmado.
 
-| Campo                  | Especificação                                                                                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Listar reuniões das quais o usuário participa.                                                                                                                |
-| **Ator principal**     | Participante convidado.                                                                                                                                       |
-| **Gatilho**            | Abertura da agenda ou da aba de reuniões da comissão.                                                                                                         |
-| **Pré-condições**      | Usuário autenticado e ativo.                                                                                                                                  |
-| **Fluxo principal**    | 1. Informa período e, opcionalmente, comissão.<br>2. O sistema filtra por `participantes.usuario_id`.<br>3. Ordena por início e apresenta calendário e lista. |
-| **Alternativas/erros** | Sem resultados, mostra estado vazio; datas ou ID inválidos retornam erro de validação.                                                                        |
-| **Pós-condições**      | Agenda exibida sem alterar dados.                                                                                                                             |
-| **Rastreabilidade**    | RF-REU-02 · SD-REU-02 · CT-REU-02.                                                                                                                            |
+## Requisitos funcionais de usuário
 
-### UC-REU-03 — Visualizar reunião
+| Caso de uso | Requisito | Nome                          | Ator principal          |
+| ----------- | --------- | ----------------------------- | ----------------------- |
+| UC-REU-01   | RF-REU-01 | Agendar reunião               | Presidente da comissão  |
+| UC-REU-02   | RF-REU-02 | Consultar agenda              | Participante da reunião |
+| UC-REU-03   | RF-REU-03 | Visualizar reunião            | Participante da reunião |
+| UC-REU-04   | RF-REU-04 | Cancelar reunião              | Presidente da comissão  |
+| UC-REU-05   | RF-REU-05 | Responder convite             | Participante da reunião |
+| UC-REU-06   | RF-REU-06 | Registrar entrada             | Participante da reunião |
+| UC-REU-07   | RF-REU-07 | Registrar saída               | Participante da reunião |
+| UC-REU-08   | RF-REU-08 | Confirmar ou recusar presença | Presidente da comissão  |
+| UC-REU-09   | RF-REU-09 | Gerar lista de presença       | Participante da reunião |
+| UC-REU-13   | RF-REU-13 | Editar reunião                | Presidente da comissão  |
+| UC-REU-14   | RF-REU-14 | Anexar arquivo à pauta        | Presidente da comissão  |
+| UC-REU-15   | RF-REU-15 | Baixar anexo da pauta         | Participante da reunião |
+| UC-REU-16   | RF-REU-16 | Remover anexo da pauta        | Presidente da comissão  |
 
-| Campo                  | Especificação                                                                                                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Resumo**             | Consultar dados, convidados, presença, pauta e situação da ata.                                                                                                          |
-| **Ator principal**     | Participante convidado.                                                                                                                                                  |
-| **Gatilho**            | Seleção de uma reunião.                                                                                                                                                  |
-| **Pré-condições**      | Usuário consta entre os participantes.                                                                                                                                   |
-| **Fluxo principal**    | 1. O aplicativo consulta a reunião.<br>2. A API verifica participação e popula comissão e usuários.<br>3. A tela apresenta dados e renova a consulta a cada 30 segundos. |
-| **Alternativas/erros** | Reunião inexistente retorna 404; usuário externo recebe 403.                                                                                                             |
-| **Pós-condições**      | Estado atual exibido sem alteração.                                                                                                                                      |
-| **Rastreabilidade**    | RF-REU-03 · SD-REU-03 · CT-REU-03.                                                                                                                                       |
+Os números 10, 11 e 12 pertenciam à ata e não foram reaproveitados.
 
-### UC-REU-04 — Cancelar reunião
+**Requisito RF-REU-01 — Agendar reunião.** O sistema deve permitir ao presidente da comissão agendar uma reunião, informando título, data, horário ou dia inteiro, local opcional, pauta e convidados.
 
-| Campo                  | Especificação                                                                                                                          |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Cancelar uma reunião agendada que ainda não terminou.                                                                                  |
-| **Ator principal**     | Organizador.                                                                                                                           |
-| **Gatilho**            | Confirmação da ação “Cancelar reunião”.                                                                                                |
-| **Pré-condições**      | Usuário criou a reunião; situação `AGENDADA`; término futuro.                                                                          |
-| **Fluxo principal**    | 1. Solicita cancelamento.<br>2. Confirma a ação.<br>3. A API atualiza somente `situacao` para `CANCELADA` com verificação concorrente. |
-| **Alternativas/erros** | Cancelamento abortado não altera dados; usuário alheio, reunião encerrada ou estado alterado recusam a operação.                       |
-| **Pós-condições**      | Reunião cancelada e bloqueada para novos registros.                                                                                    |
-| **Rastreabilidade**    | RF-REU-04 · SD-REU-04 · CT-REU-04.                                                                                                     |
+**Requisito RF-REU-02 — Consultar agenda.** O sistema deve mostrar ao usuário as reuniões para as quais ele foi convidado, em ordem de data.
 
-### UC-REU-05 — Responder convite
+**Requisito RF-REU-03 — Visualizar reunião.** O sistema deve mostrar ao participante os dados da reunião, os convidados, a presença, a pauta e seus anexos.
 
-| Campo                  | Especificação                                                                                                              |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Aceitar ou recusar um convite antes do término da reunião.                                                                 |
-| **Ator principal**     | Participante convidado.                                                                                                    |
-| **Gatilho**            | Seleção de “Aceitar” ou “Recusar”.                                                                                         |
-| **Pré-condições**      | Reunião agendada; usuário convidado, não organizador e sem entrada ao recusar.                                             |
-| **Fluxo principal**    | 1. Escolhe a resposta.<br>2. A API valida o participante e o estado.<br>3. Atualiza o convite para `ACEITO` ou `RECUSADO`. |
-| **Alternativas/erros** | O participante pode aceitar depois de recusar; organizador, reunião cancelada ou recusa após entrada são rejeitados.       |
-| **Pós-condições**      | Resposta persistida no participante.                                                                                       |
-| **Rastreabilidade**    | RF-REU-05 · SD-REU-05 · CT-REU-05.                                                                                         |
+**Requisito RF-REU-04 — Cancelar reunião.** O sistema deve permitir ao presidente cancelar uma reunião que ainda não terminou, depois de confirmar a intenção.
 
-### UC-REU-06 — Registrar entrada
+**Requisito RF-REU-05 — Responder convite.** O sistema deve permitir ao participante aceitar ou recusar o convite enquanto a reunião não terminar.
 
-| Campo                  | Especificação                                                                                                                                           |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Registrar a chegada do participante durante a reunião.                                                                                                  |
-| **Ator principal**     | Participante convidado.                                                                                                                                 |
-| **Gatilho**            | Seleção de “Marcar entrada”.                                                                                                                            |
-| **Pré-condições**      | Reunião em andamento, não cancelada; convite não recusado; entrada ainda ausente.                                                                       |
-| **Fluxo principal**    | 1. Solicita entrada.<br>2. A API valida janela e participante.<br>3. Registra horário e origem; organizador fica confirmado, demais aguardam validação. |
-| **Alternativas/erros** | Antes/depois do horário, entrada duplicada ou convite recusado impedem a gravação.                                                                      |
-| **Pós-condições**      | Presença criada em `CONFIRMADA` ou `AGUARDANDO`.                                                                                                        |
-| **Rastreabilidade**    | RF-REU-06 · SD-REU-06 · CT-REU-06.                                                                                                                      |
+**Requisito RF-REU-06 — Registrar entrada.** O sistema deve permitir ao participante marcar sua entrada durante o horário da reunião, uma única vez.
 
-### UC-REU-07 — Registrar saída
+**Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída.
 
-| Campo                  | Especificação                                                                                               |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Registrar o encerramento da permanência.                                                                    |
-| **Ator principal**     | Participante presente.                                                                                      |
-| **Gatilho**            | Seleção de “Marcar saída”.                                                                                  |
-| **Pré-condições**      | Entrada existente e saída ainda ausente.                                                                    |
-| **Fluxo principal**    | 1. Solicita saída.<br>2. A API usa o menor valor entre o horário atual e o término.<br>3. Persiste a saída. |
-| **Alternativas/erros** | Ausência de entrada ou saída repetida recusam a operação.                                                   |
-| **Pós-condições**      | Período de permanência fechado.                                                                             |
-| **Rastreabilidade**    | RF-REU-07 · SD-REU-07 · CT-REU-07.                                                                          |
+**Requisito RF-REU-08 — Confirmar ou recusar presença.** O sistema deve permitir ao presidente confirmar ou recusar a presença de cada participante depois que a reunião começar.
 
-### UC-REU-08 — Confirmar ou recusar presença
+**Requisito RF-REU-09 — Gerar lista de presença.** O sistema deve mostrar ao participante quem esteve presente, com horário de entrada, de saída e tempo de permanência, e permitir compartilhar essa lista.
 
-| Campo                  | Especificação                                                                                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Validar o registro de presença de um participante.                                                                                                                     |
-| **Ator principal**     | Organizador.                                                                                                                                                           |
-| **Gatilho**            | Seleção de confirmar ou recusar na lista de participantes.                                                                                                             |
-| **Pré-condições**      | Usuário é organizador e a reunião já começou.                                                                                                                          |
-| **Fluxo principal**    | 1. Seleciona participante e situação.<br>2. A API verifica autoria.<br>3. Confirma/recusa presença existente ou cria presença confirmada para quem não marcou entrada. |
-| **Alternativas/erros** | Usuário alheio, reunião cancelada ou ação antes do início são recusados.                                                                                               |
-| **Pós-condições**      | Situação da presença atualizada.                                                                                                                                       |
-| **Rastreabilidade**    | RF-REU-08 · SD-REU-08 · CT-REU-08.                                                                                                                                     |
+**Requisito RF-REU-13 — Editar reunião.** O sistema deve permitir ao presidente alterar os dados de uma reunião que ainda não terminou.
 
-### UC-REU-09 — Gerar lista de presença
+**Requisito RF-REU-14 — Anexar arquivo à pauta.** O sistema deve permitir ao presidente juntar arquivos à pauta, para a comissão ler antes da reunião.
 
-| Campo                  | Especificação                                                                                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Exibir situação, horários e permanência dos convidados.                                                                                             |
-| **Ator principal**     | Participante convidado.                                                                                                                             |
-| **Gatilho**            | Abertura da aba “Presença” nos registros da reunião.                                                                                                |
-| **Pré-condições**      | Usuário participa da reunião.                                                                                                                       |
-| **Fluxo principal**    | 1. Solicita a lista.<br>2. A API calcula minutos quando há entrada e saída.<br>3. A tela apresenta presentes, recusados, aguardando e sem registro. |
-| **Alternativas/erros** | Pode compartilhar texto pelo recurso nativo; usuário externo recebe 403.                                                                            |
-| **Pós-condições**      | Relatório exibido sem criar presença inexistente.                                                                                                   |
-| **Rastreabilidade**    | RF-REU-09 · SD-REU-09 · CT-REU-09.                                                                                                                  |
+**Requisito RF-REU-15 — Baixar anexo da pauta.** O sistema deve permitir ao participante abrir os arquivos anexados à pauta.
 
-### UC-REU-10 — Salvar rascunho da ata
-
-| Campo                  | Especificação                                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Resumo**             | Criar ou atualizar a ata encerrada com controle de versão.                                                                     |
-| **Ator principal**     | Responsável da comissão.                                                                                                       |
-| **Gatilho**            | Seleção de “Salvar rascunho”.                                                                                                  |
-| **Pré-condições**      | Reunião encerrada e não cancelada; ata inexistente ou em `RASCUNHO`.                                                           |
-| **Fluxo principal**    | 1. Informa conteúdo e versão exibida.<br>2. A API valida autoria, tamanho e versão.<br>3. Salva o texto e incrementa `versao`. |
-| **Alternativas/erros** | Conteúdo inválido, versão obsoleta ou ata já publicada impedem a gravação.                                                     |
-| **Pós-condições**      | Ata em `RASCUNHO`, com autor e horário atualizados.                                                                            |
-| **Rastreabilidade**    | RF-REU-10 · SD-REU-10 · CT-REU-10.                                                                                             |
-
-### UC-REU-11 — Enviar ata para aprovação
-
-| Campo                  | Especificação                                                                                                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Congelar o rascunho e definir seus aprovadores.                                                                                                 |
-| **Ator principal**     | Responsável da comissão.                                                                                                                        |
-| **Gatilho**            | Confirmação de “Enviar para aprovação”.                                                                                                         |
-| **Pré-condições**      | Ata em `RASCUNHO`, versão atual e ao menos uma presença confirmada.                                                                             |
-| **Fluxo principal**    | 1. Confirma publicação.<br>2. A API seleciona participantes `CONFIRMADA`.<br>3. Define `EM_APROVACAO`, aprovadores e lista vazia de aprovações. |
-| **Alternativas/erros** | Rascunho ausente, versão divergente ou nenhum presente confirmado impedem a publicação.                                                         |
-| **Pós-condições**      | Texto fica imutável e disponível para aprovação.                                                                                                |
-| **Rastreabilidade**    | RF-REU-11 · SD-REU-11 · CT-REU-11.                                                                                                              |
-
-### UC-REU-12 — Aprovar ata
-
-| Campo                  | Especificação                                                                                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**             | Registrar a aprovação individual da ata publicada.                                                                                                            |
-| **Ator principal**     | Participante com presença confirmada.                                                                                                                         |
-| **Gatilho**            | Confirmação de “Aprovar ata”.                                                                                                                                 |
-| **Pré-condições**      | Ata em `EM_APROVACAO`; usuário pertence a `aprovadores`; versão atual.                                                                                        |
-| **Fluxo principal**    | 1. Solicita aprovação.<br>2. A API valida versão e elegibilidade.<br>3. Inclui o usuário em `aprovacoes`.<br>4. Quando todos aprovam, altera para `APROVADA`. |
-| **Alternativas/erros** | Repetição é idempotente; usuário externo, versão obsoleta ou estado inválido são recusados.                                                                   |
-| **Pós-condições**      | Aprovação registrada e, por unanimidade, ata concluída.                                                                                                       |
-| **Rastreabilidade**    | RF-REU-12 · SD-REU-12 · CT-REU-12.                                                                                                                            |
+**Requisito RF-REU-16 — Remover anexo da pauta.** O sistema deve permitir ao presidente retirar um arquivo da pauta, depois de confirmar a intenção.
