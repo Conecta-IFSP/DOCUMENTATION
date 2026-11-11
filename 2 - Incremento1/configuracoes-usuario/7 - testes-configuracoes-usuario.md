@@ -16,15 +16,18 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 
 ## Matriz de testes manuais
 
-| ID        | Requisito | Cenário/entrada                         | Resultado esperado                                        | Situação              |
-| --------- | --------- | --------------------------------------- | --------------------------------------------------------- | --------------------- |
-| CT-CFG-01 | RF-CFG-01 | Alterar nome sem trocar de tela         | Cabeçalho e formulário atualizados imediatamente.         | Aprovado pela equipe. |
-| CT-CFG-02 | RF-CFG-02 | Solicitar e confirmar novo e-mail       | Só muda após código correto; duplicado/expirado recusado. | Aprovado pela equipe. |
-| CT-CFG-03 | RF-CFG-03 | Trocar senha atual/correta/incorreta    | Hash muda apenas com senha atual válida e nova diferente. | Aprovado pela equipe. |
-| CT-CFG-04 | RF-CFG-04 | Recuperar por código no celular         | Fluxo termina sem link, `localhost` ou IP.                | Aprovado pela equipe. |
-| CT-CFG-05 | RF-CFG-05 | Alterar tema com sucesso/falha simulada | Mantém em sucesso e restaura em falha.                    | Aprovado pela equipe. |
-| CT-CFG-06 | RF-CFG-06 | Sair e tentar voltar à rota privada     | Token removido e login exibido.                           | Aprovado pela equipe. |
+| ID        | Requisito | Cenário/entrada                                                           | Resultado esperado                                                   | Situação                |
+| --------- | --------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
+| CT-CFG-01 | RF-CFG-01 | Alterar nome sem trocar de tela                                           | Cabeçalho e formulário atualizados imediatamente.                    | Aprovado pela equipe.   |
+| CT-CFG-02 | RF-CFG-02 | Solicitar e confirmar novo e-mail                                         | Só muda após código correto; duplicado/expirado recusado.            | Aprovado pela equipe.   |
+| CT-CFG-03 | RF-CFG-03 | Trocar senha atual/correta/incorreta                                      | Hash muda apenas com senha atual válida e nova diferente.            | Aprovado pela equipe.   |
+| CT-CFG-04 | RF-CFG-04 | Recuperar por código no celular                                           | Fluxo termina sem link, `localhost` ou IP.                           | Aprovado pela equipe.   |
+| CT-CFG-05 | RF-CFG-05 | Alterar tema com sucesso/falha simulada                                   | Mantém em sucesso e restaura em falha.                               | Aprovado pela equipe.   |
+| CT-CFG-06 | RF-CFG-06 | Sair e tentar voltar à rota privada                                       | Token removido e login exibido.                                      | Aprovado pela equipe.   |
+| CT-CFG-07 | RF-CFG-03 | Alterar senha no Android 16 avançando os três campos somente pelo teclado | Foco segue Senha atual → Nova senha → Confirmar; a tecla "ir" envia. | Aprovado em 10/11/2026. |
 
 ## Conclusão da validação manual
 
 A equipe informou a execução dos roteiros de configurações em ambiente móvel, com todos os cenários aprovados.
+
+Em 10/11/2026 o CT-CFG-07 foi executado no emulador Android 16 com o APK de release: os três campos foram preenchidos apenas com a tecla de avanço do teclado e o envio pela tecla "ir" recebeu a recusa esperada para senha atual incorreta.

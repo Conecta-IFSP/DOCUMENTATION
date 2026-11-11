@@ -50,11 +50,11 @@ Os números 10, 11 e 12 pertenciam à ata e não foram reaproveitados.
 
 **Requisito RF-REU-04 — Cancelar reunião.** O sistema deve permitir ao presidente cancelar uma reunião que ainda não terminou, depois de confirmar a intenção.
 
-**Requisito RF-REU-05 — Responder convite.** O sistema deve permitir ao participante aceitar ou recusar o convite enquanto a reunião não terminar.
+**Requisito RF-REU-05 — Responder convite.** O sistema deve permitir ao participante aceitar ou recusar o convite enquanto a reunião não terminar, inclusive avisar que desistiu depois de ter aceitado, desde que ainda não tenha marcado entrada.
 
-**Requisito RF-REU-06 — Registrar entrada.** O sistema deve permitir ao participante marcar sua entrada durante o horário da reunião, uma única vez.
+**Requisito RF-REU-06 — Registrar entrada.** O sistema deve permitir ao participante marcar sua entrada durante o horário da reunião, uma única vez, confirmando quem ele é no próprio aparelho.
 
-**Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída.
+**Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída, com a mesma confirmação no aparelho.
 
 **Requisito RF-REU-08 — Confirmar ou recusar presença.** O sistema deve permitir ao presidente confirmar ou recusar a presença de cada participante depois que a reunião começar.
 

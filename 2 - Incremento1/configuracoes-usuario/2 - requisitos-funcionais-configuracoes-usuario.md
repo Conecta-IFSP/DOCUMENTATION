@@ -32,14 +32,15 @@ Todas as rotas recebem `X-API-Key`. As rotas `/usuarios/me...` também exigem `A
 
 ## RF-CFG-03 — Trocar senha autenticada
 
-| Item          | Especificação                                                                                                                                   |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rota/entrada  | `PATCH /usuarios/me/senha`, `{senha_atual,nova_senha}`                                                                                          |
-| Validação     | strings; nova senha com mínimo 8; confirmação é validada apenas no frontend e não é enviada.                                                    |
-| Processamento | Carrega usuário por `_id` com `+senha_hash`; `bcrypt.compare` valida atual e impede nova igual; `bcrypt.hash(nova,10)` gera o valor persistido. |
-| Saída         | `{mensagem:'Senha alterada com sucesso'}`                                                                                                       |
-| Erros         | `400` se conta não possui senha local, senha atual está errada ou nova repete a atual.                                                          |
-| Limite        | Não remove JWT do aparelho nem invalida tokens emitidos.                                                                                        |
+| Item          | Especificação                                                                                                                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rota/entrada  | `PATCH /usuarios/me/senha`, `{senha_atual,nova_senha}`                                                                                                                                                                 |
+| Validação     | strings; nova senha com mínimo 8; confirmação é validada apenas no frontend e não é enviada.                                                                                                                           |
+| Processamento | Carrega usuário por `_id` com `+senha_hash`; `bcrypt.compare` valida atual e impede nova igual; `bcrypt.hash(nova,10)` gera o valor persistido.                                                                        |
+| Saída         | `{mensagem:'Senha alterada com sucesso'}`                                                                                                                                                                              |
+| Erros         | `400` se conta não possui senha local, senha atual está errada ou nova repete a atual.                                                                                                                                 |
+| Interface     | `TelaAlterarSenha` usa `react-hook-form`; a tecla de avanço do teclado leva Senha atual → Nova senha → Confirmar nova senha (`returnKeyType="next"` com `setFocus`) e a tecla "ir" do último campo envia o formulário. |
+| Limite        | Não remove JWT do aparelho nem invalida tokens emitidos.                                                                                                                                                               |
 
 ## RF-CFG-04 — Recuperar conta por código
 

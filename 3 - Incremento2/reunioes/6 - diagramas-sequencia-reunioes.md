@@ -154,7 +154,15 @@ sequenceDiagram
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: responder(reuniao, aceito)
+    alt Aceitar
+        U->>T: executar("aceitar", acao, "Convite aceito.")
+    else Recusar ou desistir
+        U->>T: recusarConvite()
+        opt Já tinha aceitado o convite
+            T->>T: definirConfirmacao(aviso de desistência)
+            U->>T: confirmar()
+        end
+    end
     T->>A: api("/reunioes/:id/convite", "PATCH", aceito)
     Note over A,C: PATCH /reunioes/:id/convite
     A->>C: responderConvite(id, dto, req)
@@ -181,11 +189,15 @@ sequenceDiagram
     autonumber
     actor U as Participante
     participant T as TelaReuniao
+    participant L as autenticacao-local
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: executar("entrada", acao, "Entrada marcada.")
+    U->>T: registrar("entrada")
+    T->>L: autenticarComDispositivo()
+    L-->>T: true
+    Note over T,L: Falso interrompe a marcação e mostra o aviso de identidade
     T->>A: api("/reunioes/:id/entrada", "POST")
     Note over A,C: POST /reunioes/:id/entrada
     A->>C: marcarEntrada(id, req)
@@ -211,11 +223,15 @@ sequenceDiagram
     autonumber
     actor U as Participante
     participant T as TelaReuniao
+    participant L as autenticacao-local
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: executar("saida", acao, "Saída marcada.")
+    U->>T: registrar("saida")
+    T->>L: autenticarComDispositivo()
+    L-->>T: true
+    Note over T,L: Falso interrompe a marcação e mostra o aviso de identidade
     T->>A: api("/reunioes/:id/saida", "POST")
     Note over A,C: POST /reunioes/:id/saida
     A->>C: marcarSaida(id, req)
