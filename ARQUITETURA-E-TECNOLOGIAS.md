@@ -142,6 +142,8 @@ Em 10/11/2026, com o seletor de hora nativo já incluído, um novo APK de releas
 
 Ainda em 10/11/2026, com um servidor SMTP local capturando as mensagens, foram percorridas no Android 16 as funções de entrada: criar conta e confirmar por código, recusa de código inválido, alterar senha, trocar e-mail, recuperar conta e recusa da senha antiga depois da redefinição. O botão "Continuar com Google" abre o fluxo da Google, que exige uma conta real e não foi concluído. O encadeamento do teclado da tela Alterar senha foi corrigido e reconferido (CT-CFG-07).
 
+Em 12/11/2026, depois da fusão das votações e dos relatórios no `homolog`, a base foi reconferida: backend com **15 arquivos e 213 testes aprovados**, `npm run build` concluído e `npm run lint` sem diagnóstico; frontend com `npm run typecheck` sem erro. O typecheck passou a gerar sozinho o arquivo de rotas tipadas do expo-router, por `FRONTEND/scripts/gerar-tipos-rotas.cjs`, acionado pelo gancho `pretypecheck` do npm: esse arquivo é gerado e não entra no Git, e antes era preciso rodar `npx expo start` uma vez para que o TypeScript não acusasse telas existentes como inexistentes.
+
 Em 23/10/2026, na entrega do Incremento 2, a base era Node.js 24.11.0 e npm 11.6.1, com 13 arquivos e 182 testes aprovados.
 
 Nenhum resultado de desempenho foi medido nestas revisões. Metas de tempo presentes nos RNFs são critérios de aceitação, não evidência de medição. O aplicativo não foi executado em aparelho iOS, por falta de equipamento.
