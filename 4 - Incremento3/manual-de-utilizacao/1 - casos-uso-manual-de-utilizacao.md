@@ -1,66 +1,55 @@
-# Diagrama de Casos de Uso - Manual de Utilização (R4)
+# Casos de uso — Manual de utilização
 
-Este documento apresenta o ator e os casos de uso do requisito R4 do Incremento 3: o manual digital que orienta os usuários sobre como utilizar o sistema. O manual tem duas partes: a tela Ajuda, dentro do aplicativo, e o manual completo em PDF, que é aberto a partir dela.
+> Padrão da disciplina · Módulo MAN · Requisito R4 do Incremento 3 · Revisado em 13/11/2026
 
----
+## Resumo
 
-## Ator
+Este documento mostra quem usa o manual de utilização do Conecta+ e o que essa pessoa pode fazer. O manual tem duas partes: a tela Ajuda, dentro do aplicativo, e o manual completo em PDF, aberto a partir dela. Cada caso de uso é descrito em detalhe, como requisito funcional no formulário padrão, em [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md).
 
-**Usuário:** qualquer pessoa que use o aplicativo, com ou sem login. A tela Ajuda fica fora das rotas protegidas (`src/app/_layout.tsx`). Por isso, quem não fez login a abre pelo link "Precisa de ajuda?" da tela Entrar, e quem fez login a abre pelo avatar, em Perfil → Suporte → Ajuda. Todos veem o mesmo conteúdo. O selo "Responsável" só indica que a pergunta trata de uma ação exclusiva do responsável da comissão; ele não esconde nem filtra perguntas.
+## Diagrama de casos de uso
 
----
+![Diagrama de casos de uso do manual de utilização](diagrama-casos-uso-manual-de-utilizacao.svg)
 
-## Visão Geral
+Figura 1 — Diagrama de casos de uso do manual de utilização. Fonte: equipe Conecta+.
 
-```mermaid
-flowchart LR
-    Usuario["Usuário<br/>(com ou sem login)"]
+A linha entre o ator e o caso de uso leva o código do requisito funcional que o descreve. O caso de uso "Abrir manual em PDF" não tem linha própria com o ator porque só pode ser iniciado de dentro de "Consultar Ajuda"; o código do seu requisito aparece abaixo dele.
 
-    subgraph Sistema["Conecta+ - Manual de Utilização"]
-        UCMAN01(["UC-MAN-01 - Consultar Ajuda<br/><i>ponto de extensão:</i><br/><i>Ver manual completo (PDF)</i>"])
-        UCMAN02(["UC-MAN-02 - Abrir manual em PDF"])
-    end
+## Atores
 
-    Usuario --> UCMAN01
-    UCMAN02 -.->|"«extend»"| UCMAN01
+**Usuário.** É qualquer pessoa que usa o aplicativo, tenha ou não entrado na conta. O papel dele neste módulo é consultar: ler as perguntas frequentes, abrir e fechar as respostas, buscar uma pergunta por palavra e abrir o manual completo em PDF. Quem ainda não entrou na conta chega à Ajuda pelo link "Precisa de ajuda?" da tela Entrar; quem já entrou chega tocando no avatar e depois em Ajuda, na seção Suporte do Perfil.
 
-    classDef ator stroke:#1976d2,stroke-width:2px;
-    classDef uc stroke:#7b1fa2,stroke-width:2px;
+O usuário não pode alterar, incluir nem apagar perguntas, e não pode trocar o arquivo do manual: o conteúdo é o mesmo para todos e só muda quando a equipe publica uma nova versão.
 
-    class Usuario ator;
-    class UCMAN01,UCMAN02 uc;
-```
+Não existe um segundo ator. O membro, o responsável pela comissão e o administrador veem exatamente as mesmas perguntas. O selo "Responsável", exibido em 9 das 42 perguntas, apenas avisa que aquela pergunta trata de uma ação que só o responsável pela comissão consegue fazer no aplicativo; ele não esconde a pergunta de ninguém.
 
-### Casos de uso
+## Relacionamentos entre casos de uso
 
-| ID | Caso de uso | Ator | Resultado |
-|---|---|---|---|
-| UC-MAN-01 | Consultar Ajuda | Usuário | O usuário lê as perguntas frequentes por assunto. Ele pode abrir e fechar as respostas e buscar por palavra. |
-| UC-MAN-02 | Abrir manual em PDF | Usuário | O manual completo, publicado na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório DOCUMENTATION, é aberto fora do aplicativo. |
+**«extend» de Abrir manual em PDF para Consultar Ajuda.** Abrir o manual é uma opção que aparece dentro da consulta à Ajuda. A relação é de extensão, e não de inclusão, pelos motivos abaixo:
 
----
-
-## Relação entre os casos de uso: «extend»
-
-"Abrir manual em PDF" **estende** "Consultar Ajuda". Não é **incluído** por ela. Os motivos:
-
-1. **É opcional.** Uma inclusão («include») acontece toda vez que o caso base é executado. Aqui, o usuário pode consultar a Ajuda, achar a resposta e sair sem nunca abrir o PDF. "Consultar Ajuda" está completo sem o UC-MAN-02.
-2. **Acontece em um ponto específico e depende de uma decisão do usuário.** O UC-MAN-02 só começa quando o usuário toca no botão "Ver manual completo (PDF)", no fim da tela Ajuda (`src/app/ajuda.tsx`). Esse botão é o ponto de extensão.
-3. **Tem uma condição.** O botão só aparece quando a constante `URL_MANUAL_PDF` está preenchida (`src/constants/ajuda.ts`). Se ela estiver vazia, a extensão não está disponível, e a Ajuda continua funcionando.
-4. **A seta aponta para o caso base.** No «extend», a seta sai do caso que estende (UC-MAN-02) e aponta para o caso estendido (UC-MAN-01). O UC-MAN-01 não depende do UC-MAN-02 nem o conhece.
-
-O UC-MAN-02 também não é um caso de uso independente ligado direto ao ator. No aplicativo não há outro caminho até o PDF: ele só pode ser aberto de dentro da Ajuda.
+1. **É opcional.** Uma inclusão acontece toda vez que o caso de uso base é executado. Aqui, o usuário pode consultar a Ajuda, achar a resposta e sair sem nunca abrir o PDF. "Consultar Ajuda" está completo sem "Abrir manual em PDF".
+2. **Acontece em um ponto definido e depende de uma decisão do usuário.** O manual só é aberto quando o usuário toca no botão "Ver manual completo (PDF)", no fim da tela Ajuda. Esse botão é o ponto de extensão.
+3. **Tem uma condição.** O botão só é exibido quando o endereço do manual está cadastrado no aplicativo. Sem o endereço, a extensão não fica disponível, e a Ajuda continua funcionando.
+4. **A seta aponta para o caso de uso base.** Na extensão, a seta sai do caso de uso que estende (Abrir manual em PDF) e aponta para o caso de uso estendido (Consultar Ajuda), que não depende do outro.
 
 | Elemento | Valor |
-|---|---|
-| Caso base | UC-MAN-01 - Consultar Ajuda |
-| Caso que estende | UC-MAN-02 - Abrir manual em PDF |
+| --- | --- |
+| Caso de uso base | UC-MAN-01 — Consultar Ajuda |
+| Caso de uso que estende | UC-MAN-02 — Abrir manual em PDF |
 | Ponto de extensão | Botão "Ver manual completo (PDF)", no fim da tela Ajuda |
-| Condição | `URL_MANUAL_PDF` preenchida e o usuário toca no botão |
+| Condição | O endereço do manual está cadastrado e o usuário toca no botão |
 
----
+## Requisitos funcionais de usuário
+
+| Caso de uso | Requisito | Nome | Ator principal |
+| --- | --- | --- | --- |
+| UC-MAN-01 | RF-MAN-01 | Consultar Ajuda | Usuário |
+| UC-MAN-02 | RF-MAN-02 | Abrir manual em PDF | Usuário |
+
+**Requisito RF-MAN-01 — Consultar Ajuda.** O sistema deve permitir a qualquer usuário, mesmo sem entrar na conta e sem internet, ler perguntas frequentes sobre o uso do aplicativo, organizadas por assunto, abrir e fechar cada resposta e buscar uma pergunta por palavra.
+
+**Requisito RF-MAN-02 — Abrir manual em PDF.** O sistema deve permitir ao usuário que está na tela Ajuda abrir o manual completo do aplicativo, em PDF, fora do aplicativo.
 
 ## Limitações conhecidas
 
-- O UC-MAN-02 abre a página do arquivo no GitHub, que mostra o PDF no visualizador do site. Para baixá-lo, o usuário toca no botão de download do próprio GitHub.
-- Se o link não abrir, o aplicativo não mostra mensagem nenhuma: o erro de `Linking.openURL` é ignorado (`src/app/ajuda.tsx`).
+- O manual é aberto na página do arquivo no site GitHub, que o mostra no visualizador do próprio site. Para guardar o arquivo no aparelho, o usuário usa o botão de download do site.
+- Abrir o manual exige internet. Se o aparelho estiver sem conexão ou se nenhum aplicativo do aparelho conseguir abrir o endereço, o Conecta+ não mostra nenhum aviso: quem informa a falha é o navegador.

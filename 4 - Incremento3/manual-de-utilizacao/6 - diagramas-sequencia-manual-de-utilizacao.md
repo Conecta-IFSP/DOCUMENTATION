@@ -1,115 +1,92 @@
-# Diagramas de Sequência - Manual de Utilização (R4)
+# Diagramas de sequência — Manual de utilização
 
-Os participantes de cada diagrama são as telas, os componentes e os módulos do aplicativo, e as mensagens são as chamadas de funções entre eles. A tela Ajuda não envia requisições à API do Conecta+. Por isso, nenhum diagrama tem guards, controllers, services ou models: o conteúdo é lido de `TOPICOS_AJUDA`, no próprio aplicativo, e o manual em PDF é obtido pelo navegador diretamente do GitHub. As notas descrevem o processamento feito dentro de uma função.
+> Padrão da disciplina · Módulo MAN · Revisado em 13/11/2026
 
-| Participante | Origem |
-|---|---|
+## Resumo
+
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md), com o mesmo número. As linhas de vida são telas, componentes e módulos que existem no código do aplicativo. Toda mensagem é a chamada de uma função existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. O que não é uma função, como a leitura de uma constante, uma regra de comparação ou o que o navegador faz fora do aplicativo, aparece em notas.
+
+A tela Ajuda não envia requisições à API do Conecta+. Por isso nenhum diagrama tem `api`, guards, controller, service ou model.
+
+| Linha de vida | Origem no código |
+| --- | --- |
 | `TelaAjuda` | `src/app/ajuda.tsx` |
-| `ajuda` | `src/constants/ajuda.ts` (`TOPICOS_AJUDA`, `SELO_PERFIL`, `URL_MANUAL_PDF`) |
-| `buscaAjuda` | `src/utils/busca-ajuda.ts` (`filtrarTopicosAjuda`, `normalizarBusca`) |
-| `CampoTexto` | `src/components/CampoTexto.tsx` |
+| `buscaAjuda` | `src/utils/busca-ajuda.ts` (`filtrarTopicosAjuda` e `normalizarBusca`) |
 | `Sanfona` | `src/components/Sanfona.tsx` |
 | `Botao` | `src/components/Botao.tsx` |
 | `Linking` | biblioteca `react-native` |
-| Navegador | navegador ou leitor de PDF padrão do aparelho |
-| GitHub | Pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main` |
 
----
-
-## SD-MAN-01 - Consultar Ajuda (RF-MAN-01)
+## SD-MAN-01 — Consultar Ajuda
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Usuário
     participant T as TelaAjuda
-    participant D as ajuda
     participant B as buscaAjuda
-    participant C as CampoTexto
     participant S as Sanfona
-
-    U->>T: abre a tela Ajuda, pela tela Entrar ou pelo Perfil
-    T->>D: TOPICOS_AJUDA
-    D-->>T: 7 tópicos com 42 perguntas
-    T->>B: filtrarTopicosAjuda(TOPICOS_AJUDA, '')
-    B-->>T: TOPICOS_AJUDA, sem alteração, porque a busca está vazia
+    Note over U,T: O usuário toca em "Precisa de ajuda?" na tela Entrar (topico igual a conta)<br/>ou em Ajuda, na seção Suporte do Perfil (sem topico)
+    U->>T: TelaAjuda()
+    T->>T: primeiraPerguntaDo(topico)
+    Note over T: Compara topico com o id de cada tópico de TOPICOS_AJUDA, por igualdade.<br/>Se encontra, o id da primeira pergunta entra no conjunto abertas
+    T->>B: filtrarTopicosAjuda(TOPICOS_AJUDA, busca)
+    B->>B: normalizarBusca(busca)
+    Note over B: Busca vazia: devolve a lista inteira, com 7 tópicos e 42 perguntas
+    B-->>T: topicosVisiveis
     loop para cada pergunta de cada tópico visível
-        T->>S: Sanfona({pergunta, resposta, selo: SELO_PERFIL[perfil], aberta, aoAlternar})
+        T->>S: Sanfona(pergunta, resposta, selo, aberta, aoAlternar, primeira)
     end
-    T-->>U: exibe os tópicos e as perguntas (pela tela Entrar, a primeira de Conta e acesso já vem aberta)
-
+    Note over T,S: selo vem de SELO_PERFIL: responsavel mostra "Responsável", todos não mostra selo
+    opt topico recebido no endereço
+        T->>T: rolarParaTopico()
+    end
     opt busca por palavra
-        U->>C: digita a palavra no campo Buscar
-        C->>T: onChangeText(texto)
-        T->>T: definirBusca(texto)
+        U->>T: definirBusca(texto)
         T->>B: filtrarTopicosAjuda(TOPICOS_AJUDA, busca)
         B->>B: normalizarBusca(busca)
-        Note over B: mantém as perguntas que contêm todas as palavras no título do tópico, na pergunta ou na resposta
-        B-->>T: tópicos filtrados
-        alt nenhuma pergunta encontrada
-            T-->>U: exibe "Nenhuma pergunta encontrada." e o EstadoVazio
-        else perguntas encontradas
-            T-->>U: exibe "N perguntas encontradas" e apenas os tópicos com resultado
-        end
+        Note over B: Mantém a pergunta quando o título do tópico, a pergunta e a resposta,<br/>juntos e sem acentos, contêm todas as palavras digitadas
+        B-->>T: topicosVisiveis
+        Note over U,T: A tela mostra "N perguntas encontradas" ou, sem resultado,<br/>"Nenhuma pergunta encontrada." e o EstadoVazio
     end
-
-    U->>S: toca na pergunta
-    S->>S: alternar()
-    S->>T: aoAlternar(true)
-    T->>T: alternar(pergunta.id, true)
-    Note over T: definirAbertas acrescenta pergunta.id ao conjunto abertas
-    T->>S: Sanfona({..., aberta: true})
-    S-->>U: exibe a resposta em texto ou em passos numerados
+    U->>S: alternar()
+    S->>T: aoAlternar(aberta)
+    T->>T: alternar(perguntaId, aberta)
+    T->>T: definirAbertas(proximas)
+    Note over T: aberta true acrescenta perguntaId ao conjunto abertas, false retira
+    T->>S: Sanfona(pergunta, resposta, selo, aberta, aoAlternar, primeira)
+    Note over U,S: A resposta aparece em parágrafo ou em passos numerados
+    U->>T: voltar()
+    Note over T: router.back() se há tela anterior, senão router.replace para /inicio (com login) ou /login (sem login)
 ```
 
-Para fechar a resposta, o usuário toca de novo na pergunta. A sequência a partir do passo "toca na pergunta" se repete com `aoAlternar(false)` e `alternar(pergunta.id, false)`, que retira `pergunta.id` do conjunto `abertas`.
+Para fechar a resposta, o usuário toca de novo na pergunta: as mensagens a partir de `alternar()` se repetem com `aberta` igual a `false`.
 
----
-
-## SD-MAN-02 - Abrir manual em PDF (RF-MAN-02)
+## SD-MAN-02 — Abrir manual em PDF
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor U as Usuário
     participant T as TelaAjuda
-    participant D as ajuda
     participant Bt as Botao
     participant K as Linking
-    participant N as Navegador
-    participant G as GitHub
-
-    T->>D: URL_MANUAL_PDF
-    D-->>T: endereço do manual
-    alt URL_MANUAL_PDF vazia
-        Note over T: o Botao não é exibido e o caso de uso não pode ser iniciado
-    else URL_MANUAL_PDF preenchida
-        T->>Bt: Botao({titulo: 'Ver manual completo (PDF)', icone: 'document-outline', variante: 'secundario', aoTocar})
-        U->>Bt: toca em "Ver manual completo (PDF)"
-        Bt->>T: aoTocar()
-        T->>K: Linking.openURL(URL_MANUAL_PDF)
-        alt nenhum aplicativo abre o endereço
-            K-->>T: Promise rejeitada
-            T->>T: .catch(() => {})
-            Note over T: o erro é ignorado e nenhuma mensagem é exibida
-        else endereço entregue ao sistema
-            K->>N: abre o endereço no aplicativo padrão do sistema
-            K-->>T: Promise resolvida
-            Note over T: o aplicativo continua na tela Ajuda
-            N->>G: GET /Conecta-IFSP/DOCUMENTATION/blob/main/4 - Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf
-            alt aparelho sem internet
-                N-->>U: exibe a mensagem de falta de conexão do próprio navegador
-            else arquivo ausente no caminho
-                G-->>N: 404 Not Found
-                N-->>U: exibe a página de erro do GitHub
-            else arquivo publicado
-                G-->>N: 200 OK, página do arquivo com o visualizador de PDF
-                N-->>U: exibe o manual, com a opção de baixá-lo
-            end
-            U->>T: retorna ao aplicativo
-            T-->>U: exibe a tela Ajuda no mesmo ponto
-        end
+    Note over T: O Botao só é montado quando URL_MANUAL_PDF, de src/constants/ajuda.ts, não está vazia
+    T->>Bt: Botao(titulo, icone, variante, pilula, aoTocar)
+    U->>Bt: onPress()
+    Bt->>T: aoTocar()
+    T->>K: openURL(URL_MANUAL_PDF)
+    alt nenhum aplicativo do aparelho abre o endereço
+        K-->>T: Promise rejeitada
+        Note over T: O catch vazio ignora o erro e nenhuma mensagem é exibida
+    else endereço entregue ao sistema operacional
+        K-->>T: Promise resolvida
+        Note over U,K: Fora do aplicativo: o navegador padrão abre a página do arquivo no GitHub.<br/>Arquivo publicado: 200 e o manual é exibido. Arquivo ausente: 404 do GitHub.<br/>Sem internet: mensagem de falta de conexão do próprio navegador
+        Note over U,T: Ao voltar, o usuário encontra a tela Ajuda no mesmo ponto
     end
 ```
 
-O aplicativo não verifica a conexão nem o resultado da abertura do arquivo: depois de `Linking.openURL`, o carregamento do PDF fica a cargo do navegador. No Android, o endereço é entregue ao sistema como uma intenção de visualização; no iOS, é aberto pelo sistema no Safari ou no aplicativo associado a PDFs.
+O aplicativo não verifica a conexão nem o resultado do carregamento: depois de `openURL`, tudo fica a cargo do navegador, que busca o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf`.
+
+## Rastreabilidade
+
+SD-MAN-01 e SD-MAN-02 correspondem, na mesma ordem, a UC-MAN-01 e UC-MAN-02 e a RF-MAN-01 e RF-MAN-02.
