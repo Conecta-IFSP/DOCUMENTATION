@@ -17,7 +17,7 @@ Este arquivo define o formato obrigatório dos documentos do Conecta+. O objetiv
 | Classes, DTOs e enums   | `PascalCase`      | `CreateOrganizacaoDto` |
 | Métodos TypeScript      | `camelCase`       | `buscarPorId()`        |
 
-Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínculos; `COM` comissões; `CFG` configurações de usuário; `SIS` informações do sistema; `REU` reuniões, convites e presença; `ATA` atas de reunião.
+Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínculos; `COM` comissões; `CFG` configurações de usuário; `SIS` informações do sistema; `REU` reuniões, convites e presença; `ATA` atas de reunião; `MAN` manual de utilização.
 
 ## 3. Estrutura de cada módulo
 
@@ -49,7 +49,7 @@ README.md
 |     6 | diagramas de sequência    | um diagrama por requisito funcional, com mensagens numeradas                              |
 |     7 | testes                    | ambiente, comando, cenário, resultado esperado e resultado obtido                         |
 
-Os módulos **REU** (Incremento 2) e **ATA** (Incremento 3) já seguem esta versão do padrão, revisada em 10/11/2026. Os cinco módulos do Incremento 1 ainda estão na versão anterior, com fluxograma no lugar do diagrama de casos de uso e tabelas próprias de caso de uso.
+Os módulos **REU** (Incremento 2), **ATA** e **MAN** (Incremento 3) já seguem esta versão do padrão, revisada em 10/11/2026. Os cinco módulos do Incremento 1 ainda estão na versão anterior, com fluxograma no lugar do diagrama de casos de uso e tabelas próprias de caso de uso.
 
 ## 4. Casos de uso e requisitos de usuário
 

@@ -34,7 +34,8 @@ DOCUMENTATION/
 ├── 3 - Incremento2/
 │   └── reunioes/
 └── 4 - Incremento3/
-    └── atas/
+    ├── atas/
+    └── manual-de-utilizacao/
 ```
 
 Cada módulo deve possuir: visão geral, casos de uso, requisitos funcionais, diagrama e dicionário de classes, diagrama e dicionário relacional, requisitos não funcionais, diagramas de sequência e testes.
@@ -56,6 +57,7 @@ Cada pasta do Incremento 1 contém exatamente os mesmos dez artefatos técnicos 
 ### Incremento 3
 
 - [Atas de reunião](4%20-%20Incremento3/atas/README.md): redação, envio com prazo, aprovação e reprovação, versões e PDF.
+- [Manual de utilização](4%20-%20Incremento3/manual-de-utilizacao/README.md): tela Ajuda com perguntas frequentes e manual completo em PDF.
 
 ## Repositórios relacionados
 
