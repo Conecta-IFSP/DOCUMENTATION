@@ -52,7 +52,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | Aplicativo instalado, nas duas situações: sem sessão ativa e com sessão ativa. |
 | **Verificação** | Inspeção de `src/app/_layout.tsx` e roteiros CT-MAN-01 e CT-MAN-02. |
 | **Evidência** | A rota `ajuda` é declarada fora dos grupos `Stack.Protected` em `src/app/_layout.tsx`. O link "Precisa de ajuda?" está em `src/app/login/index.tsx`, e a linha "Ajuda", em `src/app/perfil.tsx`. |
-| **Situação** | Atendido por inspeção em 13/11/2026. Execução no aparelho pendente. |
+| **Situação** | Atendido em 13/11/2026: por inspeção e pelos roteiros CT-MAN-01 e CT-MAN-02, aprovados em iPhone 14 (iOS 27.2), via Expo Go. |
 
 ### RNF-MAN-02 — Funcionamento sem internet
 
@@ -64,7 +64,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | Aparelho em modo avião, com ou sem login. |
 | **Verificação** | Roteiro CT-MAN-07. Inspeção: `src/app/ajuda.tsx` e `src/utils/busca-ajuda.ts` não importam o módulo `api`. |
 | **Evidência** | Constante `TOPICOS_AJUDA`, em `src/constants/ajuda.ts`, e as importações de `src/app/ajuda.tsx`. |
-| **Situação** | Atendido por inspeção em 13/11/2026. Execução no aparelho pendente. |
+| **Situação** | Atendido em 13/11/2026: por inspeção e pelo roteiro CT-MAN-07, aprovado em iPhone em modo avião, via Expo Go. |
 
 ### RNF-MAN-03 — Endereço fixo do manual em PDF
 
@@ -76,7 +76,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | Arquivo `Manual-do-Usuario-Conecta.pdf` na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. |
 | **Verificação** | Substituir o PDF, fazer commit e push na `main`, consultar o endereço com `curl -sIL <endereço>` e conferir a resposta final `200`. Em seguida, roteiro CT-MAN-09. |
 | **Evidência** | Constante `URL_MANUAL_PDF`, em `src/constants/ajuda.ts`, e o commit `225ca39` do DOCUMENTATION, que publicou o arquivo. |
-| **Situação** | Atendido em 13/11/2026: o endereço responde `200` e `URL_MANUAL_PDF` aponta para ele. Abertura pelo botão no aparelho pendente. |
+| **Situação** | Atendido em 13/11/2026: o endereço responde `200`, `URL_MANUAL_PDF` aponta para ele, e o botão abriu o manual em iPhone (CT-MAN-09). |
 
 ### RNF-MAN-04 — Manual em formato A4
 
@@ -112,7 +112,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | Tela Ajuda aberta com qualquer conta ou sem login, e versão 1.0 do manual em PDF. |
 | **Verificação** | Inspeção de `src/constants/ajuda.ts`, conferindo o tópico e o perfil de cada pergunta. Roteiro CT-MAN-08. Com o TalkBack ou o VoiceOver ativado, ouvir o anúncio do selo. No manual, conferir o sumário e as etiquetas de perfil. |
 | **Evidência** | Constante `SELO_PERFIL`, em `src/constants/ajuda.ts`; propriedade `accessibilityLabel` em `src/components/Sanfona.tsx`; seção 2 e etiquetas do manual em PDF. |
-| **Situação** | Atendido por inspeção em 13/11/2026: 9 perguntas com `responsavel` (3 em Reuniões, 3 em Presença, 2 em Ata e 1 em Votação). Conferência do selo no aparelho e do anúncio do leitor de tela pendentes. |
+| **Situação** | Atendido por inspeção em 13/11/2026: 9 perguntas com `responsavel` (3 em Reuniões, 3 em Presença, 2 em Ata e 1 em Votação). O selo foi conferido em iPhone (CT-MAN-08). Anúncio do leitor de tela pendente. |
 
 ### RNF-MAN-07 — Disponibilidade em Android e iOS
 
@@ -121,10 +121,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Produto › Portabilidade |
 | **Critério** | A tela Ajuda e a abertura do manual são desenvolvidas uma única vez, em React Native com Expo, e funcionam em Android e iOS. A abertura do PDF usa `Linking.openURL`, que entrega o endereço ao navegador de cada sistema. |
 | **Medida** | Em um aparelho Android e em um iPhone, a Ajuda abre com e sem login, as respostas abrem e fecham, a busca filtra as perguntas, e o botão "Ver manual completo (PDF)" abre o manual no navegador do sistema. |
-| **Condição** | Um aparelho Android e um iPhone com o aplicativo instalado e com internet. |
+| **Condição** | Um aparelho Android e um iPhone com o aplicativo aberto (instalado ou pelo Expo Go) e com internet. |
 | **Verificação** | Roteiro CT-MAN-12, que repete CT-MAN-01 a CT-MAN-04 e CT-MAN-09 em cada aparelho. |
 | **Evidência** | `src/app/ajuda.tsx` não tem código específico de plataforma. |
-| **Situação** | Pendente: os roteiros ainda não foram registrados em aparelho Android, e o aplicativo ainda não foi executado em iPhone. |
+| **Situação** | Parcial em 13/11/2026: aprovado em iPhone 14 (iOS 27.2), via Expo Go (CT-MAN-12). Android não executado neste módulo, por falta de aparelho disponível na data. |
 
 ### RNF-MAN-08 — Versão do Expo e sistemas suportados
 
@@ -136,7 +136,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | FRONTEND na branch `homolog`. |
 | **Verificação** | Conferir o `package.json`, o `package-lock.json` e o `app.json`. Executar `npx expo-doctor`, que não deve apontar dependências incompatíveis com o SDK 58, e `node --test tests/*.test.cjs` (roteiro CT-MAN-13). Executar o aplicativo nos aparelhos de teste e registrar o modelo e a versão do sistema de cada um. |
 | **Evidência** | `package.json`, `package-lock.json` e `app.json` do FRONTEND; `minSdk = "24"` no React Native e plataforma mínima 16.4 em `Expo.podspec`. |
-| **Situação** | Versões conferidas em 13/11/2026 no commit `66806e4`. Execução dos testes automatizados e dos aparelhos de teste pendente de registro. |
+| **Situação** | Atendido em 13/11/2026: versões conferidas no commit `66806e4`, e testes automatizados aprovados (CT-MAN-13: 18 testes, 0 falhas). O aplicativo foi executado em iPhone, via Expo Go; Android não executado. |
 
 ### RNF-MAN-09 — Manutenção do conteúdo da Ajuda
 
