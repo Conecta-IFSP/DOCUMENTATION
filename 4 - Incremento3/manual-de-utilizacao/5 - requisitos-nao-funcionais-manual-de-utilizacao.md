@@ -64,9 +64,9 @@ Os requisitos não funcionais abaixo definem critérios de disponibilidade, manu
 | Campo | Descrição |
 |---|---|
 | **Categoria** | Portabilidade |
-| **Descrição** | O manual em PDF deve ser gerado em páginas A4 (210 × 297 mm), com margens de 20 mm em cima e embaixo e de 18 mm nas laterais, para que possa ser lido na tela e impresso sem cortes. O PDF é gerado a partir de `MANUAL_DO_USUARIO.md` com o comando `python build_manual.py`, que usa o Chrome em modo headless para imprimir o manual em PDF. |
+| **Descrição** | O manual em PDF deve ser gerado em páginas A4 (210 × 297 mm), com margens de 20 mm em cima e embaixo e de 18 mm nas laterais, para que possa ser lido na tela e impresso sem cortes. O arquivo é mantido em `4 - Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf`, no repositório `Conecta-IFSP/DOCUMENTATION`. |
 | **Critério de Aceitação** | Todas as páginas do arquivo publicado medem 595 × 842 pontos (A4). Exceto na capa, que ocupa a página inteira, as margens são de 20 mm em cima e embaixo e de 18 mm à esquerda e à direita, e nenhum texto, tabela ou imagem ultrapassa essas margens. |
-| **Forma de Verificação** | Executar `python build_manual.py` e, no arquivo gerado, executar `pdfinfo Manual-do-Usuario-Conecta.pdf` e conferir "Page size: 595.28 x 841.89 pts (A4)", ou abrir as propriedades do documento em um leitor de PDF. Imprimir uma página de teste e medir as margens. |
+| **Forma de Verificação** | Executar `pdfinfo Manual-do-Usuario-Conecta.pdf` e conferir "Page size: 595.28 x 841.89 pts (A4)", ou abrir as propriedades do documento em um leitor de PDF. Imprimir uma página de teste e medir as margens. |
 | **Aplicação** | RF-MAN-02 |
 | **Prioridade** | Média |
 
@@ -145,7 +145,7 @@ Conferido por inspeção em 12/11/2026, no FRONTEND `homolog` (`d156cc6`): vers�
 |---|---|
 | RNF-MAN-01, RNF-MAN-02 | Atendido por inspeção; verificação no aparelho pendente. |
 | RNF-MAN-03 | Atendido: o PDF foi publicado na `main` do DOCUMENTATION (`225ca39`, 13/11/2026), o endereço responde `200` e `URL_MANUAL_PDF` aponta para ele. Abertura pelo botão no aparelho pendente. |
-| RNF-MAN-04 | PDF gerado e publicado em 13/11/2026; conferência do tamanho A4 e das margens pendente. O script `build_manual.py` não está nos repositórios. |
+| RNF-MAN-04 | Atendido: `pdfinfo` do arquivo publicado na `main` em 13/11/2026 informa 27 páginas de 594.96 × 841.92 pt (A4). Medição das margens em página impressa pendente. |
 | RNF-MAN-05, RNF-MAN-06 | Atendido por inspeção na Ajuda; revisão do manual e teste com usuário pendentes. |
 | RNF-MAN-07 | Pendente: o aplicativo ainda não foi executado em iPhone. |
 | RNF-MAN-08 | Versões conferidas; execução nos aparelhos de teste pendente. |
