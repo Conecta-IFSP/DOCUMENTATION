@@ -120,11 +120,11 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --- | --- |
 | **Classificação** | Produto › Portabilidade |
 | **Critério** | A tela Ajuda e a abertura do manual são desenvolvidas uma única vez, em React Native com Expo, e funcionam em Android e iOS. A abertura do PDF usa `Linking.openURL`, que entrega o endereço ao navegador de cada sistema. |
-| **Medida** | Em um aparelho Android e em um iPhone, a Ajuda abre com e sem login, as respostas abrem e fecham, a busca filtra as perguntas, e o botão "Ver manual completo (PDF)" abre o manual no navegador do sistema. |
-| **Condição** | Um aparelho Android e um iPhone com o aplicativo aberto (instalado ou pelo Expo Go) e com internet. |
+| **Medida** | Em um Android (aparelho ou emulador) e em um iPhone, a Ajuda abre com e sem login, as respostas abrem e fecham, a busca filtra as perguntas, e o botão "Ver manual completo (PDF)" abre o manual no navegador do sistema. |
+| **Condição** | Um Android (aparelho ou emulador) e um iPhone com o aplicativo aberto (instalado ou pelo Expo Go) e com internet. |
 | **Verificação** | Roteiro CT-MAN-12, que repete CT-MAN-01 a CT-MAN-04 e CT-MAN-09 em cada aparelho. |
 | **Evidência** | `src/app/ajuda.tsx` não tem código específico de plataforma. |
-| **Situação** | Parcial em 13/11/2026: aprovado em iPhone 14 (iOS 27.2), via Expo Go (CT-MAN-12). Android não executado neste módulo, por falta de aparelho disponível na data. |
+| **Situação** | Atendido em 13/11/2026: aprovado em iPhone 14 (iOS 27.2) e no emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), via Expo Go (CT-MAN-12). |
 
 ### RNF-MAN-08 — Versão do Expo e sistemas suportados
 
@@ -136,7 +136,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição** | FRONTEND na branch `homolog`. |
 | **Verificação** | Conferir o `package.json`, o `package-lock.json` e o `app.json`. Executar `npx expo-doctor`, que não deve apontar dependências incompatíveis com o SDK 58, e `node --test tests/*.test.cjs` (roteiro CT-MAN-13). Executar o aplicativo nos aparelhos de teste e registrar o modelo e a versão do sistema de cada um. |
 | **Evidência** | `package.json`, `package-lock.json` e `app.json` do FRONTEND; `minSdk = "24"` no React Native e plataforma mínima 16.4 em `Expo.podspec`. |
-| **Situação** | Atendido em 13/11/2026: versões conferidas no commit `66806e4`, e testes automatizados aprovados (CT-MAN-13: 18 testes, 0 falhas). O aplicativo foi executado em iPhone, via Expo Go; Android não executado. |
+| **Situação** | Atendido em 13/11/2026: versões conferidas no commit `66806e4`, e testes automatizados aprovados (CT-MAN-13: 18 testes, 0 falhas). O aplicativo foi executado em iPhone 14 (iOS 27.2) e no emulador Pixel 6 (Android 15, API 35), via Expo Go. |
 
 ### RNF-MAN-09 — Manutenção do conteúdo da Ajuda
 
