@@ -1,4 +1,8 @@
-# Diagrama Relacional - Manual de Utilização (R4)
+# Diagrama relacional — Manual de utilização
+
+> Padrão da disciplina · Módulo MAN · Revisado em 13/11/2026
+
+## Resumo
 
 **Não se aplica.** O R4 não lê nem grava dados em banco. Por isso não há tabelas, chaves nem relacionamentos para representar: este documento não contém diagrama relacional e, pelo mesmo motivo, também não há dicionário de dados relacional.
 
@@ -18,4 +22,4 @@
 | Manual completo em PDF | GitHub, pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION` (branch `main`) | Nenhuma |
 | Endereço do PDF | `URL_MANUAL_PDF`, em `src/constants/ajuda.ts` | Nenhuma |
 
-A estrutura do conteúdo, com os tipos `TopicoAjuda`, `PerguntaAjuda` e `PerfilAjuda`, está descrita no diagrama e no dicionário de classes do R4. As coleções do sistema (`usuarios`, `organizacoes`, `comissoes` e `reunioes`) pertencem aos Incrementos 1 e 2 e não são usadas pelo R4.
+A estrutura do conteúdo, com os tipos `TopicoAjuda`, `PerguntaAjuda` e `PerfilAjuda`, está descrita no diagrama e no dicionário de classes do R4. As coleções do sistema (`usuarios`, `organizacoes`, `comissoes`, `reunioes`, `notificacoes` e `contadores`) pertencem aos outros módulos e não são usadas pelo R4.

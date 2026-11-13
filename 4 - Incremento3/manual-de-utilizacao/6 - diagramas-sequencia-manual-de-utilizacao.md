@@ -4,17 +4,17 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md), com o mesmo número. As linhas de vida são telas, componentes e módulos que existem no código do aplicativo. Toda mensagem é a chamada de uma função existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. O que não é uma função, como a leitura de uma constante, uma regra de comparação ou o que o navegador faz fora do aplicativo, aparece em notas.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md), com o mesmo número. As linhas de vida são telas, componentes e módulos que existem no código do aplicativo. Toda mensagem é a chamada de uma função existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. O que não é uma função, como a leitura de uma constante, uma regra de comparação ou o que o navegador faz fora do aplicativo, aparece em notas. Todas as funções chamadas estão no [Diagrama de classes](3%20-%20diagrama-classes-manual-de-utilizacao.md), com os tipos dos parâmetros e do retorno.
 
 A tela Ajuda não envia requisições à API do Conecta+. Por isso nenhum diagrama tem `api`, guards, controller, service ou model.
 
 | Linha de vida | Origem no código |
 | --- | --- |
-| `TelaAjuda` | `src/app/ajuda.tsx` |
+| `TelaAjuda` | `src/app/ajuda.tsx` (`TelaAjuda`, `primeiraPerguntaDo`, `definirBusca`, `rolarParaTopico`, `alternar` e `voltar`) |
 | `buscaAjuda` | `src/utils/busca-ajuda.ts` (`filtrarTopicosAjuda` e `normalizarBusca`) |
-| `Sanfona` | `src/components/Sanfona.tsx` |
-| `Botao` | `src/components/Botao.tsx` |
-| `Linking` | biblioteca `react-native` |
+| `Sanfona` | `src/components/Sanfona.tsx` (`alternar` e a propriedade `aoAlternar`) |
+| `Botao` | `src/components/Botao.tsx` (propriedade `aoTocar`) |
+| `Linking` | biblioteca `react-native` (`openURL`) |
 
 ## SD-MAN-01 — Consultar Ajuda
 
@@ -41,6 +41,7 @@ sequenceDiagram
         T->>T: rolarParaTopico()
     end
     opt busca por palavra
+        Note over U,T: O usuário digita no campo Buscar, e o onChangeText do CampoTexto chama definirBusca
         U->>T: definirBusca(texto)
         T->>B: filtrarTopicosAjuda(TOPICOS_AJUDA, busca)
         B->>B: normalizarBusca(busca)
@@ -51,7 +52,6 @@ sequenceDiagram
     U->>S: alternar()
     S->>T: aoAlternar(aberta)
     T->>T: alternar(perguntaId, aberta)
-    T->>T: definirAbertas(proximas)
     Note over T: aberta true acrescenta perguntaId ao conjunto abertas, false retira
     T->>S: Sanfona(pergunta, resposta, selo, aberta, aoAlternar, primeira)
     Note over U,S: A resposta aparece em parágrafo ou em passos numerados
@@ -72,14 +72,14 @@ sequenceDiagram
     participant K as Linking
     Note over T: O Botao só é montado quando URL_MANUAL_PDF, de src/constants/ajuda.ts, não está vazia
     T->>Bt: Botao(titulo, icone, variante, pilula, aoTocar)
-    U->>Bt: onPress()
-    Bt->>T: aoTocar()
-    T->>K: openURL(URL_MANUAL_PDF)
+    U->>Bt: aoTocar()
+    Note over T,Bt: aoTocar é a função que a TelaAjuda entregou ao Botao
+    Bt->>K: openURL(URL_MANUAL_PDF)
     alt nenhum aplicativo do aparelho abre o endereço
-        K-->>T: Promise rejeitada
-        Note over T: O catch vazio ignora o erro e nenhuma mensagem é exibida
+        K-->>Bt: Promise rejeitada
+        Note over T,Bt: O catch vazio de aoTocar ignora o erro e nenhuma mensagem é exibida
     else endereço entregue ao sistema operacional
-        K-->>T: Promise resolvida
+        K-->>Bt: Promise resolvida
         Note over U,K: Fora do aplicativo: o navegador padrão abre a página do arquivo no GitHub.<br/>Arquivo publicado: 200 e o manual é exibido. Arquivo ausente: 404 do GitHub.<br/>Sem internet: mensagem de falta de conexão do próprio navegador
         Note over U,T: Ao voltar, o usuário encontra a tela Ajuda no mesmo ponto
     end

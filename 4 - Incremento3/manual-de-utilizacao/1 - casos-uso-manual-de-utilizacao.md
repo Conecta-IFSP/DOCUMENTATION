@@ -12,7 +12,7 @@ Este documento mostra quem usa o manual de utilização do Conecta+ e o que essa
 
 Figura 1 — Diagrama de casos de uso do manual de utilização. Fonte: equipe Conecta+.
 
-A linha entre o ator e o caso de uso leva o código do requisito funcional que o descreve. O caso de uso "Abrir manual em PDF" não tem linha própria com o ator porque só pode ser iniciado de dentro de "Consultar Ajuda"; o código do seu requisito aparece abaixo dele.
+Cada linha entre o ator e um caso de uso leva o código do requisito funcional que o descreve. A seta tracejada «extend» mostra que "Abrir manual em PDF" só pode ser iniciado de dentro de "Consultar Ajuda".
 
 ## Atores
 
@@ -20,7 +20,7 @@ A linha entre o ator e o caso de uso leva o código do requisito funcional que o
 
 O usuário não pode alterar, incluir nem apagar perguntas, e não pode trocar o arquivo do manual: o conteúdo é o mesmo para todos e só muda quando a equipe publica uma nova versão.
 
-Não existe um segundo ator. O membro, o responsável pela comissão e o administrador veem exatamente as mesmas perguntas. O selo "Responsável", exibido em 9 das 42 perguntas, apenas avisa que aquela pergunta trata de uma ação que só o responsável pela comissão consegue fazer no aplicativo; ele não esconde a pergunta de ninguém.
+Não existe um segundo ator. O membro, o responsável pela comissão e o administrador veem exatamente as mesmas perguntas. O selo "Responsável", exibido em 9 das 42 perguntas, apenas avisa que aquela pergunta trata de uma ação que só o responsável pela comissão consegue fazer no aplicativo; ele não esconde a pergunta de ninguém. O responsável pela comissão é a mesma pessoa que o módulo de [Atas](../atas/README.md) chama de presidente da comissão.
 
 ## Relacionamentos entre casos de uso
 
