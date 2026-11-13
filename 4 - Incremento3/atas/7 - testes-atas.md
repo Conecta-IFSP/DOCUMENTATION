@@ -12,7 +12,7 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | ------------------- | ------------------------------------------------------------------------------------------- |
 | Data da execução    | 09/11/2026                                                                                  |
 | Node.js / npm       | 24.19.0 / 11.17.0                                                                           |
-| Backend             | branch `homolog` com as alterações do Incremento 3, banco `conecta-teste-claude` local     |
+| Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local                  |
 | Aplicativo          | branch `homolog`, APK de release gerado para `x86_64`, apontando para a API local          |
 | Aparelho 1          | Emulador Android 16 (API 36), 1080 × 2400, com PIN cadastrado                               |
 | Aparelho 2          | Emulador Android 7.0 (API 24, versão mínima do aplicativo), 720 × 1280, sem bloqueio de tela |
@@ -59,20 +59,6 @@ Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`
 | CT-ATA-18 | RF-ATA-04, RNF-ATA-08    | Android 7.0, tela pequena | Abrir a ata, apontar um parágrafo, abrir a folha de reprovação com o teclado aberto e reprovar sem justificativa. | Aprovado. Nada ficou cortado e a ata registrou "Sem justificativa.".                                   |
 | CT-ATA-19 | RNF-ATA-09               | Android 7.0         | Repetir consulta, comparação de versões, reprovação e aprovação com o aplicativo no tema escuro.       | Aprovado. Textos, faixas e o destaque verde e vermelho da comparação permaneceram legíveis.                 |
 | CT-ATA-20 | RNF-ATA-03, RNF-ATA-08   | iOS                 | Repetir CT-ATA-14 a CT-ATA-17 em aparelho iOS.                                                         | Não executado: sem equipamento Apple disponível.                                                            |
-
-## Defeitos encontrados e corrigidos durante os testes
-
-| Data       | Defeito                                                                                                   | Correção                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| 09/11/2026 | Na tela inicial, o título da ata pendente aparecia cortado, porque vinha depois do rótulo "Ata para aprovar". | O nome da reunião passou para a primeira linha e o prazo para a segunda.                |
-| 09/11/2026 | Ao puxar a tela para atualizar, a faixa verde da ação anterior continuava visível mesmo com a ata já alterada por outra pessoa. | `atualizar` passou a limpar a mensagem de sucesso antes de recarregar.                  |
-| 09/11/2026 | Quem não é presidente recebia a mensagem "Apenas o responsável da comissão pode agendar reuniões" ao tentar mexer na ata. | A mensagem passou a dizer "escrever a ata".                                             |
-
-## Pendências
-
-- executar CT-ATA-20 em aparelho iOS;
-- medir o tempo de abertura da ata com texto próximo de 20.000 caracteres (RNF-ATA-07);
-- testar a virada de ano para confirmar o ano do número da ata (RNF-ATA-06).
 
 ## Rastreabilidade
 
