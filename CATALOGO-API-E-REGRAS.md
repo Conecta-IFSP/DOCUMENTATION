@@ -120,6 +120,16 @@ Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A a
 | `POST /reunioes/:id/ata/reprovar` | presente reprova a versão atual, com trecho e justificativa opcionais; a ata volta para o responsável |
 | `POST /reunioes/:id/ata/nova`     | responsável cancela a ata reprovada e abre a versão seguinte com o mesmo texto                        |
 
+## Votações
+
+Documentadas em [Incremento 3 — Votação](4%20-%20Incremento3/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
+
+| Método e rota | Regra principal |
+| --- | --- |
+| `POST /reunioes/:id/votacoes` | responsável da comissão abre a votação com a reunião em andamento; de 2 a 10 opções sem repetição |
+| `POST /reunioes/:id/votacoes/:votacaoId/votos` | participante com entrada não recusada e sem saída vota uma única vez, antes do fim da reunião |
+| `POST /reunioes/:id/votacoes/:votacaoId/encerrar` | responsável da comissão encerra a votação aberta; o resultado por opção passa a ser devolvido |
+
 ## Códigos HTTP usuais
 
 | Código | Significado no projeto                                                   |
