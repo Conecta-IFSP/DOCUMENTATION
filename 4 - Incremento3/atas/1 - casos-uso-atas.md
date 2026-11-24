@@ -50,7 +50,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Requisito RF-ATA-05 — Criar nova versão da ata.** O sistema deve permitir ao presidente transformar a ata reprovada em uma nova versão, com o mesmo texto, para corrigi-la e enviá-la de novo. A versão reprovada fica guardada como cancelada.
 
-**Requisito RF-ATA-06 — Consultar ata.** O sistema deve permitir a qualquer participante da reunião ver a ata, sua situação, quem já aprovou ou reprovou, o que mudou desde a versão anterior e as versões canceladas.
+**Requisito RF-ATA-06 — Consultar ata.** O sistema deve permitir a qualquer participante da reunião ver a ata, sua situação, quem já aprovou ou reprovou, o que mudou desde a versão anterior e as versões canceladas, com o texto de cada uma.
 
 **Requisito RF-ATA-07 — Ver atas pendentes.** O sistema deve mostrar na tela inicial as atas que esperam a aprovação do usuário e as atas que ele escreveu e foram reprovadas.
 

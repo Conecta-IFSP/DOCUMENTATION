@@ -1,21 +1,23 @@
 # Testes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 24/11/2026
 
 ## Resumo
 
-Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor; os roteiros manuais cobrem as telas, em dois emuladores Android. Nada aqui está marcado como aprovado sem ter sido executado.
+Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor; os roteiros manuais cobrem as telas, em três emuladores Android, no Expo Go e na versão web. Nada aqui está marcado como aprovado sem ter sido executado.
 
 ## Ambiente
 
 | Item                | Valor                                                                                     |
 | ------------------- | ------------------------------------------------------------------------------------------- |
-| Data da execução    | 09/11/2026                                                                                  |
+| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026                                             |
 | Node.js / npm       | 24.19.0 / 11.17.0                                                                           |
 | Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local                  |
 | Aplicativo          | branch `homolog`, APK de release gerado para `x86_64`, apontando para a API local          |
 | Aparelho 1          | Emulador Android 16 (API 36), 1080 × 2400, com PIN cadastrado                               |
 | Aparelho 2          | Emulador Android 7.0 (API 24, versão mínima do aplicativo), 720 × 1280, sem bloqueio de tela |
+| Aparelho 3          | Emulador Android 14 (API 34), 1080 × 2400, sem bloqueio de tela, com o APK de release e com o Expo Go 58.0.6 |
+| Web                 | `npx expo start`, aberto no navegador                                                       |
 | iOS                 | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS                 |
 
 ## Evidência automatizada
@@ -55,11 +57,14 @@ Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`
 | CT-ATA-14 | RF-ATA-01, RF-ATA-02     | Android 16          | Abrir a ata de uma reunião encerrada, escrever o texto, salvar e enviar com prazo de 3 dias.           | Aprovado. A folha mostrou os presentes, o prazo calculado e o aviso de que enviar registra a própria aprovação. |
 | CT-ATA-15 | RF-ATA-03, RF-ATA-04, RF-ATA-07 | Android 16   | Entrar com o segundo participante, ver a ata na tela inicial, apontar um parágrafo e reprovar com justificativa. | Aprovado. A ata ficou "Reprovada" e a faixa mostrou o nome, a data, a justificativa e o trecho.              |
 | CT-ATA-16 | RF-ATA-05, RF-ATA-06     | Android 16          | Como presidente, criar a nova versão, corrigir o texto e reenviar; conferir, como aprovador, o quadro de mudanças. | Aprovado. A versão 1 ficou no histórico como cancelada e o quadro mostrou só o trecho alterado.             |
-| CT-ATA-17 | RF-ATA-03, RF-ATA-08, RNF-ATA-03, RNF-ATA-05 | Android 16 | Aprovar com o PIN do aparelho e gerar o PDF da ata aprovada.                                | Aprovado. A aprovação pediu a confirmação de identidade do aparelho; a ata virou "Ata nº 4/2026" e o PDF saiu como `ata-4-2026.pdf`, conferido na pré-visualização de impressão. |
+| CT-ATA-17 | RF-ATA-03, RNF-ATA-03, RNF-ATA-05 | Android 16 | Aprovar com o PIN do aparelho.                                                                         | Aprovado. A aprovação pediu a confirmação de identidade do aparelho e a ata virou "Ata nº 4/2026".          |
 | CT-ATA-18 | RF-ATA-04, RNF-ATA-08    | Android 7.0, tela pequena | Abrir a ata, apontar um parágrafo, abrir a folha de reprovação com o teclado aberto e reprovar sem justificativa. | Aprovado. Nada ficou cortado e a ata registrou "Sem justificativa.".                                   |
 | CT-ATA-19 | RNF-ATA-09               | Android 7.0         | Repetir consulta, comparação de versões, reprovação e aprovação com o aplicativo no tema escuro.       | Aprovado. Textos, faixas e o destaque verde e vermelho da comparação permaneceram legíveis.                 |
 | CT-ATA-20 | RNF-ATA-03, RNF-ATA-08   | iOS                 | Repetir CT-ATA-14 a CT-ATA-17 em aparelho iOS.                                                         | Não executado: sem equipamento Apple disponível.                                                            |
+| CT-ATA-21 | RF-ATA-06                | Web                 | Numa ata com uma versão reprovada, tocar em "Versão 1" em "Versões anteriores".                        | Aprovado. A folha mostrou o texto da versão 1, a faixa com quem reprovou e a justificativa, e o parágrafo apontado em vermelho. |
+| CT-ATA-22 | RF-ATA-08                | Android 14, APK e Expo Go | Tocar em "PDF da ata" numa ata aprovada.                                                         | Aprovado nos dois. Abriu a tela de impressão do sistema com a ata em uma página e a opção "Save as PDF".     |
+| CT-ATA-23 | RF-ATA-08                | Web                 | Tocar em "PDF da ata" numa ata aprovada.                                                              | Aprovado. A nova janela recebeu só a ata, com o título "Ata nº 1/2026", e a impressão do navegador foi chamada. |
 
 ## Rastreabilidade
 
-CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente.
+CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata.

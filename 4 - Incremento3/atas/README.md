@@ -52,9 +52,9 @@ O presidente que esteve presente também é um participante presente: ao enviar 
 | UC-ATA-03   | RF-ATA-03  | SD-ATA-03  | CT-ATA-05, CT-ATA-07, CT-ATA-15, CT-ATA-17 |
 | UC-ATA-04   | RF-ATA-04  | SD-ATA-04  | CT-ATA-06, CT-ATA-07, CT-ATA-10, CT-ATA-15, CT-ATA-18 |
 | UC-ATA-05   | RF-ATA-05  | SD-ATA-05  | CT-ATA-08, CT-ATA-16          |
-| UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-02, CT-ATA-16, CT-ATA-19 |
+| UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-02, CT-ATA-16, CT-ATA-19, CT-ATA-21 |
 | UC-ATA-07   | RF-ATA-07  | SD-ATA-07  | CT-ATA-09, CT-ATA-15          |
-| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-17                     |
+| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23          |
 
 ## Base de conferência
 

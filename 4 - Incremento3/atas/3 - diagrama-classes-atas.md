@@ -38,8 +38,9 @@ classDiagram
         }
         class pdfAta {
             <<module>>
-            +compartilharPdfAta(reuniao: Reuniao) Promise~void~
+            +imprimirAta(reuniao: Reuniao) Promise~void~
             -htmlDaAta(reuniao: Reuniao) string
+            -imprimirNaWeb(html: string) void
         }
         class diferenca {
             <<module>>

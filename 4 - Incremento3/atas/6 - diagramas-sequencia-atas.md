@@ -288,18 +288,20 @@ sequenceDiagram
     participant T as TelaRegistrosReuniao
     participant P as pdfAta
     participant I as Print
-    participant F as File
-    participant H as Sharing
+    participant J as Janela do navegador
     U->>T: baixarPdf()
     T->>T: definirGerandoPdf(true)
-    T->>P: compartilharPdfAta(reuniao)
+    T->>P: imprimirAta(reuniao)
     P->>P: htmlDaAta(reuniao)
-    P->>I: printToFileAsync(html, width 595, height 842)
-    I-->>P: uri do arquivo temporário
-    P->>F: move(destino)
-    P->>H: shareAsync(destino.uri, opcoes)
-    Note over H: Abre o menu de compartilhamento do aparelho
-    H-->>P: concluído
+    alt Android ou iOS
+        P->>I: printAsync(html, width 595, height 842)
+        Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
+        I-->>P: concluído
+    else Web
+        P->>P: imprimirNaWeb(html)
+        P->>J: window.open, document.write(html), print()
+        Note over J: Abre o diálogo de impressão do navegador
+    end
     P-->>T: concluído
     T->>T: definirGerandoPdf(false)
 ```
