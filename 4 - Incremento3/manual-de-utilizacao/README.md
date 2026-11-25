@@ -34,7 +34,7 @@ Ficam fora deste módulo a edição das perguntas pelo próprio aplicativo e a l
 | 5 | [Requisitos não funcionais](5%20-%20requisitos-nao-funcionais-manual-de-utilizacao.md) | RNF-MAN-01 a RNF-MAN-09, com medida, verificação e situação. |
 | 6 | [Diagramas de sequência](6%20-%20diagramas-sequencia-manual-de-utilizacao.md) | SD-MAN-01 e SD-MAN-02. |
 | 7 | [Testes](7%20-%20testes-manual-de-utilizacao.md) | CT-MAN-01 a CT-MAN-13 e seus resultados. |
-| — | [Manual do Usuário (PDF)](manual-usuario/Manual-do-Usuario-Conecta.pdf) | Manual completo do aplicativo, aberto pelo botão "Ver manual completo (PDF)" da tela Ajuda. |
+| — | [Manual do Usuário (PDF)](manual-usuario/manual.pdf) | Manual completo do aplicativo, aberto pelo botão "Ver manual completo (PDF)" da tela Ajuda. |
 
 ## Rastreabilidade
 

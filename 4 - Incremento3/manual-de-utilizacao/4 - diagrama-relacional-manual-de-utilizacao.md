@@ -12,7 +12,7 @@
 
 **Conteúdo estático no aplicativo.** As perguntas e respostas da tela Ajuda são declaradas no próprio código do aplicativo, na constante `TOPICOS_AJUDA` do arquivo `src/constants/ajuda.ts`, e fazem parte do pacote instalado no aparelho. A tela Ajuda não envia nenhuma requisição à API e não consulta nenhuma coleção do MongoDB. Também não grava nada no aparelho: as perguntas abertas e o texto da busca existem apenas enquanto a tela está aberta. Para alterar o conteúdo, é preciso editar o arquivo e publicar uma nova versão do aplicativo.
 
-**PDF hospedado no GitHub.** O manual completo é o arquivo `Manual-do-Usuario-Conecta.pdf`, versionado na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. O aplicativo guarda apenas o endereço desse arquivo, na constante `URL_MANUAL_PDF`, e o entrega ao sistema operacional para ser aberto no navegador ou no leitor de PDF. O arquivo não passa pelo servidor do Conecta+ e não é registrado no banco.
+**PDF hospedado no GitHub.** O manual completo é o arquivo `manual.pdf`, versionado na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. O aplicativo guarda apenas o endereço desse arquivo, na constante `URL_MANUAL_PDF`, e o entrega ao sistema operacional para ser aberto no navegador ou no leitor de PDF. O arquivo não passa pelo servidor do Conecta+ e não é registrado no banco.
 
 | Dado | Onde fica | Persistência em banco |
 |---|---|---|

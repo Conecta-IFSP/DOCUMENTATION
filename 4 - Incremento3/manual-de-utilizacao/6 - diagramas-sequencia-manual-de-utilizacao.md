@@ -85,7 +85,7 @@ sequenceDiagram
     end
 ```
 
-O aplicativo não verifica a conexão nem o resultado do carregamento: depois de `openURL`, tudo fica a cargo do navegador, que busca o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf`.
+O aplicativo não verifica a conexão nem o resultado do carregamento: depois de `openURL`, tudo fica a cargo do navegador, que busca o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf`.
 
 ## Rastreabilidade
 

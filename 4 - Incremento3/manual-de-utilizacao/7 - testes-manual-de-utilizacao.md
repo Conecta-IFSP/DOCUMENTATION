@@ -13,7 +13,7 @@ Este documento registra os casos de teste do manual de utilização: a tela Ajud
 | Projeto | Comando | Ferramenta |
 |---|---|---|
 | FRONTEND | `node --test tests/*.test.cjs` | Executor de testes do Node.js 24.12.0, no Windows (inclui os 5 testes da busca da Ajuda) |
-| DOCUMENTATION | `pdfinfo Manual-do-Usuario-Conecta.pdf` | Poppler `pdfinfo` |
+| DOCUMENTATION | `pdfinfo manual.pdf` | Poppler `pdfinfo` |
 | Aparelhos | Roteiro manual da seção 3 | iPhone 14, iOS 27.2, e emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), os dois com o aplicativo aberto pelo Expo Go (`npx expo start --go`) e o backend em execução na mesma rede. |
 
 Fonte conferida: FRONTEND `homolog` (`66806e4`) e DOCUMENTATION `main` em 13/11/2026.
@@ -26,7 +26,7 @@ Fonte conferida: FRONTEND `homolog` (`66806e4`) e DOCUMENTATION `main` em 13/11/
 |---|---|
 | Usuário | Conta de teste com e-mail e senha, membro de uma comissão. |
 | Conteúdo da Ajuda | `TOPICOS_AJUDA` atual: 7 tópicos e 42 perguntas, 9 com perfil `responsavel`. |
-| Manual | `Manual-do-Usuario-Conecta.pdf` na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` da branch `main`. |
+| Manual | `manual.pdf` na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` da branch `main`. |
 
 ---
 
@@ -44,7 +44,7 @@ Fonte conferida: FRONTEND `homolog` (`66806e4`) e DOCUMENTATION `main` em 13/11/
 | CT-MAN-08 | RNF-MAN-06 | Tela Ajuda aberta, com uma conta que não é responsável por nenhuma comissão. | Rolar até o tópico Reuniões e localizar a pergunta "Como agendo uma reunião?". | A pergunta exibe o selo "Responsável" e continua visível e pode ser aberta. Em toda a tela, 9 perguntas exibem o selo. | Aprovado em 13/11/2026, no iPhone, via Expo Go. |
 | CT-MAN-09 | RF-MAN-02 (Ação, itens 1 a 3 e 5), RNF-MAN-03 | Tela Ajuda aberta, aparelho com internet. | Rolar até o fim e tocar em "Ver manual completo (PDF)". | O navegador abre o manual no GitHub, e o aplicativo continua na tela Ajuda ao voltar. | Aprovado em 13/11/2026, no iPhone, via Expo Go. |
 | CT-MAN-10 | RF-MAN-02 (Ação, item 4) | Aparelho sem internet. | Tocar em "Ver manual completo (PDF)". | O navegador mostra a própria mensagem de falta de conexão; ao voltar, o aplicativo continua na tela Ajuda. | Aprovado em 13/11/2026, no iPhone, via Expo Go. |
-| CT-MAN-11 | RNF-MAN-04 | Arquivo publicado na `main`. | Executar `pdfinfo Manual-do-Usuario-Conecta.pdf`. | Todas as páginas em A4. | Aprovado em 13/11/2026: 27 páginas de 594.96 × 841.92 pt (A4). |
+| CT-MAN-11 | RNF-MAN-04 | Arquivo publicado na `main`. | Executar `pdfinfo manual.pdf`. | Todas as páginas em A4. | Aprovado em 13/11/2026: 27 páginas de 594.96 × 841.92 pt (A4). |
 | CT-MAN-12 | RNF-MAN-07 | Aplicativo aberto em um Android (aparelho ou emulador) e em um iPhone. | Executar CT-MAN-01 a CT-MAN-04 e CT-MAN-09 em cada aparelho. | Mesmo comportamento nos dois sistemas. | Aprovado em 13/11/2026: CT-MAN-01 a CT-MAN-04 e CT-MAN-09 aprovados no iPhone 14 (iOS 27.2) e no emulador Pixel 6 (Android 15, API 35), via Expo Go, com o mesmo comportamento. |
 | CT-MAN-13 | RNF-MAN-08, RNF-MAN-09 | FRONTEND na branch `homolog`. | Executar `node --test tests/*.test.cjs`. | Todos os testes aprovados, incluindo os 5 da busca da Ajuda. | Aprovado em 13/11/2026: 18 testes, 0 falhas, incluindo os 5 da busca da Ajuda. |
 

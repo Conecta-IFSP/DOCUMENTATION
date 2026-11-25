@@ -28,8 +28,8 @@ O R4 não usa a API nem o banco de dados: os dois requisitos são atendidos só 
 | RF-MAN-02 | Abrir manual em PDF |
 | --- | --- |
 | **Função** | Abre o manual completo do aplicativo, em PDF, fora do aplicativo. |
-| **Descrição** | Entrega ao sistema operacional o endereço guardado na constante `URL_MANUAL_PDF` (`src/constants/ajuda.ts`). O arquivo `Manual-do-Usuario-Conecta.pdf` está versionado na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. O aplicativo não baixa nem guarda o arquivo, e nenhuma coleção do banco é lida ou gravada. |
-| **Entradas** | Toque no botão "Ver manual completo (PDF)".<br>`URL_MANUAL_PDF`: texto fixo com o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf`. |
+| **Descrição** | Entrega ao sistema operacional o endereço guardado na constante `URL_MANUAL_PDF` (`src/constants/ajuda.ts`). O arquivo `manual.pdf` está versionado na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. O aplicativo não baixa nem guarda o arquivo, e nenhuma coleção do banco é lida ou gravada. |
+| **Entradas** | Toque no botão "Ver manual completo (PDF)".<br>`URL_MANUAL_PDF`: texto fixo com o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf`. |
 | **Origem** | Usuário (toque) e o próprio aplicativo (constante `URL_MANUAL_PDF`). |
 | **Saída** | Página do arquivo no GitHub, que exibe o manual (27 páginas em A4) no visualizador de PDF do site, com a opção de baixá-lo. |
 | **Destino** | Navegador padrão do aparelho, ou outro aplicativo que o sistema operacional tenha associado ao endereço. O Conecta+ continua na tela Ajuda. |

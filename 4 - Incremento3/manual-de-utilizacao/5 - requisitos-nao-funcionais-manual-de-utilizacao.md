@@ -72,8 +72,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --- | --- |
 | **Classificação** | Organizacional › Entrega |
 | **Critério** | O endereço guardado no aplicativo (`URL_MANUAL_PDF`) é formado só pela branch, pelo caminho e pelo nome do arquivo, e nenhum deles muda quando o manual é atualizado. |
-| **Medida** | Depois de substituir o arquivo no mesmo caminho e enviar o commit para a `main`, o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf` responde `200` com o arquivo novo, e a versão do aplicativo já instalada abre esse arquivo sem nenhuma alteração no código. |
-| **Condição** | Arquivo `Manual-do-Usuario-Conecta.pdf` na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. |
+| **Medida** | Depois de substituir o arquivo no mesmo caminho e enviar o commit para a `main`, o endereço `https://github.com/Conecta-IFSP/DOCUMENTATION/blob/main/4%20-%20Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf` responde `200` com o arquivo novo, e a versão do aplicativo já instalada abre esse arquivo sem nenhuma alteração no código. |
+| **Condição** | Arquivo `manual.pdf` na pasta `4 - Incremento3/manual-de-utilizacao/manual-usuario/` do repositório `Conecta-IFSP/DOCUMENTATION`, branch `main`. |
 | **Verificação** | Substituir o PDF, fazer commit e push na `main`, consultar o endereço com `curl -sIL <endereço>` e conferir a resposta final `200`. Em seguida, roteiro CT-MAN-09. |
 | **Evidência** | Constante `URL_MANUAL_PDF`, em `src/constants/ajuda.ts`, e o commit `225ca39` do DOCUMENTATION, que publicou o arquivo. |
 | **Situação** | Atendido em 13/11/2026: o endereço responde `200`, `URL_MANUAL_PDF` aponta para ele, e o botão abriu o manual em iPhone (CT-MAN-09). |
@@ -86,8 +86,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério** | O manual em PDF é gerado em páginas A4 (210 × 297 mm), para ser lido na tela e impresso sem cortes. |
 | **Medida** | Todas as páginas do arquivo publicado medem 595 × 842 pontos (A4). Exceto na capa, que ocupa a página inteira, o corpo do texto, as tabelas e as imagens ficam a 20 mm do topo e da base e a 18 mm das laterais. O cabeçalho e o rodapé de cada página ficam dentro da margem, a cerca de 7 mm da borda. |
 | **Condição** | Arquivo publicado na branch `main` do DOCUMENTATION. |
-| **Verificação** | Executar `pdfinfo Manual-do-Usuario-Conecta.pdf` e conferir "Page size: 594.96 x 841.92 pts (A4)" (roteiro CT-MAN-11). Para as margens, extrair a posição de cada palavra com `pdftotext -bbox` ou imprimir uma página e medir. |
-| **Evidência** | `4 - Incremento3/manual-de-utilizacao/manual-usuario/Manual-do-Usuario-Conecta.pdf`. |
+| **Verificação** | Executar `pdfinfo manual.pdf` e conferir "Page size: 594.96 x 841.92 pts (A4)" (roteiro CT-MAN-11). Para as margens, extrair a posição de cada palavra com `pdftotext -bbox` ou imprimir uma página e medir. |
+| **Evidência** | `4 - Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf`. |
 | **Situação** | Atendido em 13/11/2026: `pdfinfo` informa 27 páginas de 594.96 × 841.92 pt (A4). Pela posição do texto extraída com `pdftotext -bbox` nas páginas 2 a 27, as margens laterais são de 18 mm e o corpo começa a 19 mm do topo e termina a 20 mm da base. Medição em página impressa pendente. |
 
 ### RNF-MAN-05 — Linguagem simples
