@@ -76,6 +76,7 @@ O método `atualizar` do service recebe o `PATCH /reunioes/:id` e encaminha para
 | ------------- | ------------------ | ----------: | ----------------------------------------- |
 | `entrada`     | `Date`             |         Sim | Uma única entrada.                        |
 | `saida`       | `Date`             |         Não | Não ultrapassa `Reuniao.fim`.             |
+| `saida_automatica` | `boolean`     |         Não | Verdadeiro quando o servidor registrou a saída no término. |
 | `situacao`    | `SituacaoPresenca` |         Sim | `AGUARDANDO`, `CONFIRMADA` ou `RECUSADA`. |
 | `marcada_por` | `OrigemPresenca`   |         Sim | `PROPRIO` ou `RESPONSAVEL`.               |
 

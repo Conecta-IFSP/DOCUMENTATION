@@ -92,6 +92,9 @@ classDiagram
             +responderConvite(id: string, aceito: boolean, usuarioId: string) Promise~Reuniao~
             +marcarEntrada(id: string, usuarioId: string) Promise~Reuniao~
             +marcarSaida(id: string, usuarioId: string) Promise~Reuniao~
+            +registrarSaidasAutomaticas(agora: Date) Promise~number~
+            +onApplicationBootstrap() Promise~void~
+            +onModuleDestroy() void
             +atualizarPresenca(id: string, participanteId: string, situacao: SituacaoPresenca, usuarioId: string) Promise~Reuniao~
             +gerarListaPresenca(id: string, usuarioId: string) Promise~ListaPresenca~
             +adicionarAnexo(id: string, arquivo: ArquivoRecebido, usuarioId: string) Promise~Reuniao~
@@ -164,6 +167,7 @@ classDiagram
         class Presenca {
             +entrada: Date
             +saida: Date
+            +saida_automatica: boolean
             +situacao: SituacaoPresenca
             +marcada_por: OrigemPresenca
         }
@@ -269,7 +273,7 @@ Figura 2 — Diagrama de classes das reuniões, por camada. Fonte: equipe Conect
 
 Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem ao menos um `Participante` (`1..*`), que é quem a agendou, e de zero a dez anexos (`0..10`).
 
-No código, os atributos opcionais são `horario_alterado_em` e `ata`, em `Reuniao`; `presenca`, em `Participante`; e `saida`, em `Presenca`. Nos objetos de entrada, só `comissao_id`, `titulo`, `inicio` e `fim` são obrigatórios em `CreateReuniaoDto`, e todos os campos de `UpdateReuniaoDto` são opcionais. A obrigatoriedade de cada atributo está no [dicionário de classes](3%20-%20dicionario-dados-classes-reunioes.md).
+No código, os atributos opcionais são `horario_alterado_em` e `ata`, em `Reuniao`; `presenca`, em `Participante`; `saida` e `saida_automatica`, em `Presenca`. Nos objetos de entrada, só `comissao_id`, `titulo`, `inicio` e `fim` são obrigatórios em `CreateReuniaoDto`, e todos os campos de `UpdateReuniaoDto` são opcionais. A obrigatoriedade de cada atributo está no [dicionário de classes](3%20-%20dicionario-dados-classes-reunioes.md).
 
 ## Regras representadas
 

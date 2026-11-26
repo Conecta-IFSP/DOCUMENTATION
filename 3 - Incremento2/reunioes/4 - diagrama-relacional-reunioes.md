@@ -64,6 +64,7 @@ erDiagram
         ObjectId usuario_id PK,FK
         Date entrada
         Date saida
+        Boolean saida_automatica
         String situacao
         String marcada_por
     }

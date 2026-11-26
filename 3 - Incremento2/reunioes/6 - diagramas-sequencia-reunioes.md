@@ -250,6 +250,24 @@ sequenceDiagram
     T->>T: definirReuniao(resultado.dados)
 ```
 
+Saída automática, feita pelo servidor quando a pessoa não marca a saída:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant S as ReunioesService
+    participant M as ReuniaoModel
+    S->>S: onApplicationBootstrap()
+    S->>S: registrarSaidasAutomaticas(agora)
+    Note over S: Repete a cada minuto
+    S->>M: find(AGENDADA, fim até agora, ata ausente ou em RASCUNHO, presença sem saída)
+    M-->>S: reunioes
+    loop cada reunião encontrada
+        S->>M: updateOne(_id e fim, $set presenca.saida = fim e presenca.saida_automatica, arrayFilters)
+        M-->>S: resultado
+    end
+```
+
 ## SD-REU-08 — Confirmar ou recusar presença
 
 ```mermaid

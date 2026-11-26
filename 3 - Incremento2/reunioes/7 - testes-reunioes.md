@@ -1,6 +1,6 @@
 # Testes — Reuniões
 
-> Padrão da disciplina · Módulo REU · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo REU · Revisado em 25/11/2026
 
 ## Resumo
 
@@ -10,6 +10,7 @@ Registra evidência executada e cenários manuais no formato comum do projeto. O
 
 | Data       | Projeto/commit      | Comando/teste                    | Resultado                          | Arquivos relacionados                                               |
 | ---------- | ------------------- | -------------------------------- | ---------------------------------- | ------------------------------------------------------------------- |
+| 25/11/2026 | BACKEND `homolog`   | `npm test`                       | 15 arquivos e 215 testes aprovados | `atas-presencas.spec.ts` (saída automática) |
 | 09/11/2026 | BACKEND `homolog`   | `npm test`                       | 14 arquivos e 204 testes aprovados | `reunioes.regras.spec.ts`, `anexos.spec.ts`, `atas-presencas.spec.ts` |
 | 09/11/2026 | BACKEND `homolog`   | `npm run build` e `npm run lint` | Aprovado, sem diagnóstico          | NestJS/TypeScript, Oxlint                                           |
 | 09/11/2026 | FRONTEND `homolog`  | `npx tsc --noEmit` e `npx eslint src` | Sem erro e sem diagnóstico    | Projeto do aplicativo                                               |
@@ -35,6 +36,8 @@ Registra evidência executada e cenários manuais no formato comum do projeto. O
 | CT-REU-21 | RF-REU-13     | Editar título e pauta; mudar o horário antes e depois do início; trocar convidados; editar como membro comum; editar reunião encerrada. | Campos gravados; mudança de horário só antes do início, zerando os convites menos o do organizador; convidado externo recusado; membro comum recebe 403; reunião encerrada recebe 400. | `reunioes.regras.spec.ts` |
 | CT-REU-22 | RF-REU-14 a RF-REU-16 | Enviar anexo válido, tipo não aceito, décimo primeiro anexo e arquivo em reunião encerrada; baixar como participante e como pessoa de fora; remover anexo existente e inexistente. | Anexo aceito só dentro das regras; download apenas para participantes; remoção apaga o arquivo no GridFS. | `anexos.spec.ts`          |
 | CT-REU-23 | RF-REU-01     | Criar reunião de dia inteiro e sem local; criar com local de uma letra.                | Início às 00:00 e fim às 23:59:59.999; local vazio aceito; local de uma letra recusado.   | `reunioes.regras.spec.ts` |
+| CT-REU-29 | RF-REU-07     | Rodar `registrarSaidasAutomaticas` às 12:00 para uma reunião que terminou às 11:00. | Busca só reuniões encerradas, sem ata enviada, com presença sem saída e não recusada; grava `saida` igual ao término e `saida_automatica` verdadeiro com `arrayFilters`. |
+| CT-REU-30 | RF-REU-09     | Gerar a lista de presença com uma saída automática e outra marcada pela pessoa. | `saida_automatica` verdadeiro só na saída registrada pelo servidor. |
 
 ## Matriz de testes manuais
 
@@ -49,6 +52,8 @@ Registra evidência executada e cenários manuais no formato comum do projeto. O
 | CT-REU-24 | RF-REU-13           | Editar reunião pelo aplicativo, inclusive sair sem salvar.          | Formulário abre preenchido, avisa que o horário mudou e pede confirmação para descartar. | Aprovado em 09/11/2026, emuladores Android 16 e 7.0. |
 | CT-REU-26 | RF-REU-01/RNF-REU-13 | Escolher início e término pelo seletor de hora do aparelho; ligar e desligar "Dia inteiro"; marcar um término anterior ao início; agendar a reunião. | O relógio do sistema abre na hora sugerida (início: próxima meia hora; término: uma hora depois do início), grava a escolha, "Dia inteiro" esconde e limpa os dois campos, o aviso "O término deve ser depois do início." aparece assim que a hora inválida é escolhida e a reunião é criada com o horário escolhido. | Aprovado em 10/11/2026, emuladores Android 16 e 7.0. No Android 7 o diálogo do sistema não oferece o modo de digitação, só o relógio. |
 | CT-REU-27 | RF-REU-05/06/07, RNF-REU-14 | Aceitar o convite e depois tocar em "Não vou mais"; marcar entrada e saída com o aparelho bloqueado por PIN e cancelando a confirmação. | A desistência só é enviada depois do "Confirmar"; entrada e saída pedem a biometria ou o PIN, e o cancelamento mostra "Não foi possível confirmar sua identidade." sem gravar nada. | Aprovado em 10/11/2026, emuladores Android 16 e 7.0, ambos com PIN de tela. |
+| CT-REU-28 | RNF-REU-07          | Abrir o aplicativo no Expo Go: a tela de login no tema escuro e a tela inicial no tema claro. | A barra de status fica visível sobre o fundo do aplicativo e o conteúdo começa logo abaixo dela, sem faixa vazia no topo. | Aprovado em 25/11/2026, Galaxy S24 com Android 16 e Expo Go 58.0.5, e emulador Android 14 com Expo Go 58.0.6. |
+| CT-REU-31 | RF-REU-07/09        | Com a API local, reunião já encerrada em que uma pessoa marcou entrada e não saiu, outra marcou entrada e saída e a terceira não marcou nada; reiniciar a API e abrir a aba "Presença". | Aprovado em 25/11/2026, Expo Go no Galaxy S24. Só a primeira recebeu saída no término, e a lista mostrou "15:56 – 16:51 (saída automática) · 55 min"; as outras não mudaram, e uma reunião com ata em aprovação também não. |
 | CT-REU-25 | RF-REU-14/15/16     | Anexar, abrir e remover arquivo com nome acentuado.                 | Envio, download e remoção funcionam; o nome mantém os acentos.             | Aprovado em 09/11/2026, emulador Android 16. |
 
 ## Conclusão da validação manual

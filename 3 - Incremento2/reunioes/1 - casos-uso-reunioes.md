@@ -54,7 +54,7 @@ Os números 10, 11 e 12 pertenciam à ata e não foram reaproveitados.
 
 **Requisito RF-REU-06 — Registrar entrada.** O sistema deve permitir ao participante marcar sua entrada durante o horário da reunião, uma única vez, confirmando quem ele é no próprio aparelho.
 
-**Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída, com a mesma confirmação no aparelho.
+**Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída, com a mesma confirmação no aparelho. Se a pessoa não marcar, o sistema registra a saída no horário de término da reunião.
 
 **Requisito RF-REU-08 — Confirmar ou recusar presença.** O sistema deve permitir ao presidente confirmar ou recusar a presença de cada participante depois que a reunião começar.
 
