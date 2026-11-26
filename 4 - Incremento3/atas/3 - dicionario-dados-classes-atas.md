@@ -8,9 +8,10 @@
 | ---------------------- | -------------------- | --------------------------------------------------------------------------------- |
 | `TelaRegistrosReuniao` | Aplicativo           | Mostrar a ata, editar o rascunho e acionar enviar, aprovar, reprovar e nova versão. |
 | `TelaInicio`           | Aplicativo           | Listar as atas pendentes do usuário.                                              |
-| `pdfAta`               | Aplicativo (serviço) | Montar a ata aprovada em A4 e abrir a impressão.                                  |
+| `pdfAta`               | Aplicativo (serviço) | Montar a ata aprovada em A4 e entregá-la ao serviço `pdf`.                        |
+| `pdf`                  | Aplicativo (serviço) | Entregar o PDF ao menu de compartilhamento (aplicativo instalado) ou abrir a impressão (Expo Go e web). |
 | `diferenca`            | Aplicativo (serviço) | Comparar duas versões do texto e apontar o que mudou.                             |
-| `autenticacaoLocal`    | Aplicativo (serviço) | Pedir biometria, Face ID ou PIN antes de aprovar.                                 |
+| `autenticacaoLocal`    | Aplicativo (serviço) | Pedir biometria, Face ID ou PIN antes de aprovar ou reprovar.                     |
 | `ReunioesController`   | API                  | Receber as rotas HTTP das atas e repassar ao serviço.                             |
 | `ReunioesService`      | Negócio              | Aplicar autorização, prazos, versões, aprovação, reprovação e numeração.          |
 | `Ata`                  | Subdocumento         | Guardar o texto, a situação, o prazo e as avaliações de uma versão.               |

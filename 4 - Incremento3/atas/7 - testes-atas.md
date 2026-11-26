@@ -1,6 +1,6 @@
 # Testes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 24/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 25/11/2026
 
 ## Resumo
 
@@ -10,13 +10,14 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 
 | Item                | Valor                                                                                     |
 | ------------------- | ------------------------------------------------------------------------------------------- |
-| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026                                             |
+| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026; CT-ATA-22 e CT-ATA-24 a CT-ATA-26 em 25/11/2026 |
 | Node.js / npm       | 24.19.0 / 11.17.0                                                                           |
 | Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local                  |
-| Aplicativo          | branch `homolog`, APK de release gerado para `x86_64`, apontando para a API local          |
+| Aplicativo          | branch `homolog`, APK de release gerado para `x86_64` (emuladores) e `arm64-v8a` (Aparelho 4), apontando para a API local |
 | Aparelho 1          | Emulador Android 16 (API 36), 1080 × 2400, com PIN cadastrado                               |
 | Aparelho 2          | Emulador Android 7.0 (API 24, versão mínima do aplicativo), 720 × 1280, sem bloqueio de tela |
 | Aparelho 3          | Emulador Android 14 (API 34), 1080 × 2400, sem bloqueio de tela, com o APK de release e com o Expo Go 58.0.6 |
+| Aparelho 4          | Galaxy S24, Android 16, com digital e PIN cadastrados, com o APK de release e com o Expo Go 58.0.5 |
 | Web                 | `npx expo start`, aberto no navegador                                                       |
 | iOS                 | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS                 |
 
@@ -62,9 +63,12 @@ Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`
 | CT-ATA-19 | RNF-ATA-09               | Android 7.0         | Repetir consulta, comparação de versões, reprovação e aprovação com o aplicativo no tema escuro.       | Aprovado. Textos, faixas e o destaque verde e vermelho da comparação permaneceram legíveis.                 |
 | CT-ATA-20 | RNF-ATA-03, RNF-ATA-08   | iOS                 | Repetir CT-ATA-14 a CT-ATA-17 em aparelho iOS.                                                         | Não executado: sem equipamento Apple disponível.                                                            |
 | CT-ATA-21 | RF-ATA-06                | Web                 | Numa ata com uma versão reprovada, tocar em "Versão 1" em "Versões anteriores".                        | Aprovado. A folha mostrou o texto da versão 1, a faixa com quem reprovou e a justificativa, e o parágrafo apontado em vermelho. |
-| CT-ATA-22 | RF-ATA-08                | Android 14, APK e Expo Go | Tocar em "PDF da ata" numa ata aprovada.                                                         | Aprovado nos dois. Abriu a tela de impressão do sistema com a ata em uma página e a opção "Save as PDF".     |
+| CT-ATA-22 | RF-ATA-08                | Android 14, Expo Go | Tocar em "PDF da ata" numa ata aprovada.                                                              | Aprovado. Abriu a tela de impressão do sistema com a ata em uma página e a opção "Save as PDF".              |
 | CT-ATA-23 | RF-ATA-08                | Web                 | Tocar em "PDF da ata" numa ata aprovada.                                                              | Aprovado. A nova janela recebeu só a ata, com o título "Ata nº 1/2026", e a impressão do navegador foi chamada. |
+| CT-ATA-24 | RF-ATA-04, RNF-ATA-03    | Web                 | Apontar um parágrafo, escrever a justificativa e tocar em "Reprovar ata", sem bloqueio de tela.       | Aprovado. A reprovação foi enviada sem pedido de identidade e a faixa mostrou o nome, a data e a justificativa. |
+| CT-ATA-25 | RF-ATA-04, RNF-ATA-03    | Aparelho 4, APK e Expo Go | Tocar em "Reprovar ata", cancelar o pedido de identidade e depois repetir confirmando com a digital. | Aprovado. Nos dois, o pedido de identidade do aparelho apareceu e, cancelado, a ata seguiu "Em aprovação" sem avaliação nova; no APK, confirmada a digital, a ata ficou "Reprovada" com a avaliação registrada. |
+| CT-ATA-26 | RF-ATA-08                | Aparelho 3, APK     | Tocar em "PDF da ata" numa ata aprovada, fechar o menu de compartilhamento e repetir duas vezes.       | Aprovado. Nas três vezes abriu o menu de compartilhamento do Android com "Ata nº 1-2026.pdf" (40 KB), sem tela de escolha de pasta. Na primeira tentativa logo após instalar o APK, a tela ficou em "Gerando PDF..." até o aplicativo ser reaberto. |
 
 ## Rastreabilidade
 
-CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata.
+CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata; CT-ATA-24 e CT-ATA-25 cobrem a confirmação de identidade na reprovação; CT-ATA-26 cobre o PDF no aplicativo instalado.

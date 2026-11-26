@@ -149,6 +149,7 @@ sequenceDiagram
     autonumber
     actor U as Participante presente
     participant T as TelaRegistrosReuniao
+    participant L as autenticacaoLocal
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
@@ -157,6 +158,14 @@ sequenceDiagram
     U->>T: definirReprovacaoAberta(true)
     U->>T: definirJustificativa(texto)
     U->>T: reprovar()
+    T->>L: autenticarComDispositivo()
+    L->>L: dispositivoProtegido()
+    alt aparelho com biometria ou PIN
+        Note over U,L: O participante confirma a identidade no pedido do aparelho
+        L-->>T: true
+    else aparelho sem bloqueio de tela
+        L-->>T: true
+    end
     T->>T: gravar("/ata/reprovar", "POST", corpo, mensagem)
     T->>A: api("/reunioes/:id/ata/reprovar", "POST", corpo)
     Note over A,C: POST /reunioes/:id/ata/reprovar
@@ -287,21 +296,34 @@ sequenceDiagram
     actor U as Participante
     participant T as TelaRegistrosReuniao
     participant P as pdfAta
+    participant D as pdf
     participant I as Print
+    participant C as Sharing
     participant J as Janela do navegador
     U->>T: baixarPdf()
     T->>T: definirGerandoPdf(true)
-    T->>P: imprimirAta(reuniao)
+    T->>P: gerarPdfAta(reuniao)
     P->>P: htmlDaAta(reuniao)
-    alt Android ou iOS
-        P->>I: printAsync(html, width 595, height 842)
-        Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
-        I-->>P: concluído
-    else Web
-        P->>P: imprimirNaWeb(html)
-        P->>J: window.open, document.write(html), print()
+    P->>D: entregarPdf(html, nome)
+    alt Web
+        D->>D: imprimirNaWeb(html)
+        D->>J: open("", "_blank")
+        D->>J: write(html)
+        D->>J: print()
         Note over J: Abre o diálogo de impressão do navegador
+    else Expo Go
+        D->>I: printAsync(html, width 595, height 842)
+        Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
+        I-->>D: concluído
+    else Aplicativo instalado
+        D->>I: printToFileAsync(html, width 595, height 842)
+        I-->>D: uri
+        D->>D: move(arquivo nome.pdf)
+        D->>C: shareAsync(arquivo.uri, application/pdf)
+        Note over C: Abre o menu de compartilhamento do aparelho
+        C-->>D: concluído
     end
+    D-->>P: concluído
     P-->>T: concluído
     T->>T: definirGerandoPdf(false)
 ```

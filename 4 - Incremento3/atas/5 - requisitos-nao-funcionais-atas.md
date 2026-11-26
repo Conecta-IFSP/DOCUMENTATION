@@ -14,7 +14,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 **RNF-ATA-02 — Autorização para avaliar a ata.** Só quem esteve presente na reunião pode aprovar ou reprovar a ata, e uma única vez por versão.
 
-**RNF-ATA-03 — Confirmação de identidade na aprovação.** A aprovação da ata deve ser confirmada pela biometria ou senha do aparelho.
+**RNF-ATA-03 — Confirmação de identidade na avaliação.** A aprovação e a reprovação da ata devem ser confirmadas pela biometria ou senha do aparelho.
 
 **RNF-ATA-04 — Proteção contra gravação simultânea.** Duas pessoas agindo ao mesmo tempo não podem apagar a decisão uma da outra.
 
@@ -56,17 +56,17 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Evidência**   | `ReunioesService.avaliarAta` e o teste "não deixa trocar a decisão nem avaliar quem não esteve presente".                            |
 | **Situação**    | Atendido em 09/11/2026.                                                                                                             |
 
-### RNF-ATA-03 — Confirmação de identidade na aprovação
+### RNF-ATA-03 — Confirmação de identidade na avaliação
 
 | Campo           | Conteúdo                                                                                                                                                |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Externo › Legal › Segurança |
-| **Critério**    | A aprovação exige uma confirmação deliberada: biometria, Face ID ou PIN do aparelho; onde não houver bloqueio de tela, um diálogo de confirmação.        |
+| **Critério**    | A aprovação e a reprovação exigem uma confirmação deliberada: biometria, Face ID ou PIN do aparelho; onde não houver bloqueio de tela, a aprovação mostra um diálogo de confirmação e a reprovação é confirmada pelo botão "Reprovar ata" da folha de reprovação. |
 | **Medida**      | Em aparelho com bloqueio, cancelar a confirmação não envia nada à API. Em aparelho sem bloqueio, o diálogo aparece antes do envio.                      |
-| **Condição**    | Botão "Aprovar" da aba Ata e botão "Enviar" quando o presidente esteve presente.                                                                        |
-| **Verificação** | Teste manual CT-ATA-17 no emulador Android 16, com PIN cadastrado, e CT-ATA-15 no Android 7.0, sem bloqueio de tela.                                     |
-| **Evidência**   | `FRONTEND/src/services/autenticacao-local.ts` e `TelaRegistrosReuniao.aprovar`.                                                                          |
-| **Situação**    | Atendido no Android. No iOS o mesmo módulo é usado para Face ID, mas não houve execução em aparelho iOS; validação pendente.                             |
+| **Condição**    | Botão "Aprovar" da aba Ata, botão "Reprovar ata" da folha de reprovação e botão "Enviar" quando o presidente esteve presente.                            |
+| **Verificação** | Testes manuais CT-ATA-17 no emulador Android 16, com PIN cadastrado, CT-ATA-15 no Android 7.0 e CT-ATA-24 na web, sem bloqueio de tela, e CT-ATA-25 num Galaxy S24 com digital. |
+| **Evidência**   | `FRONTEND/src/services/autenticacao-local.ts`, `TelaRegistrosReuniao.aprovar` e `TelaRegistrosReuniao.reprovar`.                                        |
+| **Situação**    | Atendido no Android: aprovação com PIN no emulador e reprovação com a digital num Galaxy S24 (CT-ATA-25). No iOS o mesmo módulo é usado para Face ID, mas não houve execução em aparelho iOS; validação pendente. |
 
 ### RNF-ATA-04 — Proteção contra gravação simultânea
 

@@ -38,8 +38,13 @@ classDiagram
         }
         class pdfAta {
             <<module>>
-            +imprimirAta(reuniao: Reuniao) Promise~void~
+            +gerarPdfAta(reuniao: Reuniao) Promise~void~
             -htmlDaAta(reuniao: Reuniao) string
+        }
+        class pdf {
+            <<module>>
+            +entregarPdf(html: string, nome: string) Promise~void~
+            +pdfPelaImpressao() boolean
             -imprimirNaWeb(html: string) void
         }
         class diferenca {
@@ -169,6 +174,7 @@ classDiagram
 
     TelaRegistrosReuniao ..> api : usa
     TelaRegistrosReuniao ..> pdfAta : usa
+    pdfAta ..> pdf : usa
     TelaRegistrosReuniao ..> diferenca : usa
     TelaRegistrosReuniao ..> autenticacaoLocal : usa
     TelaInicio ..> api : usa

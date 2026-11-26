@@ -46,7 +46,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Requisito RF-ATA-03 — Aprovar ata.** O sistema deve permitir a cada participante presente aprovar a ata enviada, confirmando sua identidade no aparelho. Quando todos os presentes aprovam, a ata fica aprovada e recebe um número na comissão.
 
-**Requisito RF-ATA-04 — Reprovar ata.** O sistema deve permitir a cada participante presente reprovar a ata enviada, podendo apontar o parágrafo com problema e escrever uma justificativa. Uma reprovação devolve a ata ao presidente.
+**Requisito RF-ATA-04 — Reprovar ata.** O sistema deve permitir a cada participante presente reprovar a ata enviada, confirmando sua identidade no aparelho, podendo apontar o parágrafo com problema e escrever uma justificativa. Uma reprovação devolve a ata ao presidente.
 
 **Requisito RF-ATA-05 — Criar nova versão da ata.** O sistema deve permitir ao presidente transformar a ata reprovada em uma nova versão, com o mesmo texto, para corrigi-la e enviá-la de novo. A versão reprovada fica guardada como cancelada.
 
