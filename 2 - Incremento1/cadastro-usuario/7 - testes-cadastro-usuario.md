@@ -23,6 +23,7 @@ Registra evidência executada e cenários manuais no formato comum do Incremento
 | CT-USR-04 | RF-USR-04    | Entrar com código válido/inválido    | Solicitação em análise criada ou erro sem vínculo.         | Aprovado pela equipe. |
 | CT-USR-05 | RF-USR-05/06 | Convidar, aceitar/recusar e analisar | Transições corretas e conflitos detectados.                | Aprovado pela equipe. |
 | CT-USR-06 | RF-USR-07    | Alterar papel/remover/último admin   | Papel válido; último admin e remoção indevida recusados.   | Aprovado pela equipe. |
+| CT-USR-07 | RF-USR-02    | Na tela de login, tocar no campo Senha com o teclado fechado | A tela rola até o campo, que fica inteiro acima do teclado, com "Entrar" logo abaixo dele, sem nada por cima dos campos. | Aprovado em 25/11/2026, Expo Go no Galaxy S24 (Android 16) e no emulador Android 14. |
 
 ## Conclusão da validação manual
 
