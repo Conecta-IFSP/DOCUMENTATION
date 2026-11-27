@@ -59,7 +59,7 @@ As senhas são guardadas como hash `bcrypt` com custo 10. A API não limita o n�
 
 ## 5. Bibliotecas do frontend
 
-Versões resolvidas pelo `package-lock.json` da branch `homolog` (commit `10abe49`; o lockfile mudou pela última vez em 26/11/2026), no Expo SDK 58, com todas as bibliotecas na versão esperada pelo `expo` 58.1.0 (`npx expo install --check` sem pendências em 27/11/2026):
+Versões resolvidas pelo `package-lock.json` da branch `main`, conferidas em 27/11/2026 (o lockfile mudou pela última vez em 26/11/2026), no Expo SDK 58, com todas as bibliotecas na versão esperada pelo `expo` 58.1.0 (`npx expo install --check` sem pendências em 27/11/2026):
 
 | Biblioteca                       |  Versão | Uso no projeto                                                     |
 | -------------------------------- | ------: | ------------------------------------------------------------------ |
@@ -105,7 +105,7 @@ Versões resolvidas pelo `package-lock.json` da branch `homolog` (commit `10abe4
 
 ## 6. Bibliotecas do backend
 
-Versões resolvidas pelo `package-lock.json` da branch `homolog` (commit `d1f1aeb`; as versões são as mesmas desde `6f2ffc4`):
+Versões resolvidas pelo `package-lock.json` da branch `main`, conferidas em 27/11/2026 (as versões são as mesmas desde a entrega do Incremento 2, em 23/10/2026):
 
 | Biblioteca              |  Versão | Uso no projeto                                |
 | ----------------------- | ------: | --------------------------------------------- |
@@ -171,7 +171,7 @@ Em 26/11/2026, o `npx expo install --check` voltou a apontar sete bibliotecas at
 
 No mesmo dia, num Galaxy S24 com Android 16, foram percorridos no Expo Go 58.0.5 e num APK de release `arm64-v8a`: login com o teclado aberto, manual dentro do aplicativo, PDF da ata, PDF do relatório individual e pedido de identidade do aparelho ao reprovar a ata.
 
-Em 27/11/2026, com Node.js 24.19.0 e npm 11.17.0, nos commits `d1f1aeb` (backend) e `10abe49` (frontend): backend com **17 arquivos e 246 testes aprovados** (`npx vitest run`), `npx tsc --noEmit -p tsconfig.build.json` sem erro e `npx oxlint src/ test/` sem diagnóstico; frontend com `npx tsc --noEmit` sem erro, `npx eslint src` sem diagnóstico, 47 testes Node de `FRONTEND/tests/*.test.cjs` aprovados e `npx expo install --check` sem pendências.
+Em 27/11/2026, com Node.js 24.19.0 e npm 11.17.0, na branch `homolog`, na versão com o voto em branco e nulo (backend e frontend): backend com **17 arquivos e 246 testes aprovados** (`npx vitest run`), `npx tsc --noEmit -p tsconfig.build.json` sem erro e `npx oxlint src/ test/` sem diagnóstico; frontend com `npx tsc --noEmit` sem erro, `npx eslint src` sem diagnóstico, 47 testes Node de `FRONTEND/tests/*.test.cjs` aprovados e `npx expo install --check` sem pendências.
 
 Em 23/10/2026, na entrega do Incremento 2, a base era Node.js 24.11.0 e npm 11.6.1, com 13 arquivos e 182 testes aprovados.
 

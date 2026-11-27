@@ -136,7 +136,7 @@ Para cada identificador, o dicionário diz **quem o cria, em que formato, com qu
 
 ## 9. Controle de revisão
 
-Toda revisão deve registrar os commits do frontend e backend usados como fonte, executar os testes possíveis e não transformar resultado não executado em “aprovado”. O arquivo de teste informa data, ambiente e comando utilizado.
+Toda revisão deve registrar a data e a branch do frontend e do backend usados como fonte, executar os testes possíveis e não transformar resultado não executado em “aprovado”. O arquivo de teste informa data, ambiente e comando utilizado. A versão do código é descrita pela data e pelo que ela contém, nunca pelo hash do commit, porque os commits podem ser reorganizados.
 
 ## 10. Elementos comuns a todos os artefatos
 

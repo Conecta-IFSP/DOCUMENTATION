@@ -51,7 +51,7 @@ erDiagram
     }
 ```
 
-Figura 3 — Visão lógica relacional do cadastro de comissão. Fonte: equipe Conecta+.
+Figura 9 — Visão lógica relacional do cadastro de comissão. Fonte: equipe Conecta+.
 
 ## Como as entidades lógicas viram documentos
 

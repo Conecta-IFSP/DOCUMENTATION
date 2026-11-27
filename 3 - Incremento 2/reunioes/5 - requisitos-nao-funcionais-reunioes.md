@@ -109,12 +109,12 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | Campo             | Conteúdo |
 | ----------------- | -------- |
 | **Classificação** | Produto › Eficiência › Desempenho |
-| **Critério**      | A listagem da agenda responde rapidamente com o volume esperado de uma comissão. |
+| **Critério**      | A listagem da agenda responde em até 2 s com até 100 reuniões no período consultado. |
 | **Medida**        | `GET /reunioes` responde em até 2 s com até 100 reuniões no período consultado. |
 | **Condição**      | API e banco na mesma rede local, sem carga concorrente. |
-| **Verificação**   | Medir o tempo da requisição com as ferramentas de rede do navegador ou com `curl -w "%{time_total}"`. |
+| **Verificação**   | Medir o tempo da requisição com as ferramentas de rede do navegador ou com `curl -w "%{time_total}"`; roteiro CT-REU-51. |
 | **Evidência**     | Índice `{ participantes.usuario_id: 1, inicio: 1 }` em `reuniao.schema.ts`. |
-| **Situação**      | Critério definido; medição pendente. |
+| **Situação**      | Atendido em 27/11/2026 (CT-REU-51): com 100 reuniões no período, 10 chamadas responderam com média de 20,4 ms e máximo de 32,7 ms. |
 
 ### RNF-REU-07 — Portabilidade
 
@@ -124,9 +124,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Os fluxos funcionam do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS. |
 | **Medida**        | Agendar, editar, responder convite, marcar entrada e saída, anexar e gerar o PDF da lista sem erro e sem texto cortado. |
 | **Condição**      | Emuladores Android 16, 14 e 7.0, Galaxy S24 com Android 16 e Expo Go. |
-| **Verificação**   | Roteiros CT-REU-24 a CT-REU-28, CT-REU-31, CT-REU-32, CT-REU-42, CT-REU-44 e CT-REU-45. |
+| **Verificação**   | Roteiros CT-REU-24 a CT-REU-28, CT-REU-31, CT-REU-32, CT-REU-42, CT-REU-44, CT-REU-45, CT-REU-48 e CT-REU-50. |
 | **Evidência**     | Registros de execução de 09/11/2026 a 27/11/2026 em [Testes](7%20-%20testes-reunioes.md). |
-| **Situação**      | Atendido no Android nos roteiros executados. O PDF da lista no aplicativo instalado foi conferido no Galaxy S24 em 26/11/2026 (CT-REU-32) e em 27/11/2026 (CT-REU-42), com versões anteriores ao frontend `db5b2fe`. A entrega atual do PDF, que confere se o aparelho compartilha arquivos e compartilha o arquivo gerado sem renomeá-lo, foi conferida em 27/11/2026 num emulador Android 14 com o APK do `4f53a25` (CT-REU-44, em parte: o conteúdo do PDF não foi conferido), e a folha "Convidados" com o teclado aberto foi aprovada no mesmo emulador (CT-REU-45). iOS não executado por falta de equipamento; validação pendente. |
+| **Situação**      | Atendido no Android nos roteiros executados. O PDF da lista no aplicativo instalado foi conferido no Galaxy S24 em 26/11/2026 (CT-REU-32) e em 27/11/2026 (CT-REU-42), com versões anteriores às correções do João de 27/11/2026. A entrega atual do PDF, que confere se o aparelho compartilha arquivos e compartilha o arquivo gerado sem renomeá-lo, foi conferida em 27/11/2026 num emulador Android 14 com o APK de release de 27/11/2026 que já inclui essas correções (CT-REU-44, com o conteúdo do PDF conferido), e no mesmo emulador foram aprovados a folha "Convidados" com o teclado aberto (CT-REU-45), a barra de status nos temas claro e escuro (CT-REU-48) e o teclado no fim do formulário "Nova reunião" (CT-REU-50). iOS não executado: não há computador Apple para gerar o aplicativo nativo. |
 
 ### RNF-REU-08 — Atualização da tela
 
@@ -136,9 +136,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | A tela da reunião busca os dados de novo sem ação do usuário. |
 | **Medida**        | Enquanto a tela está em primeiro plano, `buscar` é chamada a cada 30.000 ms; uma alteração feita em outro aparelho aparece em até 30 s. Puxar a tela para baixo busca na hora e limpa as faixas de erro e de sucesso. |
 | **Condição**      | Tela da reunião aberta, com conexão com a API. |
-| **Verificação**   | Inspeção de `setInterval` em `[id].tsx`; roteiro CT-REU-17 em dois aparelhos; o roteiro CT-REU-43, executado em parte em 27/11/2026, conferiu que a faixa de sucesso some sozinha. |
+| **Verificação**   | Inspeção de `setInterval` em `[id].tsx`; roteiro CT-REU-17 em dois aparelhos; o roteiro CT-REU-43, executado em 27/11/2026 no emulador Android 14 e completado no Galaxy S24, conferiu que a faixa de sucesso some sozinha e que puxar a tela para baixo apaga a faixa vermelha. |
 | **Evidência**     | `FRONTEND/src/app/reunioes/[id].tsx`, `useFocusEffect`. |
-| **Situação**      | Atendido na tela da reunião segundo o registro da equipe de 23/10/2026 (CT-REU-17). Limitação: a tela "Gestão de presença" (`FRONTEND/src/app/reunioes/acesso.tsx`) não se atualiza sozinha; a função `carregar` só roda quando a tela ganha o foco (`useFocusEffect`), quando é puxada para baixo e depois de uma correção de horário, sem consulta periódica. No CT-REU-38, essa tela, aberta antes do registro do convidado, só mostrou a saída dele depois de puxada para baixo. |
+| **Situação**      | Atendido na tela da reunião segundo o registro da equipe de 23/10/2026 (CT-REU-17); em 27/11/2026, o CT-REU-43 conferiu que a faixa de sucesso some sozinha e que puxar a tela apaga a faixa de erro. Limitação: a tela "Gestão de presença" (`FRONTEND/src/app/reunioes/acesso.tsx`) não se atualiza sozinha; a função `carregar` só roda quando a tela ganha o foco (`useFocusEffect`), quando é puxada para baixo e depois de uma correção de horário, sem consulta periódica. No CT-REU-38, essa tela, aberta antes do registro do convidado, só mostrou a saída dele depois de puxada para baixo. |
 
 ### RNF-REU-09 — Acessibilidade
 
@@ -150,7 +150,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Tela da reunião, agenda e aba "Presença". |
 | **Verificação**   | Inspeção das propriedades `accessibilityLabel`; roteiro CT-REU-20 com leitor de tela. |
 | **Evidência**     | `FRONTEND/src/app/reunioes/[id].tsx`. |
-| **Situação**      | Registro da equipe de 23/10/2026 (CT-REU-20); contraste e área de toque sem medição. O rótulo "Desmarcar presença de &lt;nome&gt;", do frontend `db5b2fe`, foi conferido só no código, sem leitor de tela. |
+| **Situação**      | Registro da equipe de 23/10/2026 (CT-REU-20); contraste e área de toque sem medição. O rótulo "Desmarcar presença de &lt;nome&gt;", incluído pelo João em 27/11/2026, foi conferido só no código, sem leitor de tela. |
 
 ### RNF-REU-10 — Testabilidade
 
@@ -159,9 +159,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega |
 | **Critério**      | As suítes automáticas dos dois projetos passam inteiras antes de cada entrega. |
 | **Medida**        | BACKEND: `npx vitest run`, `npm run build` e `npm run lint` sem falha. FRONTEND: `npx tsc --noEmit`, `npm run lint` e `node --test tests/*.test.cjs` sem falha. |
-| **Condição**      | Branch `homolog` dos dois projetos. |
+| **Condição**      | Branch `main` dos dois projetos. |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-reunioes.md). |
-| **Evidência**     | 26/11/2026: BACKEND com 16 arquivos e 227 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados. 27/11/2026, backend `d1f1aeb` e frontend `10abe49`: BACKEND com 17 arquivos e 246 testes aprovados, `npm run lint` sem diagnóstico e `npx tsc -p tsconfig.build.json --noEmit` sem erro; FRONTEND com 5 arquivos e 47 testes aprovados, `npx tsc --noEmit` e `npm run lint` sem diagnóstico. |
+| **Evidência**     | 26/11/2026: BACKEND com 16 arquivos e 227 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados. 27/11/2026, com o voto em branco e nulo já incluído e antes das correções do João no aplicativo: BACKEND com 17 arquivos e 246 testes aprovados, `npm run lint` sem diagnóstico e `npx tsc -p tsconfig.build.json --noEmit` sem erro; FRONTEND com 5 arquivos e 47 testes aprovados, `npx tsc --noEmit` e `npm run lint` sem diagnóstico. |
 | **Situação**      | Atendido em 26/11/2026. Em 27/11/2026, repetido sobre a nova base, com o `npm run build` substituído pela compilação sem gerar arquivos (`tsc --noEmit` com a configuração do build). |
 
 ### RNF-REU-11 — Limite dos anexos
@@ -208,9 +208,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Marcar entrada ou saída na tela da reunião, marcar entrada pelo cartão "Agora" da tela inicial, registrar presença pelo link, corrigir horários e desmarcar a presença de quem está confirmado chamam `autenticarComDispositivo` antes da requisição; sem confirmação, nada é enviado. |
 | **Medida**        | Em aparelho com biometria, Face ID ou PIN, o pedido do próprio aparelho aparece e, cancelado, a tela mostra o aviso de identidade sem gravar nada. O pedido não tem texto do aplicativo: o título vai com um espaço porque o `androidx.biometric` recusa título vazio. |
 | **Condição**      | Aparelho com bloqueio de tela configurado. |
-| **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, roteiro CT-REU-40, na tela inicial, roteiro CT-REU-38, no link e na correção, e roteiro CT-REU-43, na desmarcação de presença. |
+| **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, roteiro CT-REU-40, na tela inicial, no Galaxy S24 com bloqueio de tela, roteiro CT-REU-38, no link e na correção, roteiro CT-REU-43, na desmarcação de presença, no emulador Android 14 sem bloqueio e no Galaxy S24 com bloqueio, e roteiro CT-REU-46, que confere que a desmarcação deixa de aparecer depois do envio da ata. |
 | **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `TelaReuniao.registrar`, `TelaReuniao.desmarcarPresenca`, `TelaInicio.marcarEntrada`, `TelaPresencaLink.registrar` e `TelaGestaoPresenca.corrigir`. |
-| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, o roteiro CT-REU-40 foi executado em parte em 26/11/2026: o pedido do aparelho apareceu e, cancelado, a tela mostrou o aviso sem gravar a entrada; falta a confirmação com a digital. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` e `desmarcarPresenca` não tratam um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. A desmarcação de presença, do frontend `db5b2fe`, foi executada em parte em 27/11/2026 num emulador Android 14 sem bloqueio de tela (CT-REU-43): o pedido do aparelho não aparece nesse emulador, então o cancelamento da biometria não foi conferido. O link e a correção foram executados em 27/11/2026 (CT-REU-38) num emulador Android 14 sem bloqueio de tela, em que o pedido do aparelho não aparece; nessas duas telas, o pedido de identidade não foi conferido em aparelho com bloqueio. |
+| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião e, no Galaxy S24, na tela inicial e na desmarcação de presença. Na tela inicial, o roteiro CT-REU-40 foi executado no Galaxy S24: em 26/11/2026, o pedido do aparelho apareceu e, cancelado, a tela mostrou o aviso sem gravar a entrada; em 27/11/2026, com o APK de release arm64 com as correções do João, confirmado com a biometria, a entrada foi gravada e o botão passou a "Presente". Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` e `desmarcarPresenca` não tratam um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. A desmarcação de presença, incluída pelo João em 27/11/2026, foi executada em 27/11/2026 (CT-REU-43) num emulador Android 14 sem bloqueio de tela, em que o pedido do aparelho não aparece, e completada no mesmo dia no Galaxy S24 com bloqueio: o pedido do aparelho apareceu e, cancelado, a faixa "Não foi possível confirmar sua identidade." apareceu sem desmarcar a presença. O link e a correção foram executados em 27/11/2026 (CT-REU-38) num emulador Android 14 sem bloqueio de tela, em que o pedido do aparelho não aparece; nessas duas telas, o pedido de identidade não foi conferido em aparelho com bloqueio. |
 
 ### RNF-REU-15 — Sigilo e validade do link de presença
 

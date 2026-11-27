@@ -56,7 +56,7 @@ erDiagram
     }
 ```
 
-Figura 3 — Visão lógica relacional do cadastro de organização. Fonte: equipe Conecta+.
+Figura 10 — Visão lógica relacional do cadastro de organização. Fonte: equipe Conecta+.
 
 ## Como as entidades lógicas viram documentos
 

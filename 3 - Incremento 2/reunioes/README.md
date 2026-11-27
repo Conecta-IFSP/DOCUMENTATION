@@ -45,14 +45,14 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 
 | Caso de uso | Requisito | Sequência | Testes                                                       |
 | ----------- | --------- | --------- | ------------------------------------------------------------ |
-| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26, CT-REU-41, CT-REU-45 |
+| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26, CT-REU-41, CT-REU-45, CT-REU-50 |
 | UC-REU-02   | RF-REU-02 | SD-REU-02 | CT-REU-02, CT-REU-15                                         |
 | UC-REU-03   | RF-REU-03 | SD-REU-03 | CT-REU-03, CT-REU-15, CT-REU-17, CT-REU-43                   |
 | UC-REU-04   | RF-REU-04 | SD-REU-04 | CT-REU-04, CT-REU-16, CT-REU-41                              |
 | UC-REU-05   | RF-REU-05 | SD-REU-05 | CT-REU-05, CT-REU-16, CT-REU-27                              |
 | UC-REU-06   | RF-REU-06 | SD-REU-06 | CT-REU-06, CT-REU-17, CT-REU-27, CT-REU-40                   |
 | UC-REU-07   | RF-REU-07 | SD-REU-07 | CT-REU-07, CT-REU-17, CT-REU-27, CT-REU-29, CT-REU-31        |
-| UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17, CT-REU-43                              |
+| UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17, CT-REU-43, CT-REU-46                   |
 | UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32, CT-REU-42, CT-REU-44 |
 | UC-REU-13   | RF-REU-13 | SD-REU-13 | CT-REU-21, CT-REU-24, CT-REU-41                              |
 | UC-REU-14   | RF-REU-14 | SD-REU-14 | CT-REU-22, CT-REU-25                                         |
@@ -67,8 +67,10 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 
 Os números 10, 11 e 12 não são usados neste módulo, nem como caso de uso nem como requisito ou diagrama: a ata é documentada como UC-ATA-01 a UC-ATA-08. Pelo mesmo motivo, CT-REU-10 a CT-REU-12 não têm teste próprio.
 
+CT-REU-40 e CT-REU-43 também verificam o RNF-REU-14, e o CT-REU-43, o RNF-REU-08; os dois foram completados em 27/11/2026 num Galaxy S24 com bloqueio de tela, com o APK de release arm64 com as correções do João.
+
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend `6e0d3f5`, que sobre o `d1f1aeb` só acrescenta variáveis ao `.env.example`, e frontend `4f53a25`; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`; a desmarcação de presença em `FRONTEND/src/app/reunioes/[id].tsx`, a entrega do PDF sem renomear o arquivo em `FRONTEND/src/services/pdf.ts` e o teclado da `FolhaInferior` entraram em `db5b2fe`; sobre ele, `1d3e977` só muda textos de `VotacoesReuniao`, descrita no módulo VOT, e `4f53a25`, um estilo do cartão de "Suas organizações", fora deste módulo). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `BACKEND/src/notificacoes/notificacoes.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/notificacoes.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/components/Confirmacao.tsx`, `FRONTEND/src/components/SinoNotificacoes.tsx`, `FRONTEND/src/services/anexos.ts`, `FRONTEND/src/services/pdf.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
+BACKEND e FRONTEND conferidos em 27/11/2026 na branch `main`. No backend, a última mudança, a inclusão das contas de teste no `.env.example`, não altera o código. No aplicativo, o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em 26/11/2026; a desmarcação de presença em `FRONTEND/src/app/reunioes/[id].tsx`, a entrega do PDF sem renomear o arquivo em `FRONTEND/src/services/pdf.ts` e o teclado da `FolhaInferior` entraram com as correções do João de 27/11/2026; depois delas, só mudaram os textos de `VotacoesReuniao`, descrita no módulo VOT, e um estilo do cartão de "Suas organizações", fora deste módulo. Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `BACKEND/src/notificacoes/notificacoes.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/notificacoes.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/components/Confirmacao.tsx`, `FRONTEND/src/components/SinoNotificacoes.tsx`, `FRONTEND/src/services/anexos.ts`, `FRONTEND/src/services/pdf.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
 
-A entrega do Incremento 2 foi conferida em 23/10/2026 sobre FRONTEND `792fab4` e BACKEND `6f2ffc4`.
+A entrega do Incremento 2 foi conferida em 23/10/2026, sobre as versões do FRONTEND e do BACKEND entregues nesse dia.

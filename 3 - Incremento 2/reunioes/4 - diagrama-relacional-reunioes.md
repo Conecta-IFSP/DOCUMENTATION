@@ -127,7 +127,7 @@ erDiagram
     }
 ```
 
-Figura 4 — Visão lógica relacional das reuniões. Fonte: equipe Conecta+.
+Figura 3 — Visão lógica relacional das reuniões. Fonte: equipe Conecta+.
 
 ## Como as entidades lógicas viram documentos
 

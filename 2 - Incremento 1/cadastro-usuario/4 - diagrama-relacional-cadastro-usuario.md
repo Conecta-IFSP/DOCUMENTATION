@@ -30,7 +30,7 @@ erDiagram
     }
 ```
 
-Figura 3 — Visão lógica relacional da conta de usuário. Fonte: equipe Conecta+.
+Figura 13 — Visão lógica relacional da conta de usuário. Fonte: equipe Conecta+.
 
 ## Como a entidade lógica vira documento
 

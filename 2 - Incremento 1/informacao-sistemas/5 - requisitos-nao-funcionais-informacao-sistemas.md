@@ -64,7 +64,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Cartão "Resetar sistema" da tela "Sistema" e rota `POST /sistema/reset`. Não há limite de tentativas: quem tem o token de um administrador do sistema pode tentar várias senhas seguidas. |
 | **Verificação**   | Testes automatizados CT-SIS-10 (validação do `ResetarSistemaDto`), CT-SIS-11 (senha certa) e CT-SIS-15 (senha errada, sem apagar nada); roteiros CT-SIS-17 no aparelho e CT-SIS-19 com chamadas diretas à API. |
 | **Evidência**     | `BACKEND/src/sistema/dto/resetar-sistema.dto.ts`, `BACKEND/src/sistema/sistema.controller.ts`, `confirmarSenhaAdmin` em `BACKEND/src/sistema/sistema.service.ts`, `BACKEND/src/sistema/sistema.spec.ts` e `FRONTEND/src/app/sistema.tsx` (`resetValido` e `resetarSistema`). |
-| **Situação**      | Implementado em `931c2c8` e `795d49b`, atendendo à avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura"). Atendido em 27/11/2026: CT-SIS-10, CT-SIS-11 e CT-SIS-15 aprovados; CT-SIS-17 aprovado no emulador Android 14, com "Apagar tudo" inativo com "RESE" e com "RESET" e a senha vazia, "Senha incorreta" com a senha errada, sem apagar nada, e, com a senha certa, só as contas `ADMIN_SISTEMA` no relatório; CT-SIS-19 aprovado com chamadas diretas à API, com 400 sem corpo, com "reset" em minúsculas e com a senha errada, sem apagar nada, e 201 com a palavra e a senha certas. A recusa da conta sem senha não foi executada. |
+| **Situação**      | Implementado na versão de Informações do Sistema escrita pelo Ruan Frazão em 26/11/2026, atendendo à avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura"). Atendido em 27/11/2026: CT-SIS-10, CT-SIS-11 e CT-SIS-15 aprovados; CT-SIS-17 aprovado no emulador Android 14, com "Apagar tudo" inativo com "RESE" e com "RESET" e a senha vazia, "Senha incorreta" com a senha errada, sem apagar nada, e, com a senha certa, só as contas `ADMIN_SISTEMA` no relatório; CT-SIS-19 aprovado com chamadas diretas à API, com 400 sem corpo, com "reset" em minúsculas e com a senha errada, sem apagar nada, e 201 com a palavra e a senha certas. A recusa da conta sem senha não foi executada. |
 
 ### RNF-SIS-04 — Reset sem resultado pela metade
 
@@ -88,7 +88,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | API e MongoDB no mesmo computador, sem outras requisições ao mesmo tempo, com até 1.000 documentos em cada uma das coleções `usuarios`, `organizacoes`, `comissoes` e `reunioes`. |
 | **Verificação**   | CT-SIS-09: medir com uma ferramenta de requisições HTTP (por exemplo, Postman ou `curl` com `-w "%{time_total}"`).                                                               |
 | **Evidência**     | `SistemaService.sobre` (um comando `buildInfo`), `SistemaService.status` (espera fixa de 200 ms para medir a CPU, em paralelo com `ping`, `dbStats` e quatro contagens) e `SistemaService.relatorios` (treze contagens em paralelo), em `BACKEND/src/sistema/sistema.service.ts`; resultado de CT-SIS-09 em [Testes](7%20-%20testes-informacao-sistemas.md). |
-| **Situação**      | Atendido em 27/11/2026 (CT-SIS-09, API local `6e0d3f5` e MongoDB 8.3 com 1.000 documentos em cada coleção, 10 chamadas por rota, todas com 200): maior tempo de 17,9 ms em `GET /sistema/sobre`, 232,9 ms em `GET /sistema/status` e 24,6 ms em `GET /sistema/relatorios`. A rota de status gasta pelo menos 200 ms só na medição da CPU.                                                                     |
+| **Situação**      | Atendido em 27/11/2026 (CT-SIS-09, API local na versão final de 27/11/2026 e MongoDB 8.3 com 1.000 documentos em cada coleção, 10 chamadas por rota, todas com 200): maior tempo de 17,9 ms em `GET /sistema/sobre`, 232,9 ms em `GET /sistema/status` e 24,6 ms em `GET /sistema/relatorios`. A rota de status gasta pelo menos 200 ms só na medição da CPU.                                                                     |
 
 ### RNF-SIS-06 — Métricas sem dependência externa
 
@@ -97,7 +97,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Implementação                                                                                                                          |
 | **Critério**      | Memória, CPU, processador e tempo ativo vêm dos módulos `node:os` e `process`, que fazem parte do Node.js; a situação do banco vem de comandos do próprio MongoDB (`ping`, `dbStats` e `buildInfo`); o módulo não cria coleção própria. |
 | **Medida**        | `sistema.service.ts` importa só `node:module`, `node:os`, `bcrypt`, `@nestjs/*`, `mongoose` e os schemas do projeto; o `sistema.module.ts` registra só schemas de outros módulos. |
-| **Condição**      | Código da branch `homolog`.                                                                                                                             |
+| **Condição**      | Código da branch `main`.                                                                                                                                |
 | **Verificação**   | Inspeção das importações de `BACKEND/src/sistema/sistema.service.ts` e `BACKEND/src/sistema/sistema.module.ts`.                                          |
 | **Evidência**     | Os dois arquivos citados.                                                                                                                                |
 | **Situação**      | Atendido por inspeção em 27/11/2026.                                                                                                                     |
@@ -133,9 +133,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                               |
 | **Critério**      | A suíte do backend e a checagem de tipos e de estilo do aplicativo passam inteiras antes de cada entrega.              |
 | **Medida**        | `npx vitest run` no BACKEND sem falha; `npx tsc --noEmit` e `npm run lint` no FRONTEND sem erro.                        |
-| **Condição**      | Código da branch `homolog`.                                                                                            |
+| **Condição**      | Código da branch `main`.                                                                                               |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-informacao-sistemas.md).                                                |
-| **Evidência**     | Na última execução, em 27/11/2026, sobre o backend `d1f1aeb` e o frontend `10abe49`: 17 arquivos e 246 testes aprovados no backend, `npx tsc --noEmit` e `npm run lint` sem erro no FRONTEND. O `sistema.spec.ts` tem 6 testes: valida o `ResetarSistemaDto` e chama `SistemaService.reset` com models simulados. Nenhum teste chama `SistemaController` nem as rotas `/sistema`. |
+| **Evidência**     | Na última execução, em 27/11/2026, depois da votação com voto em branco e nulo: 17 arquivos e 246 testes aprovados no backend, `npx tsc --noEmit` e `npm run lint` sem erro no FRONTEND. O `sistema.spec.ts` tem 6 testes: valida o `ResetarSistemaDto` e chama `SistemaService.reset` com models simulados. Nenhum teste chama `SistemaController` nem as rotas `/sistema`. |
 | **Situação**      | Atendido em 27/11/2026. Só o reset tem teste automatizado próprio; informações, status, relatórios e dados de teste não têm. |
 
 ## Rastreabilidade

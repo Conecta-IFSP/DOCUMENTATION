@@ -8,9 +8,13 @@ O diagrama mostra as classes que participam das configurações da conta, agrupa
 
 ## Diagrama
 
+O diagrama está dividido em 13 partes, para que cada uma caiba na largura da página sem ser reduzida. Cada classe aparece completa, com atributos e métodos, em uma única parte. Quando uma ligação chega a uma classe detalhada em outra parte, essa classe é repetida só com o nome, e o texto abaixo da figura diz em que parte ela está completa. As partes 1 a 4 são do pacote **Aplicativo**, as partes 5 a 10 do pacote **API** e a parte 11 do pacote **Dados**; as bibliotecas, fora dos pacotes, estão nas partes 12 e 13, e o `Transporter`, na parte 6. A parte 4 não tem ligações próprias: as classes dela aparecem uma abaixo da outra, e as ligações estão nas partes indicadas abaixo da figura.
+
+### Parte 1 — Tela "Perfil"
+
 ```mermaid
 classDiagram
-    direction LR
+    direction TB
 
     namespace Aplicativo {
         class TelaPerfil {
@@ -37,6 +41,33 @@ classDiagram
             +definirPreferenciaSelecionada(valor: PreferenciaTema) void
             +definirSalvandoTema(valor: boolean) void
         }
+    }
+    class api
+    class autenticacaoLocal
+    class TemaContext
+    class SessaoContext
+    class validacao
+    class ToastContext
+
+    TelaPerfil ..> api : usa
+    TelaPerfil ..> autenticacaoLocal : usa
+    TelaPerfil ..> TemaContext : usa
+    TelaPerfil ..> SessaoContext : usa
+    TelaPerfil ..> validacao : usa
+    TelaPerfil ..> ToastContext : mostrarToast
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 1: tela "Perfil". Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `SessaoContext` (parte 3); `api`, `autenticacaoLocal`, `TemaContext`, `validacao` e `ToastContext` (parte 4). Ligações em outras partes: `TelaPerfil` (parte 12).
+
+### Parte 2 — Telas "Trocar e-mail" e "Alterar senha"
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace Aplicativo {
         class TelaTrocarEmail {
             -etapa: Etapa
             -atual: string
@@ -55,6 +86,32 @@ classDiagram
             +salvar() Promise~void~
             +voltar() void
         }
+    }
+    class api
+    class SessaoContext
+    class validacao
+    class CampoTexto
+
+    TelaTrocarEmail ..> api : usa
+    TelaTrocarEmail ..> SessaoContext : usa
+    TelaTrocarEmail ..> validacao : usa
+    TelaAlterarSenha ..> api : usa
+    TelaAlterarSenha ..> SessaoContext : usa
+    TelaAlterarSenha ..> validacao : usa
+    TelaAlterarSenha ..> CampoTexto : usa
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 2: telas "Trocar e-mail" e "Alterar senha". Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `SessaoContext` (parte 3); `api`, `validacao` e `CampoTexto` (parte 4).
+
+### Parte 3 — Tela "Recuperar conta" e contexto da sessão
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace Aplicativo {
         class TelaRecuperarConta {
             -etapa: Etapa
             -email: string
@@ -82,10 +139,31 @@ classDiagram
             +definirAviso(valor: string) void
             +ouvinte() void
         }
-        class ToastContext {
-            -toast: ToastAtual
-            +mostrarToast(mensagem: string, tipo: TipoToast, duracao: number) void
-        }
+    }
+    class api
+    class autenticacaoLocal
+    class validacao
+    class CampoTexto
+
+    TelaRecuperarConta ..> api : usa
+    TelaRecuperarConta ..> autenticacaoLocal : usa
+    TelaRecuperarConta ..> validacao : usa
+    TelaRecuperarConta ..> CampoTexto : usa
+    SessaoContext ..> api : usa
+    api ..> SessaoContext : chama o ouvinte
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 3: tela "Recuperar conta" e contexto da sessão. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `api`, `autenticacaoLocal`, `validacao` e `CampoTexto` (parte 4). Ligações em outras partes: `SessaoContext` (partes 1 e 2).
+
+### Parte 4 — Contextos, componente e módulos do aplicativo
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace Aplicativo {
         class TemaContext {
             -preferencia: PreferenciaTema
             -tema: Tema
@@ -93,6 +171,10 @@ classDiagram
             +ehPreferenciaTema(valor: unknown) boolean
             -lerPreferencia() Promise~string~
             -gravarPreferencia(preferencia: PreferenciaTema) Promise~void~
+        }
+        class ToastContext {
+            -toast: ToastAtual
+            +mostrarToast(mensagem: string, tipo: TipoToast, duracao: number) void
         }
         class CampoTexto {
             +rotulo: string
@@ -109,6 +191,11 @@ classDiagram
             +validarConfirmacaoSenha(senha: string, confirmacao: string) string
             +normalizarEmail(email: string) string
         }
+        class autenticacaoLocal {
+            <<module>>
+            +dispositivoProtegido() Promise~boolean~
+            +autenticarComDispositivo() Promise~boolean~
+        }
         class api {
             <<module>>
             +api(caminho: string, metodo: string, corpo: unknown) Promise~Resultado~
@@ -117,12 +204,18 @@ classDiagram
             +removerToken() Promise~void~
             +observarSessaoInvalida(ouvinte: function) function
         }
-        class autenticacaoLocal {
-            <<module>>
-            +dispositivoProtegido() Promise~boolean~
-            +autenticarComDispositivo() Promise~boolean~
-        }
     }
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 4: contextos de tema e de avisos, campo de texto e módulos `validacao`, `autenticacaoLocal` e `api`. Fonte: equipe Conecta+.
+
+Ligações em outras partes: `TemaContext` (partes 1 e 12); `ToastContext` (parte 1); `CampoTexto` (partes 2 e 3); `validacao` (partes 1, 2 e 3); `autenticacaoLocal` (partes 1 e 3); `api` (partes 1, 2, 3, 5, 6 e 12).
+
+### Parte 5 — Controller e serviço de usuários
+
+```mermaid
+classDiagram
+    direction TB
 
     namespace API {
         class UsuariosController {
@@ -141,6 +234,24 @@ classDiagram
             +alterarSenha(id: string, alterarSenhaDto: AlterarSenhaDto) Promise~object~
             -validarId(id: string) void
         }
+    }
+    class api
+
+    api ..> UsuariosController : requisição HTTP
+    UsuariosController "1" --> "1" UsuariosService : usuariosService
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 5: controller e serviço de usuários. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `api` (parte 4). Ligações em outras partes: `UsuariosController` (partes 6, 7, 8 e 10); `UsuariosService` (partes 11 e 13).
+
+### Parte 6 — Controller e serviço de autenticação
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace API {
         class AuthController {
             -authService: AuthService
             +recuperarConta(recuperarContaDto: RecuperarContaDto) Promise~object~
@@ -161,12 +272,31 @@ classDiagram
             -smtpConfigurado() boolean
             -criarTransportador() Transporter
         }
-        class JwtAuthGuard {
-            -jwtService: JwtService
-            -usuarios: Model~UsuarioDocument~
-            +canActivate(context: ExecutionContext) Promise~boolean~
-            -extrairToken(requisicao: Request) string
-        }
+    }
+    class Transporter {
+        <<biblioteca>>
+        +sendMail(mensagem: SendMailOptions) Promise~SentMessageInfo~
+    }
+    class api
+    class UsuariosController
+
+    api ..> AuthController : requisição HTTP
+    AuthController "1" --> "1" AuthService : authService
+    UsuariosController "1" --> "1" AuthService : authService
+    AuthService "1" --> "0..1" Transporter : transportador
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 6: controller e serviço de autenticação, com a biblioteca `Transporter`. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `api` (parte 4); `UsuariosController` (parte 5). Ligações em outras partes: `AuthController` (partes 9 e 10); `AuthService` (partes 11 e 13).
+
+### Parte 7 — DTOs do perfil e da troca de senha
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace API {
         class AtualizarPerfilDto {
             +nome: string
             +email: string
@@ -176,6 +306,24 @@ classDiagram
             +senha_atual: string
             +nova_senha: string
         }
+    }
+    class UsuariosController
+
+    UsuariosController ..> AtualizarPerfilDto : recebe
+    UsuariosController ..> AlterarSenhaDto : recebe
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 7: DTOs do perfil e da troca de senha. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `UsuariosController` (parte 5).
+
+### Parte 8 — DTOs da troca de e-mail
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace API {
         class SolicitarAlteracaoEmailDto {
             +email: string
         }
@@ -183,6 +331,24 @@ classDiagram
             +email: string
             +codigo: string
         }
+    }
+    class UsuariosController
+
+    UsuariosController ..> SolicitarAlteracaoEmailDto : recebe
+    UsuariosController ..> ConfirmarAlteracaoEmailDto : recebe
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 8: DTOs da troca de e-mail. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `UsuariosController` (parte 5).
+
+### Parte 9 — DTOs da recuperação de conta
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace API {
         class RecuperarContaDto {
             +email: string
         }
@@ -190,11 +356,51 @@ classDiagram
             +email: string
             +codigo: string
         }
+    }
+    class AuthController
+
+    AuthController ..> RecuperarContaDto : recebe
+    AuthController ..> VerificarRecuperacaoDto : recebe
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 9: DTOs da recuperação de conta. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `AuthController` (parte 6).
+
+### Parte 10 — DTO da nova senha e guard de autenticação
+
+```mermaid
+classDiagram
+    direction TB
+
+    namespace API {
         class RedefinirSenhaDto {
             +token: string
             +nova_senha: string
         }
+        class JwtAuthGuard {
+            -jwtService: JwtService
+            -usuarios: Model~UsuarioDocument~
+            +canActivate(context: ExecutionContext) Promise~boolean~
+            -extrairToken(requisicao: Request) string
+        }
     }
+    class AuthController
+    class UsuariosController
+
+    AuthController ..> RedefinirSenhaDto : recebe
+    UsuariosController ..> JwtAuthGuard : protegido por
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 10: DTO da nova senha e guard de autenticação. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `UsuariosController` (parte 5); `AuthController` (parte 6). Ligações em outras partes: `JwtAuthGuard` (parte 11).
+
+### Parte 11 — Model, documento e enums do usuário
+
+```mermaid
+classDiagram
+    direction TB
 
     namespace Dados {
         class UsuarioModel {
@@ -241,6 +447,28 @@ classDiagram
             AMBOS
         }
     }
+    class UsuariosService
+    class AuthService
+    class JwtAuthGuard
+
+    UsuariosService "1" --> "1" UsuarioModel : usuarioModel
+    AuthService "1" --> "1" UsuarioModel : usuarioModel
+    JwtAuthGuard "1" --> "1" UsuarioModel : usuarios
+    UsuarioModel ..> Usuario : documentos do schema
+    Usuario ..> TemaUsuario : tema
+    Usuario ..> TipoUsuario : tipo
+    Usuario ..> ProvedorAutenticacao : provedor_autenticacao
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 11: model, documento e enums do usuário. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `UsuariosService` (parte 5); `AuthService` (parte 6); `JwtAuthGuard` (parte 10).
+
+### Parte 12 — Bibliotecas do aplicativo
+
+```mermaid
+classDiagram
+    direction TB
 
     class Router {
         <<biblioteca>>
@@ -251,6 +479,25 @@ classDiagram
         +setItemAsync(chave: string, valor: string) Promise~void~
         +deleteItemAsync(chave: string) Promise~void~
     }
+    class TelaPerfil
+    class api
+    class TemaContext
+
+    TelaPerfil ..> Router : push
+    api ..> SecureStore : guarda e apaga o token
+    TemaContext ..> SecureStore : grava a preferência
+```
+
+Figura 2 — Diagrama de classes das configurações de usuário, parte 12: bibliotecas do aplicativo. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `TelaPerfil` (parte 1); `api` e `TemaContext` (parte 4).
+
+### Parte 13 — Bibliotecas da API
+
+```mermaid
+classDiagram
+    direction TB
+
     class bcrypt {
         <<biblioteca>>
         +hash(dado: string, custo: number) Promise~string~
@@ -260,68 +507,24 @@ classDiagram
         <<biblioteca>>
         +randomBytes(tamanho: number) Buffer
     }
-    class Transporter {
-        <<biblioteca>>
-        +sendMail(mensagem: SendMailOptions) Promise~SentMessageInfo~
-    }
+    class UsuariosService
+    class AuthService
 
-    TelaPerfil ..> api : usa
-    TelaPerfil ..> autenticacaoLocal : usa
-    TelaPerfil ..> TemaContext : usa
-    TelaPerfil ..> SessaoContext : usa
-    TelaPerfil ..> validacao : usa
-    TelaPerfil ..> ToastContext : mostrarToast
-    TelaPerfil ..> Router : push
-    TelaTrocarEmail ..> api : usa
-    TelaTrocarEmail ..> SessaoContext : usa
-    TelaTrocarEmail ..> validacao : usa
-    TelaAlterarSenha ..> api : usa
-    TelaAlterarSenha ..> SessaoContext : usa
-    TelaAlterarSenha ..> validacao : usa
-    TelaAlterarSenha ..> CampoTexto : usa
-    TelaRecuperarConta ..> api : usa
-    TelaRecuperarConta ..> autenticacaoLocal : usa
-    TelaRecuperarConta ..> validacao : usa
-    TelaRecuperarConta ..> CampoTexto : usa
-    SessaoContext ..> api : usa
-    api ..> SessaoContext : chama o ouvinte
-    api ..> SecureStore : guarda e apaga o token
-    TemaContext ..> SecureStore : grava a preferência
-    api ..> UsuariosController : requisição HTTP
-    api ..> AuthController : requisição HTTP
-
-    UsuariosController --> "1" UsuariosService : usuariosService
-    UsuariosController --> "1" AuthService : authService
-    AuthController --> "1" AuthService : authService
-    UsuariosController ..> JwtAuthGuard : protegido por
-    UsuariosController ..> AtualizarPerfilDto : recebe
-    UsuariosController ..> AlterarSenhaDto : recebe
-    UsuariosController ..> SolicitarAlteracaoEmailDto : recebe
-    UsuariosController ..> ConfirmarAlteracaoEmailDto : recebe
-    AuthController ..> RecuperarContaDto : recebe
-    AuthController ..> VerificarRecuperacaoDto : recebe
-    AuthController ..> RedefinirSenhaDto : recebe
-    UsuariosService --> "1" UsuarioModel : usuarioModel
-    AuthService --> "1" UsuarioModel : usuarioModel
-    JwtAuthGuard --> "1" UsuarioModel : usuarios
     UsuariosService ..> bcrypt : compare e hash
     AuthService ..> bcrypt : hash
     AuthService ..> crypto : randomBytes
-    AuthService --> "0..1" Transporter : transportador
-    UsuarioModel ..> Usuario : documentos do schema
-    Usuario ..> TemaUsuario : tema
-    Usuario ..> TipoUsuario : tipo
-    Usuario ..> ProvedorAutenticacao : provedor_autenticacao
 ```
 
-Figura 2 — Diagrama de classes das configurações de usuário, por camada. Fonte: equipe Conecta+.
+Figura 2 — Diagrama de classes das configurações de usuário, parte 13: bibliotecas da API. Fonte: equipe Conecta+.
+
+Só com o nome nesta parte: `UsuariosService` (parte 5); `AuthService` (parte 6).
 
 ## Como ler as ligações
 
 | Ligação                      | Significado                                                                        | Exemplo no diagrama                                                                                          |
 | ---------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria.            | `UsuariosController --> "1" UsuariosService`: o controller recebe uma única instância do serviço no construtor. |
-| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.                | `TelaAlterarSenha ..> SessaoContext`: a tela chama `sair` depois da troca de senha.                           |
+| Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria.            | `UsuariosController --> "1" UsuariosService` (parte 5): o controller recebe uma única instância do serviço no construtor. |
+| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.                | `TelaAlterarSenha ..> SessaoContext` (parte 2): a tela chama `sair` depois da troca de senha.                 |
 
 O número na ponta da associação é a multiplicidade: cada controller tem exatamente uma instância de cada serviço (`1`), criada pela injeção de dependências do NestJS. Os services e o `JwtAuthGuard` guardam o mesmo `UsuarioModel`, e o `AuthService` guarda no máximo um `Transporter` (`0..1`), criado no primeiro envio. O `UsuarioModel` lê e grava os documentos do schema `Usuario`; `save()` é chamado no documento devolvido por `findById` ou `findOne`, que nos diagramas de sequência aparece como a linha de vida "UsuarioModel (documento usuario)".
 

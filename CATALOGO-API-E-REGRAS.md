@@ -1,6 +1,6 @@
 # Catálogo da API e regras implementadas
 
-Fonte: `BACKEND`, branch `homolog`, commit `d1f1aeb`, conferido em 27/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` é global (`APP_GUARD`), compara a chave com `timingSafeEqual` e só dispensa a chave nas requisições `OPTIONS` e nos dois callbacks do Google; sem `API_ACCESS_TOKEN` no servidor, responde 503. O `ValidationPipe` global descarta campos que não estão no DTO (`whitelist`). Não há limite de requisições por tempo.
+Fonte: `BACKEND`, branch `main`, conferido em 27/11/2026, na versão com o voto em branco e nulo. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` é global (`APP_GUARD`), compara a chave com `timingSafeEqual` e só dispensa a chave nas requisições `OPTIONS` e nos dois callbacks do Google; sem `API_ACCESS_TOKEN` no servidor, responde 503. O `ValidationPipe` global descarta campos que não estão no DTO (`whitelist`). Não há limite de requisições por tempo.
 
 ## Autenticação e cadastro
 

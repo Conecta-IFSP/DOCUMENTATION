@@ -112,7 +112,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Menor tela usada nos testes do projeto: 720 × 1280 com 320 dpi (360 × 640 dp), a do emulador Android 7.0.                                                                                                                                                   |
 | **Verificação**   | Inspeção do código em 27/11/2026; CT-ORG-29, em 27/11/2026, num emulador Android 14 com a tela forçada para 720 × 1280 e 320 dpi.                                                                                                                                         |
 | **Evidência**     | Atributos `placeholder` em `FRONTEND/src/app/organizacoes/*.tsx`, `FRONTEND/src/app/(abas)/organizacoes.tsx` e `FRONTEND/src/app/(abas)/organizacao.tsx`; `numberOfLines={1}` e `ellipsizeMode="tail"` em `FRONTEND/src/components/CampoTexto.tsx`. |
-| **Situação**      | Atendido em 27/11/2026: no CT-ORG-29, os textos de exemplo de "Criar organização", "Entrar com código", da folha "Convidar", da edição em "Gerenciar organizações" e das buscas couberam nos campos. Na mesma tela pequena, a linha com a etiqueta do papel e os números do cartão de "Suas organizações" passava da borda; desde o FRONTEND `4f53a25`, ela quebra quando não cabe (RF-ORG-02).                                                                                                                                                       |
+| **Situação**      | Atendido em 27/11/2026: no CT-ORG-29, os textos de exemplo de "Criar organização", "Entrar com código", da folha "Convidar", da edição em "Gerenciar organizações" e das buscas couberam nos campos. Na mesma tela pequena, a linha com a etiqueta do papel e os números do cartão de "Suas organizações" passava da borda; desde a correção de 27/11/2026 no FRONTEND, ela quebra quando não cabe (RF-ORG-02).                                                                                                                                                       |
 
 ### RNF-ORG-08 — Portabilidade
 
@@ -122,9 +122,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O módulo funciona do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS.                                                                       |
 | **Medida**        | Os roteiros CT-ORG-01 a CT-ORG-06 terminam sem erro e sem texto cortado.                                                                                         |
 | **Condição**      | Aplicativo em celular.                                                                                                                                           |
-| **Verificação**   | Roteiros CT-ORG-01 a CT-ORG-06, aprovados pela equipe em ambiente móvel (registro de 23/10/2026, sem o aparelho e a versão do sistema anotados); CT-ORG-30 no iOS. |
+| **Verificação**   | Roteiros CT-ORG-01 a CT-ORG-06, aprovados pela equipe em 23/10/2026 sem o aparelho anotado e repetidos em 27/11/2026 no emulador Android 14 (API 34); CT-ORG-29 na tela pequena; CT-ORG-30 no iOS. |
 | **Evidência**     | Registro dos roteiros em [Testes](7%20-%20testes-cadastro-organizacao.md).                                                                                       |
-| **Situação**      | Android aprovado pela equipe, sem registro do aparelho e da versão. iOS não executado por falta de equipamento; validação pendente.                              |
+| **Situação**      | Atendido no Android 14 em 27/11/2026 (CT-ORG-01 a CT-ORG-06) e no Android 16 (CT-ORG-31). Android 7.0 sem execução registrada neste módulo; iOS não executado, porque não há computador Apple para gerar o aplicativo nativo.                              |
 
 ### RNF-ORG-09 — Testabilidade
 
@@ -133,7 +133,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                  |
 | **Critério**      | A suíte do backend passa inteira antes de cada entrega, incluindo os testes deste módulo.                 |
 | **Medida**        | `npx vitest run` sem nenhuma falha.                                                                       |
-| **Condição**      | Código da branch `homolog`, commit `d1f1aeb`, em 27/11/2026.                                              |
+| **Condição**      | Código da branch `main` em 27/11/2026, na versão com o voto em branco e nulo.                          |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-organizacao.md).                                  |
 | **Evidência**     | 17 arquivos e 246 testes aprovados, dos quais 3 arquivos e 74 testes são deste módulo, em 27/11/2026.     |
 | **Situação**      | Atendido em 27/11/2026.                                                                                   |

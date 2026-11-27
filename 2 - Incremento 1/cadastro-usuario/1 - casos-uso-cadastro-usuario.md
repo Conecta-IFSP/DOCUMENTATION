@@ -47,5 +47,5 @@ Não há generalização entre atores nem `«include»` ou `«extend»` entre os
 
 ## Não implementado
 
-- Entrar pela biometria do aparelho depois do primeiro acesso, sugerido na avaliação do Incremento 1: atendido em parte desde 27/11/2026 (FRONTEND `db5b2fe`) pelo RF-USR-04. A biometria desbloqueia a sessão que ficou salva no aparelho, mas não substitui o login: quando o token vence (1 hora depois do login), a pessoa entra de novo com senha ou com Google.
+- Entrar pela biometria do aparelho depois do primeiro acesso, sugerido na avaliação do Incremento 1: atendido em parte desde 27/11/2026 pelo RF-USR-04, com o desbloqueio na abertura incluído pelo João. A biometria desbloqueia a sessão que ficou salva no aparelho, mas não substitui o login: quando o token vence (1 hora depois do login), a pessoa entra de novo com senha ou com Google.
 - Pedir um novo código de confirmação do cadastro: não implementado. Se o código expirar, a conta fica sem confirmação e o mesmo e-mail não pode ser usado num novo cadastro; ela só é confirmada se a pessoa entrar com a conta Google do mesmo e-mail (RF-USR-03).

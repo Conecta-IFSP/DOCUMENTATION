@@ -14,7 +14,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 **RNF-COM-02 — Autorização para gerenciar.** Só o administrador da organização pode cadastrar, alterar, desativar e reativar comissões e mudar a equipe; os demais membros só veem as comissões de que participam.
 
-**RNF-COM-03 — Responsável único.** Nenhuma comissão pode ficar com dois responsáveis, e nenhuma ação do módulo pode deixá-la sem responsável.
+**RNF-COM-03 — Integridade da equipe gravada.** A equipe de uma comissão nunca pode ficar gravada no banco fora da regra do responsável, mesmo que uma rota deixe passar um pedido errado.
 
 **RNF-COM-04 — Proteção contra gravação simultânea.** Dois administradores mudando a mesma equipe ao mesmo tempo não podem apagar a mudança um do outro.
 
@@ -54,15 +54,15 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Evidência**     | `ComissoesService.autorizarOrganizacao`, `autorizarLeitura` e `buscarPorId`; `BACKEND/src/comissoes/comissoes.regras.spec.ts`.                                                                                                    |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                                                                                                           |
 
-### RNF-COM-03 — Responsável único
+### RNF-COM-03 — Integridade da equipe gravada
 
 | Campo             | Conteúdo                                                                                                                                                                                                                   |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Produto › Confiabilidade                                                                                                                                                                                                   |
-| **Critério**      | Toda gravação de equipe feita por este módulo deixa exatamente um item com `papel = RESPONSAVEL` e nenhum `usuario_id` repetido.                                                                                          |
-| **Medida**        | Cadastrar cria a equipe com 1 responsável; trocar o responsável resulta em 1 responsável e mantém o anterior como `MEMBRO`; adicionar como `RESPONSAVEL`, remover o responsável ou rebaixá-lo recebem 400 sem gravação; reativar ou mudar a equipe de uma comissão com 0 ou 2 responsáveis recebe 400 até a troca regularizar. O validador do schema recusa qualquer lista fora da regra. |
+| **Critério**      | Nenhum documento de comissão gravado por este módulo fica com 0 ou 2 ou mais responsáveis, nem com a mesma pessoa duas vezes na equipe. A regra de negócio do responsável está no RF-COM-03, no RF-COM-06 e nos RF-COM-07 a RF-COM-09; aqui o que se exige é que ela seja garantida em duas camadas, no serviço e no próprio schema do banco.                                                                                          |
+| **Medida**        | Cadastrar cria a equipe com 1 responsável; trocar o responsável resulta em 1 responsável e mantém o anterior como `MEMBRO`; adicionar como `RESPONSAVEL`, remover o responsável ou rebaixá-lo recebem 400 sem gravação; reativar ou mudar a equipe de uma comissão com 0 ou 2 responsáveis recebe 400 até a troca regularizar. Além disso, o validador do schema recusa gravar qualquer lista fora da regra, mesmo que o pedido passe pelo serviço. Meta: 0 documentos gravados fora da regra. |
 | **Condição**      | Rotas `POST /comissoes`, `PATCH /comissoes/:id` (reativação), `POST /comissoes/:id/membros`, `PATCH /comissoes/:id/responsavel`, `PATCH` e `DELETE /comissoes/:id/membros/:usuarioId`.                                    |
-| **Verificação**   | Testes automatizados CT-COM-14, CT-COM-19, CT-COM-23 e CT-COM-26.                                                                                                                                                         |
+| **Verificação**   | Testes automatizados CT-COM-14, CT-COM-19, CT-COM-23 e CT-COM-26 (camada do serviço); inspeção do validador de `membros` no schema (camada do banco), que não tem teste automatizado próprio.                                                                                                                                                         |
 | **Evidência**     | Validador de `membros` em `BACKEND/src/comissoes/schemas/comissao.schema.ts`; `ComissoesService.exigirResponsavelUnico` e `definirResponsavel`.                                                                           |
 | **Situação**      | Atendido em 26/11/2026 dentro do módulo. Limitação: a remoção de uma pessoa da organização, feita pelo módulo de organização, retira a pessoa das comissões sem passar por esta regra e pode deixar uma comissão sem responsável (ver o [dicionário relacional](4%20-%20dicionario-dados-relacional-cadastro-comissao.md)). |
 
@@ -74,9 +74,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Duas mudanças de equipe feitas ao mesmo tempo nunca sobrescrevem uma à outra.                                                                                                                 |
 | **Medida**        | Toda mudança de equipe usa `findOneAndUpdate` com o `_id`, o `ativo` e a lista `membros` lidos como filtro. Se o documento já mudou, a resposta é 409 "A comissão mudou. Atualize e tente novamente." e nada é alterado. |
 | **Condição**      | Adicionar integrante, trocar o responsável e remover integrante.                                                                                                                              |
-| **Verificação**   | Testes automatizados CT-COM-21 e CT-COM-24, que simulam o `findOneAndUpdate` devolvendo `null`. A disputa real entre duas gravações no MongoDB está no script CT-COM-30, que está desatualizado e não foi executado. |
+| **Verificação**   | Testes automatizados CT-COM-21 e CT-COM-24, que simulam o `findOneAndUpdate` devolvendo `null`. A disputa real entre duas gravações no MongoDB era coberta pelo script CT-COM-30, que foi descontinuado; não há teste com MongoDB real. |
 | **Evidência**     | `ComissoesService.gravarEquipe`.                                                                                                                                                              |
-| **Situação**      | Atendido nos testes automatizados em 26/11/2026; verificação com MongoDB real pendente.                                                                                                       |
+| **Situação**      | Atendido nos testes automatizados em 26/11/2026; sem verificação com MongoDB real.                                                                                                       |
 
 ### RNF-COM-05 — Confirmação de ações destrutivas
 
@@ -133,10 +133,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                         |
 | **Critério**      | A suíte do backend passa inteira antes de cada entrega, incluindo os testes do módulo.                           |
 | **Medida**        | `npx vitest run` sem nenhuma falha; os três arquivos de teste de `BACKEND/src/comissoes/` aprovados.             |
-| **Condição**      | Código da branch `homolog`.                                                                                      |
+| **Condição**      | Código da branch `main`.                                                                                         |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-comissao.md).                                            |
-| **Evidência**     | 17 arquivos e 246 testes aprovados em 27/11/2026 (backend `d1f1aeb`), dos quais 3 arquivos e 40 testes do módulo. |
-| **Situação**      | Atendido em 27/11/2026. O script com MongoDB real (CT-COM-30) está desatualizado e não foi executado; correção pendente. |
+| **Evidência**     | 17 arquivos e 246 testes aprovados em 27/11/2026 (backend na versão com o voto em branco e nulo), dos quais 3 arquivos e 40 testes do módulo. |
+| **Situação**      | Atendido em 27/11/2026. O script com MongoDB real (CT-COM-30) foi descontinuado. |
 
 ## Rastreabilidade
 

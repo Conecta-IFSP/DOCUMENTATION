@@ -6,11 +6,11 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 | Repositório     | Referência auditada                                     |
 | --------------- | --------------------------------------------------------- |
-| `FRONTEND`      | branch `homolog`, commit `4f53a25`                         |
-| `BACKEND`       | branch `homolog`, commit `6e0d3f5`                         |
+| `FRONTEND`      | branch `main`, versão de 27/11/2026                        |
+| `BACKEND`       | branch `main`, versão de 27/11/2026                        |
 | `DOCUMENTATION` | documentação publicada                                    |
 
-Esta documentação descreve o comportamento implementado nessa base, conferido em 27/11/2026. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
+Esta documentação descreve o comportamento implementado nessa base, conferido em 27/11/2026. Nos dois repositórios, a branch de trabalho e de entrega é a `main`. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
 
 ## Leitura recomendada
 

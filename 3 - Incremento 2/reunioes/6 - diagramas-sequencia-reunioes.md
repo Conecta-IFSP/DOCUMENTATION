@@ -397,7 +397,7 @@ sequenceDiagram
     end
 ```
 
-## SD-REU-08 — Confirmar ou recusar presença
+## SD-REU-08 — Confirmar, recusar ou desmarcar presença
 
 ```mermaid
 sequenceDiagram
