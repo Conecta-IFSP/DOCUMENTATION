@@ -32,7 +32,8 @@ sequenceDiagram
     S->>S: exigirEncerrada(reuniao)
     Note over S: Recusa ata REPROVADA ou já enviada,<br/>e dto.versao diferente de ata.versao
     S->>S: gravarAta(reuniao, ata, usuarioId)
-    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $set ata)
+    Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
+    S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     alt reunião encontrada pelo filtro
         M-->>S: reuniao atualizada
         S->>S: responder(atualizada, usuarioId, conflito)
@@ -82,7 +83,8 @@ sequenceDiagram
     Note over S: aprovadores: participantes com presenca.situacao CONFIRMADA.<br/>prazo: horário do envio mais dto.prazo_horas
     S->>S: concluirSeAprovada(reuniao, enviada)
     S->>S: gravarAta(reuniao, ata, usuarioId)
-    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $set ata)
+    Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
+    S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     M-->>S: reuniao atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
@@ -129,11 +131,13 @@ sequenceDiagram
     S->>S: concluirSeAprovada(reuniao, avaliada)
     opt todos os aprovadores aprovaram
         S->>S: proximoNumeroAta(comissaoId, ano)
-        S->>N: findOneAndUpdate(filtro com _id da sequência, $inc valor, upsert)
+        Note over S,N: filtro = _id igual a atas:comissão:ano<br/>alteracao = $inc de 1 em valor. opcoes = upsert e returnDocument after
+        S->>N: findOneAndUpdate(filtro, alteracao, opcoes)
         N-->>S: contador
     end
     S->>S: gravarAta(reuniao, ata, usuarioId)
-    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $set ata)
+    Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
+    S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     M-->>S: reuniao atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
@@ -154,15 +158,18 @@ sequenceDiagram
     S->>S: executarRotinas()
     Note over S: Repete a cada 60 segundos.<br/>Antes, executa registrarSaidasAutomaticas (SD-REU-07)
     S->>S: aprovarAtasVencidas(agora)
-    S->>M: find(AGENDADA, ata.situacao EM_APROVACAO, ata.prazo até agora)
+    Note over S,M: filtro = situacao AGENDADA, ata.situacao EM_APROVACAO e ata.prazo com $lte de agora
+    S->>M: find(filtro)
     M-->>S: reunioes
     loop cada reunião encontrada
         Note over S: Para cada aprovador sem avaliação, acrescenta<br/>{ usuario_id, decisao: APROVADA, em: prazo, automatica: true }<br/>e define atualizada_em igual a prazo
         S->>S: concluirSeAprovada(reuniao, vencida)
         S->>S: proximoNumeroAta(comissaoId, ano)
-        S->>N: findOneAndUpdate(filtro com _id da sequência, $inc valor, upsert)
+        Note over S,N: filtro = _id igual a atas:comissão:ano<br/>alteracao = $inc de 1 em valor. opcoes = upsert e returnDocument after
+        S->>N: findOneAndUpdate(filtro, alteracao, opcoes)
         N-->>S: contador
-        S->>M: updateOne(filtro com _id, AGENDADA e a ata lida, $set ata)
+        Note over S,M: filtro = _id da reunião, situacao AGENDADA e ata igual à lida<br/>alteracao = $set da ata com as aprovações automáticas
+        S->>M: updateOne(filtro, alteracao)
         M-->>S: resultado
     end
 ```
@@ -204,7 +211,8 @@ sequenceDiagram
     Note over S: Além das regras da aprovação, inclusive o prazo,<br/>recusa trecho que não aparece em ata.conteudo
     S->>S: concluirSeAprovada(reuniao, avaliada)
     S->>S: gravarAta(reuniao, ata, usuarioId)
-    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $set ata)
+    Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
+    S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     M-->>S: reuniao atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
@@ -238,7 +246,8 @@ sequenceDiagram
     S->>S: autorizarResponsavel(comissaoId, usuarioId, "escrever a ata")
     S->>S: exigirEncerrada(reuniao)
     Note over S: Recusa ata fora de REPROVADA
-    S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $push atas_canceladas e $set ata)
+    Note over S,M: filtro = _id da reunião, situacao AGENDADA e ata igual à lida<br/>alteracao = $push da ata reprovada em atas_canceladas como CANCELADA e $set do novo rascunho
+    S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     M-->>S: reuniao atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
@@ -303,14 +312,14 @@ sequenceDiagram
     S->>M: find(consulta)
     S->>M: select("titulo comissao_id ata.situacao ata.prazo")
     S->>M: populate("comissao_id", "nome")
-    S->>M: sort(ata.prazo crescente)
+    S->>M: sort({ "ata.prazo": 1 })
     M-->>S: reunioes
     S-->>C: atas pendentes
     C-->>A: 200 lista
     A-->>T: Resultado com a lista
     T->>T: definirAtas(atasPendentes.dados)
     Note over U,T: O usuário toca em uma ata da lista
-    T->>T: router.push("/reunioes/registros", id)
+    T->>T: router.push({ pathname: "/reunioes/registros", params: { id: item._id } })
 ```
 
 ## SD-ATA-08 — Gerar PDF da ata
@@ -337,14 +346,15 @@ sequenceDiagram
         D->>J: print()
         Note over J: Abre o diálogo de impressão do navegador
     else Expo Go
-        D->>I: printAsync(html, width 595, height 842)
+        D->>I: printAsync({ html, width: 595, height: 842 })
         Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
         I-->>D: concluído
     else Aplicativo instalado
-        D->>I: printToFileAsync(html, width 595, height 842)
+        D->>I: printToFileAsync({ html, width: 595, height: 842 })
         I-->>D: uri
-        D->>D: move(arquivo nome.pdf)
-        D->>C: shareAsync(arquivo.uri, application/pdf)
+        Note over D: arquivo = File em Paths.cache com o nome seguido de .pdf
+        D->>D: gerado.move(arquivo)
+        D->>C: shareAsync(arquivo.uri, { mimeType: "application/pdf" })
         Note over C: Abre o menu de compartilhamento do aparelho
         C-->>D: concluído
     end
