@@ -127,7 +127,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Um Android e um iPhone com o aplicativo aberto (instalado ou pelo Expo Go). Na web, o leitor do manual não é exibido, porque a `WebView` não tem implementação para navegador. |
 | **Verificação**   | Roteiro CT-MAN-12, que repete CT-MAN-01 a CT-MAN-04 em cada aparelho, e roteiro CT-MAN-16 para o leitor do manual. |
 | **Evidência**     | `src/app/ajuda.tsx` não tem código específico de plataforma; `src/components/ManualPdf.tsx` trata o encerramento da `WebView` no iOS (`onContentProcessDidTerminate`) e no Android (`onRenderProcessGone`). |
-| **Situação**      | Ajuda: atendido em 13/11/2026, em iPhone 14 (iOS 27.2) e no emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), via Expo Go (CT-MAN-12). Leitor do manual: execução em aparelho pendente (CT-MAN-16). |
+| **Situação**      | Ajuda: atendido em 13/11/2026, em iPhone 14 (iOS 27.2) e no emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), via Expo Go (CT-MAN-12). Leitor do manual: executado em parte em 27/11/2026 no emulador Android 14 (CT-MAN-16): a seta volta à Ajuda e, com o tema escuro, o manual é desenhado de novo com o fundo escuro; o zoom com pinça e o iOS continuam pendentes. |
 
 ### RNF-MAN-08 — Versão do Expo e sistemas suportados
 

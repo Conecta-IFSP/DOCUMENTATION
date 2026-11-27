@@ -52,7 +52,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Tela "Sistema": diálogo "Criar 3 usuários de teste?" e cartão "Resetar sistema".                                                                               |
 | **Verificação**   | Roteiros manuais CT-SIS-03 e CT-SIS-04, executados em versões substituídas; CT-SIS-17 e CT-SIS-18, com a versão atual.                                         |
 | **Evidência**     | `FRONTEND/src/app/sistema.tsx` (estados `confirmacaoTeste` e `resetAberto` e função `fecharReset`) e `FRONTEND/src/components/Confirmacao.tsx`.                 |
-| **Situação**      | Implementado e conferido por inspeção em 27/11/2026. Na versão atual, CT-SIS-17 e CT-SIS-18 foram executados em parte em 27/11/2026 (o diálogo "Criar 3 usuários de teste?" e o "Apagar tudo" inativo com "RESE" foram vistos); o "Cancelar" dos dois não foi registrado. |
+| **Situação**      | Atendido em 27/11/2026. Implementado e conferido por inspeção; na versão atual, CT-SIS-17 e CT-SIS-18 foram aprovados no mesmo dia: o "Cancelar" do diálogo "Criar 3 usuários de teste?" não criou nenhum usuário, e o do cartão "Resetar sistema" fechou o cartão sem apagar nada. O botão voltar do Android no diálogo não foi testado. |
 
 ### RNF-SIS-03 — Confirmação reforçada do reset
 
@@ -64,7 +64,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Cartão "Resetar sistema" da tela "Sistema" e rota `POST /sistema/reset`. Não há limite de tentativas: quem tem o token de um administrador do sistema pode tentar várias senhas seguidas. |
 | **Verificação**   | Testes automatizados CT-SIS-10 (validação do `ResetarSistemaDto`), CT-SIS-11 (senha certa) e CT-SIS-15 (senha errada, sem apagar nada); roteiros CT-SIS-17 no aparelho e CT-SIS-19 com chamadas diretas à API. |
 | **Evidência**     | `BACKEND/src/sistema/dto/resetar-sistema.dto.ts`, `BACKEND/src/sistema/sistema.controller.ts`, `confirmarSenhaAdmin` em `BACKEND/src/sistema/sistema.service.ts`, `BACKEND/src/sistema/sistema.spec.ts` e `FRONTEND/src/app/sistema.tsx` (`resetValido` e `resetarSistema`). |
-| **Situação**      | Implementado em `931c2c8` e `795d49b`, atendendo à avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura"). CT-SIS-10, CT-SIS-11 e CT-SIS-15 aprovados em 27/11/2026; CT-SIS-17 executado em parte em 27/11/2026, no emulador Android 14 e no Galaxy S24: "Apagar tudo" inativo com "RESE", "Senha incorreta" com a senha errada sem apagar nada e, com a senha certa, só a conta `ADMIN_SISTEMA` no banco; CT-SIS-19 a executar. |
+| **Situação**      | Implementado em `931c2c8` e `795d49b`, atendendo à avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura"). Atendido em 27/11/2026: CT-SIS-10, CT-SIS-11 e CT-SIS-15 aprovados; CT-SIS-17 aprovado no emulador Android 14, com "Apagar tudo" inativo com "RESE" e com "RESET" e a senha vazia, "Senha incorreta" com a senha errada, sem apagar nada, e, com a senha certa, só as contas `ADMIN_SISTEMA` no relatório; CT-SIS-19 aprovado com chamadas diretas à API, com 400 sem corpo, com "reset" em minúsculas e com a senha errada, sem apagar nada, e 201 com a palavra e a senha certas. A recusa da conta sem senha não foi executada. |
 
 ### RNF-SIS-04 — Reset sem resultado pela metade
 
@@ -87,8 +87,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Cada rota responde em até 1.000 ms, do envio da requisição à chegada da resposta completa, em 10 chamadas seguidas; vale o maior dos 10 tempos.                                   |
 | **Condição**      | API e MongoDB no mesmo computador, sem outras requisições ao mesmo tempo, com até 1.000 documentos em cada uma das coleções `usuarios`, `organizacoes`, `comissoes` e `reunioes`. |
 | **Verificação**   | CT-SIS-09: medir com uma ferramenta de requisições HTTP (por exemplo, Postman ou `curl` com `-w "%{time_total}"`).                                                               |
-| **Evidência**     | `SistemaService.sobre` (um comando `buildInfo`), `SistemaService.status` (espera fixa de 200 ms para medir a CPU, em paralelo com `ping`, `dbStats` e quatro contagens) e `SistemaService.relatorios` (treze contagens em paralelo), em `BACKEND/src/sistema/sistema.service.ts`. |
-| **Situação**      | Medição pendente: CT-SIS-09 não foi executado. A rota de status gasta pelo menos 200 ms só na medição da CPU.                                                                     |
+| **Evidência**     | `SistemaService.sobre` (um comando `buildInfo`), `SistemaService.status` (espera fixa de 200 ms para medir a CPU, em paralelo com `ping`, `dbStats` e quatro contagens) e `SistemaService.relatorios` (treze contagens em paralelo), em `BACKEND/src/sistema/sistema.service.ts`; resultado de CT-SIS-09 em [Testes](7%20-%20testes-informacao-sistemas.md). |
+| **Situação**      | Atendido em 27/11/2026 (CT-SIS-09, API local `6e0d3f5` e MongoDB 8.3 com 1.000 documentos em cada coleção, 10 chamadas por rota, todas com 200): maior tempo de 17,9 ms em `GET /sistema/sobre`, 232,9 ms em `GET /sistema/status` e 24,6 ms em `GET /sistema/relatorios`. A rota de status gasta pelo menos 200 ms só na medição da CPU.                                                                     |
 
 ### RNF-SIS-06 — Métricas sem dependência externa
 
@@ -111,8 +111,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Consultar, popular e resetar sem erro e sem texto cortado nos cartões, no diálogo e no cartão do reset.                                        |
 | **Condição**      | Emuladores Android 7.0 e 16, Galaxy S24 com Android 16, aparelho iOS e navegador.                                                              |
 | **Verificação**   | Roteiros CT-SIS-08 e CT-SIS-16 a CT-SIS-18.                                                                                                    |
-| **Evidência**     | O registro de CT-SIS-01 a CT-SIS-05 não informa em qual aparelho foram executados; CT-SIS-13 e CT-SIS-14 foram executados no Galaxy S24, com a versão substituída; CT-SIS-16 a CT-SIS-18, com a versão atual, no emulador Android 14 e no Galaxy S24 (Android 16), em 27/11/2026. |
-| **Situação**      | Parcial: a versão atual funcionou no Android 14 e no Android 16 em 27/11/2026, em parte dos passos de CT-SIS-16 a CT-SIS-18; Android 7.0, navegador e iOS (CT-SIS-08) não executados. |
+| **Evidência**     | O registro de CT-SIS-01 a CT-SIS-05 não informa em qual aparelho foram executados; CT-SIS-13 e CT-SIS-14 foram executados no Galaxy S24, com a versão substituída; CT-SIS-16 a CT-SIS-18, com a versão atual, em 27/11/2026: os três no emulador Android 14 e CT-SIS-16 e CT-SIS-18 também no Galaxy S24 (Android 16). |
+| **Situação**      | Parcial: a versão atual foi aprovada no Android 14 (CT-SIS-16 a CT-SIS-18) e no Android 16 (CT-SIS-16 e CT-SIS-18) em 27/11/2026; Android 7.0, navegador e iOS (CT-SIS-08) não executados. |
 
 ### RNF-SIS-08 — Legibilidade nos dois temas
 

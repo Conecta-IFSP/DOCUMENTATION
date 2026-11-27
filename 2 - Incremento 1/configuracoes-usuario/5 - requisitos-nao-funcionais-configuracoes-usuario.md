@@ -126,9 +126,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Nos formulários de senha, a tecla de avanço do teclado leva ao campo seguinte e a tecla "ir" do último campo envia o formulário.                                   |
 | **Medida**        | Na tela "Alterar senha", os três campos são preenchidos e enviados sem tocar fora do teclado. Na etapa da senha de "Recuperar conta", o mesmo vale para os dois campos. |
 | **Condição**      | Teclado virtual do Android.                                                                                                                                        |
-| **Verificação**   | Roteiro CT-CFG-07, no emulador Android 16, em 10/11/2026.                                                                                                          |
+| **Verificação**   | Roteiro CT-CFG-07, no emulador Android 16, em 10/11/2026; roteiro CT-CFG-16, no emulador Android 14, em 27/11/2026.                                                                                                          |
 | **Evidência**     | `returnKeyType` e `setFocus` em `FRONTEND/src/app/login/alterar-senha.tsx` e `FRONTEND/src/app/login/recuperar-conta.tsx`.                                         |
-| **Situação**      | Atendido em "Alterar senha" em 10/11/2026. Em "Recuperar conta", implementado e não verificado em aparelho.                                                         |
+| **Situação**      | Atendido em "Alterar senha" em 10/11/2026 (CT-CFG-07) e em "Recuperar conta" em 27/11/2026 (CT-CFG-16): o e-mail, o código e as duas senhas foram avançados só pela tecla do teclado, e a tecla "ir" enviou.                                                         |
 
 ### RNF-CFG-09 — Legibilidade nos dois temas
 

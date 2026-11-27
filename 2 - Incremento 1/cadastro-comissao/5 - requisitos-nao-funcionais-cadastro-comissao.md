@@ -86,9 +86,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Desativar, reativar, trocar o responsável e remover integrante abrem um diálogo de confirmação; nada é enviado à API antes de a pessoa confirmar.                                          |
 | **Medida**        | As 4 ações mostram o diálogo (`Confirmacao`) com o nome da comissão ou da pessoa e os botões "Cancelar" e a ação ("Desativar", "Reativar", "Confirmar" ou "Remover"); desativar e remover aparecem em vermelho. "Cancelar" fecha o diálogo sem chamada à API. |
 | **Condição**      | Tela da comissão, com a comissão ativa (desativar, trocar, remover) ou inativa (reativar).                                                                                                 |
-| **Verificação**   | Inspeção de `FRONTEND/src/app/comissoes/[id].tsx` em 26/11/2026; o roteiro CT-COM-06 registrou a remoção após confirmação, e o CT-COM-34, em 27/11/2026, o diálogo da desativação no Galaxy S24. O roteiro CT-COM-31 inclui o cancelamento de cada diálogo. |
+| **Verificação**   | Inspeção de `FRONTEND/src/app/comissoes/[id].tsx` em 26/11/2026; o roteiro CT-COM-06 registrou a remoção após confirmação, e o CT-COM-34, em 27/11/2026, o diálogo da desativação no Galaxy S24. O roteiro CT-COM-31, em 27/11/2026, registrou o cancelamento e a confirmação da troca do responsável. |
 | **Evidência**     | `TelaComissao`: estado `confirmacao` e funções `trocarResponsavel` e `executar`.                                                                                                           |
-| **Situação**      | Atendido por inspeção; o roteiro de cancelamento em aparelho (CT-COM-31) está pendente.                                                                                                    |
+| **Situação**      | Atendido por inspeção. Em aparelho, o CT-COM-31 (27/11/2026, emulador Android 14) confirmou o diálogo da troca do responsável: "Cancelar" não mudou nada e "Confirmar" trocou as etiquetas. O cancelamento dos diálogos de remover integrante não foi feito, e o de desativar e reativar não foi registrado.                                                                                                    |
 
 ### RNF-COM-06 — Tempo de resposta da lista
 
@@ -112,7 +112,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Emulador Android 7.0 (720 × 1280) e Galaxy S24.                                                                                                                                                    |
 | **Verificação**   | Inspeção de `FRONTEND/src/app/comissoes/[id].tsx` (componente `Abas` e `FolhaInferior`) em 26/11/2026; roteiro CT-COM-31.                                                                          |
 | **Evidência**     | `TelaComissao`, estados `aba` e `folha`.                                                                                                                                                           |
-| **Situação**      | Implementado, conferido por inspeção; o roteiro em aparelho (CT-COM-31) está pendente.                                                                                                             |
+| **Situação**      | Atendido na tela de 720 × 1280 em 27/11/2026 (CT-COM-31, emulador Android 14 com a tela forçada para 720 × 1280 e 320 dpi): as abas "Reuniões" e "Equipe" mostraram uma por vez, e "Mais opções" e as folhas "Editar comissão" e "Adicionar integrante" abriram sem texto cortado (o nome longo do responsável aparece com reticências). O Galaxy S24 não foi usado nesse roteiro.                                                                                                             |
 
 ### RNF-COM-08 — Portabilidade
 
@@ -122,9 +122,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O fluxo completo funciona do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS.                                            |
 | **Medida**        | Listar, consultar, cadastrar, editar, desativar, reativar, adicionar, trocar o responsável e remover, sem erro e sem texto cortado.          |
 | **Condição**      | Emulador Android 7.0, Galaxy S24 com Android 16 e aparelho iOS.                                                                               |
-| **Verificação**   | Roteiros CT-COM-31 (Android) e CT-COM-32 (iOS).                                                                                               |
+| **Verificação**   | Roteiros CT-COM-31, CT-COM-33 e CT-COM-34 (Android) e CT-COM-32 (iOS).                                                                                               |
 | **Evidência**     | Os roteiros CT-COM-01 a CT-COM-06 foram aprovados pela equipe em ambiente móvel, sem registro de aparelho nem de versão do sistema.           |
-| **Situação**      | Pendente: CT-COM-31 não executado; iOS não executado por falta de equipamento.                                                                |
+| **Situação**      | Parcial: em 27/11/2026, CT-COM-31 foi executado em parte no emulador Android 14 (consultar a comissão e trocar o responsável), e CT-COM-33 e CT-COM-34 foram aprovados no Galaxy S24 com Android 16 (cadastrar e desativar). O emulador Android 7.0 não foi usado, porque tem PIN de bloqueio; editar, reativar, adicionar e remover não foram concluídos em aparelho com as telas atuais; iOS não executado por falta de equipamento.                                                                |
 
 ### RNF-COM-09 — Testabilidade
 

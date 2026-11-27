@@ -6,7 +6,7 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 | Repositório     | Referência auditada                                     |
 | --------------- | --------------------------------------------------------- |
-| `FRONTEND`      | branch `homolog`, commit `8cf4839`                         |
+| `FRONTEND`      | branch `homolog`, commit `fd790db`                         |
 | `BACKEND`       | branch `homolog`, commit `6e0d3f5`                         |
 | `DOCUMENTATION` | documentação publicada                                    |
 

@@ -52,9 +52,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Vota apenas o participante com presença `AGUARDANDO` ou `CONFIRMADA` e sem saída. |
 | **Medida**        | Sem entrada, com entrada recusada ou com saída marcada, a API devolve 403 ("Marque sua entrada na reunião para votar" ou "Você já saiu da reunião e não pode mais votar") e nada é gravado. Pessoa de fora da reunião recebe 403 "Você não participa desta reunião". |
 | **Condição**      | Rota `POST /reunioes/:id/votacoes/:votacaoId/votos`. |
-| **Verificação**   | Teste automatizado CT-VOT-05. |
+| **Verificação**   | Teste automatizado CT-VOT-05; roteiro manual CT-VOT-11. |
 | **Evidência**     | `ReunioesService.votar`: conferência antes da gravação e condição sobre a presença repetida no filtro do `findOneAndUpdate`. |
-| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. Roteiro manual CT-VOT-11 aprovado em 27/11/2026 no emulador Android 14: sem entrada, a faixa "Marque sua entrada na reunião para votar."; depois de marcar a entrada, o voto foi registrado. |
 
 ### RNF-VOT-03 — Voto único
 
@@ -64,9 +64,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Um usuário tem no máximo um item em `votos` por votação, e o item não muda. |
 | **Medida**        | A segunda tentativa recebe 409 "Você já votou nesta votação". Não existe rota para trocar ou apagar voto. |
 | **Condição**      | Qualquer sequência de chamadas à rota de voto. |
-| **Verificação**   | Teste automatizado CT-VOT-05; inspeção do controller (só há `POST` para votos). |
+| **Verificação**   | Teste automatizado CT-VOT-05; inspeção do controller (só há `POST` para votos); roteiros manuais CT-VOT-12, CT-VOT-25 e CT-VOT-26. |
 | **Evidência**     | `ReunioesService.votar` e `ReunioesController`. |
-| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. Roteiros manuais CT-VOT-12, CT-VOT-25 e CT-VOT-26 aprovados em 27/11/2026: depois do voto, as opções dão lugar à faixa com o voto, e depois da saída não há opções para tocar. |
 
 ### RNF-VOT-04 — Sigilo do voto conforme o tipo da votação
 
@@ -78,7 +78,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Todas as rotas que devolvem reunião (`GET /reunioes`, `GET /reunioes/:id` e as rotas de ação). |
 | **Verificação**   | Testes automatizados CT-VOT-08 e CT-VOT-19; roteiros manuais CT-VOT-27 e CT-VOT-28. |
 | **Evidência**     | `ReunioesService.apresentarVotacao` e `renderizarResultado` em `FRONTEND/src/components/VotacoesReuniao.tsx`. |
-| **Situação**      | Para o voto sempre secreto, atendido em 13/11/2026 e teste CT-VOT-08 aprovado de novo em 26/11/2026. Desde 27/11/2026, o sigilo depende do tipo: CT-VOT-08 e CT-VOT-19 aprovados em 27/11/2026; roteiros manuais CT-VOT-27 e CT-VOT-28 não executados. O `usuario_id` do voto fica gravado no banco nos dois tipos, para garantir o voto único: quem tem acesso direto ao MongoDB consegue ligar cada voto a uma pessoa, inclusive na votação fechada. |
+| **Situação**      | Para o voto sempre secreto, atendido em 13/11/2026 e teste CT-VOT-08 aprovado de novo em 26/11/2026. Desde 27/11/2026, o sigilo depende do tipo: CT-VOT-08 e CT-VOT-19 aprovados em 27/11/2026; roteiros manuais CT-VOT-27 e CT-VOT-28 aprovados em 27/11/2026 no Galaxy S24 e no emulador Android 14. O `usuario_id` do voto fica gravado no banco nos dois tipos, para garantir o voto único: quem tem acesso direto ao MongoDB consegue ligar cada voto a uma pessoa, inclusive na votação fechada. |
 
 ### RNF-VOT-05 — Resultado só depois do encerramento
 
@@ -114,7 +114,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Tela da reunião em primeiro plano, com conexão com a API. |
 | **Verificação**   | Inspeção do código; roteiro manual CT-VOT-13. |
 | **Evidência**     | `useFocusEffect` com `setInterval` de 30.000 ms em `FRONTEND/src/app/reunioes/[id].tsx`. |
-| **Situação**      | Verificado por inspeção em 13/11/2026; roteiro manual pendente. |
+| **Situação**      | Verificado por inspeção em 13/11/2026. Roteiro manual CT-VOT-13 aprovado em 27/11/2026: o presidente encerrou a votação no Galaxy S24 às 10:29:18 e o emulador Android 14 do membro, sem toque na tela, mostrou o cartão "Encerrada" às 10:29:35, 17 segundos depois. O tempo para uma votação aberta aparecer no outro aparelho não foi medido. |
 
 ### RNF-VOT-08 — Portabilidade
 
@@ -126,7 +126,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | APK de release e aplicativo iOS apontando para a API. |
 | **Verificação**   | Roteiros manuais CT-VOT-10 a CT-VOT-14 e CT-VOT-23 a CT-VOT-28. |
 | **Evidência**     | Componentes do React Native usados também nas demais telas (`Botao`, `CampoTexto`, `FolhaInferior`, `Confirmacao`). |
-| **Situação**      | Critério definido; execução nos aparelhos pendente. |
+| **Situação**      | Parcial: em 27/11/2026, CT-VOT-10 a CT-VOT-13 e CT-VOT-23 a CT-VOT-28 foram aprovados no Galaxy S24 (Android 16) e no emulador Android 14 (API 34), com os APKs de release. Android 7.0 e iOS não executados; o iOS por falta de equipamento (CT-VOT-14). |
 
 ### RNF-VOT-09 — Legibilidade nos dois temas
 
@@ -138,7 +138,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Tema claro e tema escuro. |
 | **Verificação**   | Inspeção do código; roteiro manual CT-VOT-14. |
 | **Evidência**     | `FRONTEND/src/components/VotacoesReuniao.tsx`. |
-| **Situação**      | Verificado por inspeção em 13/11/2026 e, para os elementos do voto em branco, do voto nulo e do tipo da votação, em 27/11/2026; roteiro manual pendente. |
+| **Situação**      | Verificado por inspeção em 13/11/2026 e, para os elementos do voto em branco, do voto nulo e do tipo da votação, em 27/11/2026. Roteiro manual CT-VOT-14 executado em parte em 27/11/2026: no Galaxy S24, com o tema escuro, CT-VOT-23 a CT-VOT-28 sem texto cortado e com a seção "Tipo de votação", os botões "Votar em branco" e "Votar nulo" e a lista "Quem votou em quê" legíveis; a repetição de CT-VOT-10 a CT-VOT-13 no tema escuro não foi registrada, e o iOS não foi executado. |
 
 ### RNF-VOT-10 — Testabilidade
 

@@ -112,9 +112,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | `POST /auth/login` com credenciais corretas responde rápido o bastante para não fazer a pessoa esperar.                                                                                |
 | **Medida**        | Média de até 2 segundos em 10 chamadas seguidas, medida do envio da requisição até o fim da resposta.                                                                                  |
 | **Condição**      | API e MongoDB no mesmo computador de desenvolvimento, sem outra carga, chamada feita na mesma rede local; conta comum já confirmada.                                                    |
-| **Verificação**   | Medição com `curl -w "%{time_total}"` ou ferramenta equivalente.                                                                                                                       |
-| **Evidência**     | Ainda não há.                                                                                                                                                                          |
-| **Situação**      | Medição pendente; o requisito não está comprovado.                                                                                                                                     |
+| **Verificação**   | CT-USR-25: 10 chamadas seguidas medidas com `fetch` do Node.js 24.19.0, do envio da requisição ao fim da resposta.                                                                                                                       |
+| **Evidência**     | Resultado de CT-USR-25 em [Testes](7%20-%20testes-cadastro-usuario.md): 10 chamadas com 201, média de 63,0 ms, maior 88,1 ms e menor 54,4 ms, com a API local `6e0d3f5` e o MongoDB 8.3 no mesmo computador.                                                                                                                                                                          |
+| **Situação**      | Atendido em 27/11/2026: média de 63,0 ms nas 10 chamadas, abaixo do limite de 2 segundos.                                                                                                                                     |
 
 ### RNF-USR-08 — Formulários usáveis no celular
 

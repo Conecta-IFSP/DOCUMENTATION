@@ -138,7 +138,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Tela da reunião aberta, com conexão com a API. |
 | **Verificação**   | Inspeção de `setInterval` em `[id].tsx`; roteiro CT-REU-17 em dois aparelhos. |
 | **Evidência**     | `FRONTEND/src/app/reunioes/[id].tsx`, `useFocusEffect`. |
-| **Situação**      | Atendido segundo o registro da equipe de 23/10/2026 (CT-REU-17). |
+| **Situação**      | Atendido na tela da reunião segundo o registro da equipe de 23/10/2026 (CT-REU-17). Limitação: a tela "Gestão de presença" (`FRONTEND/src/app/reunioes/acesso.tsx`) não se atualiza sozinha; a função `carregar` só roda quando a tela ganha o foco (`useFocusEffect`), quando é puxada para baixo e depois de uma correção de horário, sem consulta periódica. No CT-REU-38, essa tela, aberta antes do registro do convidado, só mostrou a saída dele depois de puxada para baixo. |
 
 ### RNF-REU-09 — Acessibilidade
 
@@ -208,9 +208,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Marcar entrada ou saída na tela da reunião, marcar entrada pelo cartão "Agora" da tela inicial, registrar presença pelo link e corrigir horários chamam `autenticarComDispositivo` antes da requisição; sem confirmação, nada é enviado. |
 | **Medida**        | Em aparelho com biometria, Face ID ou PIN, o pedido do próprio aparelho aparece e, cancelado, a tela mostra o aviso de identidade sem gravar nada. O pedido não tem texto do aplicativo: o título vai com um espaço porque o `androidx.biometric` recusa título vazio. |
 | **Condição**      | Aparelho com bloqueio de tela configurado. |
-| **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, e roteiro CT-REU-40, na tela inicial. |
+| **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, roteiro CT-REU-40, na tela inicial, e roteiro CT-REU-38, no link e na correção. |
 | **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `TelaReuniao.registrar`, `TelaInicio.marcarEntrada`, `TelaPresencaLink.registrar` e `TelaGestaoPresenca.corrigir`. |
-| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, o roteiro CT-REU-40 foi executado em parte em 26/11/2026: o pedido do aparelho apareceu e, cancelado, a tela mostrou o aviso sem gravar a entrada; falta a confirmação com a digital. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` não trata um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. O link e a correção não têm roteiro executado. |
+| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, o roteiro CT-REU-40 foi executado em parte em 26/11/2026: o pedido do aparelho apareceu e, cancelado, a tela mostrou o aviso sem gravar a entrada; falta a confirmação com a digital. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` não trata um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. O link e a correção foram executados em 27/11/2026 (CT-REU-38) num emulador Android 14 sem bloqueio de tela, em que o pedido do aparelho não aparece; nessas duas telas, o pedido de identidade não foi conferido em aparelho com bloqueio. |
 
 ### RNF-REU-15 — Sigilo e validade do link de presença
 
@@ -220,9 +220,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O código do link é imprevisível, não fica guardado em texto no banco e só é aceito durante a reunião, para participantes autenticados com convite aceito. |
 | **Medida**        | Código de 32 bytes sorteados (64 caracteres hexadecimais); o banco guarda só o resumo SHA-256; o link é recusado com 400 depois do término, depois de revogado, depois de um novo link, quando o horário da reunião muda e quando a comissão troca de responsável; pessoa de fora da reunião recebe 403; abrir o link não registra presença. |
 | **Condição**      | Rotas `GET` e `POST /presencas/:id/acesso` e `POST /presencas/:id/enviar`. |
-| **Verificação**   | CT-REU-33, CT-REU-35 e CT-REU-37. |
+| **Verificação**   | CT-REU-33, CT-REU-35 e CT-REU-37; no aparelho, CT-REU-38. |
 | **Evidência**     | `PresencasService.gerar`, `PresencasService.validarLink` e `PresencasService.registrar`. |
-| **Situação**      | Atendido em 26/11/2026 pelo roteiro automatizado; roteiro em aparelho pendente (CT-REU-38). |
+| **Situação**      | Atendido em 26/11/2026 pelo roteiro automatizado. No aparelho, CT-REU-38 aprovado em 27/11/2026: depois de revogado, o link antigo, aberto no Galaxy S24, mostrou "Link inválido, revogado ou expirado. Solicite um novo ao responsável.", e a notificação do convidado deixou de aparecer. |
 
 ### RNF-REU-16 — Rastreabilidade das correções
 
@@ -232,9 +232,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Toda correção de horário deixa um registro permanente. |
 | **Medida**        | Cada correção acrescenta a `historico_presencas` um item com participante, responsável, horário, motivo de 5 a 500 caracteres e as presenças antes e depois, no mesmo comando que altera a presença; nenhuma rota altera ou apaga esses itens. |
 | **Condição**      | Rota `PATCH /presencas/:id/horarios/:usuarioId`. |
-| **Verificação**   | CT-REU-36. |
+| **Verificação**   | CT-REU-36; no aparelho, CT-REU-38. |
 | **Evidência**     | `PresencasService.corrigir` e `PresencasService.historico`. |
-| **Situação**      | Atendido em 26/11/2026 pelo roteiro automatizado; roteiro em aparelho pendente (CT-REU-38). |
+| **Situação**      | Atendido em 26/11/2026 pelo roteiro automatizado. No aparelho, CT-REU-38 aprovado em 27/11/2026: a correção da saída de 10:34 para 10:36, com o motivo "Saiu depois do registro", apareceu em "Histórico de correções" com os valores de antes e de depois. |
 
 ## Rastreabilidade
 
