@@ -465,8 +465,19 @@ sequenceDiagram
     else Aplicativo instalado
         D->>I: printToFileAsync({ html, width: 595, height: 842 })
         I-->>D: uri
+        Note over D: gerado = File com a uri devolvida
+        D->>D: nomearPdf(gerado, nome)
+        Note over D: arquivo = File em Paths.cache com o nome seguido de .pdf
+        opt arquivo.exists
+            D->>D: arquivo.delete()
+        end
         D->>D: gerado.move(arquivo)
-        D->>H: shareAsync(arquivo.uri, { mimeType: "application/pdf" })
+        alt sem erro
+            Note over D: endereco = arquivo.uri
+        else delete ou move lançou erro
+            Note over D: endereco = gerado.uri, sem trocar o nome
+        end
+        D->>H: shareAsync(endereco, { mimeType: "application/pdf" })
         H-->>D: concluído
     end
     D-->>P: concluído

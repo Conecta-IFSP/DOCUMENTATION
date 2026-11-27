@@ -46,6 +46,7 @@ classDiagram
             +entregarPdf(html: string, nome: string) Promise~void~
             +pdfPelaImpressao() boolean
             -imprimirNaWeb(html: string) void
+            -nomearPdf(gerado: File, nome: string) string
         }
         class diferenca {
             <<module>>
