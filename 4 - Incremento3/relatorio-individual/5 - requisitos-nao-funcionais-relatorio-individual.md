@@ -47,7 +47,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Sem `X-API-Key` ou com chave errada: 401. Sem token, com token inválido, expirado ou de conta inexistente: 401. Conta desativada: 401. Conta `ADMIN_SISTEMA`: 403. Em nenhum desses casos a resposta traz dados do relatório. |
 | **Condição**      | Qualquer chamada à rota, pelo aplicativo ou direta.                                                                                                                                                                        |
 | **Verificação**   | Teste de integração CT-REL-01, com MongoDB local e requisições HTTP reais.                                                                                                                                                 |
-| **Evidência**     | `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard` (`BACKEND/src/auth/`), aplicados em `RelatoriosController`; `RelatoriosService.individual`; `BACKEND/test/relatorio-individual-mongo.mjs`.                             |
+| **Evidência**     | `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard` (`BACKEND/src/auth/`), aplicados em `RelatoriosController`; `RelatoriosService.individual`; `BACKEND/test/relatorio-individual-mongo.mjs`. Desde o backend `543e03f`, o `JwtAuthGuard` também recusa com 401 o token emitido antes de `senha_alterada_em`, caso que o CT-REL-01 não cobre.                             |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                                                                                                    |
 
 ### RNF-REL-02 — Privacidade do relatório
@@ -189,9 +189,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                                                                                                                                      |
 | **Critério**      | Os testes automatizados do relatório e as suítes dos dois projetos passam antes de cada entrega.                                                                                                                              |
 | **Medida**        | `node test/relatorio-individual-mongo.mjs` termina com a linha "PASSOU"; `node --test tests/*.test.cjs` sem falha; `npx vitest run` sem falha. O teste de interface `tests/relatorio-browser.e2e.cjs` exige Playwright instalado à parte e é executado separadamente. |
-| **Condição**      | Branch `homolog` (backend `99b6b4f`, frontend `a53acce`), MongoDB local na porta 27019.                                                                                                                                        |
+| **Condição**      | Branch `homolog` (backend `caca2d2`, frontend `6ff2d50`), MongoDB local na porta 27019.                                                                                                                                        |
 | **Verificação**   | Execuções registradas em [Testes](7%20-%20testes-relatorio-individual.md).                                                                                                                                                    |
-| **Evidência**     | Em 26/11/2026: script com MongoDB aprovado; `node --test` com 47 testes aprovados, 33 deles do relatório; `npx vitest run` com 16 arquivos e 227 testes aprovados.                                                            |
+| **Evidência**     | Em 26/11/2026, sobre backend `caca2d2` e frontend `6ff2d50`: script com MongoDB aprovado; `node --test` com 47 testes aprovados, 33 deles do relatório; `npx vitest run` com 16 arquivos e 227 testes aprovados.                                                            |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                                                                                                       |
 
 ## Rastreabilidade

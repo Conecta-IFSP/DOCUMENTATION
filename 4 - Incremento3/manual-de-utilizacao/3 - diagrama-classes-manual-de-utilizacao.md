@@ -208,6 +208,7 @@ classDiagram
     }
     class File {
         <<biblioteca>>
+        +File(uri: string)
         +base64() Promise‹string›
         +text() Promise‹string›
     }

@@ -47,7 +47,7 @@ Representa uma pergunta frequente e a sua resposta. Existe apenas dentro da list
 | `resposta` | `string \| readonly string[]` |         Sim | Um texto é exibido como parágrafo; uma lista é exibida como passos numerados. Também é considerada pela busca. |
 | `perfil`   | `PerfilAjuda`                 |         Sim | Indica se a pergunta trata de uma ação exclusiva do responsável da comissão.                                   |
 
-**Regras.** O `id` é único em todo o arquivo, e não apenas no tópico. O padrão de escrita limita a resposta em lista a 4 passos, com uma ação curta por passo, e a resposta em texto a 2 ou 3 frases; o código não verifica. A resposta descreve só o que o aplicativo faz, com os nomes de botões e telas que aparecem para o usuário.
+**Regras.** O `id` é único em todo o arquivo, e não apenas no tópico. O padrão de escrita limita a resposta em lista a 4 passos, com uma ação curta por passo, e a resposta em texto a 2 ou 3 frases; o código não verifica; na contagem de 26/11/2026, sobre `8fc0a5a`, nenhuma lista passa de 4 passos. A resposta descreve só o que o aplicativo faz, com os nomes de botões e telas que aparecem para o usuário.
 
 ## 3. Enumeração `PerfilAjuda`
 

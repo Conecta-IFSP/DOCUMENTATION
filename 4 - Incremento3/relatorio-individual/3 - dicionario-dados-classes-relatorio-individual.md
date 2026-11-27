@@ -142,6 +142,7 @@ O `ValidationPipe` global usa `whitelist`, que remove da consulta qualquer parâ
 | `Usuario`           | `nome`, `email`      | `string`                           |         Sim | Identificação no relatório.                                                                        |
 |                     | `tipo`               | `TipoUsuario` (`USUARIO`, `ADMIN_SISTEMA`) | Sim | `ADMIN_SISTEMA` é recusado.                                                                    |
 |                     | `ativo`              | `boolean`                          |         Sim | Conta inativa não consulta.                                                                        |
+|                     | `senha_alterada_em`  | `Date`                             |         Não | Gravado na troca e na recuperação de senha; o `JwtAuthGuard` recusa o token emitido antes dele.    |
 | `Reuniao`           | `titulo`, `local`    | `string`                           | Sim / Não (padrão vazio) | Cartão da reunião.                                                                     |
 |                     | `inicio`, `fim`      | `Date`                             |         Sim | `inicio` filtra e ordena; `fim` é mostrado.                                                        |
 |                     | `dia_inteiro`        | `boolean`                          |  Não (padrão falso) | Mostrado como "Dia inteiro".                                                                |

@@ -26,6 +26,7 @@ erDiagram
         string email UK
         string tipo
         boolean ativo
+        date senha_alterada_em
     }
     ORGANIZACAO {
         ObjectId _id PK

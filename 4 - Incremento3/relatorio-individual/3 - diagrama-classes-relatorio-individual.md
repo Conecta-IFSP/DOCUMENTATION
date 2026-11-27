@@ -164,6 +164,7 @@ classDiagram
             +email: string
             +tipo: TipoUsuario
             +ativo: boolean
+            +senha_alterada_em?: Date
         }
         class Reuniao {
             +_id: ObjectId

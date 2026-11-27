@@ -47,7 +47,7 @@ CT-MAN-09 e CT-MAN-10 ficam registrados em [Testes](7%20-%20testes-manual-de-uti
 
 ## Base de conferência
 
-FRONTEND na branch `homolog`, conferido em 26/11/2026 em `4f03c20`. O manual entrou no pacote do aplicativo em `fa1ba7a`, e o texto do PDF foi revisado em `93fa767`. Os arquivos principais são `FRONTEND/src/app/ajuda.tsx`, `FRONTEND/src/app/manual.tsx`, `FRONTEND/src/components/ManualPdf.tsx`, `FRONTEND/src/constants/ajuda.ts`, `FRONTEND/src/utils/busca-ajuda.ts`, `FRONTEND/src/components/Sanfona.tsx`, `FRONTEND/assets/manual/manual.pdf`, `FRONTEND/assets/pdfjs/`, `FRONTEND/metro.config.js` e `FRONTEND/tests/busca-ajuda.test.cjs`. O BACKEND não é usado pelo R4.
+FRONTEND na branch `homolog`, conferido em 26/11/2026 em `8fc0a5a`, commit que deixou em quatro passos a pergunta `conta-email-senha`. O manual entrou no pacote do aplicativo em `fa1ba7a`, e o texto do PDF foi revisado em `93fa767`. Os arquivos principais são `FRONTEND/src/app/ajuda.tsx`, `FRONTEND/src/app/manual.tsx`, `FRONTEND/src/components/ManualPdf.tsx`, `FRONTEND/src/constants/ajuda.ts`, `FRONTEND/src/utils/busca-ajuda.ts`, `FRONTEND/src/components/Sanfona.tsx`, `FRONTEND/assets/manual/manual.pdf`, `FRONTEND/assets/pdfjs/`, `FRONTEND/metro.config.js` e `FRONTEND/tests/busca-ajuda.test.cjs`. O BACKEND não é usado pelo R4.
 
 ## Repositórios
 

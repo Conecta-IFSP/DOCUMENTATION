@@ -106,7 +106,10 @@ sequenceDiagram
             L->>AT: fromModule(modulo)
             AT-->>L: asset
             L->>AT: downloadAsync()
-            AT-->>L: localUri
+            AT-->>L: asset
+            Note over L: uri = asset.localUri ou, sem ele, asset.uri
+            L->>F: File(uri)
+            F-->>L: arquivo
         end
         L->>F: base64()
         F-->>L: pdfBase64
@@ -122,8 +125,10 @@ sequenceDiagram
     G->>G: base64ParaBytes(PDF_BASE64)
     G->>G: abrirDocumento(bytes)
     G->>G: criarWorker()
-    G->>G: esperarWorkerPronto(worker, 3000)
-    opt processo auxiliar não respondeu em 3 segundos
+    opt processo auxiliar criado
+        G->>G: esperarWorkerPronto(worker, 3000)
+    end
+    opt processo auxiliar não criado, com erro ou sem resposta em 3 segundos
         G->>G: rodarWorkerNaThreadPrincipal()
     end
     G->>J: getDocument({ data, isEvalSupported: false })

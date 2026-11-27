@@ -25,6 +25,7 @@ Conta de quem usa o sistema. Coleção `usuarios`, criada e alterada pelo módul
 | `email` | Texto (`string`)         | Não           | Não             | Não               | Único na coleção; gravado em minúsculas.                       | E-mail mostrado no PDF e no CSV.                                 |
 | `tipo`  | Texto com valores fixos  | Não           | Não             | Não               | `USUARIO` (padrão) ou `ADMIN_SISTEMA`.                         | Só `USUARIO` acessa o relatório.                                 |
 | `ativo` | Booleano                 | Não           | Não             | Não               | Padrão verdadeiro.                                             | Conta inativa recebe 401 e não consulta.                         |
+| `senha_alterada_em` | Data e hora (`date`, UTC) | Sim | Não | Não | Ausente enquanto a senha não é trocada; gravado na troca e na recuperação de senha. | O `JwtAuthGuard` recusa com 401 "A senha foi alterada. Entre novamente." o token emitido antes desse instante. |
 
 ## ORGANIZACAO
 

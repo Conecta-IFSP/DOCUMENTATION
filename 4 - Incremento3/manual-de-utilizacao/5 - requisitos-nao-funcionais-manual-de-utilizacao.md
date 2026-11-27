@@ -66,7 +66,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Com o aparelho em modo avião, a tela Ajuda abre e exibe os 7 tópicos e as 42 perguntas, as respostas abrem e fecham e a busca filtra as perguntas sem mensagem de erro de conexão; o manual abre e mostra as 27 páginas. |
 | **Condição**      | Aparelho em modo avião, com ou sem login. |
 | **Verificação**   | Roteiros CT-MAN-07 e CT-MAN-15. Inspeção: `src/app/ajuda.tsx`, `src/utils/busca-ajuda.ts`, `src/app/manual.tsx` e `src/components/ManualPdf.tsx` não importam o módulo `api`, e `ManualPdf` só lê recursos locais com `expo-asset` e `expo-file-system`. |
-| **Evidência**     | Constante `TOPICOS_AJUDA`, em `src/constants/ajuda.ts`; recursos `assets/manual/manual.pdf` e `assets/pdfjs/`; `metro.config.js`. |
+| **Evidência**     | Constante `TOPICOS_AJUDA`, em `src/constants/ajuda.ts`; recursos `assets/manual/manual.pdf` e `assets/pdfjs/`; `metro.config.js`. Fora das duas telas, com sessão ativa, o layout raiz (`src/app/_layout.tsx`) chama `atualizar()` da sessão a cada troca de rota, inclusive ao abrir a Ajuda e o manual, o que envia `GET /usuarios/me`; sem internet, essa falha fica só no estado da sessão e não aparece nas duas telas. |
 | **Situação**      | Ajuda: atendido em 13/11/2026, por inspeção e pelo roteiro CT-MAN-07, aprovado em iPhone em modo avião, via Expo Go. Manual: atendido por inspeção em 26/11/2026; roteiro CT-MAN-15 pendente. |
 
 ### RNF-MAN-03 — Um único arquivo do manual
@@ -103,7 +103,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Conteúdo atual de `TOPICOS_AJUDA` (42 perguntas) e versão 1.0 do manual em PDF. |
 | **Verificação**   | Contar os passos, as frases e as perguntas por tópico em `src/constants/ajuda.ts`. Procurar no código das telas cada nome de botão ou tela citado. Pedir a uma pessoa que não conhece o aplicativo que siga três respostas (recuperar a senha, registrar presença e votar) sem ajuda externa; o requisito é aprovado se ela concluir as três. |
 | **Evidência**     | Regras de escrita no comentário inicial de `src/constants/ajuda.ts`; revisão do texto do manual no commit `93fa767` do FRONTEND ("corrige textos do manual (revisão RNF-MAN-05)"). |
-| **Situação**      | Parcialmente atendido. Na contagem de 26/11/2026, a maior lista tem 4 passos, nenhuma resposta em texto passa de 3 frases e os tópicos têm de 4 a 7 perguntas, mas o último passo da pergunta "conta-email-senha" ("Siga as instruções da tela. Depois de trocar a senha, entre de novo em todos os aparelhos.") tem duas frases. Os 58 nomes de botões, abas e telas citados nas respostas foram conferidos no código em 13/11/2026. No manual em PDF, a seção da lista de presença orienta a tocar em "Compartilhar", e o aplicativo mostra o botão "PDF da lista". Teste com usuário pendente. |
+| **Situação**      | Parcialmente atendido. Na contagem de 26/11/2026, sobre `8fc0a5a`, nenhuma resposta em texto passa de 3 frases, nenhuma lista passa de 4 passos, cada passo tem uma frase e os tópicos têm de 4 a 7 perguntas. A pergunta "conta-email-senha" chegou a ter 5 passos em `6ff2d50` e voltou a 4 em `8fc0a5a`. Os 58 nomes de botões, abas e telas citados nas respostas foram conferidos no código em 13/11/2026. No manual em PDF, a seção da lista de presença orienta a tocar em "Compartilhar", e o aplicativo mostra o botão "PDF da lista". Teste com usuário pendente. |
 
 ### RNF-MAN-06 — Organização por funcionalidade e por perfil
 
@@ -135,11 +135,11 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Organizacional › Implementação |
 | **Critério**      | O aplicativo usa o Expo SDK 58, com React Native 0.88.1 e Expo Router 58. As versões mínimas de sistema são as padrão do SDK: Android 7.0 (API 24) e iOS 16.4. |
-| **Medida**        | O `package.json` declara `"expo": "~58.0.26"`, `"react-native": "0.88.1"`, `"expo-router": "~58.0.32"` e `"react-native-webview": "14.0.1"`, e a versão instalada do Expo é 58.0.26. O `app.json` não altera as versões mínimas padrão do SDK. Os testes do aplicativo terminam sem falhas, incluindo os 5 testes da busca da Ajuda. |
+| **Medida**        | O `package.json` declara `"expo": "~58.0.26"`, `"react-native": "0.88.1"`, `"expo-router": "~58.0.32"` e `"react-native-webview": "14.0.1"`, e o `package-lock.json` fixa o Expo em 58.0.26. O `app.json` não altera as versões mínimas padrão do SDK. Os testes do aplicativo terminam sem falhas, incluindo os 5 testes da busca da Ajuda. |
 | **Condição**      | FRONTEND na branch `homolog`. |
 | **Verificação**   | Conferir o `package.json`, o `package-lock.json` e o `app.json`; executar `node --test tests/*.test.cjs` (CT-MAN-13). |
 | **Evidência**     | `package.json`, `package-lock.json` e `app.json` do FRONTEND. |
-| **Situação**      | Atendido em 26/11/2026: versões conferidas em `4f03c20` e 47 testes aprovados em 5 arquivos (CT-MAN-13). Em 13/11/2026, o aplicativo foi executado em iPhone 14 (iOS 27.2) e no emulador Pixel 6 (Android 15, API 35), via Expo Go. |
+| **Situação**      | Atendido em 26/11/2026: versões conferidas em `6ff2d50` e 47 testes aprovados em 5 arquivos (CT-MAN-13). Em 13/11/2026, o aplicativo foi executado em iPhone 14 (iOS 27.2) e no emulador Pixel 6 (Android 15, API 35), via Expo Go. |
 
 ### RNF-MAN-09 — Manutenção do conteúdo da Ajuda
 
@@ -150,8 +150,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Incluir, alterar ou remover um tópico ou uma pergunta exige mudança somente em `src/constants/ajuda.ts`. A tela Ajuda e a busca passam a refletir a mudança sem alteração em `ajuda.tsx`, `Sanfona.tsx` ou `busca-ajuda.ts`. O `id` do tópico `conta`, usado pelo link da tela Entrar, é mantido. |
 | **Condição**      | Qualquer alteração de conteúdo da Ajuda. |
 | **Verificação**   | Incluir uma pergunta de teste em `src/constants/ajuda.ts`, conferir que ela aparece na tela e é encontrada pela busca, e conferir com `git diff --stat` que apenas esse arquivo mudou. |
-| **Evidência**     | Commit `63d3bcb` do FRONTEND ("ajuste das perguntas"), que removeu três perguntas alterando apenas `src/constants/ajuda.ts`. Os commits `0778723`, `066d347`, `8fd815f` e `4f03c20` mudam o texto de quatro perguntas, junto com as funcionalidades que elas descrevem, sem alterar `ajuda.tsx`, `Sanfona.tsx` nem `busca-ajuda.ts`. |
-| **Situação**      | Atendido por inspeção e pelo commit `63d3bcb`, em 13/11/2026. |
+| **Evidência**     | Commit `63d3bcb` do FRONTEND ("ajuste das perguntas"), que removeu três perguntas alterando apenas `src/constants/ajuda.ts`. Os commits `0778723`, `066d347` e `8fd815f` mudam o texto de três perguntas junto com as funcionalidades que elas descrevem; `4f03c20` muda o texto de `relatorio-o-que-e` e `6ff2d50` divide um passo de `conta-email-senha`, os dois alterando só `src/constants/ajuda.ts`. Nenhum deles altera `ajuda.tsx`, `Sanfona.tsx` nem `busca-ajuda.ts`. |
+| **Situação**      | Atendido por inspeção e pelo commit `63d3bcb`, em 13/11/2026. Conferido de novo em 26/11/2026 pelos commits `4f03c20` e `6ff2d50`. |
 
 ### RNF-MAN-10 — Exibição do manual sem travar o aparelho
 
@@ -167,4 +167,4 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 ## Base de conferência
 
-FRONTEND na branch `homolog`, em `4f03c20`, e DOCUMENTATION na branch `homolog`, conferidos em 26/11/2026.
+FRONTEND na branch `homolog`, em `6ff2d50`, e DOCUMENTATION na branch `homolog`, conferidos em 26/11/2026.
