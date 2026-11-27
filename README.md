@@ -50,6 +50,11 @@ DOCUMENTATION/
 
 Cada módulo deve possuir: visão geral, casos de uso com o diagrama em SVG, requisitos funcionais, diagrama e dicionário de classes, diagrama e dicionário relacional, requisitos não funcionais, diagramas de sequência e testes.
 
+### Proposta Inicial
+
+- [Objetivos da proposta](1%20-%20Proposta%20Inicial/objetivos.md), com a situação na entrega final.
+- [Pesquisa de mercado](1%20-%20Proposta%20Inicial/pesquisa-de-mercado.md): concorrentes e validação com o público.
+
 ### Incremento 1
 
 - [Cadastro de comissão](2%20-%20Incremento%201/cadastro-comissao/README.md)
