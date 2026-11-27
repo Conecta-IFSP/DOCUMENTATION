@@ -1,6 +1,6 @@
 # Catálogo da API e regras implementadas
 
-Fonte: `BACKEND`, branch `homolog` com as alterações do Incremento 3 (sobre o commit `6f2ffc4`), conferido em 09/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
+Fonte: `BACKEND`, branch `homolog`, commit `785e3b2`, conferido em 27/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
 
 ## Autenticação e cadastro
 
