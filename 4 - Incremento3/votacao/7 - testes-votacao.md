@@ -13,7 +13,7 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | Datas         | 13/11/2026 e 26/11/2026                                                                                                 |
 | Node.js / npm | 24.11.0 / 11.6.1 em 13/11/2026; 24.19.0 / 11.17.0 em 26/11/2026                                                         |
 | Backend       | branch `homolog`: `08a5b3e` em 13/11/2026 (votação incluída em `c2ea38c`); `caca2d2` em 26/11/2026 |
-| Aplicativo    | branch `homolog`: `66806e4` em 13/11/2026 (tela de votação incluída em `83ccd12`); `4f03c20` em 26/11/2026 |
+| Aplicativo    | branch `homolog`: `66806e4` em 13/11/2026 (tela de votação incluída em `83ccd12`); `6ff2d50` em 26/11/2026 |
 | Sistema       | Windows 11                                                                                                              |
 | Aparelhos     | Roteiros manuais ainda não executados em aparelho                                                                       |
 

@@ -156,6 +156,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 - Uma presença em `AGUARDANDO` já permite votar. Se quem agendou recusar essa presença depois, o voto já registrado continua valendo.
 - Um presidente de comissão que não foi incluído entre os participantes da reunião não consegue abrir votação nela ("Você não participa desta reunião").
+- Quando a reunião é cancelada durante uma votação aberta, a votação continua apresentada como "Aberta", sem resultado, até o término previsto da reunião. O presidente ainda vê "Encerrar votação", mas a API recusa com "Esta reunião foi cancelada"; os demais veem a faixa "Esta reunião foi cancelada." no lugar das opções.
+- Quando a API recusa a abertura de uma votação, a folha "Nova votação" continua aberta e a mensagem fica na faixa vermelha da tela da reunião, atrás da folha.
 - Não há limite para a quantidade de votações por reunião além do tamanho máximo de um documento do MongoDB (16 MB).
 - Voto em branco ou nulo, como escolhas próprias, e a escolha entre votação aberta e fechada não estão implementados.
 

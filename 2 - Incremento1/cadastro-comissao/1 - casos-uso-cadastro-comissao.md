@@ -18,9 +18,9 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Membro da organização.** É o usuário comum que tem vínculo aprovado numa organização aprovada, seja qual for o seu papel nela. Pode listar e abrir as comissões de cuja equipe faz parte, como responsável ou como membro, e ver as reuniões e a equipe de cada uma. Não vê as comissões das quais não faz parte e não altera nenhuma comissão.
 
-**Administrador da organização.** É o membro com papel de administrador, com vínculo aprovado, numa organização aprovada. A seta de generalização indica que ele faz tudo o que o membro da organização faz e, além disso, vê todas as comissões da organização, mesmo aquelas de cuja equipe não participa. Só ele cadastra, edita, desativa e reativa comissões, adiciona e remove integrantes e troca o responsável. Ele não vê nem altera comissões de organizações que não administra.
+**Administrador da organização.** É o membro com papel de administrador, com vínculo aprovado, numa organização aprovada. A seta de generalização indica que ele faz tudo o que o membro da organização faz e, além disso, vê todas as comissões da organização, mesmo aquelas de cuja equipe não participa. Só ele cadastra, edita, desativa e reativa comissões, adiciona e remove integrantes e troca o responsável. Nas organizações que não administra, ele não altera nenhuma comissão e só vê aquelas de cuja equipe faz parte, como qualquer membro.
 
-O responsável da comissão não aparece como ator porque, neste módulo, só consulta a comissão, como qualquer integrante; o papel de responsável é usado nos módulos de reuniões e de atas. O administrador do sistema também não aparece: o sistema recusa qualquer ação de comissão feita por essa conta.
+O responsável da comissão não aparece como ator porque, neste módulo, só consulta a comissão, como qualquer integrante; o papel de responsável é usado nos módulos de reuniões, de atas e de votação. O administrador do sistema também não aparece: o sistema recusa qualquer ação de comissão feita por essa conta.
 
 ## Relacionamentos entre casos de uso
 
@@ -43,7 +43,7 @@ O responsável da comissão não aparece como ator porque, neste módulo, só co
 
 **Requisito RF-COM-01 — Listar e filtrar comissões.** O sistema deve permitir ao membro da organização ver a lista das comissões de que faz parte, e ao administrador ver todas as comissões da organização, procurando pelo nome e, no caso do administrador, separando as ativas das inativas.
 
-**Requisito RF-COM-02 — Consultar comissão.** O sistema deve permitir ao integrante da comissão e ao administrador da organização abrir a comissão e ver, em duas abas, as reuniões dela e a equipe, com o responsável no topo.
+**Requisito RF-COM-02 — Consultar comissão.** O sistema deve permitir ao integrante da comissão e ao administrador da organização abrir a comissão e ver, em duas abas, as reuniões dela de que participa e a equipe, com o responsável no topo.
 
 **Requisito RF-COM-03 — Cadastrar comissão.** O sistema deve permitir ao administrador da organização criar uma comissão com nome, descrição opcional e um responsável escolhido entre as pessoas aprovadas na organização.
 

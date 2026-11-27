@@ -231,7 +231,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 | `definirResponsavel`       | `PATCH /comissoes/:id/responsavel`         | RF-COM-08.                                                                                            |
 | `removerMembro`            | `DELETE /comissoes/:id/membros/:usuarioId` | RF-COM-09.                                                                                            |
 | `listarMinhas`             | `GET /comissoes/minhas/:organizacaoId`     | Não usada pelo aplicativo. Devolve as comissões de cuja equipe o usuário faz parte, com `meu_papel`.  |
-| `atualizarMembro`          | `PATCH /comissoes/:id/membros/:usuarioId`  | Não usada pelo aplicativo. Exige a comissão ativa e a pessoa na equipe (`validarEquipe`). Com `papel = RESPONSAVEL`, chama `definirResponsavel`; com `MEMBRO`, recusa rebaixar o responsável ("Substitua o responsável antes de alterar seu papel") e, para um membro, devolve a comissão sem gravar nada. |
+| `atualizarMembro`          | `PATCH /comissoes/:id/membros/:usuarioId`  | Não usada pelo aplicativo. Exige a comissão ativa e a pessoa na equipe (`validarEquipe`). Com `papel = RESPONSAVEL`, chama `definirResponsavel`; com `MEMBRO`, chama `exigirResponsavelUnico`, recusa rebaixar o responsável ("Substitua o responsável antes de alterar seu papel") e, para um membro, devolve a comissão sem gravar nada. |
 
 ## Regras representadas
 

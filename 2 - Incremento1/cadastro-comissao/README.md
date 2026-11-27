@@ -26,7 +26,7 @@ Ficam fora deste módulo o cadastro da organização e o vínculo das pessoas co
 | Membro da organização        | Usuário comum com vínculo `APROVADO` numa organização `APROVADA`, com papel `MEMBRO` ou `ADMIN`. | Lista e consulta as comissões de cuja equipe faz parte.                                                                                  |
 | Administrador da organização | Membro com papel `ADMIN` e vínculo `APROVADO`. É uma especialização do membro da organização.     | Vê todas as comissões da organização; cadastra, edita, desativa e reativa comissões; adiciona e remove integrantes; troca o responsável. |
 
-O responsável da comissão não tem ação própria neste módulo: ele consulta a comissão como qualquer integrante. O papel de responsável é o que lhe permite agendar reuniões e escrever a ata, nos módulos REU e ATA. O administrador do sistema (`ADMIN_SISTEMA`) não usa este módulo: todas as rotas de comissões recusam essa conta.
+O responsável da comissão não tem ação própria neste módulo: ele consulta a comissão como qualquer integrante. O papel de responsável é o que lhe permite agendar reuniões, escrever a ata e abrir e encerrar votações, nos módulos REU, ATA e VOT. O administrador do sistema (`ADMIN_SISTEMA`) não usa este módulo: todas as rotas de comissões recusam essa conta.
 
 ## Índice padronizado
 
@@ -60,4 +60,4 @@ CT-COM-28 verifica o acesso às rotas (RNF-COM-01); CT-COM-29 verifica a rota au
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend sobre `99b6b4f`, frontend sobre `a53acce`); os arquivos do módulo não têm alterações locais além desses commits. Os arquivos principais são `BACKEND/src/comissoes/comissoes.controller.ts`, `BACKEND/src/comissoes/comissoes.service.ts`, `BACKEND/src/comissoes/schemas/comissao.schema.ts`, os DTOs em `BACKEND/src/comissoes/dto/`, `FRONTEND/src/app/comissoes/nova.tsx`, `FRONTEND/src/app/comissoes/[id].tsx`, a aba Comissões de `FRONTEND/src/app/(abas)/organizacao.tsx` e `FRONTEND/src/components/SeletorPessoaComissao.tsx`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `caca2d2`, frontend `6ff2d50`); os arquivos do módulo não têm alterações locais além desses commits. Os arquivos principais são `BACKEND/src/comissoes/comissoes.controller.ts`, `BACKEND/src/comissoes/comissoes.service.ts`, `BACKEND/src/comissoes/schemas/comissao.schema.ts`, os DTOs em `BACKEND/src/comissoes/dto/`, `FRONTEND/src/app/comissoes/nova.tsx`, `FRONTEND/src/app/comissoes/[id].tsx`, a aba Comissões de `FRONTEND/src/app/(abas)/organizacao.tsx` e `FRONTEND/src/components/SeletorPessoaComissao.tsx`.

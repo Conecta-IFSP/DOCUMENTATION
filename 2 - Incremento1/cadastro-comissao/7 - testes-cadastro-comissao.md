@@ -12,8 +12,8 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Datas da execução | 23/10/2026 (suíte do backend); 26/11/2026 (suíte do backend e testes do módulo). Roteiros manuais CT-COM-01 a CT-COM-06: Incremento 1, sem data registrada |
 | Node.js / npm     | 24.19.0 / 11.17.0 (execução de 26/11/2026)                                                                                              |
-| Backend           | 23/10/2026: commit `6f2ffc4`. 26/11/2026: branch `homolog` sobre `99b6b4f`, sem alterações locais em `src/comissoes`                   |
-| Aplicativo        | 26/11/2026: branch `homolog` sobre `a53acce`                                                                                            |
+| Backend           | 23/10/2026: commit `6f2ffc4`. 26/11/2026: branch `homolog` em `caca2d2`, sem alterações locais em `src/comissoes`                    |
+| Aplicativo        | 26/11/2026: branch `homolog` em `6ff2d50`                                                                                               |
 | Banco             | Os testes automatizados não usam banco: os models do Mongoose são substituídos por objetos simulados (`vi.fn`)                          |
 | Aparelhos         | Roteiros CT-COM-01 a CT-COM-06: "ambiente móvel", sem registro do aparelho nem da versão do sistema. iOS: não executado; a equipe não dispõe de computador Apple nem de aparelho iOS |
 

@@ -53,7 +53,7 @@ Subdocumento de `Comissao`, sem `_id` próprio (`@Schema({ _id: false })`): ele 
 
 | Valor         | Significado                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
-| `RESPONSAVEL` | Preside a comissão: agenda reuniões e escreve as atas (módulos REU e ATA). Há exatamente um por comissão. |
+| `RESPONSAVEL` | Preside a comissão: agenda reuniões, escreve as atas e abre e encerra as votações (módulos REU, ATA e VOT). Há exatamente um por comissão. |
 | `MEMBRO`      | Integrante comum: consulta a comissão e participa das reuniões para as quais é convidado.              |
 
 ## `Organizacao`, `MembroOrganizacao` e `Usuario` (campos usados)

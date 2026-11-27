@@ -371,16 +371,17 @@ sequenceDiagram
         U->>T: definirFolha("responsavel")
         Note over U,P: O administrador toca em outra pessoa da lista
         P->>T: aoAlternar(pessoaId)
-        P->>P: fechar()
         T->>T: trocarResponsavel(alvo)
+        T->>T: definirConfirmacao(pendente)
+        P->>P: fechar()
     else pela opção "Tornar responsável" de um membro
         U->>T: definirEscolhido(integrante)
         U->>T: trocarResponsavel(alvo)
+        T->>T: definirConfirmacao(pendente)
     end
-    T->>T: definirConfirmacao(pendente)
     Note over U,T: "... será o responsável. ... passa a membro." com "Cancelar" e "Confirmar"
     U->>T: executar(acao, "Responsável atualizado.")
-    T->>A: api("/comissoes/:id/responsavel", "PATCH", usuario_id)
+    T->>A: api("/comissoes/:id/responsavel", "PATCH", { usuario_id: alvo._id })
     Note over A,C: PATCH /comissoes/:id/responsavel<br/>O ValidationPipe valida DefinirResponsavelDto
     A->>C: definirResponsavel(id, dto, req)
     C->>S: definirResponsavel(id, dto.usuario_id, usuarioId)
