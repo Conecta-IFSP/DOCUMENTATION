@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 500" width="820" height="500" font-family="Arial, Helvetica, sans-serif" font-size="14">
+  <title>Diagrama de casos de uso: Conecta+ — Informações do sistema</title>
+  <rect width="820" height="500" fill="#fff"/>
+  <rect x="340" y="40" width="450" height="440" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="565" y="66" text-anchor="middle" font-weight="bold">Conecta+ — Informações do sistema</text>
+  <g stroke="#000" stroke-width="1.2"><line x1="132" y1="265" x2="488" y2="142"/><line x1="132" y1="265" x2="440" y2="229"/><line x1="132" y1="265" x2="440" y2="301"/><line x1="132" y1="265" x2="488" y2="388"/></g>
+  <g><rect x="255" y="202" width="71" height="17" fill="#fff"/><text x="290" y="215" text-anchor="middle" font-size="12">RF-SIS-01</text><rect x="255" y="238" width="71" height="17" fill="#fff"/><text x="290" y="251" text-anchor="middle" font-size="12">RF-SIS-02</text><rect x="255" y="275" width="71" height="17" fill="#fff"/><text x="290" y="288" text-anchor="middle" font-size="12">RF-SIS-03</text><rect x="255" y="311" width="71" height="17" fill="#fff"/><text x="290" y="324" text-anchor="middle" font-size="12">RF-SIS-04</text></g>
+  <g fill="#fff" stroke="#000" stroke-width="1.3"><ellipse cx="565" cy="115" rx="140" ry="32"/><ellipse cx="565" cy="215" rx="140" ry="32"/><ellipse cx="565" cy="315" rx="140" ry="32"/><ellipse cx="565" cy="415" rx="140" ry="32"/></g>
+  <g text-anchor="middle"><text x="565" y="120">Consultar status do servidor</text><text x="565" y="220">Consultar relatórios</text><text x="565" y="320">Popular dados de teste</text><text x="565" y="420">Resetar sistema</text></g>
+  <g stroke="#000" stroke-width="1.5" fill="none"><circle cx="110" cy="235" r="11"/><line x1="110" y1="246" x2="110" y2="280"/><line x1="90" y1="258" x2="130" y2="258"/><line x1="110" y1="280" x2="94" y2="307"/><line x1="110" y1="280" x2="126" y2="307"/></g>
+  <g text-anchor="middle"><text x="110" y="327">Administrador</text><text x="110" y="344">do sistema</text></g>
+</svg>

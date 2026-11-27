@@ -1,144 +1,158 @@
 # Requisitos funcionais — Cadastro de comissão
 
-> Padrão do Incremento 1 · Módulo COM
+> Padrão da disciplina · Módulo COM · Formulário padrão · Revisado em 26/11/2026
 
 ## Resumo
 
-Define RF-COM-01 a RF-COM-09 com comportamento, entradas, processamento, saídas, pré-condições, pós-condições e efeitos observáveis.
+Cada caso de uso de [Casos de uso](1%20-%20casos-uso-cadastro-comissao.md) é descrito aqui como requisito funcional de sistema, usando apenas o formulário padrão: Função, Descrição, Entradas, Origem, Saída, Destino, Ação, Pré-condição, Pós-condição e Efeitos colaterais. O diagrama de sequência de cada requisito está em [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-comissao.md), com o mesmo número.
+
+Todas as rotas abaixo exigem o cabeçalho `X-API-Key` (`ApiKeyGuard`, aplicado a toda a API), um token JWT válido de uma conta ativa (`JwtAuthGuard`) e uma conta que não seja do administrador do sistema (`UsuarioComumGuard`). Sem isso, a API responde 401 "Chave de acesso da API inválida ou ausente", 401 "Token de acesso não informado", 401 "Token de acesso inválido ou expirado", 401 "Conta inexistente ou desativada" ou 403 "O administrador do sistema não pode realizar esta operação". O corpo de cada requisição é validado pelo `ValidationPipe` do NestJS, que descarta os campos que não estão no DTO e responde 400 com as mensagens do DTO. Os textos de erro citados são os devolvidos pela API; a função `api` do aplicativo mostra o primeiro deles na faixa vermelha da tela.
+
+Várias funções do `ComissoesService` são usadas por mais de um requisito e são citadas pelo nome:
+
+- `validarId` confere, com `Types.ObjectId.isValid`, se o identificador tem o formato de `ObjectId`; senão, recusa com 400 "ID inválido".
+- `validarUsuario` busca o usuário com `UsuarioModel.findById` e exige `ativo` verdadeiro; senão, 403 "Usuário sem acesso ativo".
+- `administra` percorre `membros` da organização e devolve verdadeiro quando encontra um item com `usuario_id` igual ao do usuário, `papel = ADMIN` e `status = APROVADO`.
+- `autorizarLeitura` executa `validarId` e `validarUsuario`, busca a organização com `OrganizacaoModel.findById` (404 "Organização não encontrada") e exige `status = APROVADA` e um item de `membros` com o usuário e `status = APROVADO`, de qualquer papel; senão, 403 "Você não tem acesso às comissões desta organização".
+- `autorizarOrganizacao` faz o mesmo, mas exige `administra` verdadeiro; senão, 403 "Apenas administradores da organização podem gerenciar comissões".
+- `autorizarComissao` executa `validarId`, busca a comissão com `ComissaoModel.findById` (404 "Comissão não encontrada") e chama `autorizarOrganizacao` com o `organizacao_id` dela.
+- `listarMembrosDisponiveis` chama `autorizarOrganizacao`, separa os `usuario_id` de `membros` da organização com `status = APROVADO` e busca com `UsuarioModel.find` os que estão nessa lista e têm `ativo` verdadeiro, só com `nome` e `email`, em ordem alfabética crescente de `nome`.
+- `exigirElegivel` executa `validarId` no usuário escolhido, chama `listarMembrosDisponiveis` e exige que o `_id` escolhido esteja na lista devolvida; senão, 400 "O responsável ou integrante deve estar ativo e aprovado na organização".
+- `exigirResponsavelUnico` conta os itens de `membros` com `papel = RESPONSAVEL` e recusa, com 400 "Defina exatamente um responsável para regularizar esta comissão", quando o total é diferente de 1.
+- `gravarEquipe` grava a nova lista de integrantes com `ComissaoModel.findOneAndUpdate`, usando como filtro o `_id`, o `ativo` e a lista `membros` lidos antes (a lista inteira, item a item), e `$set: { membros }`, devolvendo o documento já alterado e rodando as validações do schema. Se outra gravação mudou a equipe ou a situação nesse intervalo, nenhum documento corresponde ao filtro e a API responde 409 "A comissão mudou. Atualize e tente novamente.".
+- `popular` preenche `organizacao_id` com `nome` e `status` e cada `membros.usuario_id` com `nome`, `email` e `ativo`.
 
 ## RF-COM-01 — Listar e filtrar comissões
 
-| Campo                  | Descrição                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------ |
-| **Descrição**          | O sistema deve mostrar as comissões das organizações que o usuário pode administrar. |
-| **Entradas**           | Texto de busca e filtro: Todas, Ativas ou Inativas.                                  |
-| **Origem**             | Administrador da organização.                                                        |
-| **Saída**              | Lista de comissões.                                                                  |
-| **Destino**            | Tela de Comissões.                                                                   |
-| **Ação**               | A API busca as comissões permitidas e a tela aplica a busca e o filtro.              |
-| **Pré-condição**       | Usuário autenticado, ativo e administrador aprovado de uma organização aprovada.     |
-| **Pós-condição**       | A lista é exibida sem alterar nenhum dado.                                           |
-| **Efeitos colaterais** | Nenhum.                                                                              |
+| RF-COM-01 | Listar e filtrar comissões |
+| --- | --- |
+| **Função** | Mostra, na aba "Comissões" da tela da organização, as comissões que o usuário pode ver, com busca pelo nome e, para o administrador, filtro por situação. |
+| **Descrição** | Lê a coleção `comissoes`, filtrando pelo campo `organizacao_id` igual ao da organização aberta e, quando o usuário não administra a organização, também por `membros.usuario_id` igual ao identificador dele. A busca e o filtro são aplicados pelo aplicativo sobre a lista recebida. Nada é gravado. |
+| **Entradas** | Identificador da organização (`organizacao_id`, `ObjectId` em texto de 24 caracteres hexadecimais, na URL); usuário autenticado (pelo token); texto livre digitado no campo "Buscar"; filtro com um dos valores "Todas", "Ativas" ou "Inativas" (só para o administrador). |
+| **Origem** | Membro da organização (busca e filtro) e banco de dados (usuário, organização com os vínculos e comissões). |
+| **Saída** | Lista de objetos `Comissao` com `_id`, `nome`, `descricao`, `ativo`, `organizacao_id` (com `nome` e `status`), `membros` (cada um com `usuario_id` preenchido com `nome`, `email` e `ativo`, `papel` e `adicionado_em`), `criado_em` e `atualizado_em`, ordenada pela API por `criado_em`, da mais recente para a mais antiga. |
+| **Destino** | Aba "Comissões" da tela da organização (`TelaOrganizacao`). |
+| **Ação** | Ao abrir a tela da organização, ao voltar para ela e ao puxá-la para baixo, a função `carregar` chama `api('/comissoes?organizacao_id={id}')`, junto com as consultas da organização e das reuniões. Na API, `ComissoesController.listar` chama `ComissoesService.listar(usuarioId, organizacaoId)`, que: (1) chama `autorizarLeitura` para a organização; (2) chama `administra`; (3) monta o filtro: para o administrador, `organizacao_id` igual ao da organização; para os demais, também `membros.usuario_id` igual ao usuário, o que encontra a comissão quando algum item da equipe tem esse identificador; (4) chama `consultar`, que executa `ComissaoModel.find(filtro)`, preenche organização e integrantes com dois `populate` e ordena por `criado_em` decrescente. Para o administrador, a tela mostra as abas "Comissões" e "Membros" e, abaixo da busca, os filtros "Todas" (marcado ao abrir), "Ativas" e "Inativas"; para os demais membros, mostra o título "Suas comissões", sem abas e sem filtros. O campo "Buscar" aparece quando a API devolve ao menos uma comissão. A lista exibida é calculada no aparelho, nesta ordem: o filtro mantém as comissões cujo `ativo` é verdadeiro ("Ativas") ou falso ("Inativas"); a busca mantém as comissões cujo `nome`, em letras minúsculas pela regra `pt-BR`, contém o texto digitado, também em minúsculas e sem os espaços das pontas; a ordenação põe as ativas antes das inativas e, dentro de cada grupo, ordena por `nome` em ordem alfabética crescente (`localeCompare` com `pt-BR`). Cada cartão mostra o nome; a etiqueta "Inativa" ou, na comissão ativa, o papel do usuário na equipe, "Responsável" ou "Membro" (sem etiqueta para o administrador que não está na equipe); até três avatares de integrantes; "N integrantes"; e, na comissão ativa, "Próxima: …" com a primeira reunião `AGENDADA` da comissão entre as reuniões do usuário que terminam a partir de agora (RF-REU-02), ou "Sem reuniões agendadas". Tocar no cartão abre a comissão (RF-COM-02). Outras telas chamam a mesma rota sem `organizacao_id` (a lista de organizações, para contar as comissões de cada uma; a agenda e o formulário de reunião, para saber de quais comissões ativas o usuário é responsável). Nesse caso, `listar` chama `validarUsuario`, busca com `OrganizacaoModel.find` as organizações `APROVADA` em que o usuário tem vínculo `APROVADO`, separa as que ele administra das demais e devolve, com um filtro `$or`, todas as comissões das organizações administradas e, das demais, só aquelas em que `membros.usuario_id` é igual ao usuário. |
+| **Pré-condição** | Usuário autenticado, com conta comum ativa e vínculo `APROVADO` na organização, que deve estar `APROVADA`. |
+| **Pós-condição** | A lista é exibida. Sem comissões, a tela mostra "Nenhuma comissão."; com busca sem resultado, "Nenhuma comissão encontrada.". Em erro, a faixa vermelha mostra "Você não tem acesso às comissões desta organização" (403), "Usuário sem acesso ativo" (403), "Organização não encontrada" (404) ou "ID inválido" (400). |
+| **Efeitos colaterais** | Nenhum. |
 
 ## RF-COM-02 — Consultar comissão
 
-| Campo                  | Descrição                                                                  |
-| ---------------------- | -------------------------------------------------------------------------- |
-| **Descrição**          | O sistema deve mostrar os dados de uma comissão e seus integrantes.        |
-| **Entradas**           | ID da comissão.                                                            |
-| **Origem**             | Administrador seleciona uma comissão na lista.                             |
-| **Saída**              | Nome, descrição, organização, situação e equipe.                           |
-| **Destino**            | Tela de gerenciamento da comissão.                                         |
-| **Ação**               | A API busca a comissão pelo ID e verifica se o usuário pode administrá-la. |
-| **Pré-condição**       | Usuário autenticado e autorizado para a organização da comissão.           |
-| **Pós-condição**       | Os dados são exibidos.                                                     |
-| **Efeitos colaterais** | Nenhum.                                                                    |
+| RF-COM-02 | Consultar comissão |
+| --- | --- |
+| **Função** | Mostra os dados da comissão e, em duas abas, as reuniões e a equipe. |
+| **Descrição** | Lê um documento da coleção `comissoes` pelo `_id`, com o nome da organização e o nome e e-mail dos integrantes, e confere se o usuário administra a organização ou está na equipe. Para o administrador, lê também as pessoas da organização que podem entrar na equipe. |
+| **Entradas** | Identificador da comissão (`id`, `ObjectId` em texto, na rota da tela e da API) e, quando a tela vem do cadastro, o parâmetro `criada = 1`. |
+| **Origem** | Membro da organização (toque no cartão da comissão) e banco de dados. |
+| **Saída** | Objeto `Comissao` como no RF-COM-01. Para o administrador, também a lista de pessoas elegíveis, cada uma com `_id`, `nome` e `email`. |
+| **Destino** | Tela da comissão (`TelaComissao`): cabeçalho, aba "Reuniões" e aba "Equipe". |
+| **Ação** | Ao abrir a tela, a função `buscar` chama ao mesmo tempo `api('/comissoes/{id}')` e `api('/comissoes/organizacoes')`. Na primeira, `ComissoesController.buscarPorId` chama `ComissoesService.buscarPorId(id, usuarioId)`, que executa `validarId`, busca a comissão com `ComissaoModel.findById` (404 se não existir), chama `autorizarLeitura` para o `organizacao_id` da comissão e exige que `administra` seja verdadeiro ou que algum item de `membros` tenha `usuario_id` igual ao do usuário; por fim, chama `popular`. Na segunda, `ComissoesController.listarOrganizacoes` chama `ComissoesService.listarOrganizacoes(usuarioId)`, que executa `validarUsuario` e busca com `OrganizacaoModel.find` as organizações `APROVADA` com um item de `membros` (`$elemMatch`) do usuário com `papel = ADMIN` e `status = APROVADO`, só com `nome`, em ordem alfabética crescente. A tela considera que o usuário gerencia a comissão quando o `_id` da organização da comissão está nessa lista; nesse caso, chama também `api('/comissoes/organizacoes/{organizacaoId}/membros')`, atendida por `listarMembrosDisponiveis`. A função `aplicar` guarda a comissão, a permissão e as pessoas e preenche o formulário de edição. O cabeçalho mostra o nome da comissão, o nome da organização, a etiqueta "Ativa" ou "Inativa" e a descrição, quando houver; o botão "Mais opções" (⋮) aparece só para quem gerencia. Abaixo vêm as abas "Reuniões" e "Equipe"; a tela abre em "Reuniões", ou em "Equipe" quando `criada = 1`. Ao abrir a tela e ao voltar para ela, a função `buscarReunioes` chama `api('/reunioes?comissao_id={id}')` (RF-REU-02), que devolve as reuniões da comissão de que o usuário participa, em ordem crescente de início; a aba Reuniões mostra o bloco "Próximas", com as reuniões `AGENDADA` cujo `fim` é posterior ao horário da consulta, nessa ordem, e o bloco "Anteriores", com as demais, da mais recente para a mais antiga; sem reuniões, mostra "Nenhuma reunião nesta comissão.". Para o responsável de uma comissão ativa, a aba mostra o botão "Nova reunião" (RF-REU-01). A aba Equipe mostra "N integrantes" e uma linha por integrante, com avatar, nome (seguido de "(você)" para o próprio usuário), e-mail e a etiqueta "Responsável" ou "Membro"; o responsável vem primeiro e os demais em ordem alfabética crescente de nome (`localeCompare` com `pt-BR`). Para quem gerencia uma comissão ativa, aparecem o botão "Adicionar" (RF-COM-07) e, em cada linha, o botão de opções (RF-COM-08 e RF-COM-09); numa comissão inativa, aparece a faixa "Reative a comissão para alterar a equipe.". Puxar a tela para baixo executa `atualizar`, que repete as consultas sem apagar o que foi digitado no formulário de edição. |
+| **Pré-condição** | Usuário autenticado, com conta comum ativa e vínculo `APROVADO` na organização `APROVADA` da comissão; ser administrador dessa organização ou integrante da comissão. |
+| **Pós-condição** | Os dados são exibidos, ou a faixa vermelha mostra "ID inválido" (400), "Comissão não encontrada" (404), "Você não tem acesso às comissões desta organização" (403) ou "Você não faz parte desta comissão" (403). |
+| **Efeitos colaterais** | Nenhum. |
 
 ## RF-COM-03 — Cadastrar comissão
 
-| Campo                  | Descrição                                                                                                                                                                                                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | O sistema deve permitir o cadastro de uma nova comissão.                                                                                                                                                                                                             |
-| **Entradas**           | `nome` (2–100), `descricao?` (até 1000), `organizacao_id` e `responsavel_id`.                                                                                                                                                                                        |
-| **Origem**             | Tela Nova comissão.                                                                                                                                                                                                                                                  |
-| **Saída**              | Comissão criada.                                                                                                                                                                                                                                                     |
-| **Destino**            | MongoDB e tela de gerenciamento da comissão.                                                                                                                                                                                                                         |
-| **Ação**               | `TelaNovaComissao` envia `POST /comissoes`. `CreateComissaoDto` valida os campos; `ComissoesService.criar()` exige que o solicitante administre a organização aprovada e que o responsável esteja ativo e aprovado nela; `ComissaoModel.create()` grava o documento. |
-| **Pré-condição**       | Usuário autenticado, ativo e administrador aprovado da organização escolhida.                                                                                                                                                                                        |
-| **Pós-condição**       | A comissão é criada com `ativo = true` e `membros` contendo exatamente o `responsavel_id` com papel `RESPONSAVEL`.                                                                                                                                                   |
-| **Efeitos colaterais** | O MongoDB gera o ID e o sistema registra as datas de criação e atualização.                                                                                                                                                                                          |
-
-### Dados do cadastro
-
-- **Nome:** obrigatório, entre 2 e 100 caracteres.
-- **Descrição:** opcional, até 1000 caracteres.
-- **Organização:** obrigatória e deve ser uma organização que o usuário administra.
-- **Responsável:** obrigatório, ativo e aprovado na organização.
+| RF-COM-03 | Cadastrar comissão |
+| --- | --- |
+| **Função** | Cria uma comissão ativa numa organização administrada pelo usuário, com o responsável escolhido como único integrante. |
+| **Descrição** | Insere um documento na coleção `comissoes` com `nome`, `descricao`, `organizacao_id`, `ativo = true` e `membros` com um único item: o responsável, com `papel = RESPONSAVEL` e `adicionado_em` igual ao horário da gravação. |
+| **Entradas** | Objeto `CreateComissaoDto`: `nome`, texto de 2 a 100 caracteres, sem os espaços das pontas; `descricao`, texto opcional, sem os espaços das pontas, de até 1.000 caracteres na API (o campo do aplicativo aceita até 200); `organizacao_id`, `ObjectId` em texto de uma organização que o usuário administra; `responsavel_id`, `ObjectId` em texto de um usuário ativo com vínculo aprovado nessa organização. |
+| **Origem** | Administrador da organização (dados e escolha do responsável) e banco de dados (organizações administradas e pessoas elegíveis). |
+| **Saída** | Objeto `Comissao` criado, com `_id`, `ativo = true`, `criado_em`, `atualizado_em` e os campos preenchidos por `popular`. |
+| **Destino** | Coleção `comissoes`; tela da comissão (`TelaComissao`), aberta na aba "Equipe". |
+| **Ação** | Na aba "Comissões" da tela da organização, o administrador toca no botão "+" ("Nova comissão"), que abre a tela "Nova comissão" (`TelaNovaComissao`) com a organização de origem. A tela mostra "Carregando organizações" e chama `api('/comissoes/organizacoes')` (`listarOrganizacoes`, ver RF-COM-02); com a lista vazia, mostra "Você não administra nenhuma organização aprovada.". Senão, mostra o formulário: "Organização", com uma opção por organização administrada, marcada a de origem (ou a primeira da lista); "Nome da comissão", com até 100 caracteres; "Descrição (opcional)", com contador "N/200"; e "Responsável", que mostra "Selecionar". Sempre que a organização marcada muda, a tela apaga a escolha do responsável e chama `api('/comissoes/organizacoes/{organizacaoId}/membros')` (`listarMembrosDisponiveis`). Ao tocar em "Responsável", abre a folha "Responsável" (`SeletorPessoaComissao`) com as pessoas elegíveis, uma por linha; com mais de seis pessoas, a folha mostra o campo "Buscar", que mantém quem tem o texto, em minúsculas, contido no nome ou no e-mail. Tocar numa pessoa a escolhe e fecha a folha. Ao tocar em "Cadastrar comissão", a função `salvar` (montada pelo `handleSubmit` do react-hook-form) valida: `validarNomeComissao` exige ao menos 2 caracteres sem os espaços das pontas ("Informe um nome com pelo menos 2 caracteres."); `validarDescricao` exige no máximo 200 caracteres ("A descrição deve ter no máximo 200 caracteres."); o responsável é obrigatório ("Selecione o responsável"). Com tudo válido, chama `api('/comissoes', 'POST', { nome, descricao, organizacao_id, responsavel_id })`, com nome e descrição sem os espaços das pontas, e o botão mostra "Salvando...". Na API, o `ValidationPipe` valida o `CreateComissaoDto` e `ComissoesController.criar` chama `ComissoesService.criar(dto, usuarioId)`, que: (1) chama `autorizarOrganizacao` para `organizacao_id`; (2) chama `exigirElegivel` para `responsavel_id`; (3) chama `ComissaoModel.create` com `nome`, `descricao`, `organizacao_id`, `ativo = true` e `membros` com o único item `{ usuario_id: responsavel_id, papel: RESPONSAVEL, adicionado_em: agora }`; ao gravar, o validador do campo `membros` confere que há exatamente um responsável e nenhum usuário repetido; (4) devolve a comissão com `popular`. No sucesso, a tela troca a si mesma (`router.replace`) pela tela da comissão, com `criada = 1`. |
+| **Pré-condição** | Usuário autenticado, com conta comum ativa, administrador com vínculo aprovado de uma organização aprovada; responsável ativo e com vínculo aprovado nessa organização. |
+| **Pós-condição** | A tela da comissão abre na aba "Equipe" com a faixa verde "Comissão cadastrada! Adicione os integrantes.". Em erro, a faixa vermelha da tela "Nova comissão" mostra "Informe o nome da comissão", "Informe um nome com pelo menos 2 caracteres", "O nome deve ter até 100 caracteres", "A descrição deve ter até 1000 caracteres", "Selecione uma organização válida", "Selecione um responsável válido" ou "O responsável ou integrante deve estar ativo e aprovado na organização" (400); "Apenas administradores da organização podem gerenciar comissões" ou "Usuário sem acesso ativo" (403); "Organização não encontrada" (404). |
+| **Efeitos colaterais** | O `_id` é gerado no momento da inserção e o Mongoose grava `criado_em` e `atualizado_em`. A comissão passa a aparecer na lista da organização (RF-COM-01) e, para o responsável, entre as comissões em que ele pode agendar reuniões (RF-REU-01). |
 
 ## RF-COM-04 — Editar comissão
 
-| Campo                  | Descrição                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------- |
-| **Descrição**          | O sistema deve permitir alterar o nome e a descrição da comissão.                |
-| **Entradas**           | ID da comissão, nome e descrição.                                                |
-| **Origem**             | Tela de gerenciamento da comissão.                                               |
-| **Saída**              | Comissão atualizada.                                                             |
-| **Destino**            | MongoDB e tela de gerenciamento.                                                 |
-| **Ação**               | O frontend envia `PATCH /comissoes/:id` e o backend atualiza os campos enviados. |
-| **Pré-condição**       | Usuário autorizado para administrar a comissão.                                  |
-| **Pós-condição**       | Nome e/ou descrição ficam atualizados.                                           |
-| **Efeitos colaterais** | A data de atualização da comissão é alterada.                                    |
+| RF-COM-04 | Editar comissão |
+| --- | --- |
+| **Função** | Altera o nome e a descrição da comissão. |
+| **Descrição** | Atualiza os campos `nome` e `descricao` do documento da comissão na coleção `comissoes`; o Mongoose atualiza `atualizado_em`. |
+| **Entradas** | Identificador da comissão (rota) e objeto `UpdateComissaoDto` com `nome`, texto de 2 a 100 caracteres sem os espaços das pontas, e `descricao`, texto de até 1.000 caracteres na API (200 no aplicativo), sem os espaços das pontas. Na API os dois são opcionais; o aplicativo envia sempre os dois. |
+| **Origem** | Administrador da organização e banco de dados (comissão atual). |
+| **Saída** | Objeto `Comissao` com os novos valores, preenchido por `popular`. |
+| **Destino** | Campos `nome`, `descricao` e `atualizado_em` em `comissoes`; cabeçalho da tela da comissão. |
+| **Ação** | Na tela da comissão, o administrador toca em "Mais opções" (⋮). Abre uma folha com o nome da comissão e as opções "Trocar responsável" (só com a comissão ativa), "Editar dados" e "Desativar comissão" ou "Reativar comissão". Ao tocar em "Editar dados", a tela preenche o formulário com os valores atuais (`reset`) e abre a folha "Editar comissão", com os campos "Nome" (até 100 caracteres) e "Descrição" (contador "N/200") e o botão "Salvar". Ao tocar em "Salvar", a função `salvarDados` valida com `validarNomeComissao` e `validarDescricao`, como no RF-COM-03, e chama `executar`, que chama `api('/comissoes/{id}', 'PATCH', { nome, descricao })`, com os textos sem os espaços das pontas. Na API, `ComissoesController.atualizar` chama `ComissoesService.atualizar(id, dto, usuarioId)`, que: (1) chama `autorizarComissao`; (2) copia para o objeto `dados` apenas os campos que vieram preenchidos (`nome`, `descricao` e `ativo`); (3) grava com `ComissaoModel.findByIdAndUpdate(id, { $set: dados })`, devolvendo o documento já alterado e rodando as validações do schema; (4) devolve com `popular`. A edição é aceita também com a comissão inativa. |
+| **Pré-condição** | Usuário administrador, com vínculo aprovado, da organização aprovada da comissão. |
+| **Pós-condição** | A folha fecha e a faixa verde mostra "Dados da comissão atualizados.". Em erro, a faixa vermelha mostra as mensagens de validação do RF-COM-03 (400), "ID inválido" (400), "Apenas administradores da organização podem gerenciar comissões" (403) ou "Comissão não encontrada" (404). |
+| **Efeitos colaterais** | Nenhum, além da atualização de `atualizado_em`. |
 
 ## RF-COM-05 — Desativar comissão
 
-| Campo                  | Descrição                                                             |
-| ---------------------- | --------------------------------------------------------------------- |
-| **Descrição**          | O sistema deve permitir desativar uma comissão sem apagá-la do banco. |
-| **Entradas**           | ID da comissão e confirmação do usuário.                              |
-| **Origem**             | Botão Desativar comissão.                                             |
-| **Saída**              | Comissão com `ativo = false`.                                         |
-| **Destino**            | MongoDB e tela de gerenciamento.                                      |
-| **Ação**               | O backend altera `ativo` para `false`.                                |
-| **Pré-condição**       | Usuário autorizado.                                                   |
-| **Pós-condição**       | Comissão fica inativa e sua equipe é preservada.                      |
-| **Efeitos colaterais** | Não é possível alterar a equipe enquanto a comissão estiver inativa.  |
-
-> Esta é uma **exclusão lógica (soft delete)**. O registro não é apagado fisicamente.
+| RF-COM-05 | Desativar comissão |
+| --- | --- |
+| **Função** | Desativa a comissão sem apagar os seus dados nem a sua equipe. |
+| **Descrição** | Grava `ativo = false` no documento da comissão na coleção `comissoes` (exclusão lógica). A lista `membros` e as reuniões da comissão ficam como estão. |
+| **Entradas** | Identificador da comissão (rota) e a confirmação do administrador. |
+| **Origem** | Administrador da organização. |
+| **Saída** | Objeto `{ mensagem: "Comissão desativada com sucesso", comissao }`, em que `comissao` tem `ativo = false`. |
+| **Destino** | Campo `ativo` em `comissoes`; etiqueta da tela da comissão e da lista da organização. |
+| **Ação** | Em "Mais opções" (⋮), com a comissão ativa, o administrador toca em "Desativar comissão", em vermelho. A tela fecha a folha e mostra a confirmação "Desativar {nome}? Ela poderá ser reativada depois.", com os botões "Cancelar" e "Desativar", este em vermelho. "Cancelar" fecha o diálogo sem chamar a API. Ao tocar em "Desativar", a função `executar` chama `desativar`, que executa `api('/comissoes/{id}', 'DELETE')`. Na API, `ComissoesController.remover` chama `ComissoesService.remover(id, usuarioId)`, que chama `atualizar(id, { ativo: false }, usuarioId)`: `autorizarComissao` e `ComissaoModel.findByIdAndUpdate(id, { $set: { ativo: false } })`, como no RF-COM-04. O serviço devolve a comissão com a mensagem, e a função `desativar` entrega à tela só a comissão. |
+| **Pré-condição** | Administrador, com vínculo aprovado, da organização aprovada; comissão ativa (a opção só aparece nesse caso). |
+| **Pós-condição** | A faixa verde mostra "Comissão desativada."; a etiqueta passa a "Inativa", a aba "Equipe" mostra "Reative a comissão para alterar a equipe." e o botão "Adicionar" desaparece. Em erro, a faixa vermelha mostra "Apenas administradores da organização podem gerenciar comissões" (403) ou "Comissão não encontrada" (404). |
+| **Efeitos colaterais** | Enquanto a comissão está inativa, a equipe não pode ser alterada (RF-COM-07 e RF-COM-09), o botão "Nova reunião" desaparece e a comissão deixa de ser oferecida para agendar reuniões (RF-REU-01). Ela continua na lista da organização, com a etiqueta "Inativa", para o administrador e para os integrantes. |
 
 ## RF-COM-06 — Reativar comissão
 
-| Campo                  | Descrição                                                        |
-| ---------------------- | ---------------------------------------------------------------- |
-| **Descrição**          | O sistema deve permitir reativar uma comissão desativada.        |
-| **Entradas**           | ID da comissão.                                                  |
-| **Origem**             | Botão Reativar comissão.                                         |
-| **Saída**              | Comissão com `ativo = true`.                                     |
-| **Destino**            | MongoDB e tela de gerenciamento.                                 |
-| **Ação**               | O frontend envia `PATCH /comissoes/:id` com `{ "ativo": true }`. |
-| **Pré-condição**       | Comissão existente e usuário autorizado.                         |
-| **Pós-condição**       | Comissão fica ativa novamente.                                   |
-| **Efeitos colaterais** | O gerenciamento da equipe volta a ser permitido.                 |
+| RF-COM-06 | Reativar comissão |
+| --- | --- |
+| **Função** | Volta a ativar uma comissão desativada. |
+| **Descrição** | Grava `ativo = true` no documento da comissão em `comissoes`, desde que a lista `membros` tenha exatamente um item com `papel = RESPONSAVEL`. |
+| **Entradas** | Identificador da comissão (rota) e objeto `UpdateComissaoDto` com `ativo = true` (booleano). |
+| **Origem** | Administrador da organização e banco de dados (equipe atual). |
+| **Saída** | Objeto `Comissao` com `ativo = true`. |
+| **Destino** | Campo `ativo` em `comissoes`; tela da comissão. |
+| **Ação** | Em "Mais opções" (⋮), com a comissão inativa, o administrador toca em "Reativar comissão". A tela mostra a confirmação "Reativar {nome}?", com "Cancelar" e "Reativar". Ao confirmar, a função `executar` chama `api('/comissoes/{id}', 'PATCH', { ativo: true })`. Na API, `ComissoesService.atualizar` chama `autorizarComissao` e, como `ativo` veio verdadeiro, `exigirResponsavelUnico` sobre a comissão lida; depois grava com `ComissaoModel.findByIdAndUpdate(id, { $set: { ativo: true } })` e devolve com `popular`. |
+| **Pré-condição** | Administrador, com vínculo aprovado, da organização aprovada; comissão inativa com exatamente um responsável. |
+| **Pós-condição** | A faixa verde mostra "Comissão reativada."; a etiqueta passa a "Ativa" e a equipe volta a ser editável. Em erro, a faixa vermelha mostra "Defina exatamente um responsável para regularizar esta comissão" (400), "Apenas administradores da organização podem gerenciar comissões" (403) ou "Comissão não encontrada" (404). Limitação conhecida: uma comissão pode ficar sem responsável quando o administrador remove da organização a pessoa que era o responsável, porque essa remoção a retira também das comissões. Se isso acontecer com a comissão inativa, o aplicativo não oferece a troca de responsável (as opções de equipe só aparecem com a comissão ativa) e a reativação é recusada; a API aceita a troca com a comissão inativa (RF-COM-08), mas a tela não a oferece. A regularização de comissão inativa pelo aplicativo **não está implementada**. |
+| **Efeitos colaterais** | A equipe volta a poder ser alterada e o responsável volta a poder agendar reuniões nela. |
 
 ## RF-COM-07 — Adicionar integrante
 
-| Campo                  | Descrição                                                                                                                                                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Descrição**          | O sistema deve permitir adicionar um usuário à equipe da comissão.                                                                                                                                           |
-| **Entradas**           | ID da comissão e `usuario_id`. O papel aceito neste fluxo é somente `MEMBRO`.                                                                                                                                |
-| **Origem**             | Seção Adicionar integrante.                                                                                                                                                                                  |
-| **Saída**              | Comissão com o novo integrante.                                                                                                                                                                              |
-| **Destino**            | Array `membros` da comissão no MongoDB.                                                                                                                                                                      |
-| **Ação**               | O frontend envia `POST /comissoes/:id/membros`. O service valida elegibilidade, duplicidade e responsável único e substitui a equipe por compare-and-swap. `papel=RESPONSAVEL` é recusado; usa-se RF-COM-08. |
-| **Pré-condição**       | Comissão ativa. O usuário deve estar ativo e aprovado na mesma organização.                                                                                                                                  |
-| **Pós-condição**       | O usuário passa a fazer parte da comissão.                                                                                                                                                                   |
-| **Efeitos colaterais** | O sistema impede que o mesmo usuário seja adicionado duas vezes.                                                                                                                                             |
+| RF-COM-07 | Adicionar integrante |
+| --- | --- |
+| **Função** | Inclui na equipe, com papel `MEMBRO`, uma pessoa aprovada na organização. |
+| **Descrição** | Substitui a lista `membros` do documento da comissão pela lista atual mais o item `{ usuario_id, papel: MEMBRO, adicionado_em }`, numa única gravação condicionada ao estado lido. |
+| **Entradas** | Identificador da comissão (rota) e objeto `AddMembroComissaoDto` com `usuario_id`, `ObjectId` em texto, e `papel`, opcional, `MEMBRO` ou `RESPONSAVEL`. O aplicativo envia `MEMBRO`; `RESPONSAVEL` é recusado. |
+| **Origem** | Administrador da organização (escolha da pessoa) e banco de dados (equipe atual e pessoas elegíveis). |
+| **Saída** | Objeto `Comissao` com o novo integrante em `membros`, preenchido por `popular`. |
+| **Destino** | Campo `membros` em `comissoes`; lista da aba "Equipe". |
+| **Ação** | Na aba "Equipe" de uma comissão ativa, o administrador toca em "Adicionar". A tela limpa a busca e abre a folha "Adicionar integrante", com o campo "Buscar" ("Nome ou e-mail") e a lista das pessoas elegíveis carregadas no RF-COM-02 que ainda não estão em `membros`; a busca mantém quem tem o texto digitado, em minúsculas e sem os espaços das pontas, contido em "nome e-mail". Sem ninguém, a folha mostra "Ninguém disponível para esta busca.". Cada linha tem o botão "Adicionar"; ao tocar nele, a função `executar` chama `api('/comissoes/{id}/membros', 'POST', { usuario_id, papel: 'MEMBRO' })`. Na API, `ComissoesController.adicionarMembro` chama `ComissoesService.adicionarMembro(id, dto, usuarioId)`, que: (1) chama `autorizarComissao`; (2) exige `ativo` verdadeiro; (3) chama `exigirResponsavelUnico`; (4) recusa `papel = RESPONSAVEL`; (5) chama `exigirElegivel` para `usuario_id`; (6) recusa quando algum item de `membros` já tem esse `usuario_id`; (7) chama `gravarEquipe` com os itens atuais, mantendo `papel` e `adicionado_em`, mais o novo item `MEMBRO` com `adicionado_em` igual ao horário atual. A folha continua aberta para adicionar outras pessoas. |
+| **Pré-condição** | Administrador, com vínculo aprovado, da organização aprovada; comissão ativa com exatamente um responsável; pessoa ativa, com vínculo aprovado na organização e fora da equipe. |
+| **Pós-condição** | A faixa verde mostra "{nome} entrou na comissão."; a pessoa sai da folha e aparece na equipe como "Membro". Em erro, a faixa vermelha mostra "Selecione um usuário válido", "Reative a comissão antes de gerenciar sua equipe", "Defina exatamente um responsável para regularizar esta comissão", "Use a substituição de responsável; a comissão deve ter exatamente um" ou "O responsável ou integrante deve estar ativo e aprovado na organização" (400); "Usuário já pertence à comissão" ou "A comissão mudou. Atualize e tente novamente." (409); "Apenas administradores da organização podem gerenciar comissões" (403); "Comissão não encontrada" (404). |
+| **Efeitos colaterais** | A pessoa passa a ver a comissão (RF-COM-01 e RF-COM-02) e pode ser convidada para as reuniões dela. |
 
-## RF-COM-08 — Substituir o responsável
+## RF-COM-08 — Substituir responsável
 
-| Campo                  | Descrição                                                                                                                                                                                           |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | O sistema permite substituir o único responsável por outro integrante elegível.                                                                                                                     |
-| **Entradas**           | ID da comissão e `usuario_id` do novo responsável.                                                                                                                                                  |
-| **Origem**             | Ação **Definir responsável** na equipe.                                                                                                                                                             |
-| **Saída**              | Comissão com exatamente um responsável.                                                                                                                                                             |
-| **Destino**            | Array `membros` da comissão.                                                                                                                                                                        |
-| **Ação**               | Envia `PATCH /comissoes/:id/responsavel` com `{usuario_id}`. `definirResponsavel()` promove o alvo, inclui-o se necessário e rebaixa todos os demais para `MEMBRO` em uma escrita atômica validada. |
-| **Pré-condição**       | Solicitante administra a organização; alvo está ativo e aprovado nela.                                                                                                                              |
-| **Pós-condição**       | Exatamente um item de `membros` possui papel `RESPONSAVEL`.                                                                                                                                         |
-| **Efeitos colaterais** | O responsável anterior continua na equipe como `MEMBRO`.                                                                                                                                            |
+| RF-COM-08 | Substituir responsável |
+| --- | --- |
+| **Função** | Troca o responsável da comissão numa única gravação, mantendo exatamente um responsável. |
+| **Descrição** | Regrava a lista `membros` com a pessoa escolhida como `RESPONSAVEL` e todos os demais como `MEMBRO`; se a pessoa escolhida não estava na equipe, ela é incluída como `RESPONSAVEL`. |
+| **Entradas** | Identificador da comissão (rota) e objeto `DefinirResponsavelDto` com `usuario_id`, `ObjectId` em texto, do novo responsável. |
+| **Origem** | Administrador da organização (escolha e confirmação) e banco de dados (equipe atual e pessoas elegíveis). |
+| **Saída** | Objeto `Comissao` com exatamente um item `RESPONSAVEL` em `membros`, preenchido por `popular`. |
+| **Destino** | Campo `membros` em `comissoes`; etiquetas da aba "Equipe". |
+| **Ação** | Com a comissão ativa, o administrador abre a escolha do responsável por "Mais opções" (⋮) › "Trocar responsável" ou pelo botão de opções do responsável atual, na aba "Equipe" › "Trocar responsável". A folha "Responsável" (`SeletorPessoaComissao`) lista as pessoas elegíveis da organização, integrantes ou não, com o responsável atual marcado; tocar em outra pessoa chama `trocarResponsavel`. No botão de opções de um membro, a opção "Tornar responsável" chama `trocarResponsavel` diretamente. A função `trocarResponsavel` fecha as folhas e mostra a confirmação "{novo} será o responsável. {atual} passa a membro." (ou "{novo} será o responsável.", quando a comissão está sem responsável), com "Cancelar" e "Confirmar". Ao confirmar, a função `executar` chama `api('/comissoes/{id}/responsavel', 'PATCH', { usuario_id })`. Na API, `ComissoesController.definirResponsavel` chama `ComissoesService.definirResponsavel(id, usuario_id, usuarioId)`, que: (1) chama `autorizarComissao`; (2) chama `exigirElegivel` para o novo responsável; (3) monta a nova lista percorrendo `membros`: o item cujo `usuario_id` é igual ao escolhido recebe `RESPONSAVEL`, todos os outros recebem `MEMBRO`, e `adicionado_em` é mantido; (4) se nenhum item é o escolhido, acrescenta `{ usuario_id, papel: RESPONSAVEL, adicionado_em: agora }`; (5) grava com `gravarEquipe`. Como a lista inteira é trocada numa só operação, a comissão nunca passa por um estado sem responsável ou com dois. A API não exige a comissão ativa: a troca também corrige uma comissão inativa com zero ou dois responsáveis, sem reativá-la; o aplicativo só oferece a troca com a comissão ativa. |
+| **Pré-condição** | Administrador, com vínculo aprovado, da organização aprovada; novo responsável ativo e com vínculo aprovado na organização. |
+| **Pós-condição** | A faixa verde mostra "Responsável atualizado." e as etiquetas da equipe mudam. Em erro, a faixa vermelha mostra "Selecione um responsável válido" ou "O responsável ou integrante deve estar ativo e aprovado na organização" (400); "A comissão mudou. Atualize e tente novamente." (409); "Apenas administradores da organização podem gerenciar comissões" (403); "Comissão não encontrada" (404). |
+| **Efeitos colaterais** | O responsável anterior continua na equipe como `MEMBRO`. O novo responsável passa a poder agendar reuniões e escrever as atas da comissão (módulos REU e ATA); o anterior deixa de poder. |
 
 ## RF-COM-09 — Remover integrante
 
-| Campo                  | Descrição                                                                                                                    |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **Descrição**          | O sistema deve permitir retirar um integrante da comissão.                                                                   |
-| **Entradas**           | ID da comissão, ID do usuário e confirmação.                                                                                 |
-| **Origem**             | Botão Remover.                                                                                                               |
-| **Saída**              | Comissão sem aquele integrante.                                                                                              |
-| **Destino**            | Array `membros` da comissão.                                                                                                 |
-| **Ação**               | O frontend envia `DELETE /comissoes/:id/membros/:usuarioId`. O backend usa `$pull` para retirar o integrante.                |
-| **Pré-condição**       | Comissão ativa; usuário pertencente à comissão com papel `MEMBRO`. O responsável deve ser substituído antes de ser removido. |
-| **Pós-condição**       | O usuário deixa de fazer parte da comissão.                                                                                  |
-| **Efeitos colaterais** | O usuário continua cadastrado no sistema e continua pertencendo à organização.                                               |
-
----
+| RF-COM-09 | Remover integrante |
+| --- | --- |
+| **Função** | Retira um membro comum da equipe da comissão. |
+| **Descrição** | Regrava a lista `membros` do documento da comissão sem o item do usuário escolhido. O responsável não pode ser removido. |
+| **Entradas** | Identificador da comissão e identificador do usuário (`ObjectId` em texto, os dois na rota) e a confirmação do administrador. |
+| **Origem** | Administrador da organização e banco de dados (equipe atual). |
+| **Saída** | Objeto `Comissao` sem o integrante, preenchido por `popular`. |
+| **Destino** | Campo `membros` em `comissoes`; lista da aba "Equipe". |
+| **Ação** | Na aba "Equipe" de uma comissão ativa, o administrador toca no botão de opções de um integrante. A folha mostra o nome e o e-mail da pessoa e, para um membro, as opções "Tornar responsável" (RF-COM-08) e "Remover da comissão", em vermelho; para o responsável, só "Trocar responsável". Ao tocar em "Remover da comissão", a tela mostra a confirmação "Remover {nome} da comissão?", com "Cancelar" e "Remover". Ao confirmar, a função `executar` chama `api('/comissoes/{id}/membros/{usuarioId}', 'DELETE')`. Na API, `ComissoesController.removerMembro` chama `ComissoesService.removerMembro(id, membroId, usuarioId)`, que: (1) chama `validarEquipe`, que executa `validarId` no membro, chama `autorizarComissao`, exige `ativo` verdadeiro e exige um item de `membros` com esse `usuario_id`; (2) chama `exigirResponsavelUnico`; (3) recusa quando o item do membro tem `papel = RESPONSAVEL`; (4) chama `gravarEquipe` com a lista sem os itens desse `usuario_id`. |
+| **Pré-condição** | Administrador, com vínculo aprovado, da organização aprovada; comissão ativa com exatamente um responsável; pessoa na equipe com papel `MEMBRO`. |
+| **Pós-condição** | A faixa verde mostra "Integrante removido da comissão." e a pessoa sai da lista. Em erro, a faixa vermelha mostra "ID inválido", "Reative a comissão antes de gerenciar sua equipe", "Defina exatamente um responsável para regularizar esta comissão" ou "Substitua o responsável antes de removê-lo" (400); "Usuário não pertence a esta comissão" ou "Comissão não encontrada" (404); "A comissão mudou. Atualize e tente novamente." (409); "Apenas administradores da organização podem gerenciar comissões" (403). |
+| **Efeitos colaterais** | A conta da pessoa e o vínculo dela com a organização não mudam. Se ela não for administradora da organização, deixa de ver a comissão. As reuniões já criadas não são alteradas. |

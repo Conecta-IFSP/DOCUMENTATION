@@ -1,126 +1,229 @@
 # Requisitos funcionais — Cadastro de organização
 
-> Padrão do Incremento 1 · Módulo ORG
+> Padrão da disciplina · Módulo ORG · Formulário padrão · Revisado em 26/11/2026
 
 ## Resumo
 
-Define RF-ORG-01 a RF-ORG-09. Todos usam `X-API-Key`; rotas privadas exigem JWT e os guards/regras indicados.
+Cada caso de uso de [Casos de uso](1%20-%20casos-uso-cadastro-organizacao.md) é descrito aqui como requisito funcional de sistema, usando apenas o formulário padrão: Função, Descrição, Entradas, Origem, Saída, Destino, Ação, Pré-condição, Pós-condição e Efeitos colaterais. O diagrama de sequência de cada requisito está em [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-organizacao.md), com o mesmo número.
 
-## Visão geral
+Regras comuns a todas as rotas de `/organizacoes`, citadas nos requisitos abaixo:
 
-| ID        | Requisito                 | Rota principal                           | Ator                         |
-| --------- | ------------------------- | ---------------------------------------- | ---------------------------- |
-| RF-ORG-01 | Cadastrar organização     | `POST /organizacoes`                     | Usuário                      |
-| RF-ORG-02 | Consultar organizações    | `GET /organizacoes`                      | Usuário/Admin do sistema     |
-| RF-ORG-03 | Aprovar organização       | `PATCH /organizacoes/:id`                | Admin do sistema             |
-| RF-ORG-04 | Revogar organização       | `PATCH /organizacoes/:id`                | Admin do sistema             |
-| RF-ORG-05 | Editar organização        | `PATCH /organizacoes/:id`                | Admin do sistema             |
-| RF-ORG-06 | Excluir organização       | `DELETE /organizacoes/:id`               | Admin do sistema             |
-| RF-ORG-07 | Entrar e renovar código   | `POST /organizacoes/entrar`              | Usuário/Admin da organização |
-| RF-ORG-08 | Convidar e responder      | `POST .../convites`, `PATCH .../convite` | Admin/Convidado              |
-| RF-ORG-09 | Gerenciar vínculo e papel | `PATCH .../membros/:usuarioId`           | Admin da organização         |
+- **Acesso.** Toda requisição exige o cabeçalho `X-API-Key` (`ApiKeyGuard`, global), um token JWT válido (`JwtAuthGuard`) e uma conta ativa (`UsuarioAtivoGuard`, que relê a conta no banco e usa o tipo gravado nela, não o do token). Falhas recebem 401, por exemplo "Token de acesso não informado" ou "Conta inexistente ou desativada". As rotas de usuário comum passam também por `UsuarioComumGuard`, que recusa a conta `ADMIN_SISTEMA` com 403 "O administrador do sistema não pode realizar esta operação"; as rotas do administrador do sistema passam por `AdminSistemaGuard`, que recusa as demais contas com 403 "Apenas administradores do sistema podem realizar esta operação".
+- **Validação.** O `ValidationPipe` global descarta campos que não estão no DTO (`whitelist`) e recusa os inválidos com 400; o aplicativo mostra a primeira mensagem. Identificador de rota que não é um `ObjectId` recebe 400 "ID inválido".
+- **Conferência de administrador.** `exigirAdministrador(id, usuarioId)` busca a organização com `findById` (404 "Organização não encontrada") e exige, em `membros`, um item com `usuario_id` igual ao usuário do token, `papel = ADMIN` e `status = APROVADO`; sem ele, 403 "Apenas administradores desta organização podem realizar esta operação". `exigirOrganizacaoAprovada` exige `status = APROVADA`; senão, 403 "Esta organização não está aprovada".
+- **Gravação protegida.** As alterações de vínculo usam `updateOne` com um filtro que repete o que foi conferido na leitura (a situação da organização, o vínculo do alvo e, quando é o caso, o solicitante ainda administrador). Se outra gravação mudou algum desses dados no meio do caminho, nada é alterado (`modifiedCount` diferente de 1) e a API responde 409.
+- **Mensagens.** Os textos de erro citados são os devolvidos pela API e mostrados pelo aplicativo numa faixa vermelha, salvo quando o requisito indica outro lugar.
 
-## Especificações
+## RF-ORG-01 — Cadastrar organização
 
-### RF-ORG-01 — Cadastrar organização
+| RF-ORG-01 | Cadastrar organização |
+| --- | --- |
+| **Função** | Cria uma organização nova, aguardando autorização, com quem a cadastrou como primeiro administrador. |
+| **Descrição** | Insere um documento na coleção `organizacoes` com `status = PENDENTE`, `criada_por` igual ao usuário, `codigo_acesso` sorteado pelo servidor e `membros` com um único vínculo, o do criador, com `papel = ADMIN` e `status = APROVADO`. |
+| **Entradas** | Objeto `CreateOrganizacaoDto` com: `nome`, texto de 2 a 100 caracteres; `cidade`, texto de 2 a 60 caracteres; e `descricao`, opcional, texto de até 200 caracteres. Os espaços das pontas são retirados antes de gravar. O autor vem do token: campos como `status` ou `criada_por` enviados no corpo são descartados. |
+| **Origem** | Usuário (dados digitados) e banco de dados (conta do usuário e nomes já usados). |
+| **Saída** | Organização criada (HTTP 201) com `_id`, `nome`, `cidade`, `descricao`, `status = PENDENTE`, `criada_por`, `membros`, `criado_em` e `atualizado_em`. O campo `codigo_acesso` é retirado da resposta. |
+| **Destino** | Tela "Criar organização" (`TelaCadastroOrganizacao`) e coleção `organizacoes`. |
+| **Ação** | Na aba "Organizações", o usuário toca no botão "+" e em "Criar organização". A tela mostra o cartão "Prévia", que acompanha o que é digitado (iniciais, nome, cidade e descrição), e três campos vazios: "Nome da organização" (texto de exemplo "Organização", até 100 caracteres), "Cidade" (exemplo "Cidade", até 60) e "Descrição (opcional)" (exemplo "Descrição", várias linhas, com o contador "n/200"). Ao tocar em "Enviar solicitação", a função `enviar`, montada com `handleSubmit` do React Hook Form, confere cada campo: `validarNomeOrganizacao` exige ao menos 2 caracteres depois de retirar os espaços das pontas ("Informe o nome da organização." ou "O nome deve ter ao menos 2 caracteres."); `validarCidade` exige de 2 a 60 ("Informe a cidade." ou "A cidade deve ter no máximo 60 caracteres."); `validarDescricao` aceita até 200 ("A descrição deve ter no máximo 200 caracteres."). Os erros aparecem abaixo de cada campo e nada é enviado. Com os campos válidos, `enviar` apara os textos e chama `api('/organizacoes', 'POST', { nome, cidade, descricao })`, sem `descricao` quando ela está vazia. Na API, depois de `UsuarioComumGuard`, `OrganizacoesController.criar` chama `OrganizacoesService.criar(dto, usuarioId)`, que: (1) busca o usuário com `usuarioModel.findById`; (2) chama `exigirNomeDisponivel(nome)`, que faz `organizacaoModel.exists` comparando o nome inteiro por igualdade, sem diferenciar maiúsculas de minúsculas (os caracteres especiais são escapados por `escaparRegex`); (3) monta o documento com `status = PENDENTE`, `criada_por` e o vínculo do criador, com `solicitado_em` e `aprovado_em` iguais ao horário atual; (4) chama `organizacaoModel.create`, e o schema preenche `codigo_acesso` com `gerarCodigoAcesso()`; se o código sorteado já pertence a outra organização (erro 11000 no índice único, reconhecido por `codigoRepetido`), repete a criação, que sorteia outro código, até 5 tentativas; (5) apaga `codigo_acesso` do objeto devolvido. |
+| **Pré-condição** | Usuário autenticado, com conta ativa do tipo `USUARIO`; nenhuma organização com o mesmo nome, sem considerar maiúsculas e minúsculas. |
+| **Pós-condição** | No sucesso, a tela troca o formulário por "Solicitação enviada", "Aguardando autorização do sistema.", a prévia com a etiqueta "Aguardando autorização" e o botão "Ver organizações". Nos erros, a faixa "Não foi possível enviar" mostra: "Já existe uma organização com este nome" (409); uma mensagem de validação, como "Informe a cidade" ou "O nome deve ter até 100 caracteres" (400); "O administrador do sistema não pode realizar esta operação" (403); ou "Usuário criador não encontrado" (404). |
+| **Efeitos colaterais** | A organização aparece em "Aguardando autorização", com "Cadastro em análise", na aba "Organizações" do criador, e com a etiqueta "Pendente" na lista do administrador do sistema (RF-ORG-02). Enquanto pendente, ela não aceita pedidos, convites nem comissões. |
 
-| Item              | Especificação                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Entrada**       | `nome` 2–100, `cidade` 2–60 e `descricao?` até 200.                                                                       |
-| **Pré-condições** | Conta ativa do tipo `USUARIO`; nome disponível.                                                                           |
-| **Processamento** | `OrganizacoesController.criar()` → `OrganizacoesService.criar()`; valida unicidade, gera código e cria o vínculo inicial. |
-| **Persistência**  | `organizacoes`: `PENDENTE`, criador em `criada_por` e `membros` como `ADMIN/APROVADO`.                                    |
-| **Saída**         | Organização criada, sem expor campos protegidos indevidos.                                                                |
-| **Erros**         | 400 dados inválidos; 409 nome duplicado; 403 tipo não permitido.                                                          |
+## RF-ORG-02 — Consultar organizações
 
-### RF-ORG-02 — Consultar organizações
+| RF-ORG-02 | Consultar organizações |
+| --- | --- |
+| **Função** | Lista as organizações com que o usuário tem vínculo ou, para o administrador do sistema, todas as organizações, com busca pelo nome. |
+| **Descrição** | Lê a coleção `organizacoes`. Para o usuário, só os documentos em que algum item de `membros` tem `usuario_id` igual ao dele, com o próprio vínculo resumido em `meu_vinculo`. Para o administrador do sistema, todos os documentos, com o nome e o e-mail de quem cadastrou, lidos em `usuarios`. Nada é gravado. |
+| **Entradas** | `busca`, texto opcional na consulta (`?busca=`), do qual o servidor retira os espaços das pontas e usa no máximo os 100 primeiros caracteres. Tipo e identificador do usuário vêm do token, com o tipo relido no banco. |
+| **Origem** | Ator (termo de busca) e banco de dados. |
+| **Saída** | Usuário: lista de objetos `{ _id, nome, cidade, descricao, status, meu_vinculo: { papel, status } }`, sem `membros` nem `codigo_acesso`. Administrador do sistema: lista de organizações com todos os campos, exceto `codigo_acesso`, e `criada_por` preenchido com `nome`, `email`, `tipo` e `ativo`. Nas duas, da mais nova para a mais antiga (`criado_em` decrescente). |
+| **Destino** | Aba "Organizações" (`TelaOrganizacoes`), tela "Gerenciar organizações" (`TelaGerenciarOrganizacoes`) e tela inicial (`TelaInicio`). |
+| **Ação** | Usuário: ao abrir a aba "Organizações", a cada vez que ela volta a ficar visível e ao ser puxada para baixo, a função `carregar` chama ao mesmo tempo `api('/organizacoes')`, `api('/comissoes')` e `api('/reunioes?de=<agora>')`; para cada organização `APROVADA` que o usuário administra, chama também `api('/organizacoes/{id}')` (RF-ORG-14) para contar membros e pedidos. Na API, `OrganizacoesController.listar` chama `OrganizacoesService.listar(tipo, usuarioId, busca)`, que, para a conta `USUARIO`, faz `find` com `membros.usuario_id` igual ao usuário, `select('nome cidade descricao status membros')`, `sort({ criado_em: -1 })` e `lean()`, e troca `membros` pelo vínculo do próprio usuário. A tela agrupa a lista assim: "Convites" (organização `APROVADA` e vínculo `CONVIDADO`, com os botões do RF-ORG-11); "Suas organizações" (organização `APROVADA` e vínculo `APROVADO`), cada cartão com o papel "Administrador" ou "Membro", o número de comissões, o de membros (só para administradores), a próxima reunião ou "Sem reuniões agendadas" e, se houver, a etiqueta "N pedidos"; "Aguardando autorização" (organização `PENDENTE` cadastrada pelo usuário, com "Cadastro em análise", ou vínculo `PENDENTE` em organização `APROVADA`, com "Pedido de acesso enviado"); e "Indisponíveis" (organização `REVOGADA`, com "Revogada", ou vínculo `REJEITADO`, com "Pedido recusado"). Quando há ao menos uma organização, aparece o campo "Buscar"; o filtro é feito no próprio aparelho e mantém as organizações cujo nome, em minúsculas, contém o texto digitado em minúsculas. Tocar num cartão de "Suas organizações" abre a tela da organização. Administrador do sistema: na tela inicial, o item "Gerenciar organizações" mostra "N organização aguardando autorização." ou "N organizações aguardando autorização." quando há organizações `PENDENTE` na lista de `api('/organizacoes')`, e "Autorize, revogue ou edite as organizações cadastradas." quando não há. Ao tocar, abre `TelaGerenciarOrganizacoes`, que confere o tipo da conta com `api('/usuarios/me')` e volta para a tela inicial se ele não for `ADMIN_SISTEMA`. O campo "Buscar" (exemplo "Organização") chama `carregar(termo)` 350 ms depois da última tecla, ou na hora quando o campo fica vazio; `carregar` executa `api('/organizacoes?busca=<termo>')` e descarta a resposta se uma consulta mais nova já foi feita (contador `ultimaConsulta`). Na API, para a conta `ADMIN_SISTEMA`, `listar` faz `find` com o nome comparado a uma expressão regular com o termo escapado e a opção `i` (o nome precisa conter o termo, sem diferenciar maiúsculas), `populate('criada_por', 'nome email tipo ativo')` e `sort({ criado_em: -1 })`; sem termo, não há filtro. A tela reordena a lista pela situação, primeiro `PENDENTE`, depois `APROVADA` e por fim `REVOGADA`, mantendo dentro de cada grupo a ordem da API. Cada cartão mostra o nome, a etiqueta "Pendente", "Aprovada" ou "Revogada", a cidade, a descrição, "Criada por: <nome>" e os botões dos RF-ORG-03 a RF-ORG-06. |
+| **Pré-condição** | Usuário autenticado, com conta ativa de qualquer tipo. |
+| **Pós-condição** | A lista aparece agrupada. Sem organizações, o usuário vê "Você ainda não participa de nenhuma organização."; o administrador do sistema vê "Nenhuma organização cadastrada." ou, com busca, "Nenhuma organização encontrada para "<termo>".". Falha de rede ou de sessão aparece na faixa vermelha. |
+| **Efeitos colaterais** | Nenhum. |
 
-| Item              | Especificação                                                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Entrada**       | `GET /organizacoes?busca=termo`, busca opcional até 100.                                                           |
-| **Pré-condições** | JWT válido e conta ativa.                                                                                          |
-| **Processamento** | Escapa regex, pesquisa nome/cidade e ordena por `criado_em`; admin global vê todas e usuário vê vínculos próprios. |
-| **Persistência**  | Somente leitura de `organizacoes` e população de usuários necessários.                                             |
-| **Saída**         | Lista no escopo autorizado.                                                                                        |
-| **Erros**         | 401 sessão inválida; 400 busca fora do limite.                                                                     |
+## RF-ORG-03 — Aprovar organização
 
-### RF-ORG-03 — Aprovar organização
+| RF-ORG-03 | Aprovar organização |
+| --- | --- |
+| **Função** | Autoriza uma organização pendente ou revogada. |
+| **Descrição** | Grava `status = APROVADA` no documento da organização em `organizacoes`; `atualizado_em` recebe o horário da gravação. |
+| **Entradas** | Identificador da organização (`ObjectId` em texto, na rota) e objeto `UpdateOrganizacaoDto` com `status = "APROVADA"`. |
+| **Origem** | Administrador do sistema. |
+| **Saída** | Organização atualizada (HTTP 200), com `criada_por` e `membros.usuario_id` preenchidos com `nome`, `email`, `tipo` e `ativo`. |
+| **Destino** | Cartão da organização em `TelaGerenciarOrganizacoes` e campo `status` em `organizacoes`. |
+| **Ação** | Em "Gerenciar organizações", o cartão de uma organização "Pendente" ou "Revogada" mostra o botão "Autorizar". Ao tocar, a função `atualizar(id, { status: 'APROVADA' })` chama `api('/organizacoes/{id}', 'PATCH', { status: 'APROVADA' })`, sem diálogo de confirmação, porque a ação não retira acesso de ninguém; os botões do cartão ficam inativos até a resposta. Na API, `AdminSistemaGuard` confere se o tipo da conta é `ADMIN_SISTEMA`, e o `ValidationPipe` exige que `status` seja `PENDENTE`, `APROVADA` ou `REVOGADA`. `OrganizacoesController.atualizar` chama `OrganizacoesService.atualizar(id, dto)`, que valida o identificador (`validarId`) e chama `findByIdAndUpdate(id, dados, { new: true, runValidators: true })` com `populate` de `criada_por` e de `membros.usuario_id`. A API não restringe a situação de origem: qualquer situação pode ir para qualquer outra. Com a resposta, a tela troca o cartão antigo pelo devolvido. |
+| **Pré-condição** | Conta `ADMIN_SISTEMA` ativa; organização existente, com situação `PENDENTE` ou `REVOGADA`, que é quando o botão aparece. |
+| **Pós-condição** | O cartão passa a mostrar a etiqueta "Aprovada" e o botão "Revogar". Erros: "Apenas administradores do sistema podem realizar esta operação" (403); "Situação deve ser PENDENTE, APROVADA ou REVOGADA" (400); "ID inválido" (400); "Organização não encontrada" (404). |
+| **Efeitos colaterais** | A organização passa a aceitar pedidos por código (RF-ORG-07), convites (RF-ORG-08) e comissões. Para o criador, ela sai de "Aguardando autorização" e entra em "Suas organizações" como administrador. Numa organização que estava revogada, os vínculos guardados voltam a valer como estavam. |
 
-| Item              | Especificação                                                 |
-| ----------------- | ------------------------------------------------------------- |
-| **Entrada**       | `PATCH /organizacoes/:id` com `status=APROVADA`.              |
-| **Pré-condições** | Ator `ADMIN_SISTEMA`; organização existente.                  |
-| **Processamento** | `AdminSistemaGuard` autoriza e o service atualiza a situação. |
-| **Persistência**  | `organizacoes.status=APROVADA`.                               |
-| **Saída**         | Organização atualizada.                                       |
-| **Erros**         | 403 sem tipo global; 404 ID inexistente.                      |
+## RF-ORG-04 — Revogar organização
 
-### RF-ORG-04 — Revogar organização
+| RF-ORG-04 | Revogar organização |
+| --- | --- |
+| **Função** | Suspende uma organização, bloqueando o seu uso sem apagar dados. |
+| **Descrição** | Grava `status = REVOGADA` no documento da organização em `organizacoes`. Vínculos, código de acesso e comissões continuam gravados. |
+| **Entradas** | Identificador da organização (na rota) e objeto `UpdateOrganizacaoDto` com `status = "REVOGADA"`. |
+| **Origem** | Administrador do sistema. |
+| **Saída** | Organização atualizada (HTTP 200), como no RF-ORG-03. |
+| **Destino** | Cartão da organização em `TelaGerenciarOrganizacoes` e campo `status` em `organizacoes`. |
+| **Ação** | O cartão de uma organização "Pendente" ou "Aprovada" mostra o botão vermelho "Revogar". Ao tocar, a tela guarda a ação em `acaoPendente` e abre o diálogo de confirmação (`Confirmacao`) com "Revogar <nome>? Ela poderá ser autorizada novamente depois." e os botões "Cancelar" e "Confirmar". "Cancelar" fecha o diálogo sem chamar a API. "Confirmar" executa `confirmarAcao`, que chama `atualizar(id, { status: 'REVOGADA' })`, ou seja, `api('/organizacoes/{id}', 'PATCH', { status: 'REVOGADA' })`, e fecha o diálogo; enquanto a requisição está em andamento, os botões do diálogo ficam inativos. Na API, o caminho é o mesmo do RF-ORG-03. |
+| **Pré-condição** | Conta `ADMIN_SISTEMA` ativa; organização existente e não revogada. |
+| **Pós-condição** | O cartão passa a mostrar a etiqueta "Revogada" e os botões "Autorizar" e "Excluir". Erros iguais aos do RF-ORG-03. |
+| **Efeitos colaterais** | Enquanto revogada: o código deixa de funcionar ("Código inválido", RF-ORG-07); convites, análise de pedidos, troca de papéis e remoção de vínculos recusam com "Esta organização não está aprovada" (403); a API recusa o aceite de convite, mas ainda aceita a recusa (no aplicativo, o convite de uma organização revogada aparece só em "Indisponíveis", sem botões); os módulos de comissões e reuniões passam a negar acesso, porque exigem a organização `APROVADA`. Para os membros, ela aparece em "Indisponíveis" com "Revogada". A revogação libera a exclusão (RF-ORG-06). |
 
-| Item              | Especificação                                                   |
-| ----------------- | --------------------------------------------------------------- |
-| **Entrada**       | `PATCH /organizacoes/:id` com `status=REVOGADA`.                |
-| **Pré-condições** | Ator `ADMIN_SISTEMA`; confirmação na interface.                 |
-| **Processamento** | Atualiza a situação após autorização.                           |
-| **Persistência**  | `organizacoes.status=REVOGADA`.                                 |
-| **Saída**         | Organização bloqueada para novos acessos e gestão de comissões. |
-| **Erros**         | 403 sem permissão; 404 inexistente.                             |
+## RF-ORG-05 — Editar organização
 
-### RF-ORG-05 — Editar organização
+| RF-ORG-05 | Editar organização |
+| --- | --- |
+| **Função** | Corrige o nome, a cidade e a descrição de uma organização. |
+| **Descrição** | Atualiza `nome`, `cidade` e `descricao` no documento da organização em `organizacoes`; `atualizado_em` recebe o horário da gravação. |
+| **Entradas** | Identificador da organização (na rota) e objeto `UpdateOrganizacaoDto` com `nome` (2 a 100 caracteres), `cidade` (2 a 60) e `descricao` (até 200), todos opcionais na API; o aplicativo envia os três, sem os espaços das pontas. |
+| **Origem** | Administrador do sistema (novos valores) e banco de dados (nomes já usados). |
+| **Saída** | Organização atualizada (HTTP 200), como no RF-ORG-03. |
+| **Destino** | Cartão da organização em `TelaGerenciarOrganizacoes` e campos `nome`, `cidade` e `descricao` em `organizacoes`. |
+| **Ação** | No cartão, o botão de lápis ("Editar <nome>") troca o cartão pelo formulário "Editar organização", com os campos "Nome" (exemplo "Nome"), "Cidade" (exemplo "Cidade", até 60 caracteres) e "Descrição" (exemplo "Descrição", com o contador "n/200"), preenchidos com os valores atuais por `edicao.reset`. O formulário é conferido a cada alteração (`mode: 'onChange'`) com `validarNomeOrganizacao`, `validarCidade` e `validarDescricao`; enquanto houver erro, o botão "Salvar" fica inativo. "Cancelar" volta ao cartão sem gravar. "Salvar" executa `salvarEdicao`, que chama `atualizar(id, { nome, cidade, descricao })`, ou seja, `api('/organizacoes/{id}', 'PATCH', dados)`. Na API, além do caminho do RF-ORG-03, `OrganizacoesService.atualizar` apara os textos e, quando há `nome`, chama `exigirNomeDisponivel(nome, id)`, que procura outra organização (`_id` diferente) com o mesmo nome, comparado por igualdade sem diferenciar maiúsculas. Uma descrição vazia é gravada como texto vazio. |
+| **Pré-condição** | Conta `ADMIN_SISTEMA` ativa; organização existente; novo nome não usado por outra organização. |
+| **Pós-condição** | No sucesso, o formulário fecha e o cartão mostra os novos dados. Nos erros, o formulário continua aberto e a faixa vermelha mostra: "Já existe uma organização com este nome" (409); uma mensagem de validação, como "O nome deve ter até 100 caracteres" (400), já que o campo "Nome" desta tela não limita o tamanho; "Organização não encontrada" (404); ou o 403 do `AdminSistemaGuard`. |
+| **Efeitos colaterais** | Os novos dados aparecem para os membros na próxima vez que as telas carregarem. Situação, código de acesso e vínculos não mudam. |
 
-| Item              | Especificação                                                 |
-| ----------------- | ------------------------------------------------------------- |
-| **Entrada**       | `PATCH /organizacoes/:id` com nome, cidade e/ou descrição.    |
-| **Pré-condições** | Ator `ADMIN_SISTEMA`; organização existente.                  |
-| **Processamento** | Valida campos, verifica unicidade e grava apenas os enviados. |
-| **Persistência**  | Campos informados e `atualizado_em`.                          |
-| **Saída**         | Organização atualizada.                                       |
-| **Erros**         | 400 entrada inválida; 409 nome duplicado; 403/404.            |
+## RF-ORG-06 — Excluir organização
 
-### RF-ORG-06 — Excluir organização
+| RF-ORG-06 | Excluir organização |
+| --- | --- |
+| **Função** | Apaga definitivamente uma organização revogada e as suas comissões. |
+| **Descrição** | Remove o documento da organização de `organizacoes`, com os vínculos gravados dentro dele, e todos os documentos de `comissoes` cujo `organizacao_id` é o da organização. |
+| **Entradas** | Identificador da organização (na rota). |
+| **Origem** | Administrador do sistema e banco de dados (situação da organização). |
+| **Saída** | `{ mensagem: "Organização excluída com sucesso" }` (HTTP 200). |
+| **Destino** | Lista de `TelaGerenciarOrganizacoes` e coleções `organizacoes` e `comissoes`. |
+| **Ação** | Só o cartão de uma organização "Revogada" mostra o botão vermelho "Excluir". Ao tocar, abre o diálogo "Excluir <nome>? A organização e suas comissões serão excluídas permanentemente." com "Cancelar" e "Confirmar". "Confirmar" executa `confirmarAcao`, que chama `excluir(organizacao)`, ou seja, `api('/organizacoes/{id}', 'DELETE')`. Na API, depois de `AdminSistemaGuard`, `OrganizacoesController.remover` chama `OrganizacoesService.remover(id)`, que: (1) valida o identificador; (2) busca a organização com `findById` e responde 404 se ela não existe; (3) apaga com `deleteOne({ _id: id, status: REVOGADA })`, de modo que a situação é conferida na própria operação de exclusão; se nada foi apagado (`deletedCount` diferente de 1), responde 409; (4) apaga as comissões com `comissaoModel.deleteMany({ organizacao_id: id })`. |
+| **Pré-condição** | Conta `ADMIN_SISTEMA` ativa; organização com `status = REVOGADA`. |
+| **Pós-condição** | No sucesso, o cartão sai da lista. Erros: "Revogue a organização antes de excluí-la" (409); "Organização não encontrada" (404); "ID inválido" (400); 403 do `AdminSistemaGuard`. |
+| **Efeitos colaterais** | Ação irreversível. Os vínculos somem junto com a organização, e o nome fica livre para um novo cadastro. As reuniões das comissões apagadas não são excluídas: continuam em `reunioes` apontando para uma comissão que não existe mais (limitação conhecida). |
 
-| Item              | Especificação                                                 |
-| ----------------- | ------------------------------------------------------------- |
-| **Entrada**       | `DELETE /organizacoes/:id`.                                   |
-| **Pré-condições** | `ADMIN_SISTEMA`, confirmação explícita e situação `REVOGADA`. |
-| **Processamento** | Exclui organização e depois suas comissões.                   |
-| **Persistência**  | Remove de `organizacoes` e `comissoes`.                       |
-| **Saída**         | Confirmação de exclusão.                                      |
-| **Erros**         | 400 se não revogada; 403/404.                                 |
+## RF-ORG-07 — Entrar por código
 
-### RF-ORG-07 — Entrar por código e renovar código
+| RF-ORG-07 | Entrar por código |
+| --- | --- |
+| **Função** | Registra o pedido de entrada do usuário numa organização autorizada, a partir do código de acesso. |
+| **Descrição** | Acrescenta a `membros` da organização o vínculo `{ usuario_id, papel: MEMBRO, status: PENDENTE, solicitado_em }` ou, se o usuário já teve um pedido recusado, reabre esse vínculo como `PENDENTE`. |
+| **Entradas** | Objeto `EntrarComCodigoDto` com `codigo`, texto de até 20 caracteres. O aplicativo envia o código no formato `ABCDE-FGHIJ`; o servidor converte para maiúsculas e retira tudo o que não é letra ou número, ficando com 10 caracteres. |
+| **Origem** | Usuário (código) e banco de dados (organização e vínculos). |
+| **Saída** | HTTP 201 com `{ mensagem, membro: { usuario_id, papel, status, solicitado_em }, organizacao: { _id, nome } }`, em que `mensagem` é "Solicitação enviada para análise" ou, no pedido reaberto, "Solicitação enviada novamente para análise". |
+| **Destino** | Tela "Entrar com código" (`TelaEntrarComCodigo`) e campo `membros` em `organizacoes`. |
+| **Ação** | Na aba "Organizações", o usuário toca em "+" e em "Entrar com código". A tela mostra "Digite o código recebido do administrador da organização." e o campo "Código" (exemplo "Código"). A cada tecla, `mascararCodigo` passa o texto para maiúsculas, descarta o que não é letra ou número, limita a 10 caracteres e põe um hífen depois do quinto. Ao tocar em "Enviar pedido", ou na tecla de envio do teclado, `enviar` aplica `validarCodigo` ("Informe o código." sem nenhum caractere; "O código tem 10 caracteres." com menos de 10) e chama `api('/organizacoes/entrar', 'POST', { codigo })`. Na API, depois de `UsuarioComumGuard`, `OrganizacoesController.entrarComCodigo` chama `OrganizacoesService.entrarComCodigo(codigo, usuarioId)`, que normaliza o código e, se ele tem 10 caracteres, faz `findOne({ codigo_acesso: código, status: APROVADA })` com `select('nome')`. Código curto, inexistente ou de organização não autorizada recebem a mesma resposta, sem revelar qual é o caso. Encontrada a organização, chama `adicionarMembro(id, usuarioId)`, que: (1) busca a organização e chama `exigirOrganizacaoAprovada`; (2) busca o usuário e exige a conta ativa; (3) procura o vínculo do usuário com `vinculoDe`; se ele está `REJEITADO`, chama `reabrirSolicitacao`, que faz `updateOne` filtrando o vínculo ainda `REJEITADO` e grava `status = PENDENTE`, `solicitado_em` com o horário atual e remove `aprovado_em`; se está `CONVIDADO` ou em outra situação, recusa; (4) sem vínculo, faz `updateOne` com o filtro `{ _id, status: APROVADA, "membros.usuario_id" diferente do usuário }` e `$push` do vínculo novo; se nada foi alterado, outro pedido do mesmo usuário chegou antes ou a organização mudou, e a API recusa. |
+| **Pré-condição** | Conta ativa do tipo `USUARIO`; organização `APROVADA` com aquele código; usuário sem vínculo com ela, ou com vínculo `REJEITADO`. |
+| **Pós-condição** | No sucesso, a tela mostra "Pedido enviado", o nome da organização, "Aguardando autorização do administrador." e o botão "Ver organizações". Erros: "Código inválido" (404); "Você já recebeu um convite desta organização" (409); "Usuário já pertence ou possui solicitação nesta organização" (409); "Solicitação já registrada ou organização indisponível" (409); "Informe o código" ou "Código inválido" da validação (400); "O administrador do sistema não pode realizar esta operação" (403). |
+| **Efeitos colaterais** | O pedido aparece em "Pedidos de acesso" na aba "Membros" dos administradores (RF-ORG-14), e o número do bloco "Solicitações" da tela inicial deles aumenta. Na aba "Organizações" do usuário, a organização aparece em "Aguardando autorização" com "Pedido de acesso enviado". Nenhuma mensagem ou e-mail é enviado aos administradores. |
 
-| Item              | Especificação                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------- |
-| **Entrada**       | `{codigo}` em `POST /organizacoes/entrar`; renovação em `POST /organizacoes/:id/codigo`.          |
-| **Pré-condições** | Entrada em organização aprovada; renovação por `ADMIN/APROVADO`.                                  |
-| **Processamento** | Normaliza dez caracteres; entrada cria/reabre solicitação em análise; renovação gera valor único. |
-| **Persistência**  | `membros[]` ou `codigo_acesso`.                                                                   |
-| **Saída**         | Organização/vínculo atualizado ou novo código apenas ao administrador.                            |
-| **Erros**         | 404 código/organização; 409 vínculo incompatível; 403 sem papel.                                  |
+## RF-ORG-08 — Convidar usuário
 
-### RF-ORG-08 — Convidar e responder convite
+| RF-ORG-08 | Convidar usuário |
+| --- | --- |
+| **Função** | Convida para a organização um usuário já cadastrado, identificado pelo e-mail da conta. |
+| **Descrição** | Acrescenta a `membros` o vínculo `{ usuario_id, papel: MEMBRO, status: CONVIDADO, solicitado_em }` ou, se a pessoa já teve um pedido recusado, transforma esse vínculo em `CONVIDADO`. |
+| **Entradas** | Identificador da organização (na rota) e objeto `ConvidarMembroDto` com `email`, endereço de e-mail válido; o servidor converte para minúsculas e retira os espaços das pontas. |
+| **Origem** | Administrador da organização (e-mail) e banco de dados (conta convidada e vínculos). |
+| **Saída** | HTTP 201 com `{ mensagem: "Convite enviado", usuario: { _id, nome, email } }`. |
+| **Destino** | Folha "Convidar" da tela da organização (`TelaOrganizacao`), lista "Convites enviados" e campo `membros` em `organizacoes`. |
+| **Ação** | Na tela da organização, o administrador toca no atalho "Convidar". Abre a folha "Convidar" com o campo "E-mail da pessoa" (exemplo "E-mail") e o botão "Enviar convite"; abaixo ficam "ou compartilhe o código" e o cartão "Código de acesso" (RF-ORG-10). Ao tocar em "Enviar convite", ou na tecla de envio, a função `convidar` confere o campo: vazio, mostra "Informe o e-mail da pessoa."; fora do formato `nome@dominio.xx` (`validarEmail`), mostra "Informe um e-mail válido, como nome@dominio.com.". Válido, chama `api('/organizacoes/{id}/convites', 'POST', { email })`. Na API, depois de `UsuarioComumGuard` e do `ValidationPipe` (`IsEmail`), `OrganizacoesController.convidarMembro` chama `OrganizacoesService.convidarMembro(id, dto, solicitanteId)`, que: (1) chama `exigirAdministrador` e `exigirOrganizacaoAprovada`; (2) busca a conta com `usuarioModel.findOne({ email, ativo: true })` e trata como não encontrada a conta inexistente, inativa ou do tipo `ADMIN_SISTEMA`; (3) procura o vínculo da pessoa e recusa se ele está `APROVADO`, `PENDENTE` ou `CONVIDADO`; (4) se o vínculo está `REJEITADO`, faz `updateOne` filtrando a organização `APROVADA`, o vínculo ainda `REJEITADO` e o solicitante ainda administrador, e grava `status = CONVIDADO`, `solicitado_em` com o horário atual e remove `aprovado_em`; sem vínculo, faz `updateOne` com `$push` do vínculo novo, filtrando a organização `APROVADA`, a pessoa ainda fora de `membros` e o solicitante ainda administrador; (5) se nada foi alterado, recusa. |
+| **Pré-condição** | Solicitante com vínculo `ADMIN` e `APROVADO`; organização `APROVADA`; pessoa convidada com conta ativa do tipo `USUARIO`, sem vínculo com a organização ou com vínculo `REJEITADO`. |
+| **Pós-condição** | No sucesso, a folha fecha, o campo é limpo, a faixa verde mostra "Convite enviado para <nome>." e os dados são recarregados. Nos erros, a mensagem aparece abaixo do campo: "Nenhum usuário ativo encontrado com este e-mail" (404); "Esta pessoa já é membro da organização", "Esta pessoa já solicitou acesso" ou "Esta pessoa já foi convidada" (409); "O vínculo ou as permissões mudaram. Atualize a lista" (409); "Informe um e-mail válido" (400); "Apenas administradores desta organização podem realizar esta operação" ou "Esta organização não está aprovada" (403). |
+| **Efeitos colaterais** | A pessoa passa a ver o convite em "Convites", na aba "Organizações", e na folha "Convites" da tela inicial (RF-ORG-11). Nenhum e-mail é enviado: o endereço só identifica a conta. O convite aparece em "Convites enviados", com "Aguardando resposta", e pode ser cancelado (RF-ORG-13). |
 
-| Item              | Especificação                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------------- |
-| **Entrada**       | E-mail em `POST /organizacoes/:id/convites`; `{aceitar}` em `PATCH /organizacoes/:id/convite`. |
-| **Pré-condições** | Organização aprovada; convite por admin aprovado; alvo ativo e comum.                          |
-| **Processamento** | Cria `CONVIDADO`; resposta aceita como `APROVADO` ou remove o vínculo.                         |
-| **Persistência**  | `organizacoes.membros[]`.                                                                      |
-| **Saída**         | Organização atualizada.                                                                        |
-| **Erros**         | 404 usuário/convite; 409 estado ou vínculo; 403 sem autorização.                               |
+## RF-ORG-09 — Analisar solicitação de entrada
 
-### RF-ORG-09 — Gerenciar status e papel do membro
+| RF-ORG-09 | Analisar solicitação de entrada |
+| --- | --- |
+| **Função** | Aprova ou recusa um pedido de entrada e permite aprovar depois um pedido recusado. |
+| **Descrição** | Muda o `status` do vínculo em `membros`: de `PENDENTE` para `APROVADO`, com `aprovado_em`, ou para `REJEITADO`; e de `REJEITADO` para `APROVADO`, desfazendo a recusa. |
+| **Entradas** | Identificador da organização e `usuarioId` do vínculo (`ObjectId` em texto, na rota) e objeto `UpdateStatusMembroDto` com `status` igual a `APROVADO` ou `REJEITADO`. |
+| **Origem** | Administrador da organização (decisão) e banco de dados (vínculo). |
+| **Saída** | HTTP 200 com `{ mensagem, usuario_id, status }`, em que `mensagem` é "Solicitação analisada" ou, ao desfazer uma recusa, "Acesso aprovado". |
+| **Destino** | Aba "Membros" de `TelaOrganizacao` e campo `membros` em `organizacoes`. |
+| **Ação** | Na aba "Membros", a faixa "Pedidos de acesso" mostra o total e, para cada pedido, o nome, o e-mail e dois botões redondos. O botão de confirmação ("Aprovar <nome>") chama `aprovar(membro)`, que executa `api('/organizacoes/{id}/membros/{usuarioId}', 'PATCH', { status: 'APROVADO' })` sem diálogo, porque aprovar não retira acesso. O botão "X" ("Recusar <nome>") chama `pedir`, que abre o diálogo "Recusar o pedido de <nome>?" com "Cancelar" e "Recusar", em vermelho; "Recusar" executa `confirmar`, que chama a mesma rota com `{ status: 'REJEITADO' }`. Os pedidos recusados ficam na lista "Pedidos recusados", com "Pedido recusado"; o botão "Opções de <nome>" abre uma folha com "Aprovar acesso" e "Excluir pedido" (RF-ORG-13), e "Aprovar acesso" chama `aprovar(membro)`. Na API, o `ValidationPipe` recusa qualquer `status` diferente de `APROVADO` e `REJEITADO`. `OrganizacoesController.atualizarStatusMembro` chama `OrganizacoesService.atualizarStatusMembro(id, usuarioId, dto, solicitanteId)`, que: (1) valida os dois identificadores; (2) chama `exigirAdministrador` e `exigirOrganizacaoAprovada`; (3) procura o vínculo do alvo; (4) só aceita a mudança quando o vínculo está `PENDENTE`, ou quando está `REJEITADO` e a decisão é `APROVADO`; (5) grava com `updateOne`, filtrando a organização `APROVADA`, o solicitante ainda administrador aprovado e o vínculo ainda na situação lida no passo 3 (`$elemMatch` e `arrayFilters` com `usuario_id` e `status`); na aprovação grava `status` e `aprovado_em` com o horário atual; na recusa grava `status` e remove `aprovado_em`; (6) se nada foi alterado, responde 409. |
+| **Pré-condição** | Solicitante com vínculo `ADMIN` e `APROVADO`; organização `APROVADA`; vínculo do alvo `PENDENTE`, ou `REJEITADO` quando a decisão é aprovar. |
+| **Pós-condição** | No sucesso, a faixa verde mostra "<nome> agora é membro." ou "Pedido de <nome> recusado.", e a lista é recarregada. Erros: "Esta solicitação já foi analisada" (409); "A solicitação ou as permissões foram alteradas. Atualize a lista" (409); "Membro não encontrado nesta organização" (404); "Situação deve ser APROVADO ou REJEITADO" (400); "Apenas administradores desta organização podem realizar esta operação" ou "Esta organização não está aprovada" (403). |
+| **Efeitos colaterais** | Aprovado, o usuário vê a organização em "Suas organizações" e pode ser posto em comissões. Recusado, vê "Pedido recusado" em "Indisponíveis" e pode pedir de novo com o código (RF-ORG-07), o que reabre o mesmo vínculo como `PENDENTE`. Uma recusa não pode ser recusada de novo. |
 
-| Item              | Especificação                                                                   |
-| ----------------- | ------------------------------------------------------------------------------- |
-| **Entrada**       | `status=APROVADO                                                                | REJEITADO`ou`papel=ADMIN | MEMBRO` nas rotas de membro. |
-| **Pré-condições** | Solicitante `ADMIN/APROVADO`; alvo no estado permitido.                         |
-| **Processamento** | Atualiza com filtro do estado original; impede rebaixar o último administrador. |
-| **Persistência**  | `membros.$.status`, `papel` e `aprovado_em`.                                    |
-| **Saída**         | Organização atualizada.                                                         |
-| **Erros**         | 400 transição inválida; 403 permissão; 404 alvo; 409 concorrência.              |
+## RF-ORG-10 — Gerar novo código de acesso
+
+| RF-ORG-10 | Gerar novo código de acesso |
+| --- | --- |
+| **Função** | Troca o código de acesso da organização, invalidando o anterior. |
+| **Descrição** | Grava um novo valor no campo `codigo_acesso` do documento da organização em `organizacoes`. |
+| **Entradas** | Identificador da organização (na rota). O corpo não é usado: o código é sorteado pelo servidor. |
+| **Origem** | Administrador da organização. |
+| **Saída** | HTTP 201 com `{ mensagem: "Novo código gerado", codigo_acesso }`. |
+| **Destino** | Cartão "Código de acesso" da folha "Convidar" e campo `codigo_acesso` em `organizacoes`. |
+| **Ação** | Na folha "Convidar", o cartão "Código de acesso" mostra o código atual no formato `ABCDE-FGHIJ`, lido por `GET /organizacoes/{id}` (RF-ORG-14); o botão "Copiar código" copia o texto com `Clipboard.setStringAsync` e mostra "Copiado" por 2 segundos. Ao tocar em "Gerar novo código", `pedirNovoCodigo` fecha a folha e abre o diálogo "Gerar um novo código? O código atual deixa de funcionar." com "Cancelar" e "Gerar". "Gerar" executa `confirmar`, que chama `api('/organizacoes/{id}/codigo', 'POST', {})`. Na API, depois de `UsuarioComumGuard`, `OrganizacoesController.gerarNovoCodigo` chama `OrganizacoesService.gerarNovoCodigo(id, solicitanteId)`, que chama `exigirAdministrador` e, em até 5 tentativas, sorteia um código com `gerarCodigoAcesso()` e faz `updateOne` filtrando a organização e o solicitante ainda administrador aprovado, com `$set` do novo `codigo_acesso`. Se o código sorteado já pertence a outra organização (erro 11000 no índice único), sorteia outro; se nada foi alterado, responde 409. `gerarCodigoAcesso` escolhe cada um dos 10 caracteres com `randomInt`, do módulo `node:crypto`, no alfabeto `ABCDEFGHJKMNPQRSTUVWXYZ23456789`, de 31 símbolos, sem I, L, O, 0 e 1, que se confundem na leitura. Esta rota não confere a situação da organização; o aplicativo só mostra o código em organização `APROVADA`. |
+| **Pré-condição** | Solicitante com vínculo `ADMIN` e `APROVADO`. |
+| **Pós-condição** | No sucesso, a faixa verde mostra "Novo código gerado.", os dados são recarregados e a folha "Convidar" reabre com o código novo. Erros: "As permissões mudaram. Atualize a tela" (409); "Apenas administradores desta organização podem realizar esta operação" (403); "Organização não encontrada" (404). |
+| **Efeitos colaterais** | O código anterior deixa de funcionar imediatamente: quem tenta usá-lo recebe "Código inválido". Pedidos e vínculos já registrados não mudam. |
+
+## RF-ORG-11 — Responder convite
+
+| RF-ORG-11 | Responder convite |
+| --- | --- |
+| **Função** | Aceita ou recusa o convite recebido de uma organização. |
+| **Descrição** | No aceite, o vínculo `CONVIDADO` do usuário passa a `APROVADO`, com `aprovado_em`. Na recusa, o vínculo é retirado de `membros`. |
+| **Entradas** | Identificador da organização (na rota) e objeto `ResponderConviteDto` com `aceitar`, valor lógico verdadeiro ou falso. O usuário vem do token. |
+| **Origem** | Usuário convidado. |
+| **Saída** | HTTP 200 com `{ mensagem: "Convite aceito", aceito: true }` ou `{ mensagem: "Convite recusado", aceito: false }`. |
+| **Destino** | Seção "Convites" da aba "Organizações" (`TelaOrganizacoes`), folha "Convites" da tela inicial (`TelaInicio`) e campo `membros` em `organizacoes`. |
+| **Ação** | O convite aparece em dois lugares: na seção "Convites" da aba "Organizações", com "Convidou você para participar", e na folha "Convites", aberta pelo bloco "Convites" da tela inicial, que reúne também os convites de reunião, com "Convite para a organização". Nos dois há os botões "Recusar" e "Aceitar", sem diálogo. Na aba, a função `responder(organizacao, aceitar)` chama `api('/organizacoes/{id}/convite', 'PATCH', { aceitar })`; na tela inicial, `responder(convite, aceito)` chama a mesma rota. Na API, depois de `UsuarioComumGuard` e do `ValidationPipe` (`IsBoolean`), `OrganizacoesController.responderConvite` chama `OrganizacoesService.responderConvite(id, usuarioId, dto)`, que valida os identificadores, busca a organização com `findById` e exige um vínculo `CONVIDADO` do usuário. Na recusa, faz `updateOne` com `$pull` do vínculo, filtrando-o ainda `CONVIDADO`, mesmo que a organização tenha sido revogada. No aceite, chama `exigirOrganizacaoAprovada` e faz `updateOne` filtrando a organização `APROVADA` e o vínculo ainda `CONVIDADO`, com `status = APROVADO` e `aprovado_em` igual ao horário atual. Se nada foi alterado, responde 409. |
+| **Pré-condição** | Conta ativa do tipo `USUARIO` com vínculo `CONVIDADO`; para aceitar, organização `APROVADA`. |
+| **Pós-condição** | Na aba, a faixa verde mostra "Agora você é membro de <nome>." ou "Convite de <nome> recusado.", e a lista é recarregada. Na tela inicial, o convite passa a mostrar "Convite aceito" ou "Convite recusado" até a folha ser fechada. Nos erros, a faixa "Não foi possível responder" mostra "Convite não encontrado" (404), "Organização não encontrada" (404), "Este convite não está mais disponível" (409), "Esta organização não está aprovada" (403) ou "Informe se o convite foi aceito" (400). |
+| **Efeitos colaterais** | No aceite, a organização entra em "Suas organizações" como "Membro". Na recusa, o vínculo some e o administrador pode convidar de novo. |
+
+## RF-ORG-12 — Alterar papel do membro
+
+| RF-ORG-12 | Alterar papel do membro |
+| --- | --- |
+| **Função** | Promove um membro a administrador ou devolve um administrador ao papel de membro, o que permite trocar o administrador da organização. |
+| **Descrição** | Grava `papel = ADMIN` ou `papel = MEMBRO` num vínculo `APROVADO` de `membros`, sem deixar a organização sem ao menos um vínculo `ADMIN` e `APROVADO`. |
+| **Entradas** | Identificador da organização e `usuarioId` do alvo (na rota) e objeto `UpdatePapelMembroDto` com `papel` igual a `ADMIN` ou `MEMBRO`. |
+| **Origem** | Administrador da organização e banco de dados (vínculos). |
+| **Saída** | HTTP 200 com `{ mensagem, usuario_id, papel }`, em que `mensagem` é "Membro promovido a administrador" ou "O administrador passou a ser membro". |
+| **Destino** | Listas "Administradores" e "Membros" da aba "Membros" e campo `membros.papel` em `organizacoes`. |
+| **Ação** | Nas listas "Administradores · N" e "Membros · N", cada pessoa tem o botão "Opções de <nome>", que abre uma folha com as opções montadas por `opcoesDe(membro)`. Para um membro comum: "Tornar administrador", com o diálogo "Tornar <nome> administrador?". Para um administrador, só quando a organização tem mais de um: "Tornar membro", com o diálogo "Tornar <nome> membro comum?", ou, na linha do próprio usuário, "Deixar de ser administrador", com o diálogo "Deixar de ser administrador? Você continuará como membro.". Com um único administrador, a linha dele não tem o botão de opções. Os diálogos têm "Cancelar" e "Confirmar"; "Confirmar" executa `confirmar`, que chama `api('/organizacoes/{id}/membros/{usuarioId}/papel', 'PATCH', { papel })`. Para trocar o administrador, o atual promove outro membro e depois deixa o próprio papel. Na API, depois de `UsuarioComumGuard` e do `ValidationPipe` (`ADMIN` ou `MEMBRO`), `OrganizacoesController.alterarPapelMembro` chama `OrganizacoesService.alterarPapelMembro(id, usuarioId, dto, solicitanteId)`, que: (1) chama `exigirAdministrador` e `exigirOrganizacaoAprovada`; (2) procura o vínculo do alvo e exige `status = APROVADO` e papel diferente do pedido; (3) no rebaixamento, conta os outros vínculos `ADMIN` e `APROVADO` e recusa se não há nenhum; (4) grava com `updateOne`, filtrando a organização `APROVADA`, o solicitante ainda administrador, o alvo ainda com o papel lido e `APROVADO` e, no rebaixamento, a existência de outro administrador aprovado no momento da gravação; (5) se nada foi alterado, responde 409. O filtro do passo 4 impede que dois administradores se rebaixem ao mesmo tempo e deixem a organização sem nenhum. |
+| **Pré-condição** | Solicitante com vínculo `ADMIN` e `APROVADO`; organização `APROVADA`; alvo com vínculo `APROVADO`; para rebaixar, ao menos outro administrador aprovado. |
+| **Pós-condição** | No sucesso, a faixa verde mostra "<nome> agora é administrador.", "<nome> agora é membro comum." ou "Você não é mais administrador.", e os dados são recarregados. Erros: "A organização precisa de pelo menos um administrador. Promova outro membro antes" (409); "Apenas membros aprovados podem mudar de papel" (409); "O membro já possui esse papel" (409); "Os papéis ou as permissões mudaram. Atualize a lista" (409); "Membro não encontrado nesta organização" (404); "Papel deve ser ADMIN ou MEMBRO" (400); 403 da conferência de administrador. |
+| **Efeitos colaterais** | O novo administrador passa a ver a aba "Membros", o código e os pedidos, e a gerenciar as comissões da organização. Quem deixa de ser administrador passa a ver a tela da organização como membro, só com "Suas comissões". O papel na organização não muda o tipo da conta nem os papéis nas comissões. |
+
+## RF-ORG-13 — Remover vínculo de membro
+
+| RF-ORG-13 | Remover vínculo de membro |
+| --- | --- |
+| **Função** | Retira da organização um membro comum, cancela um convite ou exclui um pedido recusado. |
+| **Descrição** | Retira o vínculo de `membros` em `organizacoes` (`$pull`) e retira o usuário da equipe (`membros`) de todas as comissões da organização, em `comissoes`. |
+| **Entradas** | Identificador da organização e `usuarioId` do alvo (na rota). |
+| **Origem** | Administrador da organização e banco de dados (vínculo). |
+| **Saída** | HTTP 200 com `{ mensagem }`: "Acesso à organização removido com sucesso" para membro aprovado, "Convite cancelado" para convite e "Solicitação excluída" para pedido recusado. |
+| **Destino** | Listas da aba "Membros" de `TelaOrganizacao`; campos `membros` em `organizacoes` e em `comissoes`. |
+| **Ação** | Pelo botão "Opções de <nome>", a folha mostra, conforme o vínculo: "Remover acesso", para membro comum aprovado, com o diálogo "Remover o acesso de <nome>? A pessoa também sairá das comissões." e o botão "Remover"; "Cancelar convite", para convite enviado, com o diálogo "Cancelar o convite de <nome>?" e o botão "Cancelar convite"; e "Excluir pedido", para pedido recusado, com o diálogo "Excluir o pedido de <nome>?" e o botão "Excluir". Os três botões de confirmação são vermelhos, e os diálogos têm também "Cancelar", que fecha sem enviar nada. A confirmação executa `confirmar`, que chama `api('/organizacoes/{id}/membros/{usuarioId}', 'DELETE')`. Administradores não têm a opção de remoção. Na API, depois de `UsuarioComumGuard`, `OrganizacoesController.removerMembro` chama `OrganizacoesService.removerMembro(id, usuarioId, solicitanteId)`, que: (1) valida `usuarioId` e chama `exigirAdministrador` e `exigirOrganizacaoAprovada`; (2) procura o vínculo e recusa se ele é `ADMIN` ou se está `PENDENTE`, porque o pedido em análise deve ser aprovado ou recusado (RF-ORG-09); (3) se o vínculo existe, faz `updateOne` com `$pull`, filtrando a organização `APROVADA`, o solicitante ainda administrador e o alvo ainda `MEMBRO` na situação lida; se nada foi alterado, responde 409 e não mexe nas comissões; (4) faz `comissaoModel.updateMany({ organizacao_id: id }, { $pull: { membros: { usuario_id } } })`. Se o vínculo já não existe, só o passo 4 é executado e a resposta é de sucesso, de modo que repetir a remoção não gera erro. |
+| **Pré-condição** | Solicitante com vínculo `ADMIN` e `APROVADO`; organização `APROVADA`; alvo com papel `MEMBRO` e vínculo `APROVADO`, `CONVIDADO` ou `REJEITADO`. |
+| **Pós-condição** | No sucesso, a faixa verde mostra "Acesso de <nome> removido.", "Convite de <nome> cancelado." ou "Pedido de <nome> excluído.", e a lista é recarregada. Erros: "Não é possível remover um administrador. Torne a pessoa membro comum antes" (403); "Aprove ou rejeite a solicitação antes de removê-la" (409); "O vínculo ou as permissões mudaram. Atualize a lista" (409); 403 da conferência de administrador. |
+| **Efeitos colaterais** | A pessoa deixa de ver a organização na aba "Organizações" e perde o acesso às comissões dela; pode voltar por um novo pedido com código ou por um novo convite. A retirada das comissões é feita direto no banco, sem a validação do schema `Comissao`: se a pessoa era a responsável de uma comissão, essa comissão fica sem responsável (limitação conhecida). Presenças e atas de reuniões passadas não mudam. |
+
+## RF-ORG-14 — Consultar membros da organização
+
+| RF-ORG-14 | Consultar membros da organização |
+| --- | --- |
+| **Função** | Mostra ao administrador os vínculos da organização e o código de acesso. |
+| **Descrição** | Lê o documento da organização em `organizacoes`, incluindo o `codigo_acesso`, que fica oculto nas outras consultas, e os dados (`nome`, `email`, `tipo`, `ativo`) de cada pessoa de `membros` e de quem cadastrou a organização, lidos em `usuarios`. Nada é gravado. |
+| **Entradas** | Identificador da organização (na rota). |
+| **Origem** | Administrador da organização e banco de dados. |
+| **Saída** | HTTP 200 com a organização completa: `_id`, `nome`, `cidade`, `descricao`, `status`, `criada_por`, `codigo_acesso`, `membros` (cada um com `usuario_id` preenchido, `papel`, `status`, `solicitado_em` e `aprovado_em`), `criado_em` e `atualizado_em`. |
+| **Destino** | Aba "Membros" e folha "Convidar" de `TelaOrganizacao`; contadores de membros e pedidos da aba "Organizações" e do bloco "Solicitações" da tela inicial. |
+| **Ação** | O administrador toca num cartão de "Suas organizações" ou no bloco "Solicitações" da tela inicial, que abre já na aba "Membros" a primeira organização administrada com pedidos (ou a primeira administrada, se nenhuma tem). A função `carregar` de `TelaOrganizacao` lê a lista de `api('/organizacoes')` e, se o vínculo do usuário é `ADMIN` e `APROVADO` numa organização `APROVADA`, chama `api('/organizacoes/{id}')`. Só então aparecem as abas "Comissões" e "Membros", esta com o número de pedidos, e o atalho "Convidar". Na aba "Membros", o campo "Buscar" filtra no aparelho as pessoas cujo nome ou e-mail, em minúsculas, contém o texto digitado; as listas são "Pedidos de acesso" (RF-ORG-09), "Administradores · N", "Membros · N", "Convites enviados · N", com "Aguardando resposta", e "Pedidos recusados · N", com "Pedido recusado", cada uma em ordem alfabética do nome (`localeCompare` em `pt-BR`) e com "(você)" na linha do próprio usuário. A tela recarrega ao voltar a ficar visível e ao ser puxada para baixo. Na API, `OrganizacoesController.buscarPorId` chama `OrganizacoesService.buscarPorId(id, solicitanteId)`, que chama `exigirAdministrador` e depois `detalhes(id)`, que faz `findById(id)`, `select('+codigo_acesso')`, `populate('criada_por', 'nome email tipo ativo')` e `populate('membros.usuario_id', 'nome email tipo ativo')`. A rota não confere a situação da organização. |
+| **Pré-condição** | Usuário com vínculo `ADMIN` e `APROVADO`; no aplicativo, numa organização `APROVADA`. |
+| **Pós-condição** | A aba "Membros" mostra as listas. Quem não administra recebe 403 "Apenas administradores desta organização podem realizar esta operação" na API; no aplicativo, a tela da organização aparece para ele como membro, sem as abas. Se a organização não está entre as do usuário, a tela mostra "Organização não encontrada.". |
+| **Efeitos colaterais** | Nenhum. |
 
 ## Rastreabilidade
 
-RF-ORG-01 a RF-ORG-09 correspondem a UC-ORG-01 a UC-ORG-09 e aos testes CT-ORG.
+RF-ORG-01 a RF-ORG-14 correspondem a UC-ORG-01 a UC-ORG-14 e a SD-ORG-01 a SD-ORG-14, com o mesmo número; os testes de cada um estão na matriz de [Testes](7%20-%20testes-cadastro-organizacao.md).

@@ -1,70 +1,87 @@
 # Requisitos funcionais — Informações do sistema
 
-> Padrão do Incremento 1 · Módulo SIS
+> Padrão da disciplina · Módulo SIS · Formulário padrão · Revisado em 26/11/2026
 
 ## Resumo
 
-Define RF-SIS-01 a RF-SIS-04. Todas as rotas exigem `X-API-Key`, JWT válido, conta ativa e `ADMIN_SISTEMA`.
+Cada caso de uso de [Casos de uso](1%20-%20casos-uso-informacao-sistemas.md) é descrito aqui como requisito funcional de sistema, usando apenas o formulário padrão: Função, Descrição, Entradas, Origem, Saída, Destino, Ação, Pré-condição, Pós-condição e Efeitos colaterais. O diagrama de sequência de cada requisito está em [Diagramas de sequência](6%20-%20diagramas-sequencia-informacao-sistemas.md), com o mesmo número.
 
-## Visão geral
+Todas as rotas abaixo passam por três verificações antes de chegar ao `SistemaController`, nesta ordem:
 
-| ID        | Requisito              | Rota                          |
-| --------- | ---------------------- | ----------------------------- |
-| RF-SIS-01 | Consultar status       | `GET /sistema/status`         |
-| RF-SIS-02 | Consultar relatórios   | `GET /sistema/relatorios`     |
-| RF-SIS-03 | Popular dados de teste | `POST /sistema/popular-teste` |
-| RF-SIS-04 | Resetar sistema        | `POST /sistema/reset`         |
+1. `ApiKeyGuard`, registrado para toda a API: compara o cabeçalho `X-API-Key` com a variável `API_ACCESS_TOKEN` do servidor. Os dois textos precisam ter o mesmo tamanho e ser iguais byte a byte; a comparação usa `timingSafeEqual`, que leva o mesmo tempo qualquer que seja a posição da diferença. Falha: 401 "Chave de acesso da API inválida ou ausente". Sem a variável no servidor: 503 "API_ACCESS_TOKEN não configurado no servidor".
+2. `JwtAuthGuard`: lê o cabeçalho `Authorization` no formato `Bearer <token>`, confere a assinatura e a validade do token com `JwtService.verifyAsync`, exige que o campo `sub` do token seja um `ObjectId` válido e busca a conta com `findOne` pelo `_id` igual a `sub` e `ativo` igual a `true`. Recusa o token emitido antes de `senha_alterada_em`. Copia o `tipo` e o `email` lidos do banco para a requisição, de modo que a troca de tipo vale na hora, sem novo login. Falhas, todas 401: "Token de acesso não informado", "Token de acesso inválido ou expirado", "Conta inexistente ou desativada" e "A senha foi alterada. Entre novamente.".
+3. `AdminSistemaGuard`: compara o `tipo` da requisição com `ADMIN_SISTEMA`, por igualdade. Falha: 403 "Apenas administradores do sistema podem realizar esta operação".
 
-## Especificações
+No aplicativo, toda chamada passa pela função `api` (`FRONTEND/src/services/api.ts`), que envia `X-API-Key` com o valor de `EXPO_PUBLIC_API_ACCESS_TOKEN` e `Authorization: Bearer` com o token guardado no `SecureStore` (no navegador, no `localStorage`) com a chave `conecta_mais_token`. Quando a API responde 401 a uma chamada com token, `api` apaga o token, avisa o `SessaoContext` e o aplicativo volta ao login com "Sua sessão expirou ou a conta está indisponível. Entre novamente.". Os textos de erro citados são os devolvidos pela API e mostrados na faixa vermelha da tela "Sistema". Um erro não tratado no servidor, como uma falha do MongoDB, chega como 500 com a mensagem padrão do NestJS, "Internal server error".
 
-### RF-SIS-01 — Consultar status
+## RF-SIS-01 — Consultar status do servidor
 
-| Item              | Especificação                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------ |
-| **Entrada**       | Requisição autenticada sem corpo.                                                          |
-| **Pré-condições** | Três guards aprovados.                                                                     |
-| **Processamento** | `SistemaController.status()` → `SistemaService.status()`; módulo `os` e consulta ao banco. |
-| **Persistência**  | Nenhuma; leitura para validar disponibilidade.                                             |
-| **Saída**         | Memória, CPU, uptime e estado do banco.                                                    |
-| **Erros**         | 401 chave/JWT; 403 tipo; erro de serviço se a consulta falhar.                             |
+| RF-SIS-01 | Consultar status do servidor |
+| --- | --- |
+| **Função** | Mostra a memória em uso, a carga da CPU e o tempo ligado do computador onde a API roda, e se o banco de dados respondeu. |
+| **Descrição** | Lê os dados do sistema operacional do servidor pelo módulo `node:os` e conta todos os documentos das coleções `usuarios`, `organizacoes` e `comissoes`. Os valores de memória, CPU e tempo ligado são do computador inteiro, não só do processo da API. Nada é gravado. |
+| **Entradas** | Nenhum dado digitado. A requisição `GET /sistema/status` leva os cabeçalhos `X-API-Key` (texto da configuração do aplicativo) e `Authorization` (`Bearer` seguido do token JWT da sessão). Não há corpo nem parâmetros. |
+| **Origem** | Administrador do sistema (abertura da tela), sistema operacional do servidor (memória, CPU e tempo ligado) e banco de dados (contagens). |
+| **Saída** | Objeto com: `servidor.memoria.total_mb` e `servidor.memoria.livre_mb`, inteiros em megabytes; `servidor.memoria.uso_percentual`, inteiro de 0 a 100; `servidor.cpu.nucleos`, inteiro; `servidor.cpu.carga_media_1min`, número com duas casas decimais; `servidor.tempo_ativo_segundos`, inteiro; `banco_de_dados.conectado`, booleano; `banco_de_dados.colecoes.usuarios`, `banco_de_dados.colecoes.organizacoes` e `banco_de_dados.colecoes.comissoes`, inteiros; e `verificado_em`, data e hora da consulta. |
+| **Destino** | Cartão "Status do servidor" da tela "Sistema" (`TelaSistema`), com os campos "Memória em uso", "CPU", "Ativo há" e "Banco de dados". As contagens de `colecoes` e o `verificado_em` são devolvidos, mas a tela não os mostra. |
+| **Ação** | Na tela inicial (`TelaInicio`), quando o `tipo` do usuário da sessão é `ADMIN_SISTEMA`, a tela mostra só dois itens: "Gerenciar organizações" e "Sistema", este com a descrição "Status, relatórios, reinício de subsistemas e reset.". O administrador toca em "Sistema", que executa `router.push('/sistema')`. A rota `sistema` está dentro de `Stack.Protected` com a condição `usuario.tipo` igual a `ADMIN_SISTEMA` (`FRONTEND/src/app/_layout.tsx`); para outro tipo de conta, a rota não existe. Ao abrir, a tela mostra "Carregando informações do sistema" e o `useFocusEffect` chama `carregar`, que faz ao mesmo tempo, com `Promise.all`, `api('/sistema/status')` e `api('/sistema/relatorios')` (RF-SIS-02). Na API, depois das três verificações descritas no Resumo, `SistemaController.status` chama `SistemaService.status`, que: (1) lê `os.totalmem()`, `os.freemem()` e `os.loadavg()`; (2) executa, ao mesmo tempo, `countDocuments()` sem filtro nos models `Usuario`, `Organizacao` e `Comissao`; (3) monta a resposta: `total_mb` e `livre_mb` são os bytes divididos por 1.048.576 (1024 × 1024) e arredondados; `uso_percentual` é (total − livre) ÷ total × 100, arredondado; `nucleos` é a quantidade de itens de `os.cpus()`; `carga_media_1min` é o primeiro valor de `os.loadavg()` com duas casas; `tempo_ativo_segundos` é `os.uptime()` arredondado, ou seja, o tempo desde que o computador foi ligado; `conectado` é sempre `true`, porque só chega a esse ponto quando as contagens funcionaram; `verificado_em` é o horário atual. A tela só grava o resultado quando o status e os relatórios voltam com sucesso: então chama `definirAviso(null)`, `definirStatus` e `definirRelatorios`. O cartão mostra: "Memória em uso" no formato "P% (U/T MB)", em que U é `total_mb` menos `livre_mb`; "CPU" no formato "carga C · N núcleos"; "Ativo há" no formato "Hh Mmin", calculado por `formatarTempoAtivo`, com H igual aos segundos divididos por 3.600, sem casas decimais, e M igual ao resto dividido por 60, sem casas decimais; "Banco de dados" com "Conectado" quando `conectado` é verdadeiro e "Indisponível" quando é falso. Puxar a tela para baixo chama `carregar` de novo. |
+| **Pré-condição** | Sessão de uma conta ativa com `tipo` igual a `ADMIN_SISTEMA`; aplicativo configurado com `EXPO_PUBLIC_API_URL` e `EXPO_PUBLIC_API_ACCESS_TOKEN`; API em execução. |
+| **Pós-condição** | No sucesso, o cartão "Status do servidor" aparece com os quatro campos. Na falha, a faixa vermelha "Não foi possível carregar o status" mostra o motivo: as mensagens 401, 403 e 503 das verificações do Resumo; "Não foi possível conectar ao servidor." quando o aparelho não alcança a API; "Internal server error" (500) quando uma das contagens falha, por exemplo com o MongoDB fora do ar. Nesse último caso a tela não chega a mostrar "Indisponível", porque a API não devolve `conectado` igual a `false`. Quando o status falha, os cartões não são atualizados, nem o de relatórios. |
+| **Efeitos colaterais** | Nenhum. Nada é gravado. Em servidor Windows, o Node.js devolve 0 em `os.loadavg()`, e a tela mostra "carga 0". |
 
-### RF-SIS-02 — Consultar relatórios
+## RF-SIS-02 — Consultar relatórios
 
-| Item              | Especificação                                                |
-| ----------------- | ------------------------------------------------------------ |
-| **Entrada**       | Requisição autenticada sem corpo.                            |
-| **Pré-condições** | Três guards aprovados.                                       |
-| **Processamento** | `SistemaService.relatorios()` executa contagens com filtros. |
-| **Persistência**  | Somente leitura de `usuarios`, `organizacoes` e `comissoes`. |
-| **Saída**         | Totais e subtotais por situação.                             |
-| **Erros**         | 401/403 ou falha do banco.                                   |
+| RF-SIS-02 | Consultar relatórios |
+| --- | --- |
+| **Função** | Mostra os totais de usuários, organizações e comissões, separados por situação. |
+| **Descrição** | Conta documentos em três coleções, sem gravar nada: em `usuarios`, todos e os com `ativo` verdadeiro; em `organizacoes`, todas, as com `status` `PENDENTE` e as com `status` `APROVADA`; em `comissoes`, todas e as com `ativo` verdadeiro. |
+| **Entradas** | Nenhum dado digitado. A requisição `GET /sistema/relatorios` leva os cabeçalhos `X-API-Key` e `Authorization`, sem corpo nem parâmetros. |
+| **Origem** | Administrador do sistema (abertura da tela) e banco de dados (contagens). |
+| **Saída** | Objeto com sete inteiros maiores ou iguais a zero: `usuarios.total`, `usuarios.ativos`, `organizacoes.total`, `organizacoes.pendentes`, `organizacoes.aprovadas`, `comissoes.total` e `comissoes.ativas`. |
+| **Destino** | Cartão "Relatórios" da `TelaSistema`, com três colunas: "Usuários", com "Ativos" no formato "A de T"; "Organizações", com "Aprovadas" no formato "A de T" e "Pendentes" com o número; "Comissões", com "Ativas" no formato "A de T". |
+| **Ação** | A consulta é feita junto com a do status, pela mesma função `carregar` da `TelaSistema` (ver RF-SIS-01), com `api('/sistema/relatorios')`. Na API, depois das três verificações do Resumo, `SistemaController.relatorios` chama `SistemaService.relatorios`, que executa ao mesmo tempo, com `Promise.all`, sete `countDocuments`: (1) `Usuario` sem filtro; (2) `Usuario` com `ativo` igual a `true`; (3) `Organizacao` sem filtro; (4) `Organizacao` com `status` igual a `PENDENTE`; (5) `Organizacao` com `status` igual a `APROVADA`; (6) `Comissao` sem filtro; (7) `Comissao` com `ativo` igual a `true`. Todos os filtros são por igualdade; não há filtro por data, por organização nem por intervalo, e não há ordenação, porque cada resultado é um número. O total de usuários inclui as contas de administrador do sistema. Organizações com `status` `REVOGADA` entram só no total; a tela não mostra essa quantidade separada. A tela atualiza o cartão com `definirRelatorios` só quando o status também deu certo. |
+| **Pré-condição** | As mesmas de RF-SIS-01. |
+| **Pós-condição** | No sucesso, o cartão "Relatórios" aparece com as três colunas. Se o status deu certo e os relatórios falharam, a faixa vermelha "Não foi possível carregar os relatórios" mostra o motivo, com as mesmas mensagens de RF-SIS-01. Se os dois falharam, a faixa mostrada é a do status. |
+| **Efeitos colaterais** | Nenhum. O relatório não conta reuniões, atas, anexos nem notificações. |
 
-### RF-SIS-03 — Popular dados de teste
+## RF-SIS-03 — Popular dados de teste
 
-| Item              | Especificação                                                              |
-| ----------------- | -------------------------------------------------------------------------- |
-| **Entrada**       | Confirmação na interface e `POST /sistema/popular-teste`.                  |
-| **Pré-condições** | Admin global autenticado.                                                  |
-| **Processamento** | Cria três usuários de cenários distintos, organização aprovada e comissão. |
-| **Persistência**  | Inserções em `usuarios`, `organizacoes` e `comissoes`.                     |
-| **Saída**         | Status, senha padrão de demonstração e usuários criados.                   |
-| **Erros**         | 401/403 ou falha de persistência.                                          |
+| RF-SIS-03 | Popular dados de teste |
+| --- | --- |
+| **Função** | Cria três contas de teste, uma organização aprovada e uma comissão, para demonstração. |
+| **Descrição** | Lê da configuração do servidor os nomes, os e-mails e a senha das contas de teste e insere três documentos em `usuarios`, um em `organizacoes` e um em `comissoes`. As três contas cobrem três situações: sem vínculo, administradora de uma organização e responsável por uma comissão. |
+| **Entradas** | Nenhum dado digitado; o administrador só confirma no diálogo. A requisição `POST /sistema/popular-teste` não tem corpo. O serviço lê sete variáveis de ambiente do servidor, cujos valores não são documentados: `TEST_USERS_PASSWORD` (senha comum às três contas, texto não vazio); `TEST_USER_NO_ORG_NAME` e `TEST_USER_NO_ORG_EMAIL`; `TEST_USER_ORG_NAME` e `TEST_USER_ORG_EMAIL`; `TEST_USER_COMMISSION_NAME` e `TEST_USER_COMMISSION_EMAIL`. Nomes e e-mails são aparados nas pontas e não podem ficar vazios; os e-mails são convertidos para letras minúsculas. |
+| **Origem** | Administrador do sistema (confirmação) e configuração do servidor (variáveis de ambiente). |
+| **Saída** | Objeto `{ status: "dados_de_teste_criados", usuarios }`, em que `usuarios` é uma lista com três itens `{ nome, email, cenario }`, com `cenario` igual a "sem vínculo", "admin de organização" e "membro de organização e comissão". A senha não é devolvida. |
+| **Destino** | Faixa verde da `TelaSistema`; coleções `usuarios`, `organizacoes` e `comissoes`. |
+| **Ação** | Na `TelaSistema`, o administrador toca no botão "Popular dados de teste" (botão secundário, ícone de frasco), que chama `definirConfirmacaoTeste(true)`. Abre o diálogo `Confirmacao` com a mensagem "Criar 3 usuários de teste?" e os botões "Cancelar" e "Confirmar". "Cancelar" chama `definirConfirmacaoTeste(false)` e fecha o diálogo sem chamar a API. "Confirmar" chama `popularDadosDeTeste`, que chama `definirAcaoEmAndamento('popular-teste')` (o botão "Confirmar" mostra um indicador de carregamento e os dois botões ficam inativos) e executa `api('/sistema/popular-teste', 'POST')`. Na API, depois das três verificações do Resumo, `SistemaController.popularDadosDeTeste` chama `SistemaService.popularDadosDeTeste`, que: (1) chama `obterConfiguracaoUsuariosTeste`, que lê as sete variáveis, apara os nomes e os e-mails, converte os e-mails para minúsculas e monta a lista das variáveis vazias ou ausentes; se a lista não estiver vazia, recusa com 400; (2) gera o hash da senha com `bcrypt.hash(senha, 10)`, uma única vez para as três contas; (3) cria ao mesmo tempo as três contas com `create` no model `Usuario`, informando `nome`, `email` e `senha_hash`; os demais campos recebem o valor padrão do schema: `tipo` `USUARIO`, `ativo` verdadeiro, `email_verificado` verdadeiro, `tema` `sistema` e `provedor_autenticacao` `LOCAL`; (4) cria com `create` no model `Organizacao` a organização "Organização de Teste", cidade "São Paulo", descrição "Criada para testes.", `status` `APROVADA`, `criada_por` igual à conta de "admin de organização" e dois membros com `status` `APROVADO` e `solicitado_em` e `aprovado_em` iguais ao horário atual: essa conta, com papel `ADMIN`, e a conta de "membro de organização e comissão", com papel `MEMBRO`; o `codigo_acesso` é gerado pelo valor padrão do schema; (5) cria com `create` no model `Comissao` a comissão "Comissão de Teste", descrição "Criada para testes.", ligada à organização criada, com um único membro, a conta de "membro de organização e comissão", com papel `RESPONSAVEL`; o schema confere que a comissão tem exatamente um responsável e membros sem repetição; (6) devolve a saída. Nenhum dos valores lidos passa pelas validações do cadastro de usuário: o formato do e-mail e a regra de senha não são conferidos. De volta à tela, `popularDadosDeTeste` limpa a ação em andamento, fecha o diálogo e mostra a faixa verde "Dados de teste criados" com a mensagem "3 usuários de teste criados. Senha padrão: " seguida do campo `senha_padrao` da resposta. Como a API não devolve esse campo, o texto termina em "Senha padrão: undefined". Em seguida a tela chama `carregar`; quando a recarga dá certo, `carregar` chama `definirAviso(null)` e a faixa verde some. |
+| **Pré-condição** | Administrador do sistema autenticado, como em RF-SIS-01; as sete variáveis configuradas no servidor; nenhum dos três e-mails cadastrado em `usuarios`. |
+| **Pós-condição** | No sucesso, a faixa verde descrita na Ação aparece até a recarga terminar, e os cartões mostram os novos totais. Na falha, a faixa vermelha "Não foi possível criar os dados de teste" mostra o motivo: "Configure as contas de teste no .env: " seguido dos nomes das variáveis que faltam (400); as mensagens 401, 403 e 503 das verificações do Resumo; "Internal server error" (500) quando um dos e-mails já existe, porque o índice único de `usuarios.email` recusa a inserção, o que acontece ao popular duas vezes sem resetar. "Cancelar" não muda nada. |
+| **Efeitos colaterais** | As três contas passam a entrar no aplicativo com a senha da configuração, sem confirmar o e-mail. A organização aparece como aprovada e a comissão como ativa. Não há transação: se a criação de uma conta falhar, as outras contas criadas na mesma chamada permanecem, e a organização e a comissão não são criadas. |
 
-### RF-SIS-04 — Resetar sistema
+## RF-SIS-04 — Resetar sistema
 
-| Item              | Especificação                                                                             |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| **Entrada**       | Confirmação destrutiva e `POST /sistema/reset`.                                           |
-| **Pré-condições** | Admin global autenticado.                                                                 |
-| **Processamento** | Remove reuniões, comissões e organizações; remove usuários que não sejam `ADMIN_SISTEMA`. |
-| **Persistência**  | Exclusões nas quatro coleções; administradores globais preservados.                       |
-| **Saída**         | `{status:'sistema_resetado', resetado_em}`.                                               |
-| **Erros**         | 401/403 ou falha de banco.                                                                |
+| RF-SIS-04 | Resetar sistema |
+| --- | --- |
+| **Função** | Apaga os dados de uso do sistema e mantém as contas de administrador do sistema. |
+| **Descrição** | Remove, ao mesmo tempo: de `usuarios`, os documentos cujo `tipo` é diferente de `ADMIN_SISTEMA`; todos os documentos de `organizacoes`, `comissoes` e `reunioes` (com as atas, votações, presenças e dados de anexos gravados dentro de cada reunião); todos os documentos de `anexos.files` e `anexos.chunks`, onde o GridFS guarda os arquivos anexados; e todos os documentos de `contadores`, que guardam a numeração das atas. A coleção `notificacoes` não é apagada. |
+| **Entradas** | Nenhum dado digitado; o administrador só confirma no diálogo. A requisição `POST /sistema/reset` não tem corpo. |
+| **Origem** | Administrador do sistema (confirmação). |
+| **Saída** | Objeto `{ status: "sistema_resetado", resetado_em }`, com `resetado_em` igual ao horário do fim das exclusões. |
+| **Destino** | Faixa verde da `TelaSistema`; coleções `usuarios`, `organizacoes`, `comissoes`, `reunioes`, `anexos.files`, `anexos.chunks` e `contadores`. |
+| **Ação** | Na `TelaSistema`, o administrador toca no botão vermelho "Resetar sistema" (ícone de lixeira), que chama `definirConfirmacaoReset(true)`. Abre o diálogo `Confirmacao` com a mensagem "Apagar todos os usuários, organizações e comissões? O administrador do sistema será mantido." e os botões "Cancelar" e "Confirmar". É um diálogo simples: não pede senha, biometria nem que se digite uma palavra, e o botão "Confirmar" usa a cor primária do tema, e não a cor de erro, porque a tela não liga a opção `perigo` do componente. A mensagem não cita as reuniões, os anexos nem a numeração das atas, que também são apagados. "Cancelar" chama `definirConfirmacaoReset(false)` e fecha o diálogo sem chamar a API. "Confirmar" chama `resetarSistema`, que chama `definirAcaoEmAndamento('reset')` e executa `api('/sistema/reset', 'POST')`. Na API, depois das três verificações do Resumo, `SistemaController.reset` chama `SistemaService.reset`, que executa ao mesmo tempo, com `Promise.all`, sete exclusões `deleteMany`: (1) no model `Usuario`, com o filtro `tipo` diferente de `ADMIN_SISTEMA` (`$ne`), o que também apaga uma conta sem o campo `tipo`; (2) no model `Organizacao`, sem filtro; (3) no model `Comissao`, sem filtro; (4) no model `Reuniao`, sem filtro; (5) e (6) nas coleções `anexos.files` e `anexos.chunks`, pela conexão do Mongoose (`conexao.db.collection(nome)`), sem filtro; (7) na coleção `contadores`, pela conexão, sem filtro. Não há transação: cada exclusão é independente. Terminadas as sete, devolve a saída. De volta à tela, `resetarSistema` limpa a ação em andamento, fecha o diálogo e mostra a faixa verde "Sistema resetado" com "Usuários, organizações e comissões apagados.". Em seguida chama `carregar`; quando a recarga dá certo, a faixa some e os cartões mostram os totais restantes. |
+| **Pré-condição** | Administrador do sistema autenticado, como em RF-SIS-01. |
+| **Pós-condição** | No sucesso, a faixa verde aparece até a recarga terminar; o relatório mostra só as contas de administrador do sistema, nenhuma organização e nenhuma comissão. Na falha, a faixa vermelha "Não foi possível resetar" mostra o motivo: as mensagens 401, 403 e 503 das verificações do Resumo, ou "Internal server error" (500) quando uma exclusão falha. "Cancelar" não muda nada. |
+| **Efeitos colaterais** | Não há como desfazer: o sistema não faz cópia antes de apagar. As contas removidas perdem o acesso: na próxima chamada delas, o `JwtAuthGuard` responde "Conta inexistente ou desativada"; o aplicativo confere a sessão a cada 30 segundos e quando volta ao primeiro plano, e então volta ao login. A numeração das atas recomeça em 1 em cada comissão. As notificações das contas apagadas continuam na coleção `notificacoes`, ligadas a contas que não existem mais. Como as exclusões não estão numa transação, uma falha no meio pode deixar parte dos dados apagada e parte não. |
 
-## Limite de escopo
+## Funções não implementadas
 
-Não existe reinicialização de subsistemas: o backend NestJS é um único processo. A documentação não apresenta uma função inexistente.
+| Função                              | Situação         | O que existe                                                                                                                                                                                           |
+| ----------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Reiniciar subsistemas               | Não implementada | Só o texto do item "Sistema" na tela inicial: "Status, relatórios, reinício de subsistemas e reset.". Não há botão, rota nem método. A API é um único processo NestJS, sem partes que reiniciem separadas. |
+| Confirmação mais segura do reset    | Não implementada | Diálogo simples com "Cancelar" e "Confirmar" (RF-SIS-04). Ver RNF-SIS-03.                                                                                                                              |
+| Apagar as notificações no reset     | Não implementada | `SistemaService.reset` não inclui a coleção `notificacoes`.                                                                                                                                            |
 
 ## Rastreabilidade
 
-RF-SIS-01 a RF-SIS-04 correspondem a UC-SIS-01 a UC-SIS-04 e CT-SIS-01 a CT-SIS-06.
+RF-SIS-01 a RF-SIS-04 correspondem, na mesma ordem, a UC-SIS-01 a UC-SIS-04 e a SD-SIS-01 a SD-SIS-04. Os testes de cada um estão em [Testes](7%20-%20testes-informacao-sistemas.md).

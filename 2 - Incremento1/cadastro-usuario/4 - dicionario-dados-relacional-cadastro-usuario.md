@@ -1,236 +1,53 @@
 # Dicionário relacional — Cadastro de usuário
 
-> Padrão do Incremento 1 · Módulo USR
+> Padrão da disciplina · Módulo USR · Campos do diagrama relacional · Revisado em 26/11/2026
 
 ## Resumo
 
-Detalha os campos e domínios da visão lógica de usuários, organizações e membros e sua correspondência com MongoDB.
-
-> **Projeto:** Conecta+  
-> **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros  
-> **Base:** Modelo lógico relacional derivado da implementação MongoDB  
-> **Versão:** 1.0
-
----
-
-## Visão Geral
-
-| Tabela               | Descrição                                                |
-| -------------------- | -------------------------------------------------------- |
-| `usuario`            | Armazena os usuários cadastrados na plataforma.          |
-| `organizacao`        | Representa as organizações cadastradas no sistema.       |
-| `membro_organizacao` | Representa o vínculo entre um usuário e uma organização. |
-
-> No banco MongoDB real, `membro_organizacao` é armazenado como um subdocumento dentro de `organizacao.membros[]`. Neste documento ele é representado como uma tabela associativa para facilitar a compreensão do modelo relacional.
-
----
-
-## 1. Tabela `usuario`
-
-Representa as contas cadastradas na plataforma.
-
-| Campo           | Tipo          | Chave | Nulo | Default    | Descrição                                                              |
-| --------------- | ------------- | ----- | ---- | ---------- | ---------------------------------------------------------------------- |
-| `_id`           | `ObjectId`    | PK    | Não  | Automático | Identificador único do usuário.                                        |
-| `nome`          | `String`      | -     | Não  | -          | Nome do usuário.                                                       |
-| `email`         | `String`      | UK    | Não  | -          | E-mail do usuário. Deve ser único e é armazenado em letras minúsculas. |
-| `senha_hash`    | `String`      | -     | Não  | -          | Hash da senha do usuário.                                              |
-| `tipo`          | `TipoUsuario` | -     | Não  | `USUARIO`  | Tipo global do usuário na plataforma.                                  |
-| `tema`          | `TemaUsuario` | -     | Não  | `sistema`  | Preferência de tema da interface.                                      |
-| `ativo`         | `Boolean`     | -     | Não  | `true`     | Indica se a conta está ativa.                                          |
-| `criado_em`     | `Date`        | -     | Não  | Automático | Data e hora de criação da conta.                                       |
-| `atualizado_em` | `Date`        | -     | Não  | Automático | Data e hora da última atualização.                                     |
-
-### Restrições
-
-- `_id` identifica unicamente cada usuário.
-- `email` deve ser único.
-- O e-mail é normalizado para letras minúsculas.
-- O nome deve possuir pelo menos 2 caracteres no cadastro.
-- A senha deve possuir pelo menos 8 caracteres antes de ser transformada em hash.
-- O usuário criado pelo cadastro comum recebe o tipo `USUARIO`.
-
----
-
-## 2. Tabela `organizacao`
-
-Representa uma organização cadastrada na plataforma.
-
-| Campo           | Tipo                | Chave | Nulo | Default    | Descrição                                          |
-| --------------- | ------------------- | ----- | ---- | ---------- | -------------------------------------------------- |
-| `_id`           | `ObjectId`          | PK    | Não  | Automático | Identificador único da organização.                |
-| `nome`          | `String`            | -     | Não  | -          | Nome da organização.                               |
-| `descricao`     | `String`            | -     | Sim  | `NULL`     | Descrição opcional da organização.                 |
-| `status`        | `StatusOrganizacao` | -     | Não  | `PENDENTE` | Situação atual da organização.                     |
-| `criada_por`    | `ObjectId`          | FK    | Não  | -          | Referência ao usuário que cadastrou a organização. |
-| `criado_em`     | `Date`              | -     | Não  | Automático | Data e hora de criação da organização.             |
-| `atualizado_em` | `Date`              | -     | Não  | Automático | Data e hora da última atualização.                 |
-
-### Chave estrangeira
-
-```text
-organizacao.criada_por → usuario._id
-```
-
-### Restrições
-
-- O nome deve possuir entre 2 e 100 caracteres.
-- A descrição pode possuir até 200 caracteres.
-- A aplicação verifica se já existe outra organização com o mesmo nome.
-- A organização inicia com status `PENDENTE`.
-- Somente organizações com status `APROVADA` permitem solicitações de acesso e gestão de membros.
-
-> A unicidade do nome da organização é tratada pela aplicação. O schema atual não define o campo `nome` como índice `unique`.
-
----
-
-## 3. Tabela `membro_organizacao`
-
-Representa o relacionamento entre um usuário e uma organização.
-
-| Campo            | Tipo                      | Chave  | Nulo | Default    | Descrição                                            |
-| ---------------- | ------------------------- | ------ | ---- | ---------- | ---------------------------------------------------- |
-| `organizacao_id` | `ObjectId`                | PK, FK | Não  | -          | Identificador da organização relacionada ao vínculo. |
-| `usuario_id`     | `ObjectId`                | PK, FK | Não  | -          | Identificador do usuário relacionado à organização.  |
-| `papel`          | `PapelOrganizacao`        | -      | Não  | -          | Define o papel do usuário dentro da organização.     |
-| `status`         | `StatusMembroOrganizacao` | -      | Não  | `PENDENTE` | Situação do vínculo ou solicitação de acesso.        |
-| `solicitado_em`  | `Date`                    | -      | Não  | Data atual | Data e hora de criação da solicitação ou vínculo.    |
-| `aprovado_em`    | `Date`                    | -      | Sim  | `NULL`     | Data e hora em que o vínculo foi aprovado.           |
-
-### Chave primária composta
-
-A identificação lógica de um vínculo é formada por:
-
-```text
-(organizacao_id, usuario_id)
-```
-
-Isso representa a regra de que um usuário deve possuir apenas um vínculo com cada organização.
-
-### Chaves estrangeiras
-
-```text
-membro_organizacao.organizacao_id → organizacao._id
-membro_organizacao.usuario_id → usuario._id
-```
-
-### Restrições
-
-- O usuário relacionado deve existir e estar ativo.
-- A organização deve existir.
-- Novas solicitações de acesso só podem ser realizadas em organizações com status `APROVADA`.
-- Uma nova solicitação é criada com:
-  - `papel = MEMBRO`
-  - `status = PENDENTE`
-- Apenas vínculos `PENDENTE` podem ser aprovados ou rejeitados.
-- Apenas membros com papel `MEMBRO` e status `APROVADO` podem ser removidos pelo administrador da organização.
-- Usuários com papel `ADMIN` não podem ser removidos pela operação comum de remoção de membros.
-
----
-
-## 4. Domínio `TipoUsuario`
-
-| Valor           | Descrição                           |
-| --------------- | ----------------------------------- |
-| `USUARIO`       | Usuário comum da plataforma.        |
-| `ADMIN_SISTEMA` | Administrador global da plataforma. |
-
-> O administrador de uma organização não é identificado por `ADMIN_SISTEMA`. A administração de uma organização é determinada pelo vínculo em `membro_organizacao`.
-
----
-
-## 5. Domínio `TemaUsuario`
-
-| Valor     | Descrição                                         |
-| --------- | ------------------------------------------------- |
-| `claro`   | Interface em tema claro.                          |
-| `escuro`  | Interface em tema escuro.                         |
-| `sistema` | Utiliza o tema definido pelo sistema operacional. |
-
----
-
-## 6. Domínio `StatusOrganizacao`
-
-| Valor      | Descrição                                                                           |
-| ---------- | ----------------------------------------------------------------------------------- |
-| `PENDENTE` | Organização aguardando aprovação.                                                   |
-| `APROVADA` | Organização ativa e disponível para solicitações e gestão de membros.               |
-| `REVOGADA` | Organização desativada e indisponível para novas solicitações ou gestão de membros. |
-
----
-
-## 7. Domínio `PapelOrganizacao`
-
-| Valor    | Descrição                                                    |
-| -------- | ------------------------------------------------------------ |
-| `ADMIN`  | Administrador da organização.                                |
-| `MEMBRO` | Usuário comum vinculado ou solicitando acesso à organização. |
-
-Para ser considerado administrador ativo da organização, o vínculo deve possuir:
-
-```text
-papel = ADMIN
-status = APROVADO
-```
-
----
-
-## 8. Domínio `StatusMembroOrganizacao`
-
-| Valor       | Descrição                                                |
-| ----------- | -------------------------------------------------------- |
-| `PENDENTE`  | Solicitação aguardando análise do administrador.         |
-| `APROVADO`  | Usuário autorizado a participar da organização.          |
-| `REJEITADO` | Solicitação recusada pelo administrador da organização.  |
-| `CONVIDADO` | Convite criado e ainda não respondido pelo destinatário. |
-
-### Transições permitidas
-
-```text
-PENDENTE ──────> APROVADO
-    │
-    └──────────> REJEITADO
-
-CONVIDADO ─────> APROVADO
-    │
-    └──────────> REMOVIDO
-
-APROVADO ──────> REMOVIDO
-```
-
-`REMOVIDO` não é um valor armazenado no campo `status`. Ele representa a exclusão do vínculo do usuário com a organização.
-
-Na implementação atual, um vínculo com status `REJEITADO` continua armazenado. Enquanto esse vínculo existir, uma nova solicitação do mesmo usuário para a mesma organização não pode ser criada.
-
----
-
-## 9. Relacionamentos
-
-| Entidade de Origem | Cardinalidade | Entidade de Destino  | Descrição                                                             |
-| ------------------ | ------------- | -------------------- | --------------------------------------------------------------------- |
-| `usuario`          | 1 : N         | `organizacao`        | Um usuário pode estar relacionado ao cadastro de várias organizações. |
-| `usuario`          | 1 : N         | `membro_organizacao` | Um usuário pode possuir vínculos com várias organizações.             |
-| `organizacao`      | 1 : N         | `membro_organizacao` | Uma organização pode possuir vários vínculos de usuários.             |
-
-A relação entre usuários e organizações por participação é, conceitualmente, **N:M**, sendo resolvida pela entidade associativa:
-
-```text
-membro_organizacao
-```
-
----
-
-## 10. Correspondência entre o Modelo Relacional e o MongoDB
-
-| Modelo Relacional                   | Implementação MongoDB                                 |
-| ----------------------------------- | ----------------------------------------------------- |
-| `usuario`                           | Coleção `usuarios`                                    |
-| `organizacao`                       | Coleção `organizacoes`                                |
-| `membro_organizacao`                | Array `organizacoes.membros[]`                        |
-| `usuario._id`                       | `ObjectId` do documento do usuário                    |
-| `organizacao._id`                   | `ObjectId` do documento da organização                |
-| `organizacao.criada_por`            | Referência `ObjectId` para `Usuario`                  |
-| `membro_organizacao.usuario_id`     | Referência `ObjectId` para `Usuario`                  |
-| `membro_organizacao.organizacao_id` | Implícito por estar dentro do documento `Organizacao` |
-
-O modelo relacional deste documento é utilizado para representar de forma explícita as relações existentes no banco MongoDB utilizado pelo Conecta+.
+Descreve cada campo da entidade `USUARIO`, a única do [diagrama relacional](4%20-%20diagrama-relacional-cadastro-usuario.md), com tipo, obrigatoriedade, chaves e forma de geração. As colunas seguem o dicionário de dados do documento de exemplo da disciplina: campo, tipo de dado, se pode ser nulo, chave primária, chave estrangeira, outros e descrição. "Pode ser nulo = Sim" quer dizer que o campo pode faltar no documento.
+
+## Como os identificadores e valores gerados são criados
+
+| Identificador ou valor                | Quem gera                                                  | Formato e valor inicial                                                                                                                                                                                                                                     | Incremento                                                                                                         |
+| ------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `USUARIO._id`                         | Driver do MongoDB, no servidor da API, no momento da inserção | `ObjectId` de 12 bytes, mostrado como 24 caracteres hexadecimais: 4 bytes com os segundos passados desde 1970, 5 bytes sorteados uma vez por processo e 3 bytes de um contador que começa num valor sorteado. Não há valor inicial fixo. | O contador soma 1 a cada novo id gerado pelo mesmo processo; como os outros bytes mudam, os valores não são contínuos nem previsíveis. |
+| `USUARIO.google_id`                   | Google                                                     | Texto com o identificador da conta Google (`sub` do token), recebido no primeiro login pelo Google.                                                                                                                                                       | Não muda depois de gravado.                                                                                        |
+| Código de confirmação do cadastro     | `AuthService.gerarCodigoVerificacao`                       | 7 caracteres sorteados com `randomBytes` entre A–Z e 0–9. Só o SHA-256 dele é gravado, em `verificacao_email_codigo_hash`.                                                                                                                                  | Um código por cadastro; não há reenvio.                                                                            |
+| Token de acesso (JWT)                 | `AuthService`, com a chave `JWT_SECRET`                    | Texto assinado com `sub`, `email`, `tipo` e `iat`, válido por 1 hora.                                                                                                                                                                                      | Não é gravado no banco: fica só no aparelho, com a chave `conecta_mais_token`.                                     |
+
+## USUARIO
+
+Guarda uma conta de pessoa: os dados de identificação, a forma de entrar e as datas. É a coleção `usuarios`.
+
+| Campo                           | Tipo de dado                   | Pode ser nulo | Chave primária  | Chave estrangeira | Outros                                                     | Descrição                                                                                     |
+| ------------------------------- | ------------------------------ | ------------- | --------------- | ----------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `_id`                           | `ObjectId`                     | Não           | Sim (exclusiva) | Não               | Gerado na inserção.                                        | Identifica a conta; é o `sub` do token de acesso.                                             |
+| `nome`                          | Texto                          | Não           | Não             | Não               | Sem espaços nas pontas; 2 caracteres ou mais no cadastro.  | Nome mostrado nas telas e nas listas de membros.                                              |
+| `email`                         | Texto                          | Não           | Não             | Não               | Único; minúsculas; sem espaços nas pontas.                 | E-mail usado para entrar, para convites e para receber o código.                              |
+| `senha_hash`                    | Texto (60 caracteres)          | Sim           | Não             | Não               | Oculto; bcrypt com custo 10.                               | Resumo da senha; falta na conta criada pelo Google.                                           |
+| `tipo`                          | Texto com valores fixos        | Não           | Não             | Não               | `USUARIO` (padrão) ou `ADMIN_SISTEMA`.                     | Diferencia a conta comum do administrador do sistema.                                         |
+| `tema`                          | Texto com valores fixos        | Não           | Não             | Não               | `claro`, `escuro` ou `sistema` (padrão).                   | Aparência preferida.                                                                          |
+| `verificacao_email_codigo_hash` | Texto (64 caracteres)          | Sim           | Não             | Não               | Oculto; SHA-256 em hexadecimal.                            | Resumo do código de confirmação; existe só entre o cadastro e a confirmação.                  |
+| `verificacao_email_expira_em`   | Data e hora (`date`, UTC)      | Sim           | Não             | Não               | Oculto; envio + 30 minutos.                                | Fim da validade do código.                                                                    |
+| `email_verificado`              | Booleano                       | Não           | Não             | Não               | Padrão verdadeiro; o cadastro local grava falso.           | Diz se o e-mail foi confirmado; sem ele não há login com senha.                               |
+| `ativo`                         | Booleano                       | Não           | Não             | Não               | Padrão verdadeiro.                                         | Conta desativada não entra e perde a sessão aberta.                                           |
+| `google_id`                     | Texto                          | Sim           | Não             | Não               | Oculto; único entre as contas que o têm.                   | Liga a conta à conta Google.                                                                  |
+| `provedor_autenticacao`         | Texto com valores fixos        | Não           | Não             | Não               | `LOCAL` (padrão), `GOOGLE` ou `AMBOS`.                     | Forma de entrar.                                                                              |
+| `avatar_url`                    | Texto                          | Sim           | Não             | Não               | Oculto.                                                    | Endereço da foto da conta Google.                                                             |
+| `senha_alterada_em`             | Data e hora (`date`, UTC)      | Sim           | Não             | Não               | Gravado pela troca ou redefinição de senha (módulo CFG).   | Tokens emitidos antes deste instante são recusados.                                           |
+| `criado_em`                     | Data e hora (`date`, UTC)      | Não           | Não             | Não               | Preenchido pelo Mongoose.                                  | Momento do cadastro.                                                                          |
+| `atualizado_em`                 | Data e hora (`date`, UTC)      | Não           | Não             | Não               | Preenchido pelo Mongoose.                                  | Momento da última gravação.                                                                   |
+
+O documento também guarda os campos da recuperação de conta e da troca de e-mail (`reset_senha_*` e `email_pendente*`), descritos no módulo de configurações, e o campo `__v`, controle interno de versão do Mongoose, que o sistema não usa.
+
+As entidades dos vínculos do usuário com organizações (`ORGANIZACAO` e `MEMBRO_ORGANIZACAO`) e as restrições deles estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
+
+## Restrições e como são garantidas
+
+- **E-mail único.** O banco tem um índice único em `usuarios.email`. Como o e-mail é gravado em minúsculas e sem espaços nas pontas, "Ana@Exemplo.com" e "ana@exemplo.com" contam como o mesmo. O cadastro confere antes de gravar e responde 409 se já existir.
+- **Conta Google única.** O índice de `usuarios.google_id` é único e esparso: contas sem `google_id` ficam fora dele, e duas contas não podem ter o mesmo. O login pelo Google também recusa ligar um e-mail que já está ligado a outra conta Google.
+- **Dados sensíveis.** `senha_hash`, `verificacao_email_codigo_hash`, `verificacao_email_expira_em`, `google_id` e `avatar_url` são ocultos (`select: false`): não vêm nas consultas, nem nas respostas da API, a menos que o código os peça com `select('+campo')`.
+
+## Rastreabilidade
+
+RF-USR-01 a RF-USR-03; [Diagrama relacional](4%20-%20diagrama-relacional-cadastro-usuario.md) e [Testes](7%20-%20testes-cadastro-usuario.md).

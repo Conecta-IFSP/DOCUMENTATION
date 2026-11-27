@@ -1,80 +1,47 @@
 # Casos de uso — Informações do sistema
 
-> Padrão do Incremento 1 · Fontes: FRONTEND `792fab4` e BACKEND `6f2ffc4`
+> Padrão da disciplina · Módulo SIS · Revisado em 26/11/2026
 
 ## Resumo
 
-Este documento descreve as funções administrativas de monitoramento, relatório, criação de dados de demonstração e reset. O sistema monitorado é o backend; não há reinicialização de subsistemas porque a aplicação NestJS executa como um único processo.
+Este documento mostra quem usa as informações do sistema e o que essa pessoa pode fazer. Cada caso de uso é descrito em detalhe, como requisito funcional no formulário padrão, em [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md).
 
-## Diagrama geral
+## Diagrama de casos de uso
 
-```mermaid
-flowchart LR
-    A[Administrador do sistema] --> UC01((UC-SIS-01\nConsultar status))
-    A --> UC02((UC-SIS-02\nConsultar relatórios))
-    A --> UC03((UC-SIS-03\nPopular dados de teste))
-    A --> UC04((UC-SIS-04\nResetar sistema))
-```
+![Diagrama de casos de uso das informações do sistema](diagrama-casos-uso-informacao-sistemas.svg)
 
-## Resumo dos casos de uso
+Figura 1 — Diagrama de casos de uso das informações do sistema. Fonte: equipe Conecta+.
 
-| ID        | Nome                   | Ator principal           | Resultado                                          |
-| --------- | ---------------------- | ------------------------ | -------------------------------------------------- |
-| UC-SIS-01 | Consultar status       | Administrador do sistema | Métricas e estado do banco exibidos.               |
-| UC-SIS-02 | Consultar relatórios   | Administrador do sistema | Contagens consolidadas exibidas.                   |
-| UC-SIS-03 | Popular dados de teste | Administrador do sistema | Cenário de demonstração criado.                    |
-| UC-SIS-04 | Resetar sistema        | Administrador do sistema | Dados operacionais removidos e admins preservados. |
+Cada linha entre o ator e um caso de uso leva o código do requisito funcional que o descreve.
 
-## Especificações
+## Atores
 
-### UC-SIS-01 — Consultar status
+**Administrador do sistema.** É a conta ativa cujo campo `tipo` vale `ADMIN_SISTEMA`. A primeira conta desse tipo é criada pela própria API ao iniciar, a partir da configuração do servidor, quando ainda não existe nenhum administrador do sistema; outras contas podem receber esse tipo pela edição de usuários, descrita em [Cadastro de usuário](../cadastro-usuario/README.md). Só ele vê o item "Sistema" na tela inicial e abre a tela "Sistema". Pode consultar o status do servidor e os relatórios, criar os dados de teste e resetar o sistema. Não pode escolher o que o reset apaga, não pode desfazer o reset e não pode reiniciar partes do sistema, porque essa função não existe. O administrador do sistema também não cria nem participa de organizações, comissões e reuniões: essas rotas o recusam.
 
-| Campo                       | Especificação                                                                                                                                                                         |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**                  | Consultar CPU, memória, tempo ativo e disponibilidade do banco do backend.                                                                                                            |
-| **Ator principal**          | Administrador do sistema.                                                                                                                                                             |
-| **Gatilho**                 | Abrir a tela Sistema.                                                                                                                                                                 |
-| **Pré-condições**           | `X-API-Key`, JWT válido, conta ativa e tipo `ADMIN_SISTEMA`.                                                                                                                          |
-| **Fluxo principal**         | 1. O app envia `GET /sistema/status`.<br>2. Guards validam credenciais e tipo.<br>3. `SistemaService.status()` lê o módulo `os` e consulta o MongoDB.<br>4. A tela exibe as métricas. |
-| **Alternativas e exceções** | Chave/JWT ausente: 401. Usuário comum: 403. Banco indisponível: resposta sinaliza falha.                                                                                              |
-| **Pós-condições**           | Nenhum dado alterado.                                                                                                                                                                 |
-| **Rastreabilidade**         | RF-SIS-01 · SD-SIS-01 · CT-SIS-01/02/03.                                                                                                                                              |
+O usuário comum não é ator deste módulo: o aplicativo não mostra a tela para ele, e a API recusa as rotas com a mensagem "Apenas administradores do sistema podem realizar esta operação".
 
-### UC-SIS-02 — Consultar relatórios
+## Relacionamentos entre casos de uso
 
-| Campo                       | Especificação                                                                                                                                                  |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**                  | Exibir totais de usuários, organizações e comissões por situação.                                                                                              |
-| **Ator principal**          | Administrador do sistema.                                                                                                                                      |
-| **Gatilho**                 | Acessar a seção de relatórios.                                                                                                                                 |
-| **Pré-condições**           | Credenciais válidas de `ADMIN_SISTEMA`.                                                                                                                        |
-| **Fluxo principal**         | 1. O app envia `GET /sistema/relatorios`.<br>2. O service executa `countDocuments()` com filtros.<br>3. Retorna totais.<br>4. A tela apresenta os indicadores. |
-| **Alternativas e exceções** | Falha no banco: erro de serviço informado. Sem permissão: 403.                                                                                                 |
-| **Pós-condições**           | Nenhum dado alterado.                                                                                                                                          |
-| **Rastreabilidade**         | RF-SIS-02 · SD-SIS-02 · CT-SIS-02.                                                                                                                             |
+Não há `«include»`, `«extend»` nem generalização neste módulo. Os quatro casos de uso são independentes e têm um único ator. Depois de popular os dados de teste ou de resetar o sistema, a tela consulta de novo o status e os relatórios para mostrar os números atualizados; isso é uma atualização da tela, não um caso de uso incluído.
 
-### UC-SIS-03 — Popular dados de teste
+## Requisitos funcionais de usuário
 
-| Campo                       | Especificação                                                                                                                                                                                                          |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**                  | Criar dados controlados para demonstração.                                                                                                                                                                             |
-| **Ator principal**          | Administrador do sistema.                                                                                                                                                                                              |
-| **Gatilho**                 | Confirmar **Popular dados de teste**.                                                                                                                                                                                  |
-| **Pré-condições**           | Credenciais válidas e confirmação explícita.                                                                                                                                                                           |
-| **Fluxo principal**         | 1. A interface pede confirmação.<br>2. Envia `POST /sistema/popular-teste`.<br>3. O service cria três usuários, uma organização aprovada e uma comissão.<br>4. Retorna os dados criados.<br>5. A tela informa sucesso. |
-| **Alternativas e exceções** | Cancelamento não envia chamada. Falha de persistência informa erro.                                                                                                                                                    |
-| **Pós-condições**           | Cenários sem vínculo, admin de organização e membro/comissão disponíveis; admin global preservado.                                                                                                                     |
-| **Rastreabilidade**         | RF-SIS-03 · SD-SIS-03 · CT-SIS-04.                                                                                                                                                                                     |
+| Caso de uso | Requisito | Nome                         | Ator principal           |
+| ----------- | --------- | ---------------------------- | ------------------------ |
+| UC-SIS-01   | RF-SIS-01 | Consultar status do servidor | Administrador do sistema |
+| UC-SIS-02   | RF-SIS-02 | Consultar relatórios         | Administrador do sistema |
+| UC-SIS-03   | RF-SIS-03 | Popular dados de teste       | Administrador do sistema |
+| UC-SIS-04   | RF-SIS-04 | Resetar sistema              | Administrador do sistema |
 
-### UC-SIS-04 — Resetar sistema
+**Requisito RF-SIS-01 — Consultar status do servidor.** O sistema deve permitir ao administrador do sistema ver a memória em uso, a carga da CPU e o tempo ligado do computador onde a API roda, e saber se o banco de dados respondeu.
 
-| Campo                       | Especificação                                                                                                                                                                                                                                               |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Resumo**                  | Remover dados operacionais e usuários comuns sem apagar administradores do sistema.                                                                                                                                                                         |
-| **Ator principal**          | Administrador do sistema.                                                                                                                                                                                                                                   |
-| **Gatilho**                 | Confirmar **Resetar sistema**.                                                                                                                                                                                                                              |
-| **Pré-condições**           | Credenciais válidas e confirmação destrutiva explícita.                                                                                                                                                                                                     |
-| **Fluxo principal**         | 1. A interface explica o impacto e solicita confirmação.<br>2. Envia `POST /sistema/reset`.<br>3. O service remove reuniões, comissões e organizações.<br>4. Remove usuários cujo tipo não seja `ADMIN_SISTEMA`.<br>5. Retorna `sistema_resetado` e a data. |
-| **Alternativas e exceções** | Cancelamento mantém tudo. Usuário comum: 403. Falha parcial deve ser tratada como erro e exige conferência administrativa.                                                                                                                                  |
-| **Pós-condições**           | Dados operacionais zerados; administradores globais continuam aptos a entrar.                                                                                                                                                                               |
-| **Rastreabilidade**         | RF-SIS-04 · SD-SIS-04 · CT-SIS-05/06.                                                                                                                                                                                                                       |
+**Requisito RF-SIS-02 — Consultar relatórios.** O sistema deve permitir ao administrador do sistema ver quantos usuários existem e quantos estão ativos, quantas organizações existem e quantas estão aprovadas ou pendentes, e quantas comissões existem e quantas estão ativas.
+
+**Requisito RF-SIS-03 — Popular dados de teste.** O sistema deve permitir ao administrador do sistema, depois de confirmar, criar três contas de teste, uma organização aprovada e uma comissão, para demonstrar o aplicativo.
+
+**Requisito RF-SIS-04 — Resetar sistema.** O sistema deve permitir ao administrador do sistema, depois de confirmar, apagar os usuários comuns, as organizações, as comissões, as reuniões com seus anexos e a numeração das atas, mantendo as contas de administrador do sistema.
+
+## Funções não implementadas
+
+- **Reiniciar subsistemas.** A descrição do item "Sistema" na tela inicial diz "Status, relatórios, reinício de subsistemas e reset.", mas essa função não existe no aplicativo nem na API. Por isso ela não aparece no diagrama.
+- **Confirmação mais segura do reset.** Pedida na avaliação do Incremento 1 e não implementada: o reset é confirmado por um diálogo simples, sem senha, biometria ou digitação de uma palavra (ver RF-SIS-04 e RNF-SIS-03).

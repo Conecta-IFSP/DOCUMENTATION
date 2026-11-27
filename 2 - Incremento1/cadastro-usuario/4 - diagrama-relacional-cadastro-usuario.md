@@ -1,144 +1,52 @@
 # Diagrama relacional — Cadastro de usuário
 
-> Padrão do Incremento 1 · Módulo USR · Visão lógica sobre MongoDB
+> Padrão da disciplina · Módulo USR · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
 
 ## Resumo
 
-Representa usuários, organizações e vínculos embutidos em forma relacional para explicitar chaves e cardinalidades.
+O banco é o MongoDB, que não tem tabelas. O cadastro e a autenticação usam uma única coleção, `usuarios`, com um documento por conta; ela não tem listas nem documentos embutidos. O diagrama abaixo é a **visão lógica** dessa coleção como entidade, com a chave primária e os campos únicos. As outras coleções que apontam para `USUARIO` (por exemplo, os vínculos com organizações, em `organizacoes.membros[]`) estão no módulo [Cadastro de organização](../cadastro-organizacao/README.md) e nos demais módulos que as usam.
 
-> **Projeto:** Conecta+  
-> **Incremento:** Cadastro de Usuário, Solicitação de Acesso e Gestão de Membros  
-> **Banco de Dados:** MongoDB  
-> **Abordagem:** Modelo lógico relacional utilizado para representar as relações entre os dados do incremento.
-
----
-
-## Modelo Relacional
+## Diagrama
 
 ```mermaid
 erDiagram
-    USUARIO ||--o{ ORGANIZACAO : cadastra
-    USUARIO ||--o{ MEMBRO_ORGANIZACAO : possui
-    ORGANIZACAO ||--o{ MEMBRO_ORGANIZACAO : possui
-
     USUARIO {
         ObjectId _id PK
-        String nome
-        String email UK
-        String senha_hash
-        String tipo
-        String tema
-        Boolean ativo
-        Date criado_em
-        Date atualizado_em
-    }
-
-    ORGANIZACAO {
-        ObjectId _id PK
-        String nome
-        String descricao
-        String status
-        ObjectId criada_por FK
-        Date criado_em
-        Date atualizado_em
-    }
-
-    MEMBRO_ORGANIZACAO {
-        ObjectId organizacao_id PK,FK
-        ObjectId usuario_id PK,FK
-        String papel
-        String status
-        Date solicitado_em
-        Date aprovado_em
+        string nome
+        string email UK
+        string senha_hash
+        string tipo
+        string tema
+        string verificacao_email_codigo_hash
+        date verificacao_email_expira_em
+        boolean email_verificado
+        boolean ativo
+        string google_id UK
+        string provedor_autenticacao
+        string avatar_url
+        date senha_alterada_em
+        date criado_em
+        date atualizado_em
     }
 ```
 
----
+Figura 3 — Visão lógica relacional da conta de usuário. Fonte: equipe Conecta+.
 
-## Relacionamentos
+## Como a entidade lógica vira documento
 
-### `USUARIO` → `ORGANIZACAO`
+| Entidade lógica | Onde fica de verdade | Observação                                                                                                                                  |
+| --------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USUARIO`       | coleção `usuarios`   | Um documento por conta. `UK` marca os campos com índice único: `email` em todas as contas e `google_id` só nas contas que o têm.            |
 
-Um usuário pode estar relacionado ao cadastro de nenhuma ou várias organizações.
+## Regras de integridade
 
-```text
-USUARIO 1 -------- 0..* ORGANIZACAO
-```
+- cada e-mail pertence a uma única conta, e cada conta Google (`google_id`) a uma única conta;
+- o e-mail é guardado em minúsculas e sem espaços nas pontas, então variações de maiúsculas contam como o mesmo e-mail;
+- `verificacao_email_codigo_hash` e `verificacao_email_expira_em` existem juntos, só entre o cadastro local e a confirmação;
+- só uma conta criada pelo Google (`provedor_autenticacao = GOOGLE`) pode estar sem `senha_hash`.
 
-A referência é representada por:
+O detalhe de cada campo e de cada regra, com o mecanismo que a garante, está no [dicionário relacional](4%20-%20dicionario-dados-relacional-cadastro-usuario.md).
 
-```text
-ORGANIZACAO.criada_por → USUARIO._id
-```
+## Rastreabilidade
 
----
-
-### `USUARIO` → `MEMBRO_ORGANIZACAO`
-
-Um usuário pode possuir vínculos com nenhuma ou várias organizações.
-
-```text
-USUARIO 1 -------- 0..* MEMBRO_ORGANIZACAO
-```
-
-A referência é representada por:
-
-```text
-MEMBRO_ORGANIZACAO.usuario_id → USUARIO._id
-```
-
----
-
-### `ORGANIZACAO` → `MEMBRO_ORGANIZACAO`
-
-Uma organização pode possuir nenhum ou vários membros.
-
-```text
-ORGANIZACAO 1 -------- 0..* MEMBRO_ORGANIZACAO
-```
-
-A referência lógica é representada por:
-
-```text
-MEMBRO_ORGANIZACAO.organizacao_id → ORGANIZACAO._id
-```
-
----
-
-## Observação sobre o MongoDB
-
-O modelo acima representa uma **visão relacional lógica** dos dados.
-
-Na implementação real do Conecta+, `MEMBRO_ORGANIZACAO` não é uma coleção independente. Os vínculos são armazenados como subdocumentos dentro do array:
-
-```text
-organizacoes.membros[]
-```
-
-Portanto, no MongoDB a estrutura física é semelhante a:
-
-```text
-Organizacao
-│
-├── _id
-├── nome
-├── status
-├── criada_por
-│
-└── membros[]
-    ├── usuario_id
-    ├── papel
-    ├── status
-    ├── solicitado_em
-    └── aprovado_em
-```
-
-No modelo relacional, o campo `organizacao_id` é incluído em `MEMBRO_ORGANIZACAO` para representar explicitamente a relação com a organização.
-
-A combinação:
-
-```text
-(organizacao_id, usuario_id)
-```
-
-representa a chave composta lógica do vínculo, garantindo conceitualmente que um usuário possua apenas um vínculo por organização.
+RF-USR-01 a RF-USR-03; detalhado em [Dicionário relacional](4%20-%20dicionario-dados-relacional-cadastro-usuario.md).

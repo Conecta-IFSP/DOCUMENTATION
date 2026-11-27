@@ -1,70 +1,130 @@
 # Dicionário de classes — Configurações de usuário
 
-> Padrão do Incremento 1 · Módulo CFG
+> Padrão da disciplina · Módulo CFG · Complementa o diagrama de classes · Revisado em 26/11/2026
 
 ## Resumo
 
-Explica responsabilidades, operações e dependências das classes exibidas no diagrama.
+| Classe                 | Camada               | O que representa                                                                                     |
+| ---------------------- | -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `TelaPerfil`           | Aplicativo           | A tela "Perfil": mostra a conta, edita o nome, escolhe o tema, abre as telas protegidas e sai.        |
+| `TelaTrocarEmail`      | Aplicativo           | A tela "Trocar e-mail", com as etapas novo e-mail, código e concluído.                               |
+| `TelaAlterarSenha`     | Aplicativo           | A tela "Alterar senha", com senha atual, nova senha e confirmação.                                   |
+| `TelaRecuperarConta`   | Aplicativo           | A tela "Recuperar conta", com as etapas e-mail, código, senha e concluído.                           |
+| `SessaoContext`        | Aplicativo (estado)  | A sessão aberta no aparelho: o usuário logado, o aviso do login e as funções de entrar e sair.        |
+| `TemaContext`          | Aplicativo (estado)  | A preferência de tema e o tema efetivo usado por todas as telas.                                     |
+| `CampoTexto`           | Aplicativo           | O campo de texto com rótulo, mensagem de erro e texto de ajuda.                                       |
+| `validacao`            | Aplicativo (serviço) | As regras de preenchimento conferidas na tela antes de chamar a API.                                 |
+| `api`                  | Aplicativo (serviço) | O acesso à API: monta a requisição com a chave e o token e guarda o token no aparelho.                |
+| `autenticacaoLocal`    | Aplicativo (serviço) | O pedido de biometria, Face ID ou PIN do aparelho.                                                    |
+| `UsuariosController`   | API                  | As rotas `/usuarios/me…` do próprio usuário.                                                          |
+| `UsuariosService`      | Negócio              | A leitura do perfil, a alteração do nome e do tema e a troca de senha.                               |
+| `AuthController`       | API                  | As rotas públicas da recuperação de conta.                                                           |
+| `AuthService`          | Negócio              | Os códigos enviados por e-mail: troca de e-mail e recuperação de conta.                              |
+| `JwtAuthGuard`         | API                  | A conferência do token em toda rota autenticada.                                                      |
+| DTOs                   | API                  | Os objetos de entrada de cada rota, com as regras de validação.                                       |
+| `Usuario`              | Documento            | A conta de uma pessoa, na coleção `usuarios`.                                                         |
 
 ## `Usuario`
 
-Schema Mongoose da coleção `usuarios`. Os campos sensíveis marcados com `select: false` só são lidos explicitamente pelo service responsável.
+Documento da coleção `usuarios`, definido em `BACKEND/src/usuarios/schemas/usuario.schema.ts`. Representa a conta de uma pessoa. A tabela traz os campos usados por este módulo; os campos do cadastro e do login com Google (`verificacao_email_*`, `google_id`, `avatar_url`) estão no dicionário do [Cadastro de usuário](../cadastro-usuario/3%20-%20dicionario-dados-classes-cadastro-usuario.md).
 
-| Atributo                     | Tipo                   | Visibilidade padrão | Restrição/finalidade                              |
-| ---------------------------- | ---------------------- | ------------------- | ------------------------------------------------- |
-| `_id`                        | `ObjectId`             | Pública             | Identificador MongoDB                             |
-| `nome`                       | `String`               | Pública             | obrigatório, `trim`; DTO de perfil exige mínimo 2 |
-| `email`                      | `String`               | Pública             | obrigatório, único, minúsculo, `trim`             |
-| `senha_hash`                 | `String?`              | Oculta              | bcrypt custo 10; ausente em conta somente Google  |
-| `tipo`                       | `TipoUsuario`          | Pública             | `USUARIO` ou `ADMIN_SISTEMA`                      |
-| `tema`                       | `TemaUsuario`          | Pública             | padrão `sistema`                                  |
-| `reset_senha_codigo_hash`    | `String?`              | Oculta              | SHA-256 do código de recuperação                  |
-| `reset_senha_token_hash`     | `String?`              | Oculta              | SHA-256 do token criado após validar o código     |
-| `reset_senha_expira_em`      | `Date?`                | Oculta              | validade compartilhada do processo, 30 minutos    |
-| `email_pendente`             | `String?`              | Oculta              | novo endereço aguardando confirmação              |
-| `email_pendente_codigo_hash` | `String?`              | Oculta              | SHA-256 do código enviado ao novo endereço        |
-| `email_pendente_expira_em`   | `Date?`                | Oculta              | agora + 30 minutos                                |
-| `email_verificado`           | `Boolean`              | Pública             | necessário no login local                         |
-| `ativo`                      | `Boolean`              | Pública             | padrão `true`; guard recusa conta inativa         |
-| `provedor_autenticacao`      | `ProvedorAutenticacao` | Pública             | `LOCAL`, `GOOGLE` ou `AMBOS`                      |
-| `criado_em`/`atualizado_em`  | `Date`                 | Pública             | timestamps automáticos                            |
+| Atributo                     | Tipo TypeScript/Mongoose        | Tipo BSON  | Obrigatório | Regra                                                                                                                                  |
+| ---------------------------- | ------------------------------- | ---------- | ----------: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `_id`                        | `Types.ObjectId`                | `objectId` |         Sim | Identificador da conta. É o `sub` do token da sessão.                                                                                  |
+| `nome`                       | `string`                        | `string`   |         Sim | Gravado sem os espaços das pontas. A API exige 2 caracteres ou mais; o aplicativo, 3.                                                  |
+| `email`                      | `string`                        | `string`   |         Sim | Único entre as contas; gravado em minúsculas e sem espaços nas pontas. Só muda pela confirmação do código (RF-CFG-02).                  |
+| `senha_hash`                 | `string`                        | `string`   |         Não | Hash bcrypt de custo 10 da senha. Oculto (`select: false`). Ausente na conta criada só pelo login com Google.                           |
+| `senha_alterada_em`          | `Date`                          | `date`     |         Não | Instante da última troca ou redefinição de senha, em UTC. Token com `iat` anterior a ele é recusado. Ausente se a senha nunca mudou.    |
+| `tipo`                       | `TipoUsuario` (enum string)     | `string`   |         Sim | `USUARIO` ou `ADMIN_SISTEMA`; padrão `USUARIO`. Este módulo só lê.                                                                     |
+| `tema`                       | `TemaUsuario` (enum string)     | `string`   |         Sim | `sistema`, `claro` ou `escuro`; padrão `sistema`.                                                                                      |
+| `reset_senha_codigo_hash`    | `string`                        | `string`   |         Não | SHA-256, em hexadecimal, do código de recuperação. Oculto. Apagado quando o código é trocado pelo token.                                |
+| `reset_senha_token_hash`     | `string`                        | `string`   |         Não | SHA-256 do token de redefinição. Oculto. Apagado na redefinição e numa nova solicitação.                                               |
+| `reset_senha_expira_em`      | `Date`                          | `date`     |         Não | Fim da validade do código e do token: horário da solicitação mais 30 minutos. Oculto. Apagado na redefinição.                          |
+| `email_pendente`             | `string`                        | `string`   |         Não | Novo e-mail aguardando confirmação, em minúsculas. Oculto. Apagado na confirmação.                                                     |
+| `email_pendente_codigo_hash` | `string`                        | `string`   |         Não | SHA-256 do código enviado ao novo e-mail. Oculto. Apagado na confirmação.                                                              |
+| `email_pendente_expira_em`   | `Date`                          | `date`     |         Não | Horário da solicitação mais 30 minutos. Oculto. Apagado na confirmação.                                                                |
+| `email_verificado`           | `boolean`                       | `bool`     |         Sim | Verdadeiro quando o e-mail foi confirmado. A troca de e-mail confirmada grava verdadeiro.                                              |
+| `ativo`                      | `boolean`                       | `bool`     |         Sim | Padrão verdadeiro. Conta inativa não passa pelo `JwtAuthGuard` nem recupera a senha.                                                  |
+| `provedor_autenticacao`      | `ProvedorAutenticacao` (enum)   | `string`   |         Sim | `LOCAL`, `GOOGLE` ou `AMBOS`; padrão `LOCAL`. Este módulo não altera.                                                                   |
+| `criado_em`                  | `Date`                          | `date`     |         Sim | Preenchido pelo Mongoose na criação.                                                                                                   |
+| `atualizado_em`              | `Date`                          | `date`     |         Sim | Atualizado pelo Mongoose a cada gravação.                                                                                              |
 
-## Controllers e services
+Os campos opcionais existem só enquanto o processo correspondente está em andamento: um usuário sem troca de e-mail nem recuperação pendente não tem nenhum dos seis campos temporários.
 
-| Classe/método                             | Responsabilidade                                            |
-| ----------------------------------------- | ----------------------------------------------------------- |
-| `UsuariosController.buscarMeuPerfil()`    | entrega ao service o `sub` extraído pelo `JwtAuthGuard`     |
-| `UsuariosController.atualizarMeuPerfil()` | recebe `AtualizarPerfilDto` e altera apenas a própria conta |
-| `UsuariosService.atualizarPerfil()`       | permite nome/tema e recusa e-mail direto                    |
-| `UsuariosService.alterarSenha()`          | compara senha atual/nova e grava bcrypt                     |
-| `AuthService.solicitarAlteracaoEmail()`   | garante diferença/unicidade e envia código                  |
-| `AuthService.confirmarAlteracaoEmail()`   | valida código/expiração e efetiva o endereço                |
-| `AuthService.solicitarRecuperacao()`      | envia mensagem genérica e código quando a conta existe      |
-| `AuthService.verificarRecuperacao()`      | consome código e cria token temporário                      |
-| `AuthService.redefinirSenha()`            | consome token e grava nova senha                            |
-| `AuthService.gerarCodigoVerificacao()`    | gera 7 caracteres de `A-Z0-9` com `randomBytes`             |
-| `AuthService.hashToken()`                 | calcula SHA-256 em hexadecimal                              |
+## Enumerações
 
-## DTOs
+| Enumeração             | Valores                          | Onde aparece                     |
+| ---------------------- | -------------------------------- | -------------------------------- |
+| `TemaUsuario`          | `claro`, `escuro`, `sistema`     | `Usuario.tema`, `AtualizarPerfilDto.tema` e `PreferenciaTema` no aplicativo |
+| `TipoUsuario`          | `USUARIO`, `ADMIN_SISTEMA`       | `Usuario.tipo`                   |
+| `ProvedorAutenticacao` | `LOCAL`, `GOOGLE`, `AMBOS`       | `Usuario.provedor_autenticacao`  |
 
-| DTO                          | Campos                      | Restrições                                                             |
-| ---------------------------- | --------------------------- | ---------------------------------------------------------------------- |
-| `AtualizarPerfilDto`         | `nome?`, `email?`, `tema?`  | nome ≥2; e-mail válido; tema enumerado; e-mail é recusado pelo service |
-| `AlterarSenhaDto`            | `senha_atual`, `nova_senha` | strings; nova ≥8                                                       |
-| `SolicitarAlteracaoEmailDto` | `email`                     | e-mail válido                                                          |
-| `ConfirmarAlteracaoEmailDto` | `email`, `codigo`           | e-mail válido; código com 7 ou 8 caracteres contando hífen             |
-| `RecuperarContaDto`          | `email`                     | e-mail válido                                                          |
-| `VerificarRecuperacaoDto`    | `email`, `codigo`           | e-mail válido; código com 7 ou 8 caracteres                            |
-| `RedefinirSenhaDto`          | `token`, `nova_senha`       | token string; senha ≥8                                                 |
+## Operações da API
+
+| Classe e método                              | Parâmetros                                     | Retorno                                   | O que faz                                                                                                                         |
+| -------------------------------------------- | ---------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `UsuariosController.buscarMeuPerfil`         | requisição autenticada                         | documento do usuário                      | Repassa o `sub` do token a `buscarPorId`.                                                                                        |
+| `UsuariosController.atualizarMeuPerfil`      | requisição, `AtualizarPerfilDto`               | documento do usuário                      | Repassa o `sub` e o DTO a `atualizarPerfil`.                                                                                     |
+| `UsuariosController.solicitarAlteracaoEmail` | requisição, `SolicitarAlteracaoEmailDto`       | `{ mensagem }`                            | Repassa o `sub` e o e-mail a `AuthService.solicitarAlteracaoEmail`.                                                              |
+| `UsuariosController.confirmarAlteracaoEmail` | requisição, `ConfirmarAlteracaoEmailDto`       | `{ mensagem, email }`                     | Repassa o `sub`, o e-mail e o código a `AuthService.confirmarAlteracaoEmail`.                                                    |
+| `UsuariosController.alterarMinhaSenha`       | requisição, `AlterarSenhaDto`                  | `{ mensagem }`                            | Repassa o `sub` e o DTO a `alterarSenha`.                                                                                        |
+| `UsuariosService.buscarPorId`                | `id`                                           | documento do usuário                      | Confere o identificador e busca com `findById`; sem documento, 404.                                                              |
+| `UsuariosService.atualizarPerfil`            | `id`, `AtualizarPerfilDto`                     | documento do usuário                      | Recusa `email`; grava `nome` aparado e `tema`.                                                                                   |
+| `UsuariosService.alterarSenha`               | `id`, `AlterarSenhaDto`                        | `{ mensagem }`                            | Confere a senha atual, impede repetir a senha, grava o novo hash e `senha_alterada_em`.                                          |
+| `UsuariosService.validarId`                  | `id`                                           | —                                         | Recusa com 400 o texto que não é `ObjectId` válido.                                                                              |
+| `AuthController.recuperarConta`              | `RecuperarContaDto`                            | `{ mensagem }`                            | Repassa o DTO a `solicitarRecuperacao`.                                                                                          |
+| `AuthController.verificarRecuperacao`        | `VerificarRecuperacaoDto`                      | `{ token }`                               | Repassa o DTO a `AuthService.verificarRecuperacao`.                                                                              |
+| `AuthController.redefinirSenha`              | `RedefinirSenhaDto`                            | `{ mensagem }`                            | Repassa o DTO a `AuthService.redefinirSenha`.                                                                                    |
+| `AuthService.solicitarAlteracaoEmail`        | `id`, `novoEmail`                              | `{ mensagem }`                            | Confere diferença e unicidade, grava os campos pendentes e envia o código sem esperar.                                           |
+| `AuthService.confirmarAlteracaoEmail`        | `id`, `emailInformado`, `codigoInformado`      | `{ mensagem, email }`                     | Confere e-mail pendente, código e validade, repete a unicidade e efetiva o e-mail.                                               |
+| `AuthService.solicitarRecuperacao`           | `RecuperarContaDto`                            | `{ mensagem }`                            | Sempre devolve a mesma mensagem; com conta ativa, grava o código e envia o e-mail sem esperar.                                  |
+| `AuthService.verificarRecuperacao`           | `VerificarRecuperacaoDto`                      | `{ token }`                               | Confere o código e a validade, troca o código por um token de uso único.                                                         |
+| `AuthService.redefinirSenha`                 | `RedefinirSenhaDto`                            | `{ mensagem }`                            | Localiza a conta pelo hash do token dentro da validade, grava a senha e `senha_alterada_em` e apaga o token.                     |
+| `AuthService.gerarCodigoVerificacao`         | —                                              | texto de 7 caracteres                     | Sorteia cada caractere entre A–Z e 0–9 com um byte de `randomBytes`.                                                             |
+| `AuthService.hashToken`                      | `token`                                        | texto de 64 caracteres                    | Calcula o SHA-256 em hexadecimal.                                                                                                |
+| `AuthService.enviarEmail`                    | mensagem, função `aoFalhar` opcional           | —                                         | Chama `sendMail` sem esperar; na falha, registra "Não foi possível enviar o e-mail" no log e chama `aoFalhar`, se houver.         |
+| `AuthService.smtpConfigurado`                | —                                              | `boolean`                                 | Verdadeiro quando `MAIL_HOST`, `MAIL_USER` e `MAIL_PASS` estão preenchidos.                                                      |
+| `AuthService.criarTransportador`             | —                                              | transportador do Nodemailer               | Cria uma vez e reaproveita: SMTP com limites de 10 s (conexão), 10 s (saudação) e 20 s (socket), ou transporte JSON sem SMTP.    |
+| `JwtAuthGuard.canActivate`                   | contexto da requisição                         | `true` ou 401                             | Exige o token "Bearer", verifica a assinatura e a validade, busca a conta ativa e recusa o token com `iat` anterior a `senha_alterada_em`. |
+| `JwtAuthGuard.extrairToken`                  | requisição                                     | token ou nada                             | Lê o cabeçalho `Authorization` no formato `Bearer <token>`.                                                                      |
+
+## DTOs e validação
+
+| DTO                          | Campo         | Validação                                                                                          | Mensagem de erro                                                                                                   |
+| ---------------------------- | ------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `AtualizarPerfilDto`         | `nome`        | opcional; texto com 2 caracteres ou mais                                                           | "Informe o nome"; "O nome deve ter pelo menos 2 caracteres"                                                        |
+|                              | `email`       | opcional; e-mail válido; quando presente, o serviço recusa                                         | "Informe um e-mail válido"; "A alteração de e-mail deve ser confirmada pelo código enviado ao novo endereço"       |
+|                              | `tema`        | opcional; um valor de `TemaUsuario`                                                                | "Tema deve ser claro, escuro ou sistema"                                                                           |
+| `AlterarSenhaDto`            | `senha_atual` | texto                                                                                              | "Informe a senha atual"                                                                                            |
+|                              | `nova_senha`  | texto com 8 caracteres ou mais e senha forte (`SenhaForte`)                                        | "Informe a nova senha"; "A nova senha deve ter pelo menos 8 caracteres"; "Use letra maiúscula, letra minúscula, número e símbolo na senha" |
+| `SolicitarAlteracaoEmailDto` | `email`       | e-mail válido                                                                                      | "Informe um e-mail válido"                                                                                         |
+| `ConfirmarAlteracaoEmailDto` | `email`       | e-mail válido                                                                                      | "Informe um e-mail válido"                                                                                         |
+|                              | `codigo`      | texto de 7 ou 8 caracteres                                                                         | "Informe o código"; "Código inválido"                                                                              |
+| `RecuperarContaDto`          | `email`       | e-mail válido                                                                                      | "Informe um e-mail válido"                                                                                         |
+| `VerificarRecuperacaoDto`    | `email`       | e-mail válido                                                                                      | "Informe um e-mail válido"                                                                                         |
+|                              | `codigo`      | texto de 7 ou 8 caracteres                                                                         | "Informe o código"; "Código inválido"                                                                              |
+| `RedefinirSenhaDto`          | `token`       | texto                                                                                              | "Solicitação de redefinição inválida"                                                                              |
+|                              | `nova_senha`  | texto com 8 caracteres ou mais e senha forte (`SenhaForte`)                                        | "Informe a nova senha"; "A nova senha deve ter pelo menos 8 caracteres"; "Use letra maiúscula, letra minúscula, número e símbolo na senha" |
+
+`SenhaForte`, em `BACKEND/src/usuarios/dto/senha-forte.ts`, exige no mesmo texto ao menos uma letra minúscula de a a z, uma maiúscula de A a Z, um algarismo e um caractere que não seja nenhum desses. O aplicativo aplica a mesma regra em `validarNovaSenha`, para mostrar o erro antes de chamar a API.
 
 ## Classes do aplicativo
 
-| Componente/módulo            | Responsabilidade                                                                           |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| `TelaPerfil`                 | carregar perfil ao foco, editar nome, tema e abrir ações protegidas                        |
-| `TelaTrocarEmail`            | controlar etapas novo e-mail → código → concluído                                          |
-| `TelaAlterarSenha`           | validar senha atual/nova/confirmação e apresentar resultado                                |
-| `TelaRecuperarConta`         | controlar quatro etapas da recuperação sem link externo                                    |
-| `TemaContext`                | resolver tema efetivo e persistir a chave `conecta_mais_tema`                              |
-| `SessaoContext`              | salvar/remover JWT e revalidar `/usuarios/me`                                              |
-| `autenticarComDispositivo()` | solicitar biometria/credencial quando cadastrada; retornar `true` na web ou sem credencial |
+| Classe               | Atributos principais                                                                    | Operações                                                                                                                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TelaPerfil`         | `perfil` (nome, e-mail e tema lidos da API), `preferenciaSelecionada`, folhas abertas, `salvandoTema` | `carregarPerfil` (lê `/usuarios/me` ao ganhar foco e ao puxar a tela); `abrirEdicaoNome`; `salvarNome`; `selecionarTema`; `abrirProtegida` (pede a identidade e navega); `sair`.    |
+| `TelaTrocarEmail`    | `etapa` (`novo`, `codigo` ou `concluido`), `atual`, `novo`, `codigo`, `reenviado`        | `enviarCodigo` e `solicitar` (pedem o código); `reenviar`; `confirmar` (envia o código); `voltar` (da etapa do código volta ao novo e-mail).                                                     |
+| `TelaAlterarSenha`   | `erro` (motivo devolvido pela API)                                                       | `salvar` (envia as senhas e, com sucesso, chama `sair` com o aviso); `voltar`.                                                                                                                  |
+| `TelaRecuperarConta` | `etapa` (`email`, `codigo`, `senha` ou `concluido`), `email`, `codigo`, `token` (só na memória), `reenviado` | `solicitar`; `reenviar`; `verificarCodigo`; `redefinir` (pede a identidade e envia a nova senha); `voltar`.                                                                  |
+| `SessaoContext`      | `usuario` (ou `null`), `carregando`, `erro`, `aviso` (texto mostrado no login), `geracao` (contador que invalida respostas antigas) | `atualizar` (relê `/usuarios/me` ao abrir, a cada 30 s, ao voltar ao aplicativo e a cada troca de tela); `entrar`; `sair(aviso)` (apaga o token, limpa o usuário e guarda o aviso). |
+| `TemaContext`        | `preferencia` (`sistema`, `claro` ou `escuro`), `tema` (cores do tema efetivo)          | `definirPreferencia` (troca o estado e grava a chave `conecta_mais_tema`); `lerPreferencia` e `gravarPreferencia` (SecureStore no Android e iOS, `localStorage` na web); `ehPreferenciaTema`. |
+| `CampoTexto`         | `rotulo`, `erro`, `ajuda` (texto cinza abaixo do campo, escondido quando há erro), `dica` | Componente visual; não chama a API.                                                                                                                                                            |
+| `validacao`          | —                                                                                       | `validarNome`, `validarEmail`, `validarSenha`, `validarNovaSenha`, `validarConfirmacaoSenha` (devolvem a mensagem de erro ou nada) e `normalizarEmail`.                                         |
+| `api`                | chave `conecta_mais_token`                                                              | `api` (requisição com `X-API-Key` e token; 401 fora de `/auth/` apaga o token e avisa os ouvintes); `salvarToken`, `obterToken`, `removerToken`; `observarSessaoInvalida`.                     |
+| `autenticacaoLocal`  | —                                                                                       | `dispositivoProtegido` (falso na web e sem biometria, PIN ou senha de bloqueio); `autenticarComDispositivo` (verdadeiro sem proteção; senão, o resultado do pedido do aparelho, que aceita o PIN no lugar da biometria). |
+
+As funções `lerPreferencia`, `gravarPreferencia` e `ehPreferenciaTema` ficam no arquivo `TemaContext.tsx`, fora do componente; `definirPreferencia` é entregue às telas pelo hook `useTema`. As funções de `SessaoContext` são entregues pelo hook `useSessao`.
+
+## Rastreabilidade
+
+RF-CFG-01 a RF-CFG-06; [Diagrama de classes](3%20-%20diagrama-classes-configuracoes-usuario.md) e [Dicionário relacional](4%20-%20dicionario-dados-relacional-configuracoes-usuario.md).

@@ -1,102 +1,54 @@
 # Requisitos funcionais — Cadastro de usuário
 
-> Padrão do Incremento 1 · Módulo USR
+> Padrão da disciplina · Módulo USR · Formulário padrão · Revisado em 26/11/2026
 
 ## Resumo
 
-Define RF-USR-01 a RF-USR-07. Todas as chamadas exigem `X-API-Key`; operações de vínculo também exigem JWT, conta ativa e tipo `USUARIO`.
+Cada caso de uso de [Casos de uso](1%20-%20casos-uso-cadastro-usuario.md) é descrito aqui como requisito funcional de sistema, usando apenas o formulário padrão: Função, Descrição, Entradas, Origem, Saída, Destino, Ação, Pré-condição, Pós-condição e Efeitos colaterais. O diagrama de sequência de cada requisito está em [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md), com o mesmo número. Os requisitos de vínculo do usuário com organizações estão no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
 
-## Visão geral
+Todas as chamadas passam pelo `ApiKeyGuard`, que exige o cabeçalho `X-API-Key` igual à chave configurada no servidor (sem ela: 401 "Chave de acesso da API inválida ou ausente"). As rotas de cadastro, confirmação e login são públicas, sem token; só `GET /usuarios/me`, chamada logo depois do login, exige o token JWT (`JwtAuthGuard`). O módulo `api` do aplicativo envia a chave e o token em toda chamada e mostra a primeira mensagem de erro devolvida pela API numa faixa vermelha; sem conexão, mostra "Não foi possível conectar ao servidor.".
 
-| ID        | Requisito                         | Rota principal                                     |
-| --------- | --------------------------------- | -------------------------------------------------- |
-| RF-USR-01 | Cadastrar e confirmar conta local | `POST /usuarios`, `POST /auth/verificar-cadastro`  |
-| RF-USR-02 | Autenticar com senha              | `POST /auth/login`                                 |
-| RF-USR-03 | Autenticar com Google             | `POST /auth/google`                                |
-| RF-USR-04 | Solicitar acesso por código       | `POST /organizacoes/entrar`                        |
-| RF-USR-05 | Convidar e responder              | `POST .../convites`, `PATCH .../convite`           |
-| RF-USR-06 | Analisar solicitação              | `PATCH .../membros/:usuarioId`                     |
-| RF-USR-07 | Gerenciar papel e remoção         | `PATCH .../papel`, `DELETE .../membros/:usuarioId` |
+## RF-USR-01 — Cadastrar e confirmar conta local
 
-## Especificações
+| RF-USR-01 | Cadastrar e confirmar conta local |
+| --- | --- |
+| **Função** | Cria a conta local ainda não confirmada, envia o código de confirmação por e-mail e confirma a conta quando o código correto é digitado. |
+| **Descrição** | Insere um documento na coleção `usuarios` com `email_verificado = false`, `provedor_autenticacao = LOCAL`, `tipo = USUARIO`, `tema = sistema`, `ativo = true` e o hash bcrypt da senha em `senha_hash`. Grava o hash SHA-256 do código em `verificacao_email_codigo_hash` e o vencimento, 30 minutos depois, em `verificacao_email_expira_em`. Na confirmação, muda `email_verificado` para `true` e apaga os dois campos do código. |
+| **Entradas** | Cadastro, objeto `CreateUsuarioDto`: `nome`, texto com pelo menos 3 caracteres no aplicativo (a API aceita a partir de 2), sem os espaços das pontas; `email`, texto no formato `nome@dominio.com`, gravado sem espaços nas pontas e em minúsculas; `senha`, texto com pelo menos 8 caracteres e ao menos uma letra minúscula, uma letra maiúscula, um número e um símbolo; `tema`, opcional na API (`claro`, `escuro` ou `sistema`), não enviado pelo aplicativo. Só na tela: `confirmacao`, igual à senha. Confirmação, objeto `VerificarCadastroDto`: `email`, o mesmo do cadastro, levado pela tela; `codigo`, texto de 8 caracteres no formato `XXX-XXXX`, com 7 letras de A a Z ou algarismos. |
+| **Origem** | Visitante (nome, e-mail, senha e código) e banco de dados (conta com o mesmo e-mail e código guardado). |
+| **Saída** | Cadastro: objeto `{ mensagem: "Conta criada. Confira seu e-mail para finalizar o cadastro." }` e o e-mail "Confirme seu cadastro no Conecta+", com o código no formato `XXX-XXXX` e o aviso de que ele expira em 30 minutos. Confirmação: objeto `{ mensagem: "Cadastro confirmado com sucesso" }`. |
+| **Destino** | Coleção `usuarios`; caixa de entrada do e-mail informado; telas "Criar conta", "Confirmar e-mail" e "Entrar" e o aviso flutuante de sucesso. |
+| **Ação** | Na tela "Entrar", o visitante toca em "Criar conta". A tela "Criar conta" (`TelaCadastro`) mostra "Preencha seus dados para começar." e os campos vazios "Nome", "E-mail", "Senha" e "Confirmar senha"; os dois de senha ficam ocultos, com o ícone de olho para mostrar, e abaixo de "Senha" aparece a regra "Mínimo de 8 caracteres, com letra maiúscula, minúscula, número e símbolo.". Ao tocar "Criar conta", ou "ir" no teclado do último campo, a função `criarConta`, montada com `handleSubmit` do `react-hook-form`, valida cada campo e mostra o erro em vermelho abaixo dele, sem enviar nada: `validarNome` ("Informe o seu nome.", "O nome deve ter ao menos 3 caracteres."); `validarEmail`, que compara com a expressão texto, arroba, texto, ponto e ao menos 2 caracteres ("Informe o seu e-mail.", "Informe um e-mail válido, como nome@dominio.com."); `validarNovaSenha`, que exige 8 caracteres e a expressão com minúscula, maiúscula, número e símbolo ("A senha deve ter ao menos 8 caracteres.", "Use letra maiúscula, letra minúscula, número e símbolo na senha."); e `validarConfirmacaoSenha`, que compara as duas senhas por igualdade ("Confirme a sua senha.", "As senhas não coincidem."). Passando, chama `api('/usuarios', 'POST', { nome, email, senha })`, com o nome aparado e o e-mail aparado e em minúsculas (`normalizarEmail`). Na API, o `ValidationPipe` aplica `CreateUsuarioDto` e descarta campos não declarados. `UsuariosController.criar` chama `UsuariosService.criar`, que: (1) busca com `findOne({ email })` uma conta com o mesmo e-mail, por igualdade; (2) gera o hash com `bcrypt.hash(senha, 10)`; (3) cria o documento com `create`; (4) relê a conta com `findById`. Em seguida, o controller chama `AuthService.enviarCodigoVerificacao(id)`, que busca a conta com `findById`, sorteia o código com `gerarCodigoVerificacao` (7 caracteres entre A–Z e 0–9, sorteados com `randomBytes`), guarda `hashToken(codigo)` e o vencimento com `save` e chama `enviarEmail`, que dispara `sendMail` do Nodemailer sem esperar o resultado. A tela mostra o aviso "Conta criada com sucesso! Confira seu e-mail para confirmar o cadastro." e troca para "Confirmar e-mail" (`TelaVerificarCadastro`), levando o e-mail. Essa tela mostra "Digite o código enviado para", o e-mail e sete caixas, com um traço depois da terceira; o teclado abre sozinho e o campo aceita só letras e números, convertidos para maiúsculas. Ao tocar "Continuar", `verificar` exige 7 caracteres ("Informe o código no formato A1C-4EFJ.") e chama `api('/auth/verificar-cadastro', 'POST', { email, codigo })`, com o código no formato `XXX-XXXX`. `AuthController.verificarCadastro` chama `AuthService.verificarCadastro`, que retira o traço, passa o código para maiúsculas, busca a conta com `findOne({ email })` incluindo os campos ocultos do código e exige, ao mesmo tempo: conta existente e ainda não confirmada, código com 7 caracteres de A–Z ou 0–9, `hashToken(codigo)` igual a `verificacao_email_codigo_hash` e `verificacao_email_expira_em` depois do horário atual. Depois grava `email_verificado = true`, apaga os dois campos e chama `save`. A tela mostra "Conta criada com sucesso! Agora faça login para continuar." e volta para "Entrar". |
+| **Pré-condição** | Visitante sem sessão; nenhuma conta com o mesmo e-mail. Para confirmar: conta criada, ainda não confirmada, e código dentro dos 30 minutos. |
+| **Pós-condição** | No sucesso, a conta pode entrar pelo RF-USR-02. Nos erros, a tela mostra a faixa "Não foi possível criar a conta" (cadastro) ou "Código inválido" (confirmação) com: "O nome deve ter pelo menos 2 caracteres", "Informe um e-mail válido", "A senha deve ter pelo menos 8 caracteres" ou "Use letra maiúscula, letra minúscula, número e símbolo na senha" (400); "Já existe um usuário com este email" (409); "Não foi possível enviar o e-mail de confirmação. Tente novamente." (503, quando a gravação do código falha; a conta é apagada com `descartarNaoVerificado`); "Código inválido" ou "O código de confirmação é inválido ou expirou" (400). |
+| **Efeitos colaterais** | Se o servidor de e-mail recusar a mensagem ou não responder (10 segundos para conectar e 20 segundos sem resposta), `enviarEmail` registra "Não foi possível enviar o e-mail" no log da API e apaga a conta com `deleteOne({ _id, email_verificado: false })`; a resposta ao aplicativo já foi dada. Sem servidor de e-mail configurado (`MAIL_HOST`, `MAIL_USER` e `MAIL_PASS`), a mensagem não sai do servidor e o código é escrito no log da API, para uso em desenvolvimento. Não há opção de reenviar o código (não implementado). |
 
-### RF-USR-01 — Cadastrar e confirmar conta local
+## RF-USR-02 — Autenticar com senha
 
-| Item              | Especificação                                                                                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Entrada**       | Nome, e-mail, senha mínima de oito e confirmação; depois e-mail e código.                                                                                                       |
-| **Pré-condições** | E-mail disponível.                                                                                                                                                              |
-| **Processamento** | `UsuariosService.criar()` normaliza e usa bcrypt custo 10; `AuthService` gera código, guarda SHA-256 por 30 min e envia por Nodemailer; a confirmação compara hash e expiração. |
-| **Persistência**  | `usuarios` com `LOCAL`, `email_verificado=false`; após confirmar, flag verdadeira e campos temporários removidos.                                                               |
-| **Saída**         | Cadastro iniciado e, depois, confirmação concluída.                                                                                                                             |
-| **Erros**         | 400 entrada/código; 409 duplicidade; 503 SMTP com remoção da conta provisória.                                                                                                  |
+| RF-USR-02 | Autenticar com senha |
+| --- | --- |
+| **Função** | Confere o e-mail e a senha, emite o token de acesso e abre a sessão no aplicativo. |
+| **Descrição** | Lê na coleção `usuarios` a conta com o e-mail informado, incluindo o campo oculto `senha_hash`, e compara a senha com o hash. Nada é gravado no banco. O token JWT é assinado com a chave `JWT_SECRET` do servidor, vale 1 hora e leva `sub` (o `_id` da conta), `email`, `tipo` e `iat` (horário de emissão). O aplicativo guarda o token no aparelho com a chave `conecta_mais_token`: no Android e no iOS, no armazenamento seguro (`SecureStore`); na web, no `localStorage`. |
+| **Entradas** | Objeto `LoginDto`: `email`, texto no formato de e-mail; `senha`, texto com pelo menos 8 caracteres no aplicativo (a API aceita a partir de 6). |
+| **Origem** | Visitante (e-mail e senha) e banco de dados (conta). |
+| **Saída** | Objeto `{ access_token, usuario: { id, nome, email, tipo, tema } }`. Depois, o perfil devolvido por `GET /usuarios/me`: o documento da conta sem os campos ocultos (`_id`, `nome`, `email`, `tipo`, `tema`, `email_verificado`, `ativo`, `provedor_autenticacao`, `criado_em`, `atualizado_em` e, se houver, `senha_alterada_em`). |
+| **Destino** | Armazenamento do aparelho (`conecta_mais_token`); estado `usuario` do `SessaoProvider`; tela inicial (`/inicio`). |
+| **Ação** | A tela "Entrar" (`TelaLogin`) mostra os campos vazios "E-mail" e "Senha" (oculta, com o ícone de olho), o link "Esqueci minha senha" (RF-CFG-04), os botões "Entrar" e "Continuar com Google", o link "Criar conta" e "Precisa de ajuda?". Ao tocar "Entrar", ou "ir" no teclado, a função `entrar` (`handleSubmit`) valida com `validarEmail` e `validarSenha` ("Informe a sua senha.", "A senha deve ter ao menos 8 caracteres.") e chama `api('/auth/login', 'POST', { email, senha })`, com o e-mail normalizado. `AuthController.login` chama `AuthService.login`, que: (1) recusa senha vazia; (2) busca com `findOne({ email })` e `select('+senha_hash')`, com o e-mail aparado e em minúsculas; (3) recusa conta inexistente; (4) recusa `ativo = false`; (5) recusa `email_verificado = false`; (6) recusa conta sem `senha_hash`, criada só pelo Google; (7) compara a senha com `bcrypt.compare`; (8) assina o token com `jwtService.signAsync({ sub, email, tipo })`. Com a resposta, a tela chama `SessaoProvider.entrar(token)`, que chama `salvarToken(token)` e `api('/usuarios/me')`. Essa rota passa pelo `JwtAuthGuard`, que lê o token do cabeçalho `Authorization: Bearer`, confere assinatura e validade com `verifyAsync`, busca a conta com `findOne({ _id: sub, ativo: true })` e recusa o token emitido antes de `senha_alterada_em`. `UsuariosController.buscarMeuPerfil` chama `UsuariosService.buscarPorId(sub)`, que faz `findById`. Com o perfil, `entrar` guarda o usuário na sessão; a navegação (`Stack.Protected`) deixa de mostrar as telas de entrada e abre `/inicio`. Se o `tema` da conta for `claro`, `escuro` ou `sistema`, a tela aplica essa preferência com `definirPreferencia`. Enquanto há sessão, `SessaoProvider.atualizar` repete `GET /usuarios/me` ao abrir o aplicativo, ao voltar para ele, a cada troca de tela e a cada 30 segundos com o aplicativo em primeiro plano (na web, sempre). |
+| **Pré-condição** | Conta ativa, com e-mail confirmado e com senha local. |
+| **Pós-condição** | No sucesso, a tela inicial é aberta. Nos erros, a faixa "Não foi possível entrar" mostra: "Email ou senha inválidos" (401, para e-mail sem conta, senha errada ou conta sem senha local); "Usuário desativado" (401); "Confirme seu e-mail antes de entrar" (401); "Informe um e-mail válido" ou "A senha deve ter pelo menos 6 caracteres" (400); "Não foi possível verificar sua sessão. Tente novamente." quando a consulta do perfil falha. |
+| **Efeitos colaterais** | Quando uma rota privada responde 401 (token vencido após 1 hora, conta desativada ou senha trocada), `api` apaga o token e avisa o `SessaoProvider`; a tela "Entrar" volta com a faixa "Sua sessão expirou ou a conta está indisponível. Entre novamente.". As mensagens "Usuário desativado" e "Confirme seu e-mail antes de entrar" são devolvidas antes de a senha ser conferida e revelam que o e-mail tem conta (limitação registrada em RNF-USR-03). |
 
-### RF-USR-02 — Autenticar com senha
+## RF-USR-03 — Autenticar com Google
 
-| Item              | Especificação                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------- |
-| **Entrada**       | `{email, senha}` em `POST /auth/login`.                                                              |
-| **Pré-condições** | Conta ativa, confirmada e com `senha_hash`.                                                          |
-| **Processamento** | Busca campos protegidos, executa `bcrypt.compare` e emite JWT com `sub`, `email`, `tipo` e uma hora. |
-| **Persistência**  | JWT não é persistido; o app guarda no SecureStore/localStorage.                                      |
-| **Saída**         | `{access_token, usuario}` e validação posterior em `GET /usuarios/me`.                               |
-| **Erros**         | 401 genérico para credencial/estado inválido.                                                        |
-
-### RF-USR-03 — Autenticar com Google
-
-| Item              | Especificação                                                                                       |
-| ----------------- | --------------------------------------------------------------------------------------------------- |
-| **Entrada**       | `id_token` ou authorization code com redirect URI/plataforma.                                       |
-| **Pré-condições** | Cliente Google configurado e e-mail Google verificado.                                              |
-| **Processamento** | Valida `aud`, `iss`, `exp`; localiza por `google_id`/e-mail; cria `GOOGLE` ou vincula como `AMBOS`. |
-| **Persistência**  | `usuarios.google_id`, `provedor_autenticacao` e avatar protegido.                                   |
-| **Saída**         | Mesmo formato do login local.                                                                       |
-| **Erros**         | 400 token, emissor, audiência ou expiração inválidos.                                               |
-
-### RF-USR-04 — Solicitar acesso por código
-
-| Item              | Especificação                                                       |
-| ----------------- | ------------------------------------------------------------------- |
-| **Entrada**       | Código de dez caracteres em `POST /organizacoes/entrar`.            |
-| **Pré-condições** | Organização aprovada e vínculo permitido.                           |
-| **Processamento** | Normaliza, busca `codigo_acesso` e cria ou reabre vínculo.          |
-| **Persistência**  | `organizacoes.membros[]` como `MEMBRO/PENDENTE`.                    |
-| **Saída**         | Organização atualizada.                                             |
-| **Erros**         | 404 código; 409 membro/solicitação em análise/convite já existente. |
-
-### RF-USR-05 — Convidar e responder
-
-| Item              | Especificação                                                                   |
-| ----------------- | ------------------------------------------------------------------------------- |
-| **Entrada**       | E-mail do alvo; depois `{aceitar}` pelo convidado.                              |
-| **Pré-condições** | Admin aprovado; alvo ativo, comum e sem vínculo incompatível.                   |
-| **Processamento** | Convite grava `CONVIDADO`; resposta aceita como `APROVADO` ou remove o vínculo. |
-| **Persistência**  | `organizacoes.membros[]`.                                                       |
-| **Saída**         | Organização atualizada.                                                         |
-| **Erros**         | 403 permissão; 404 usuário/convite; 409 estado.                                 |
-
-### RF-USR-06 — Analisar solicitação
-
-| Item              | Especificação                                                                |
-| ----------------- | ---------------------------------------------------------------------------- |
-| **Entrada**       | `APROVADO` ou `REJEITADO`.                                                   |
-| **Pré-condições** | Admin aprovado; alvo `PENDENTE`, ou `REJEITADO` para reaprovação.            |
-| **Processamento** | Atualiza com filtro do estado original para impedir sobrescrita concorrente. |
-| **Persistência**  | `membros.$.status` e `aprovado_em`.                                          |
-| **Saída**         | Organização atualizada.                                                      |
-| **Erros**         | 403 permissão; 404 alvo; 409 transição/concorrência.                         |
-
-### RF-USR-07 — Gerenciar papel e remoção
-
-| Item              | Especificação                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------- |
-| **Entrada**       | Papel `ADMIN                                                                                         | MEMBRO` ou ID a remover. |
-| **Pré-condições** | Admin aprovado; alvo aprovado; remoção somente de membro comum.                                      |
-| **Processamento** | Altera papel preservando ao menos um admin; remoção usa `$pull` também nas comissões da organização. |
-| **Persistência**  | `organizacoes.membros[]` e `comissoes.membros[]`.                                                    |
-| **Saída**         | Organização atualizada ou confirmação.                                                               |
-| **Erros**         | 400 último admin; 403/404; 409 concorrência.                                                         |
-
-## Rastreabilidade
-
-RF-USR-01 a RF-USR-07 cobrem UC-USR-01 a UC-USR-09 e CT-USR-01 a CT-USR-09.
+| RF-USR-03 | Autenticar com Google |
+| --- | --- |
+| **Função** | Confirma a identidade da pessoa com o Google, cria ou liga a conta e abre a sessão no aplicativo. |
+| **Descrição** | Valida no próprio Google o token de identidade e procura a conta na coleção `usuarios`, primeiro por `google_id` e depois por `email`. Sem conta, cria uma com `provedor_autenticacao = GOOGLE`, `email_verificado = true`, `google_id`, `avatar_url` e sem `senha_hash`. Com conta, grava `nome` e `avatar_url` vindos do Google, muda `email_verificado` para `true`, preenche `google_id` quando a conta foi achada pelo e-mail e muda `provedor_autenticacao` de `LOCAL` para `AMBOS`. |
+| **Entradas** | Objeto `GoogleLoginDto`. No aplicativo instalado: `id_token`, texto devolvido pelo SDK do Google, e `plataforma`, `android` ou `ios`. Na web: `code`, código de autorização devolvido pelo Google; `redirect_uri`, o mesmo endereço usado no pedido ao Google; e `plataforma` = `web`. `plataforma` só aceita `web`, `ios` e `android`. |
+| **Origem** | Visitante (escolha da conta Google), Google (token com `sub`, `email`, `email_verified`, `name`, `picture`, `aud`, `iss` e `exp`) e banco de dados. |
+| **Saída** | O mesmo objeto do RF-USR-02: `{ access_token, usuario: { id, nome, email, tipo, tema } }`. |
+| **Destino** | Coleção `usuarios`; armazenamento do aparelho (`conecta_mais_token`); tela inicial. |
+| **Ação** | Na tela "Entrar", o visitante toca em "Continuar com Google" e a função `entrarComGoogle` é chamada. No aplicativo instalado (Android e iOS), ela chama `signInWithGoogleNative`, que configura o SDK `GoogleSignin` com o cliente Web, confere no Android o Google Play Services com `hasPlayServices`, desfaz a escolha anterior com `signOut`, abre a escolha de conta com `signIn` e lê o `idToken` com `getTokens`; se a pessoa cancelar a escolha, nada acontece. Com o token, chama `loginComIdTokenGoogle(idToken)`, que faz `api('/auth/google', 'POST', { id_token, plataforma })`. No Expo Go, `signInWithGoogleNative` interrompe com "O login Google não funciona no Expo.". Na web, a tela leva o navegador ao endereço de autorização do Google montado por `useAuthRequest` (cliente Web, escopos `openid`, `email` e `profile`). Depois da escolha, o Google abre `GET /auth/google/callback-web` na API, rota liberada no `ApiKeyGuard` por ser aberta pelo navegador; `AuthController.callbackGoogleWeb` redireciona para `<FRONTEND_URL>/login/google-callback?code=…`. Essa tela (`GoogleCallbackWeb`) mostra "Finalizando login…" e chama `exchangeCodeForToken(code, redirectUri)`, que faz `api('/auth/google', 'POST', { code, redirect_uri, plataforma })`. Na API, `AuthController.loginComGoogle` chama `AuthService.loginComGoogle`, que: (1) com `id_token`, chama `validarIdTokenGoogle(idToken, GOOGLE_CLIENT_ID)`; com `code`, exige `code` e `redirect_uri`, escolhe o cliente (o de Android ou de iOS quando o endereço começa com `conectamais://` ou `exp://`, senão o Web), troca o código por tokens com `fetch` em `https://oauth2.googleapis.com/token` e chama `validarIdTokenGoogle` com o `id_token` recebido; (2) `validarIdTokenGoogle` consulta `https://oauth2.googleapis.com/tokeninfo` e exige `aud` igual ao cliente, `iss` igual a `accounts.google.com` ou `https://accounts.google.com` e `exp` maior que o horário atual; (3) exige `email_verified` verdadeiro; (4) busca com `findOne({ google_id })`; achando, exige conta ativa, atualiza os campos e chama `save`; (5) senão, busca com `findOne({ email })`; achando, exige conta ativa e `google_id` vazio ou igual ao recebido, grava `google_id` e os demais campos e chama `save`; (6) senão, cria a conta com `create`; (7) `gerarRespostaLogin` assina o token com `jwtService.sign({ sub, email, tipo })`. Com a resposta, a tela chama `SessaoProvider.entrar(access_token)`, como no RF-USR-02; na web, `GoogleCallbackWeb` troca para `/inicio`. |
+| **Pré-condição** | Conta Google com e-mail verificado; clientes do Google configurados no servidor (`GOOGLE_CLIENT_ID` e, para o fluxo com código, os clientes de Android e iOS e o segredo do cliente Web) e no aplicativo. Aplicativo instalado (APK) ou navegador. |
+| **Pós-condição** | No sucesso, a tela inicial é aberta. Nos erros, a faixa "Não foi possível entrar" mostra: "Código de autorização não informado", "URI de redirecionamento não informada", a descrição de erro devolvida pelo Google ou "Falha ao trocar código por token", "ID Token não retornado pelo Google", "ID Token inválido ou expirado", "ID Token emitido para outro cliente", "Emissor do ID Token inválido", "ID Token expirado", "O e-mail da conta Google não está verificado", "Este e-mail já está vinculado a outra conta Google" ou "Plataforma deve ser web, ios ou android" (400); "Conta desativada" (401); "O login Google não funciona no Expo."; "A autenticação do Google ainda está carregando. Tente novamente." (web, antes de o pedido ao Google ficar pronto). Na web, um erro na volta do Google leva de novo à tela "Entrar", sem mensagem. |
+| **Efeitos colaterais** | A cada login pelo Google, o nome da conta passa a ser o nome da conta Google, mesmo que tenha sido mudado no perfil (RF-CFG-01). Uma conta local ainda não confirmada passa a confirmada. A rota `GET /auth/google/callback`, que redireciona para `conectamais://auth/google`, existe na API, mas o aplicativo não a usa: no Android e no iOS o login é feito pelo SDK nativo. |
