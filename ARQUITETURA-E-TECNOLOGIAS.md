@@ -26,7 +26,7 @@ O `ReunioesService` executa uma rotina ao iniciar a API e a cada 60 segundos: re
 | Serviços    | HTTP, OAuth, autenticação local, anexos, PDF e CSV | `api.ts`, `google.ts`, `autenticacao-local.ts`, `anexos.ts`, `pdf.ts`, `pdfAta.ts`, `pdfListaPresenca.ts`, `exportar-relatorio-individual.ts` |
 | Utilitários | validações e regras de apresentação   | `validacao.ts`, `reunioes.ts`, `sugestoes-horario.ts`, `diferenca.ts` |
 
-Os formulários usam `react-hook-form`. O layout raiz envolve o aplicativo no `KeyboardProvider` de `react-native-keyboard-controller`, e `TelaComCabecalho` e `FundoGradiente` rolam com `KeyboardAwareScrollView`, para que o teclado não cubra o campo em foco no Android. Em formulários de mais de um campo, `returnKeyType` com `setFocus` leva a tecla de avanço ao campo seguinte e a última tecla envia o formulário. Telas com dados mutáveis usam `useFocusEffect` para recarregar ao receber foco.
+Os formulários usam `react-hook-form`. O layout raiz envolve o aplicativo no `KeyboardProvider` de `react-native-keyboard-controller`, e `TelaComCabecalho` e `FundoGradiente` rolam com `KeyboardAwareScrollView`, para que o teclado não cubra o campo em foco no Android. As folhas inferiores (`FolhaInferior`) usam o `KeyboardAvoidingView` da mesma biblioteca, e não o do React Native, porque ele acompanha o teclado dentro do `Modal` com o Android em tela cheia (edge-to-edge), sem a folha tremer nem ficar atrás do teclado (FRONTEND `db5b2fe`; CT-REU-45 e CT-VOT-30). Em formulários de mais de um campo, `returnKeyType` com `setFocus` leva a tecla de avanço ao campo seguinte e a última tecla envia o formulário. Telas com dados mutáveis usam `useFocusEffect` para recarregar ao receber foco.
 
 ## 3. Camadas do backend
 
@@ -175,4 +175,4 @@ Em 27/11/2026, com Node.js 24.19.0 e npm 11.17.0, nos commits `d1f1aeb` (backend
 
 Em 23/10/2026, na entrega do Incremento 2, a base era Node.js 24.11.0 e npm 11.6.1, com 13 arquivos e 182 testes aprovados.
 
-Nenhum resultado de desempenho foi medido nestas revisões. Metas de tempo presentes nos RNFs são critérios de aceitação, não evidência de medição. O aplicativo não foi executado em aparelho iOS, por falta de equipamento.
+Nenhum resultado de desempenho foi medido nestas revisões. Metas de tempo presentes nos RNFs são critérios de aceitação, não evidência de medição. O aplicativo foi executado no iPhone pelo Expo Go: num iPhone 14 em 13/11/2026 e num iPhone 14 com iOS 27.2.1 em 27/11/2026. O build nativo para iOS não foi executado, porque a equipe não tem Mac.
