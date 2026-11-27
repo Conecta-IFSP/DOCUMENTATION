@@ -49,7 +49,7 @@ Não está implementado: pedir um novo código de confirmação do cadastro. A b
 | ----------- | --------- | --------- | --------------------------------------------------------------------------- |
 | UC-USR-01   | RF-USR-01 | SD-USR-01 | CT-USR-01, CT-USR-08, CT-USR-09, CT-USR-11, CT-USR-12, CT-USR-13, CT-USR-24, CT-USR-26 |
 | UC-USR-02   | RF-USR-02 | SD-USR-02 | CT-USR-02, CT-USR-07, CT-USR-14, CT-USR-15, CT-USR-16, CT-USR-24, CT-USR-25 |
-| UC-USR-03   | RF-USR-03 | SD-USR-03 | CT-USR-03, CT-USR-17, CT-USR-24                                             |
+| UC-USR-03   | RF-USR-03 | SD-USR-03 | CT-USR-03, CT-USR-17, CT-USR-24, CT-USR-32                                  |
 | UC-USR-04   | RF-USR-04 | SD-USR-04 | CT-USR-24, CT-USR-27, CT-USR-28, CT-USR-29                                  |
 
 CT-USR-04 a CT-USR-06 e CT-USR-18 a CT-USR-23 foram registrados neste módulo, mas verificam os vínculos com organizações; eles apontam para RF-ORG-07 a RF-ORG-14, documentados no módulo [Cadastro de organização](../cadastro-organizacao/README.md). CT-USR-10 verifica a recuperação de conta (RF-CFG-04) e serve de medida para RNF-USR-06; CT-USR-25 mede o tempo do login (RNF-USR-07); CT-USR-08, CT-USR-11 e CT-USR-12 também cobrem requisitos do módulo CFG; CT-USR-28 também cobre o encerramento da sessão (RF-CFG-06) pelo botão "Entrar com senha". CT-USR-27 a CT-USR-29 verificam também o RNF-USR-11: CT-USR-27 e CT-USR-28 foram aprovados em 27/11/2026 num Galaxy S24 com bloqueio de tela, e CT-USR-29 foi executado em parte. CT-USR-31 confere o ícone do aplicativo na gaveta do Android (RNF-USR-09) e não pertence a um caso de uso.

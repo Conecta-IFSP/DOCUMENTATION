@@ -152,7 +152,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Emulador Android 16, Galaxy S24 com Android 16, emulador Android 7.0, aparelho iOS e navegador.                                                                  |
 | **Verificação**   | Roteiros CT-CFG-02 a CT-CFG-04 no Android 16, CT-CFG-07 no emulador Android 16, CT-CFG-10 no Galaxy S24, CT-CFG-01 a CT-CFG-06 no emulador Android 14 em 27/11/2026 e CT-CFG-15 no iOS.                                                   |
 | **Evidência**     | Registros de 10/11/2026, 26/11/2026 e 27/11/2026 em [Testes](7%20-%20testes-configuracoes-usuario.md).                                                                       |
-| **Situação**      | Atendido no Android 16 e no Android 14 (CT-CFG-02 em parte no Android 14, sem o recebimento do código por e-mail). Android 7.0 e web sem registro de execução neste módulo; iOS não executado, porque não há computador Apple para gerar o aplicativo nativo.                                    |
+| **Situação**      | Atendido no Android 16 e no Android 14 (CT-CFG-01 a CT-CFG-06 em 27/11/2026). Android 7.0 e web sem registro de execução neste módulo; iOS não executado, porque não há computador Apple para gerar o aplicativo nativo.                                    |
 
 ### RNF-CFG-11 — Testabilidade
 
