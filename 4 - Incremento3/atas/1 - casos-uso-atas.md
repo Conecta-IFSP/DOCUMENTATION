@@ -18,7 +18,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Participante da reunião.** É qualquer usuário que consta na lista de participantes da reunião, tenha ele comparecido ou não. Pode abrir a ata, ver na tela inicial as atas que dependem dele e, quando a ata estiver aprovada, gerar o PDF. Não pode alterar a ata.
 
-**Participante presente.** É o participante cuja presença terminou como `CONFIRMADA` (marcada por ele e confirmada pelo organizador, ou marcada pelo organizador). A seta de generalização indica que ele faz tudo o que o participante da reunião faz e, além disso, aprova ou reprova a ata. A lista de quem aprova é fixada no momento do envio: quem não estava presente não aprova. Quem não responde até o prazo tem a aprovação registrada pelo sistema.
+**Participante presente.** É o participante cuja presença está `CONFIRMADA` no momento do envio (marcada por ele e confirmada pelo organizador, marcada pelo organizador, registrada pelo link de presença ou confirmada numa correção de horário; a entrada de quem agendou a reunião já nasce confirmada). A seta de generalização indica que ele faz tudo o que o participante da reunião faz e, além disso, aprova ou reprova a ata. A lista de quem aprova é fixada no momento do envio: quem não estava presente não aprova. Quem não responde até o prazo tem a aprovação registrada pelo sistema.
 
 **Presidente da comissão.** É o membro da comissão com papel `RESPONSAVEL`. Também é um participante da reunião (generalização). Só ele escreve, salva e envia a ata, e só ele cria a nova versão quando a ata é reprovada. Se o presidente esteve presente, ele também é um participante presente; nesse caso, enviar a ata já registra a aprovação dele.
 

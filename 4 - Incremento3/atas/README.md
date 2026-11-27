@@ -48,15 +48,15 @@ O presidente que esteve presente também é um participante presente: ao enviar 
 
 | Caso de uso | Requisito  | Sequência  | Testes                        |
 | ----------- | ---------- | ---------- | ----------------------------- |
-| UC-ATA-01   | RF-ATA-01  | SD-ATA-01  | CT-ATA-01, CT-ATA-02, CT-ATA-03, CT-ATA-14 |
-| UC-ATA-02   | RF-ATA-02  | SD-ATA-02  | CT-ATA-04, CT-ATA-10, CT-ATA-14 |
-| UC-ATA-03   | RF-ATA-03  | SD-ATA-03  | CT-ATA-05, CT-ATA-07, CT-ATA-15, CT-ATA-17, CT-ATA-27, CT-ATA-28, CT-ATA-29 |
-| UC-ATA-04   | RF-ATA-04  | SD-ATA-04  | CT-ATA-06, CT-ATA-07, CT-ATA-10, CT-ATA-15, CT-ATA-18, CT-ATA-24, CT-ATA-25, CT-ATA-28 |
-| UC-ATA-05   | RF-ATA-05  | SD-ATA-05  | CT-ATA-08, CT-ATA-16          |
-| UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-02, CT-ATA-16, CT-ATA-19, CT-ATA-21 |
+| UC-ATA-01   | RF-ATA-01  | SD-ATA-01  | CT-ATA-01, CT-ATA-02, CT-ATA-03, CT-ATA-11, CT-ATA-13, CT-ATA-14 |
+| UC-ATA-02   | RF-ATA-02  | SD-ATA-02  | CT-ATA-04, CT-ATA-10, CT-ATA-13, CT-ATA-14 |
+| UC-ATA-03   | RF-ATA-03  | SD-ATA-03  | CT-ATA-05, CT-ATA-07, CT-ATA-13, CT-ATA-15, CT-ATA-17, CT-ATA-27, CT-ATA-28, CT-ATA-29 |
+| UC-ATA-04   | RF-ATA-04  | SD-ATA-04  | CT-ATA-06, CT-ATA-07, CT-ATA-10, CT-ATA-13, CT-ATA-15, CT-ATA-18, CT-ATA-24, CT-ATA-25, CT-ATA-28 |
+| UC-ATA-05   | RF-ATA-05  | SD-ATA-05  | CT-ATA-08, CT-ATA-13, CT-ATA-16 |
+| UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-16, CT-ATA-19, CT-ATA-21, CT-ATA-29 |
 | UC-ATA-07   | RF-ATA-07  | SD-ATA-07  | CT-ATA-09, CT-ATA-15          |
 | UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23, CT-ATA-26, CT-ATA-29 |
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, com as alterações do Incremento 3, conferidos em 09/11/2026 (backend sobre `6f2ffc4`, frontend sobre `9cb23ad`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/schemas/contador.schema.ts`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/services/pdfAta.ts` e `FRONTEND/src/utils/diferenca.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `caca2d2`, frontend `4f03c20`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/dto/ata.dto.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/schemas/contador.schema.ts`, `BACKEND/src/reunioes/atas-presencas.spec.ts`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/services/pdfAta.ts`, `FRONTEND/src/services/pdf.ts`, `FRONTEND/src/utils/reunioes.ts` e `FRONTEND/src/utils/diferenca.ts`.

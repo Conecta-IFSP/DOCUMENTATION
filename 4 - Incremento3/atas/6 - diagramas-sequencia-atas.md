@@ -41,7 +41,7 @@ sequenceDiagram
         C-->>A: 200 reuniao
         A-->>T: Resultado com a reuniao
         T->>T: definirSucesso("Rascunho salvo.")
-    else outra gravação chegou antes
+    else outra gravação ou uma mudança de presença chegou antes
         M-->>S: null
         S-->>C: ConflictException
         C-->>A: 409 A ata mudou
@@ -80,8 +80,9 @@ sequenceDiagram
     M-->>S: reuniao
     S->>S: autorizarResponsavel(comissaoId, usuarioId, "escrever a ata")
     S->>S: exigirEncerrada(reuniao)
-    Note over S: aprovadores: participantes com presenca.situacao CONFIRMADA.<br/>prazo: horário do envio mais dto.prazo_horas
+    Note over S: Recusa ata fora de RASCUNHO, dto.versao diferente de ata.versao<br/>e lista de aprovadores vazia. aprovadores: participantes com presenca.situacao CONFIRMADA.<br/>Aprovação de quem envia, se estiver entre eles. prazo: horário do envio mais dto.prazo_horas
     S->>S: concluirSeAprovada(reuniao, enviada)
+    Note over S: Só aprova e numera com proximoNumeroAta, como no SD-ATA-03,<br/>quando o único aprovador é quem envia
     S->>S: gravarAta(reuniao, ata, usuarioId)
     Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
@@ -91,6 +92,7 @@ sequenceDiagram
     C-->>A: 201 reuniao
     A-->>T: Resultado com a reuniao
     T->>T: definirSucesso("Ata enviada para aprovação.")
+    Note over S,T: Sem documento encontrado (ata ou presença mudou), responder lança ConflictException<br/>e a tela mostra 409 "A ata mudou. Atualize antes de continuar."
 ```
 
 ## SD-ATA-03 — Aprovar ata
@@ -127,7 +129,7 @@ sequenceDiagram
     S->>M: findById(id)
     M-->>S: reuniao
     S->>S: exigirEncerrada(reuniao)
-    Note over S: Recusa versão diferente, usuário fora de ata.aprovadores,<br/>decisão já registrada, ata fora de EM_APROVACAO<br/>ou ata.prazo já alcançado ("O prazo para avaliar esta ata terminou", 400)
+    Note over S: Recusa versão diferente, usuário fora de ata.aprovadores,<br/>decisão oposta já registrada, ata fora de EM_APROVACAO<br/>ou ata.prazo já alcançado ("O prazo para avaliar esta ata terminou", 400).<br/>Com a mesma decisão já registrada, devolve buscarPorId(id, usuarioId) sem gravar
     S->>S: concluirSeAprovada(reuniao, avaliada)
     opt todos os aprovadores aprovaram
         S->>S: proximoNumeroAta(comissaoId, ano)
@@ -253,7 +255,7 @@ sequenceDiagram
     S-->>C: reuniao
     C-->>A: 201 reuniao
     A-->>T: Resultado com a reuniao
-    T->>T: definirSucesso("Nova versão criada.")
+    T->>T: definirSucesso("Nova versão criada. Corrija o texto e envie de novo.")
 ```
 
 ## SD-ATA-06 — Consultar ata
@@ -283,6 +285,11 @@ sequenceDiagram
     C-->>A: 200 reuniao
     A-->>T: Resultado com a reuniao
     T->>T: definirReuniao(resposta.dados)
+    T->>A: api("/comissoes/:id")
+    Note over A: GET /comissoes/:id, rota do módulo de comissões
+    A-->>T: Resultado com a comissão
+    Note over T: responsavel = comissão ativa e usuário com papel RESPONSAVEL
+    T->>T: definirResponsavel(responsavel)
     T->>R: situacaoDaAta(ata)
     R-->>T: texto e tom da etiqueta
     opt ata em aprovação com versão cancelada anterior

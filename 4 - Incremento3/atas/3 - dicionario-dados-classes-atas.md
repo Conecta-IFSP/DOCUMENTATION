@@ -8,10 +8,10 @@
 | ---------------------- | -------------------- | --------------------------------------------------------------------------------- |
 | `TelaRegistrosReuniao` | Aplicativo           | Mostrar a ata, editar o rascunho e acionar enviar, aprovar, reprovar e nova versão. |
 | `TelaInicio`           | Aplicativo           | Listar as atas pendentes do usuário.                                              |
-| `pdfAta`               | Aplicativo (serviço) | Montar a ata aprovada em A4 e entregá-la ao serviço `pdf`.                        |
-| `pdf`                  | Aplicativo (serviço) | Entregar o PDF ao menu de compartilhamento (aplicativo instalado) ou abrir a impressão (Expo Go e web). |
+| `pdfAta`               | Aplicativo (serviço) | Montar o HTML da ata aprovada e entregá-lo ao serviço `pdf`.                      |
+| `pdf`                  | Aplicativo (serviço) | Gerar o PDF A4 e entregá-lo ao menu de compartilhamento (aplicativo instalado) ou abrir a impressão (Expo Go e web). |
 | `diferenca`            | Aplicativo (serviço) | Comparar duas versões do texto e apontar o que mudou.                             |
-| `autenticacaoLocal`    | Aplicativo (serviço) | Pedir biometria, Face ID ou PIN antes de aprovar ou reprovar.                     |
+| `autenticacaoLocal`    | Aplicativo (serviço) | Pedir biometria, Face ID ou PIN antes de aprovar, de reprovar e, quando o presidente esteve presente, de enviar. |
 | `ReunioesController`   | API                  | Receber as rotas HTTP das atas e repassar ao serviço.                             |
 | `ReunioesService`      | Negócio              | Aplicar autorização, prazos, versões, aprovação, reprovação e numeração, e aprovar as atas no fim do prazo. |
 | `Ata`                  | Subdocumento         | Guardar o texto, a situação, o prazo e as avaliações de uma versão.               |
@@ -29,8 +29,8 @@ Subdocumento de `Reuniao`, definido em `BACKEND/src/reunioes/schemas/reuniao.sch
 | `conteudo`      | `string`                    | `string`    |         Sim | De 20 a 20.000 caracteres. Os parágrafos são separados por quebra de linha.                                        |
 | `versao`        | `number` (inteiro)          | `int32`     |         Sim | Começa em 1 e aumenta de 1 a cada salvamento do rascunho e a cada nova versão.                                     |
 | `situacao`      | `SituacaoAta` (enum string) | `string`    |         Sim | `RASCUNHO`, `EM_APROVACAO`, `APROVADA`, `REPROVADA` ou `CANCELADA`.                                                |
-| `autor_id`      | `Types.ObjectId`            | `objectId`  |         Sim | Identificador do usuário que salvou o texto, em `usuarios`. Não é o objeto do usuário, é a referência a ele.       |
-| `atualizada_em` | `Date`                      | `date`      |         Sim | Instante da última gravação, em UTC.                                                                               |
+| `autor_id`      | `Types.ObjectId`            | `objectId`  |         Sim | Identificador do usuário que salvou o texto ou criou a nova versão, em `usuarios`. Não é o objeto do usuário, é a referência a ele. |
+| `atualizada_em` | `Date`                      | `date`      |         Sim | Instante da última gravação, em UTC; na aprovação pelo fim do prazo, recebe o valor de `prazo`.                    |
 | `enviada_em`    | `Date`                      | `date`      |         Não | Preenchido no envio para aprovação; ausente enquanto a ata é rascunho.                                             |
 | `prazo`         | `Date`                      | `date`      |         Não | `enviada_em` mais 24, 72 ou 168 horas. Depois dele, ninguém avalia a versão; quem não avaliou conta como aprovação automática. |
 | `aprovadores`   | `Types.ObjectId[]`          | `array`     |         Sim | Lista de identificadores de usuários, fixada no envio com quem tinha presença `CONFIRMADA`. Padrão: lista vazia.   |
@@ -71,6 +71,8 @@ Diferente das demais coleções, o `_id` aqui é um texto montado pelo sistema, 
 | Atributo          | Tipo               | Obrigatório | Regra                                                                     |
 | ----------------- | ------------------ | ----------: | ------------------------------------------------------------------------- |
 | `ata`             | `Ata`              |         Não | Versão vigente. Só existe depois do primeiro salvamento.                  |
+| `comissao_id`     | `Types.ObjectId`   |         Sim | Comissão em que se confere o presidente e cuja sequência numera a ata.    |
+| `presencas_revisao` | `number` (inteiro) |       Não | Contador de mudanças nas presenças, com padrão 0; documentos antigos podem não ter o campo. `gravarAta` só grava se ele não mudou desde a leitura (o valor 0 também aceita o campo ausente). |
 | `atas_canceladas` | `Ata[]`            |         Sim | Versões reprovadas que deram lugar a outras, da mais antiga para a nova.  |
 | `participantes`   | `Participante[]`   |         Sim | Define quem consulta a ata; os de presença `CONFIRMADA` definem quem aprova. |
 | `fim`             | `Date`             |         Sim | A ata só existe depois desse instante.                                    |
@@ -93,12 +95,12 @@ Diferente das demais coleções, o `_id` aqui é um texto montado pelo sistema, 
 | `publicarAta`        | `id`, `EnviarAtaDto`, `usuarioId`            | reunião atualizada  | Congela o texto, define aprovadores e prazo.                                  |
 | `aprovarAta`         | `id`, `versao`, `usuarioId`                  | reunião atualizada  | Chama `avaliarAta` com `APROVADA`.                                            |
 | `reprovarAta`        | `id`, `ReprovarAtaDto`, `usuarioId`          | reunião atualizada  | Chama `avaliarAta` com `REPROVADA`.                                           |
-| `avaliarAta`         | `id`, `versao`, `usuarioId`, avaliação       | reunião atualizada  | Confere versão, elegibilidade, repetição e prazo; grava a decisão.            |
+| `avaliarAta`         | `id`, `versao`, `usuarioId`, avaliação sem `usuario_id` e `em` | reunião atualizada  | Confere versão, elegibilidade, repetição, prazo e trecho; grava a decisão. |
 | `concluirSeAprovada` | `reuniao`, `ata`                             | ata                 | Se todos aprovaram, numera e marca `APROVADA`.                                |
 | `proximoNumeroAta`   | `comissaoId`, `ano`                          | número              | Incrementa e devolve o contador da comissão no ano.                           |
 | `refazerAta`         | `id`, `usuarioId`                            | reunião atualizada  | Move a ata reprovada para o histórico e abre a nova versão.                   |
 | `atasPendentes`      | `usuarioId`                                  | lista de reuniões   | Busca o que espera aprovação do usuário e as atas dele reprovadas.            |
-| `gravarAta`          | `reuniao`, `ata`, `usuarioId`                | reunião atualizada  | Grava a ata só se ela não tiver mudado desde a leitura.                       |
+| `gravarAta`          | `reuniao`, `ata`, `usuarioId`                | reunião atualizada  | Grava a ata só se a reunião continua `AGENDADA` e a ata e `presencas_revisao` não mudaram desde a leitura; senão, 409 "A ata mudou. Atualize antes de continuar.". |
 | `aprovarAtasVencidas` | `agora` (padrão: horário atual)             | quantidade de reuniões encontradas | Nas atas em aprovação com `prazo` até `agora`, registra a aprovação automática de quem não avaliou e conclui a ata. |
 | `executarRotinas`    | —                                            | —                   | Chamado ao iniciar a API e a cada 60 segundos: executa `registrarSaidasAutomaticas` e `aprovarAtasVencidas`; a falha de uma não impede a outra. |
 
@@ -106,13 +108,13 @@ Diferente das demais coleções, o `_id` aqui é um texto montado pelo sistema, 
 
 | DTO              | Campo           | Validação                                                       | Mensagem de erro                                        |
 | ---------------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------- |
-| `SalvarAtaDto`   | `conteudo`      | texto de 20 a 20.000 caracteres, aparado                        | "Descreva a ata com pelo menos 20 caracteres"           |
+| `SalvarAtaDto`   | `conteudo`      | texto de 20 a 20.000 caracteres, aparado                        | "Descreva a ata" (não é texto), "Descreva a ata com pelo menos 20 caracteres" ou "A ata deve ter no máximo 20000 caracteres" |
 |                  | `versao`        | inteiro, mínimo 0                                               | "Informe a versão da ata"                               |
 | `EnviarAtaDto`   | `versao`        | inteiro, mínimo 0                                               | "Informe a versão da ata"                               |
 |                  | `prazo_horas`   | um entre 24, 72 e 168                                           | "Escolha um prazo de 24 horas, 3 dias ou 7 dias"        |
 | `ReprovarAtaDto` | `versao`        | inteiro, mínimo 0                                               | "Informe a versão da ata"                               |
-|                  | `trecho`        | opcional, texto de até 20.000 caracteres                        | "Trecho inválido"                                       |
-|                  | `justificativa` | opcional, texto de até 500 caracteres; em branco vira ausente   | "A justificativa deve ter no máximo 500 caracteres"     |
+|                  | `trecho`        | opcional, texto de até 20.000 caracteres, aparado; em branco vira ausente | "Trecho inválido"                             |
+|                  | `justificativa` | opcional, texto de até 500 caracteres, aparado; em branco vira ausente | "Justificativa inválida" (não é texto) ou "A justificativa deve ter no máximo 500 caracteres" |
 
 ## Rastreabilidade
 

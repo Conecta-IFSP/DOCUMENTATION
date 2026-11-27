@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -38,7 +38,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Externo › Legal › Segurança |
 | **Critério**    | Só o membro da comissão com papel `RESPONSAVEL` grava, envia ou refaz a ata.                                                                  |
-| **Medida**      | Qualquer outra conta recebe HTTP 403 com a mensagem "Apenas o responsável da comissão pode escrever a ata", e nada é gravado.                 |
+| **Medida**      | Outro participante da reunião recebe HTTP 403 com a mensagem "Apenas o responsável da comissão pode escrever a ata"; quem não participa recebe 403 "Você não participa desta reunião", antes dessa conferência. Nos dois casos nada é gravado. |
 | **Condição**    | Rotas `PATCH /reunioes/:id/ata`, `POST /reunioes/:id/ata/publicar` e `POST /reunioes/:id/ata/nova`.                                           |
 | **Verificação** | Testes automatizados CT-ATA-02 e CT-ATA-08.                                                                                                   |
 | **Evidência**   | `ReunioesService.autorizarResponsavel` e `BACKEND/src/reunioes/atas-presencas.spec.ts`.                                                       |
@@ -64,7 +64,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**    | A aprovação e a reprovação exigem uma confirmação deliberada: biometria, Face ID ou PIN do aparelho; onde não houver bloqueio de tela, a aprovação mostra um diálogo de confirmação e a reprovação é confirmada pelo botão "Reprovar ata" da folha de reprovação. |
 | **Medida**      | Em aparelho com bloqueio, cancelar a confirmação não envia nada à API. Em aparelho sem bloqueio, o diálogo aparece antes do envio.                      |
 | **Condição**    | Botão "Aprovar" da aba Ata, botão "Reprovar ata" da folha de reprovação e botão "Enviar" quando o presidente esteve presente.                            |
-| **Verificação** | Testes manuais CT-ATA-17 no emulador Android 16, com PIN cadastrado, CT-ATA-15 no Android 7.0 e CT-ATA-24 na web, sem bloqueio de tela, e CT-ATA-25 num Galaxy S24 com digital. |
+| **Verificação** | Testes manuais CT-ATA-17 e CT-ATA-15 no emulador Android 16, com PIN cadastrado, CT-ATA-18 no Android 7.0 e CT-ATA-24 na web, sem bloqueio de tela, e CT-ATA-25 num Galaxy S24 com digital. |
 | **Evidência**   | `FRONTEND/src/services/autenticacao-local.ts`, `TelaRegistrosReuniao.aprovar` e `TelaRegistrosReuniao.reprovar`.                                        |
 | **Situação**    | Atendido no Android: aprovação com PIN no emulador e reprovação com a digital num Galaxy S24 (CT-ATA-25). No iOS o mesmo módulo é usado para Face ID, mas não houve execução em aparelho iOS; validação pendente. |
 
@@ -74,9 +74,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Produto › Confiabilidade |
 | **Critério**    | Duas pessoas agindo ao mesmo tempo nunca sobrescrevem a decisão uma da outra.                                                                  |
-| **Medida**      | Toda gravação usa a ata lida como filtro do `findOneAndUpdate`. Se o documento já mudou, a resposta é 409 e nada é alterado.                   |
+| **Medida**      | Toda gravação usa `_id`, `situacao = AGENDADA` e a ata lida como filtro do `findOneAndUpdate`; salvar, enviar, aprovar e reprovar passam por `gravarAta`, que filtra também pelo `presencas_revisao` lido. Se o documento já mudou, a resposta é 409 "A ata mudou. Atualize antes de continuar." e nada é alterado. A aprovação pelo fim do prazo usa `updateOne` com o mesmo tipo de filtro e, sem documento encontrado, apenas não grava. |
 | **Condição**    | Salvar, enviar, aprovar, reprovar e criar nova versão.                                                                                        |
-| **Verificação** | Teste CT-ATA-13, que simula o `findOneAndUpdate` devolvendo `null`.                                                                           |
+| **Verificação** | Teste CT-ATA-11, que simula o `findOneAndUpdate` devolvendo `null`.                                                                           |
 | **Evidência**   | `ReunioesService.gravarAta` e o teste "informa conflito quando outra escrita alterou a ata".                                                   |
 | **Situação**    | Atendido em 09/11/2026.                                                                                                                       |
 
@@ -90,7 +90,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**    | Momento em que a última aprovação da ata chega.                                                                                                 |
 | **Verificação** | Teste CT-ATA-05 confere o filtro, o `$inc` e o `upsert`; o roteiro CT-ATA-17 mostrou a sequência 2/2026, 3/2026 e 4/2026 no emulador.            |
 | **Evidência**   | `ReunioesService.proximoNumeroAta` e `BACKEND/src/reunioes/schemas/contador.schema.ts`.                                                          |
-| **Situação**    | Atendido em 09/11/2026.                                                                                                                         |
+| **Situação**    | Atendido em 09/11/2026. Limitação: o número é reservado antes da gravação da ata; se ela falhar por conflito (409) ou se a aprovação pelo fim do prazo não encontrar a ata como foi lida, o número fica sem ata e a sequência visível pula um valor. A unicidade não é afetada. |
 
 ### RNF-ATA-06 — Data e hora
 
@@ -110,7 +110,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Classificação** | Produto › Eficiência › Desempenho |
 | **Critério**    | Mostrar o que mudou entre duas versões não pode travar a tela em aparelho antigo.                                                                                |
-| **Medida**      | A comparação palavra a palavra só é feita quando o produto do número de palavras dos dois parágrafos é de até 250.000; acima disso o parágrafo é mostrado inteiro como trocado. |
+| **Medida**      | A comparação palavra a palavra só é feita quando o produto do número de pedaços dos dois parágrafos (palavras, espaços e sinais de pontuação, separados por `separar`) é de até 250.000; acima disso o parágrafo é mostrado inteiro como trocado. A comparação entre os parágrafos das duas versões, feita antes, não tem esse limite. |
 | **Condição**    | Ata em aprovação com uma versão cancelada anterior, texto de até 20.000 caracteres.                                                                              |
 | **Verificação** | Teste manual CT-ATA-16 no emulador Android 7.0 (720 × 1280, 2 GB de RAM): a tela abriu sem travar.                                                               |
 | **Evidência**   | `FRONTEND/src/utils/diferenca.ts`, constante `LIMITE_COMPARACAO`.                                                                                                |
@@ -149,7 +149,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**      | `npm test` sem nenhuma falha, incluindo os testes das atas.                                                     |
 | **Condição**    | Código da branch `homolog` com as alterações do Incremento 3.                                                   |
 | **Verificação** | Execução registrada em [Testes](7%20-%20testes-atas.md).                                                        |
-| **Evidência**   | 14 arquivos e 204 testes aprovados em 09/11/2026.                                                               |
+| **Evidência**   | 14 arquivos e 204 testes aprovados em 09/11/2026; na revisão de 26/11/2026, 17 arquivos e 234 testes aprovados com `npx vitest run`. |
 | **Situação**    | Atendido em 09/11/2026.                                                                                         |
 
 ## Rastreabilidade

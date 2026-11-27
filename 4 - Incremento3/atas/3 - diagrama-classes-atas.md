@@ -81,7 +81,7 @@ classDiagram
             +onApplicationBootstrap() Promise~void~
             -executarRotinas() Promise~void~
             +aprovarAtasVencidas(agora: Date) Promise~number~
-            -avaliarAta(id: string, versao: number, usuarioId: string, avaliacao: AvaliacaoAta) Promise~Reuniao~
+            -avaliarAta(id: string, versao: number, usuarioId: string, avaliacao: Omit~AvaliacaoAta~) Promise~Reuniao~
             -concluirSeAprovada(reuniao: Reuniao, ata: Ata) Promise~Ata~
             -proximoNumeroAta(comissaoId: ObjectId, ano: number) Promise~number~
             -gravarAta(reuniao: Reuniao, ata: Ata, usuarioId: string) Promise~Reuniao~
@@ -110,6 +110,7 @@ classDiagram
             +titulo: string
             +fim: Date
             +situacao: SituacaoReuniao
+            +presencas_revisao: number
             +participantes: Participante[]
             +ata: Ata
             +atas_canceladas: Ata[]
@@ -185,6 +186,7 @@ classDiagram
     api ..> ReunioesController : requisição HTTP
 
     ReunioesController --> "1" ReunioesService : reunioesService
+    ReunioesController ..> VersaoAtaDto : recebe
     ReunioesController ..> SalvarAtaDto : recebe
     ReunioesController ..> EnviarAtaDto : recebe
     ReunioesController ..> ReprovarAtaDto : recebe
@@ -225,6 +227,8 @@ Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem n
 
 No código, os atributos opcionais são `enviada_em`, `prazo`, `numero`, `ano`, `aprovada_em` e `cancelada_em`, em `Ata`; `trecho`, `justificativa` e `automatica`, em `AvaliacaoAta`; `ata`, em `Reuniao`; e `presenca` e `saida`. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-atas.md).
 
+Em `avaliarAta`, o tipo completo do parâmetro `avaliacao` é `Omit<AvaliacaoAta, 'usuario_id' | 'em'>`: a avaliação sem o usuário e sem o horário, que o próprio método preenche. O Mermaid só aceita um tipo dentro de `~`, por isso o diagrama mostra `Omit~AvaliacaoAta~`.
+
 ## Rotas atendidas pelo controller
 
 As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagrama.
@@ -242,7 +246,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 
 - `Ata` e `AvaliacaoAta` não existem fora de `Reuniao`;
 - cada usuário tem no máximo uma avaliação por versão da ata;
-- `aprovadores` é fixado no envio e não muda enquanto a versão estiver aberta;
+- `aprovadores` é fixado no envio e não muda enquanto a versão estiver aberta; a gravação da ata (`gravarAta`) só acontece se `presencas_revisao` não mudou desde a leitura;
 - no fim do `prazo`, cada aprovador sem avaliação recebe uma `AvaliacaoAta` `APROVADA` com `automatica` verdadeiro, gravada pelo próprio servidor;
 - `Contador` existe fora da reunião: um documento por comissão e ano, com o último número de ata usado;
 - o aplicativo nunca decide a situação da ata: ele mostra o que a API devolve.

@@ -29,6 +29,7 @@ erDiagram
         string titulo
         date fim
         string situacao
+        int presencas_revisao
     }
     REUNIAO_PARTICIPANTE {
         ObjectId reuniao_id PK,FK
@@ -115,12 +116,12 @@ Como `ATA_APROVADOR` e `ATA_AVALIACAO` moram dentro da ata, a reunião e a vers�
 ## Regras de integridade
 
 - um participante aparece uma única vez em `REUNIAO_PARTICIPANTE`;
-- `ATA_APROVADOR` só recebe usuários cuja presença ficou `CONFIRMADA` no momento do envio;
+- `ATA_APROVADOR` só recebe usuários cuja presença ficou `CONFIRMADA` no momento do envio; o envio só é gravado se `REUNIAO.presencas_revisao` ainda é o valor lido, e depois dele as presenças ficam fechadas até uma nova versão;
 - todo `ATA_AVALIACAO` tem um `ATA_APROVADOR` correspondente, com o mesmo usuário e versão;
 - cada usuário tem no máximo uma avaliação por versão;
 - depois de `ATA.prazo`, só o servidor grava `ATA_AVALIACAO`: a aprovação de cada aprovador que não respondeu, com `automatica` verdadeiro e `em` igual ao prazo;
 - `ATA.numero` e `ATA.ano` só existem quando `ATA.situacao` é `APROVADA`, e o par é único na comissão;
-- a chave de `CONTADOR_ATA` garante uma sequência por comissão e ano; o incremento é atômico.
+- a chave de `CONTADOR_ATA` garante uma sequência por comissão e ano; o incremento é atômico. Não há índice único sobre `ATA.numero` e `ATA.ano`: a unicidade vem só do contador, e um número reservado cuja gravação falhou fica sem ata.
 
 ## Rastreabilidade
 

@@ -16,7 +16,7 @@ Descreve cada campo das entidades do [diagrama relacional](4%20-%20diagrama-rela
 | `CONTADOR_ATA._id`               | `ReunioesService.proximoNumeroAta`    | Texto montado pelo sistema: `atas:<id da comissão>:<ano>`, por exemplo `atas:66f3c1d2e4b07a9f2c1a4b0f:2026`.                                                                                   | Não muda. Um documento por comissão e ano.                                   |
 | `CONTADOR_ATA.valor`             | MongoDB, pela operação `$inc`         | Inteiro. Na primeira ata aprovada o documento é criado com `valor = 1` (`upsert`).                                                                                                            | Sobe de 1 em 1. A operação é atômica, então duas aprovações ao mesmo tempo nunca recebem o mesmo número. |
 
-Um número de ata consumido não volta: se uma reunião for apagada depois, a sequência segue de onde parou.
+Um número de ata consumido não volta: se uma reunião for apagada depois, a sequência segue de onde parou. O número é reservado antes de a ata ser gravada; se essa gravação falhar (conflito 409, ou a aprovação pelo fim do prazo não encontrar a ata como foi lida), o número reservado fica sem ata e a sequência pula um valor.
 
 ## ATA
 
@@ -29,7 +29,7 @@ Guarda a versão vigente da ata de uma reunião. Fica em `reunioes.ata`.
 | `versao`        | Inteiro (`int`)                | Não           | Não              | Não               | Começa em 1; sobe de 1 em 1.           | Número da versão, usado para evitar que duas pessoas gravem por cima uma da outra.  |
 | `situacao`      | Texto com valores fixos        | Não           | Não              | Não               | `RASCUNHO`, `EM_APROVACAO`, `APROVADA` ou `REPROVADA`. | Fase em que a ata está.                                                              |
 | `autor_id`      | `ObjectId`                     | Não           | Não              | Sim (`USUARIO._id`) | -                                      | Presidente que escreveu esta versão.                                                 |
-| `atualizada_em` | Data e hora (`date`, UTC)      | Não           | Não              | Não               | -                                      | Momento da última gravação.                                                          |
+| `atualizada_em` | Data e hora (`date`, UTC)      | Não           | Não              | Não               | Na aprovação pelo fim do prazo, recebe o valor de `prazo`. | Momento da última gravação.                                              |
 | `enviada_em`    | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | Nulo enquanto for rascunho.            | Momento em que a ata foi enviada para aprovação.                                     |
 | `prazo`         | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | `enviada_em` + 24, 72 ou 168 horas.    | Data limite para os presentes responderem; quem não responde até ela aprova automaticamente. |
 | `numero`        | Inteiro (`int`)                | Sim           | Não              | Não               | Preenchido só na aprovação.            | Número da ata dentro da comissão, no ano.                                            |
@@ -46,7 +46,7 @@ Lista de quem precisa avaliar a ata. Fica em `reunioes.ata.aprovadores[]`, como 
 | `versao`     | Inteiro      | Não           | Sim (inclusivo) | Não                  | Não é gravado: vem de `ATA.versao`.                           | Versão da ata a que esta lista pertence.                                                        |
 | `usuario_id` | `ObjectId`   | Não           | Sim (inclusivo) | Sim (`USUARIO._id`)  | É o próprio item da lista; não se repete.                     | Participante com presença `CONFIRMADA` no envio, que deve aprovar ou reprovar esta versão.      |
 
-A lista é montada uma única vez, no envio, e não muda enquanto a versão estiver aberta. Mudar uma presença depois disso não acrescenta nem tira aprovadores.
+A lista é montada uma única vez, no envio, e não muda enquanto a versão estiver aberta. O envio só é gravado se `presencas_revisao` não mudou desde a leitura, e, depois dele, a API recusa qualquer mudança de presença na reunião. As presenças só voltam a mudar quando uma nova versão é criada; o envio dessa versão monta a lista de novo.
 
 ## ATA_AVALIACAO
 
@@ -91,7 +91,7 @@ O `_id` carrega a comissão e o ano, por isso essa entidade não tem colunas sep
 
 - a busca de atas pendentes usa os campos `situacao`, `ata.situacao`, `ata.aprovadores`, `ata.avaliacoes.usuario_id` e `ata.autor_id`, e ordena por `ata.prazo`; convém criar o índice `{ "ata.situacao": 1, "ata.prazo": 1 }` quando o volume de reuniões crescer (ainda não criado);
 - `contadores._id` é a chave primária da coleção e já é indexada pelo MongoDB;
-- toda gravação da ata feita por uma pessoa usa `findOneAndUpdate` com a ata lida como filtro: se outra pessoa gravou antes, a operação não encontra o documento e a API devolve 409;
+- toda gravação da ata feita por uma pessoa usa `findOneAndUpdate` com `_id`, `situacao = AGENDADA` e a ata lida como filtro; salvar, enviar, aprovar e reprovar (`gravarAta`) também filtram pelo `presencas_revisao` lido. Se outra pessoa gravou antes ou uma presença mudou, a operação não encontra o documento e a API devolve 409;
 - a busca das atas com prazo encerrado usa `situacao`, `ata.situacao` e `ata.prazo`, e cada uma é gravada com `updateOne` usando a ata lida como filtro, para não sobrescrever uma avaliação gravada ao mesmo tempo;
 - a ata não pode ser alterada depois do envio: só muda de situação por aprovação, inclusive a automática no fim do prazo, reprovação ou criação de nova versão.
 
