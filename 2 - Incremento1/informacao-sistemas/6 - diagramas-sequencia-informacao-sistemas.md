@@ -4,7 +4,7 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o módulo `api`, os guards, o `SistemaController`, o `SistemaService`, o módulo `os` do Node.js e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como a comparação do tipo da conta, e as rotas HTTP aparecem em notas.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api` e `autenticacaoLocal`, os guards, o `SistemaController`, o `SistemaService`, o módulo `os` do Node.js e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como a comparação do tipo da conta, e as rotas HTTP aparecem em notas.
 
 O SD-SIS-01 mostra as três verificações que o NestJS executa antes do controller (`ApiKeyGuard`, `JwtAuthGuard` e `AdminSistemaGuard`), cada uma pelo seu método `canActivate`. Nos outros diagramas, essas verificações acontecem da mesma forma e estão resumidas numa nota.
 
@@ -176,10 +176,11 @@ sequenceDiagram
         A-->>T: Resultado com os dados
         T->>T: definirAcaoEmAndamento(null)
         T->>T: definirConfirmacaoTeste(false)
-        T->>T: definirAviso(sucesso)
-        Note over T: Faixa "Dados de teste criados" com "3 usuários de teste criados. Senha padrão: undefined",<br/>porque a resposta não tem senha_padrao
         T->>T: carregar()
-        Note over T: Quando a recarga dá certo, carregar chama definirAviso(null) e a faixa some
+        Note over T: carregar pede status e relatórios (SD-SIS-01 e SD-SIS-02)<br/>e, quando os dois dão certo, chama definirAviso(null)
+        Note over T: sucesso = tom "sucesso", titulo "Dados de teste criados"<br/>e mensagem "3 usuários de teste criados."
+        T->>T: definirAviso(sucesso)
+        Note over T: A faixa é definida depois da recarga e continua na tela
     end
 ```
 
@@ -190,6 +191,7 @@ sequenceDiagram
     autonumber
     actor U as Administrador do sistema
     participant T as TelaSistema
+    participant L as autenticacaoLocal
     participant A as api
     participant C as SistemaController
     participant S as SistemaService
@@ -198,43 +200,62 @@ sequenceDiagram
     participant MC as ComissaoModel
     participant MR as ReuniaoModel
     participant X as Connection
-    U->>T: definirConfirmacaoReset(true)
-    Note over U,T: Toque em "Resetar sistema". Diálogo simples com Cancelar e Confirmar:<br/>"Apagar todos os usuários, organizações e comissões? O administrador do sistema será mantido."
-    alt Cancelar
-        U->>T: definirConfirmacaoReset(false)
-        Note over T: O diálogo fecha e nada é enviado
-    else Confirmar
-        U->>T: resetarSistema()
-        T->>T: definirAcaoEmAndamento("reset")
-        T->>A: api("/sistema/reset", "POST")
-        Note over A,C: POST /sistema/reset, sem corpo. Antes do controller,<br/>ApiKeyGuard, JwtAuthGuard e AdminSistemaGuard como em SD-SIS-01
-        A->>C: reset()
-        C->>S: reset()
-        S->>MU: deleteMany({ tipo: { $ne: TipoUsuario.ADMIN_SISTEMA } })
-        S->>MO: deleteMany({})
-        S->>MC: deleteMany({})
-        S->>MR: deleteMany({})
-        S->>X: db.collection("anexos.files").deleteMany({})
-        S->>X: db.collection("anexos.chunks").deleteMany({})
-        S->>X: db.collection("contadores").deleteMany({})
-        Note over S,X: As sete exclusões rodam em paralelo (Promise.all), sem transação.<br/>A coleção notificacoes não está na lista
-        MU-->>S: resultado
-        MO-->>S: resultado
-        MC-->>S: resultado
-        MR-->>S: resultado
-        X-->>S: resultados
-        S-->>C: status sistema_resetado e resetado_em
-        C-->>A: 201 objeto
-        A-->>T: Resultado com os dados
-        T->>T: definirAcaoEmAndamento(null)
+    U->>T: abrirReset()
+    T->>T: definirTextoReset("")
+    T->>T: definirConfirmacaoReset(true)
+    Note over U,T: A folha "Resetar sistema" mostra o aviso, o campo "Digite RESETAR para confirmar"<br/>e o botão "Resetar sistema", inativo enquanto o texto não for igual a RESETAR
+    Note over U,T: texto = o que o administrador digita no campo
+    U->>T: definirTextoReset(texto)
+    alt fechar a folha
+        U->>T: fecharReset()
         T->>T: definirConfirmacaoReset(false)
-        T->>T: definirAviso(sucesso)
-        Note over T: Faixa "Sistema resetado" com "Usuários, organizações e comissões apagados."
-        T->>T: carregar()
+        Note over T: Toque fora da folha ou botão voltar do Android. Nada é enviado
+    else botão Resetar sistema da folha, com RESETAR digitado
+        U->>T: resetarSistema()
+        T->>T: definirConfirmacaoReset(false)
+        T->>L: autenticarComDispositivo()
+        L->>L: dispositivoProtegido()
+        Note over U,L: Com biometria ou PIN cadastrado, o aparelho pede a identidade.<br/>Na web e sem bloqueio de tela, devolve true sem pedir
+        alt identidade não confirmada
+            L-->>T: false
+            Note over T: aviso = tom "erro" e mensagem "Não foi possível confirmar sua identidade."
+            T->>T: definirAviso(aviso)
+            Note over T: Nada é enviado
+        else identidade confirmada
+            L-->>T: true
+            T->>T: definirAcaoEmAndamento("reset")
+            Note over T,A: corpo = { confirmacao: textoReset }
+            T->>A: api("/sistema/reset", "POST", corpo)
+            Note over A,C: POST /sistema/reset. Antes do controller, ApiKeyGuard, JwtAuthGuard e AdminSistemaGuard como em SD-SIS-01.<br/>Depois, o ValidationPipe confere o ResetSistemaDto. Outro valor: 400 "Digite RESETAR para confirmar o reset"
+            A->>C: reset(_confirmacao)
+            C->>S: reset()
+            S->>MU: deleteMany({ tipo: { $ne: TipoUsuario.ADMIN_SISTEMA } })
+            S->>MO: deleteMany({})
+            S->>MC: deleteMany({})
+            S->>MR: deleteMany({})
+            S->>X: db.collection("anexos.files").deleteMany({})
+            S->>X: db.collection("anexos.chunks").deleteMany({})
+            S->>X: db.collection("contadores").deleteMany({})
+            S->>X: db.collection("notificacoes").deleteMany({})
+            Note over S,X: As oito exclusões rodam em paralelo (Promise.all), sem transação
+            MU-->>S: resultado
+            MO-->>S: resultado
+            MC-->>S: resultado
+            MR-->>S: resultado
+            X-->>S: resultados
+            S-->>C: status sistema_resetado e resetado_em
+            C-->>A: 201 objeto
+            A-->>T: Resultado com os dados
+            T->>T: definirAcaoEmAndamento(null)
+            T->>T: carregar()
+            Note over T: carregar pede status e relatórios e, quando os dois dão certo, chama definirAviso(null)
+            Note over T: sucesso = tom "sucesso", titulo "Sistema resetado" e mensagem<br/>"Usuários, organizações, comissões, reuniões e notificações apagados."
+            T->>T: definirAviso(sucesso)
+        end
     end
 ```
 
-Se uma das exclusões falhar, a API responde 500 "Internal server error", a tela mostra a faixa "Não foi possível resetar" e as exclusões que já terminaram não são desfeitas (ver RF-SIS-04 e RNF-SIS-04).
+Se o `ValidationPipe` recusar o corpo, o controller não é chamado e a tela mostra a faixa "Não foi possível resetar" com "Digite RESETAR para confirmar o reset"; pela tela isso não acontece, porque o botão da folha só fica ativo com a palavra exata. Se uma das exclusões falhar, a API responde 500 "Internal server error", a tela mostra a mesma faixa e as exclusões que já terminaram não são desfeitas (ver RF-SIS-04 e RNF-SIS-04).
 
 ## Rastreabilidade
 

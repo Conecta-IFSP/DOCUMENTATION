@@ -4,23 +4,21 @@
 
 ## Resumo
 
-O administrador do sistema tem uma tela própria, chamada "Sistema", aberta pelo item "Sistema" da tela inicial. Nela ele vê o estado do computador onde a API roda (memória em uso, carga da CPU, tempo ligado e se o banco de dados respondeu) e os totais de usuários, organizações e comissões. A mesma tela tem dois botões que alteram o banco: "Popular dados de teste", que cria três contas, uma organização aprovada e uma comissão para demonstração, e "Resetar sistema", que apaga os dados de uso e mantém apenas as contas de administrador do sistema. As duas ações só acontecem depois que o administrador toca em "Confirmar" num diálogo.
+O administrador do sistema tem uma tela própria, chamada "Sistema", aberta pelo item "Sistema" da tela inicial. Nela ele vê o estado do computador onde a API roda (memória em uso, carga da CPU, tempo ligado e se o banco de dados respondeu) e os totais de usuários, organizações e comissões. A mesma tela tem dois botões que alteram o banco: "Popular dados de teste", que cria três contas, uma organização aprovada e uma comissão para demonstração, e "Resetar sistema", que apaga os dados de uso e mantém apenas as contas de administrador do sistema. Os dados de teste só são criados depois que o administrador toca em "Confirmar" num diálogo. O reset pede mais: o administrador digita "RESETAR" numa folha que lista o que será apagado e confirma a identidade com a biometria ou o PIN do aparelho; a API também recusa o pedido que não traz essa palavra.
 
 ## Escopo
 
 - consultar o status do servidor: memória, CPU, tempo ligado e banco de dados;
 - consultar os totais de usuários, organizações e comissões, por situação;
 - criar os dados de teste definidos na configuração do servidor;
-- apagar os dados de uso, preservando as contas de administrador do sistema.
+- apagar os dados de uso, preservando as contas de administrador do sistema, depois de digitar "RESETAR" e confirmar a identidade no aparelho.
 
 Não implementados e limitações conhecidas:
 
 - **reinício de subsistemas: não implementado.** O item "Sistema" da tela inicial tem a descrição "Status, relatórios, reinício de subsistemas e reset.", mas não existe tela, botão nem rota para reiniciar qualquer parte do sistema. A API é um único processo NestJS;
-- **confirmação mais segura do reset: não implementada.** A confirmação é um diálogo simples com "Cancelar" e "Confirmar", sem pedir senha, biometria ou a digitação de uma palavra;
-- **notificações fora do reset.** O reset não apaga a coleção `notificacoes`; as notificações das contas removidas continuam no banco;
 - **poucas informações na tela.** A avaliação do Incremento 1 apontou "Poucas informações exibidas". A tela mostra quatro métricas do servidor e os totais de usuários, organizações e comissões; não há números de reuniões, atas, anexos ou notificações.
 
-As demais limitações (por exemplo, a mensagem de sucesso dos dados de teste e o reset sem transação) estão no campo de cada requisito em [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md).
+As demais limitações (por exemplo, o reset sem transação e, na web e em aparelho sem bloqueio de tela, o reset protegido só pela palavra digitada) estão no campo de cada requisito em [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md).
 
 O cadastro e a troca de tipo das contas, inclusive a criação do primeiro administrador do sistema, estão em [Cadastro de usuário](../cadastro-usuario/README.md). A aprovação de organizações, também feita pelo administrador do sistema, está em [Cadastro de organização](../cadastro-organizacao/README.md).
 
@@ -48,13 +46,13 @@ O usuário comum (`tipo` igual a `USUARIO`) não vê o item "Sistema", não cons
 
 ## Rastreabilidade
 
-| Caso de uso | Requisito | Sequência | Testes                                                |
-| ----------- | --------- | --------- | ----------------------------------------------------- |
-| UC-SIS-01   | RF-SIS-01 | SD-SIS-01 | CT-SIS-01, CT-SIS-06, CT-SIS-08, CT-SIS-09            |
-| UC-SIS-02   | RF-SIS-02 | SD-SIS-02 | CT-SIS-02, CT-SIS-06, CT-SIS-08, CT-SIS-09            |
-| UC-SIS-03   | RF-SIS-03 | SD-SIS-03 | CT-SIS-03, CT-SIS-06, CT-SIS-08                       |
-| UC-SIS-04   | RF-SIS-04 | SD-SIS-04 | CT-SIS-04, CT-SIS-05, CT-SIS-06, CT-SIS-07, CT-SIS-08 |
+| Caso de uso | Requisito | Sequência | Testes                                                                                       |
+| ----------- | --------- | --------- | -------------------------------------------------------------------------------------------- |
+| UC-SIS-01   | RF-SIS-01 | SD-SIS-01 | CT-SIS-01, CT-SIS-06, CT-SIS-08, CT-SIS-09                                                   |
+| UC-SIS-02   | RF-SIS-02 | SD-SIS-02 | CT-SIS-02, CT-SIS-06, CT-SIS-08, CT-SIS-09                                                   |
+| UC-SIS-03   | RF-SIS-03 | SD-SIS-03 | CT-SIS-03, CT-SIS-06, CT-SIS-08, CT-SIS-14                                                   |
+| UC-SIS-04   | RF-SIS-04 | SD-SIS-04 | CT-SIS-04, CT-SIS-05, CT-SIS-06, CT-SIS-07, CT-SIS-08, CT-SIS-10, CT-SIS-11, CT-SIS-12, CT-SIS-13 |
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend sobre `99b6b4f`, frontend sobre `a53acce`, com as alterações locais ainda sem commit). Os arquivos principais são `BACKEND/src/sistema/sistema.controller.ts`, `BACKEND/src/sistema/sistema.service.ts`, `BACKEND/src/auth/admin-sistema.guard.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/sistema.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/app/_layout.tsx` e `FRONTEND/src/components/Confirmacao.tsx`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend sobre `811cf02`, que inclui o reset com confirmação, e frontend sobre `8fc0a5a`, que inclui a folha de confirmação do reset em `0666ee0`). Os arquivos principais são `BACKEND/src/sistema/sistema.controller.ts`, `BACKEND/src/sistema/sistema.service.ts`, `BACKEND/src/sistema/dto/reset-sistema.dto.ts`, `BACKEND/src/sistema/sistema.spec.ts`, `BACKEND/src/auth/admin-sistema.guard.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/sistema.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/app/_layout.tsx`, `FRONTEND/src/components/Confirmacao.tsx`, `FRONTEND/src/components/FolhaInferior.tsx` e `FRONTEND/src/services/autenticacao-local.ts`.

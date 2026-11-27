@@ -18,7 +18,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 **RNF-CFG-04 — Fim das sessões depois da troca de senha.** Depois de uma troca de senha, nenhum aparelho com a sessão anterior pode continuar usando a conta.
 
-**RNF-CFG-05 — Confirmação de identidade no aparelho.** A troca de e-mail, a troca de senha e a gravação da senha recuperada devem pedir a biometria ou o PIN do aparelho.
+**RNF-CFG-05 — Confirmação de identidade no aparelho.** A alteração do nome, a troca de e-mail, a troca de senha e a gravação da senha recuperada devem pedir a biometria ou o PIN do aparelho.
 
 **RNF-CFG-06 — Resposta sem esperar o e-mail.** O aplicativo não pode ficar esperando o servidor de e-mail para continuar.
 
@@ -87,12 +87,12 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | Campo             | Conteúdo                                                                                                                                                                                                                                                         |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Externo › Legal › Segurança                                                                                                                                                                                                                                      |
-| **Critério**      | Abrir "Trocar e-mail", abrir "Alterar senha" e gravar a senha recuperada exigem a biometria, o Face ID ou o PIN do aparelho, quando ele tem bloqueio de tela.                                                                                                    |
-| **Medida**        | Em aparelho com bloqueio, cancelar o pedido do aparelho não abre a tela nem envia a senha. Em aparelho sem bloqueio e na web, o fluxo segue sem pedido.                                                                                                         |
-| **Condição**      | Linhas "E-mail" e "Senha" da tela "Perfil" e botão "Salvar senha" da recuperação. Alterar o nome e o tema não pede confirmação (não implementado; ver RF-CFG-01).                                                                                                  |
-| **Verificação**   | Inspeção de `autenticacao-local.ts`, `TelaPerfil.abrirProtegida` e `TelaRecuperarConta.redefinir`. A mesma função `autenticarComDispositivo` foi verificada nas atas, no emulador Android 16 com PIN (CT-ATA-17) e no Galaxy S24 com digital (CT-ATA-25).        |
+| **Critério**      | Salvar o novo nome, abrir "Trocar e-mail", abrir "Alterar senha" e gravar a senha recuperada exigem a biometria, o Face ID ou o PIN do aparelho, quando ele tem bloqueio de tela.                                                                                                    |
+| **Medida**        | Em aparelho com bloqueio, cancelar o pedido do aparelho não grava o nome (a folha mostra "Não foi possível confirmar sua identidade."), não abre a tela e não envia a senha. Em aparelho sem bloqueio e na web, o fluxo segue sem pedido.                                                                                                         |
+| **Condição**      | Botão "Salvar" da folha "Editar nome", linhas "E-mail" e "Senha" da tela "Perfil" e botão "Salvar senha" da recuperação. Escolher o tema não pede confirmação (não implementado; ver RF-CFG-05).                                                                                                  |
+| **Verificação**   | Inspeção de `autenticacao-local.ts`, `TelaPerfil.salvarNome`, `TelaPerfil.abrirProtegida` e `TelaRecuperarConta.redefinir`; roteiro CT-CFG-17 para o nome. A mesma função `autenticarComDispositivo` foi verificada nas atas, no emulador Android 16 com PIN (CT-ATA-17) e no Galaxy S24 com digital (CT-ATA-25).        |
 | **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `FRONTEND/src/app/perfil.tsx` e `FRONTEND/src/app/login/recuperar-conta.tsx`.                                                                                                                                      |
-| **Situação**      | Implementado. Roteiro próprio deste módulo, com cancelamento do pedido, não registrado; iOS não executado.                                                                                                                                                       |
+| **Situação**      | Implementado. O pedido ao salvar o nome foi incluído em 26/11/2026, e o roteiro CT-CFG-17 está a executar. Para e-mail e senha, roteiro próprio deste módulo com cancelamento do pedido não registrado; iOS não executado.                                                                                                                                                       |
 
 ### RNF-CFG-06 — Resposta sem esperar o e-mail
 
@@ -163,7 +163,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | `npx vitest run` no BACKEND e `node --test tests/*.test.cjs` no FRONTEND sem nenhuma falha; `npm run lint`, `npm run build` e `npx tsc --noEmit` sem erro. |
 | **Condição**      | Branch `homolog` com as alterações de 26/11/2026.                                                                                               |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-configuracoes-usuario.md).                                                                        |
-| **Evidência**     | BACKEND: 16 arquivos e 227 testes aprovados; FRONTEND: 5 arquivos e 47 testes aprovados, em 26/11/2026.                                          |
+| **Evidência**     | Na última execução de 26/11/2026: BACKEND com 17 arquivos e 234 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados.                |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                          |
 
 ## Rastreabilidade

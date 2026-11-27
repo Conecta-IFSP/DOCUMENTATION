@@ -15,6 +15,7 @@ sequenceDiagram
     autonumber
     actor U as Usuário autenticado
     participant T as TelaPerfil
+    participant L as autenticacaoLocal
     participant SC as SessaoContext
     participant A as api
     participant C as UsuariosController
@@ -37,24 +38,37 @@ sequenceDiagram
     U->>T: abrirEdicaoNome()
     U->>T: salvarNome()
     Note over T: validarNome exige 3 caracteres ou mais, sem os espaços das pontas
-    T->>A: api("/usuarios/me", "PATCH", corpo)
-    Note over A,C: PATCH /usuarios/me com { nome }
-    A->>C: atualizarMeuPerfil(requisicao, atualizarPerfilDto)
-    C->>S: atualizarPerfil(sub, atualizarPerfilDto)
-    S->>S: validarId(id)
-    S->>M: findById(id)
-    M-->>S: usuario
-    Note over S: Com dto.email preenchido, lança BadRequestException (400)<br/>e a tela mostra o motivo com definirAvisoNome. Senão, apara dto.nome
-    S->>D: save()
-    D-->>S: usuario atualizado
-    S-->>C: usuario
-    C-->>A: 200 usuario
-    A-->>T: Resultado com o perfil
-    T->>T: definirPerfil(dados)
-    T->>T: mostrarToast("Nome atualizado.", "sucesso")
-    T->>SC: atualizar()
-    SC->>A: api("/usuarios/me")
-    A-->>SC: Resultado com o perfil
+    T->>L: autenticarComDispositivo()
+    L->>L: dispositivoProtegido()
+    Note over U,L: Com bloqueio de tela, o aparelho pede biometria, Face ID ou PIN.<br/>Na web e sem bloqueio, devolve true sem pedir
+    alt identidade não confirmada
+        L-->>T: false
+        Note over T: aviso = tom "erro" e mensagem "Não foi possível confirmar sua identidade."
+        T->>T: definirAvisoNome(aviso)
+        Note over T: A folha continua aberta e nada é enviado
+    else identidade confirmada
+        L-->>T: true
+        Note over T,A: corpo = { nome } com o nome aparado
+        T->>A: api("/usuarios/me", "PATCH", corpo)
+        Note over A,C: PATCH /usuarios/me
+        A->>C: atualizarMeuPerfil(requisicao, atualizarPerfilDto)
+        C->>S: atualizarPerfil(sub, atualizarPerfilDto)
+        S->>S: validarId(id)
+        S->>M: findById(id)
+        M-->>S: usuario
+        Note over S: Com dto.email preenchido, lança BadRequestException (400)<br/>e a tela mostra o motivo com definirAvisoNome. Senão, apara dto.nome
+        S->>D: save()
+        D-->>S: usuario atualizado
+        S-->>C: usuario
+        C-->>A: 200 usuario
+        A-->>T: Resultado com o perfil
+        T->>T: definirPerfil(dados)
+        T->>T: definirEditandoNome(false)
+        T->>T: mostrarToast("Nome atualizado.", "sucesso")
+        T->>SC: atualizar()
+        SC->>A: api("/usuarios/me")
+        A-->>SC: Resultado com o perfil
+    end
 ```
 
 ## SD-CFG-02 — Trocar e-mail

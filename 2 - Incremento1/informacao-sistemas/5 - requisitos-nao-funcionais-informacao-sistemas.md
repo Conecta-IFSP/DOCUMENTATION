@@ -47,24 +47,24 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | Campo             | Conteúdo                                                                                                                                                       |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Produto › Facilidade de uso                                                                                                                                    |
-| **Critério**      | Os botões "Popular dados de teste" e "Resetar sistema" só abrem um diálogo; a requisição só sai depois do toque em "Confirmar".                                |
-| **Medida**        | Tocar em "Cancelar", ou no botão voltar do Android, não envia nenhuma requisição e não muda nenhum dado.                                                       |
-| **Condição**      | Tela "Sistema", diálogos "Criar 3 usuários de teste?" e "Apagar todos os usuários, organizações e comissões? O administrador do sistema será mantido.".       |
-| **Verificação**   | Roteiros manuais CT-SIS-03 e CT-SIS-04.                                                                                                                         |
-| **Evidência**     | `FRONTEND/src/app/sistema.tsx` (estados `confirmacaoTeste` e `confirmacaoReset`) e `FRONTEND/src/components/Confirmacao.tsx`.                                  |
-| **Situação**      | Atendido. CT-SIS-03 e CT-SIS-04 aprovados pela equipe.                                                                                                          |
+| **Critério**      | Os botões "Popular dados de teste" e "Resetar sistema" só abrem um diálogo ou uma folha; a requisição só sai depois do toque em "Confirmar", nos dados de teste, ou no botão "Resetar sistema" da folha, no reset. |
+| **Medida**        | Tocar em "Cancelar", fora da folha ou no botão voltar do Android não envia nenhuma requisição e não muda nenhum dado.                                          |
+| **Condição**      | Tela "Sistema": diálogo "Criar 3 usuários de teste?" e folha "Resetar sistema".                                                                                |
+| **Verificação**   | Roteiro manual CT-SIS-03; no reset, CT-SIS-04, executado com o diálogo que o reset usava antes, e CT-SIS-13, com a folha atual.                                 |
+| **Evidência**     | `FRONTEND/src/app/sistema.tsx` (estados `confirmacaoTeste` e `confirmacaoReset`), `FRONTEND/src/components/Confirmacao.tsx` e `FRONTEND/src/components/FolhaInferior.tsx`. |
+| **Situação**      | Atendido nos dados de teste: CT-SIS-03 aprovado pela equipe. No reset, CT-SIS-04 foi aprovado com o diálogo anterior; com a folha, CT-SIS-13 está a executar.  |
 
 ### RNF-SIS-03 — Confirmação reforçada do reset
 
 | Campo             | Conteúdo                                                                                                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Classificação** | Externo › Legal › Segurança                                                                                                                                                    |
-| **Critério**      | O reset exige uma segunda prova de intenção além do toque em "Confirmar", por exemplo digitar uma palavra combinada ou confirmar a identidade com biometria ou PIN do aparelho. |
-| **Medida**        | Sem essa segunda prova, `POST /sistema/reset` não é enviado.                                                                                                                    |
-| **Condição**      | Botão "Resetar sistema" da tela "Sistema".                                                                                                                                      |
-| **Verificação**   | Inspeção de `FRONTEND/src/app/sistema.tsx`.                                                                                                                                     |
-| **Evidência**     | O diálogo do reset usa o mesmo componente `Confirmacao` dos dados de teste, sem campo de texto, sem `autenticarComDispositivo` e sem a opção `perigo`.                          |
-| **Situação**      | **Não implementado.** Pedido na avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura").                                                          |
+| **Critério**      | O reset exige duas provas de intenção além do toque no botão: digitar a palavra "RESETAR" e confirmar a identidade com a biometria ou o PIN do aparelho. A API também exige a palavra. |
+| **Medida**        | Com o texto diferente de "RESETAR", o botão da folha fica inativo. Sem a identidade confirmada, `POST /sistema/reset` não é enviado e a tela mostra "Não foi possível confirmar sua identidade.". Uma chamada direta à API sem `confirmacao` igual a "RESETAR" recebe 400 "Digite RESETAR para confirmar o reset" e nada é apagado. |
+| **Condição**      | Botão "Resetar sistema" da tela "Sistema" e rota `POST /sistema/reset`. Na web e em aparelho sem biometria, PIN ou senha de bloqueio, `autenticarComDispositivo` devolve verdadeiro sem pedir nada, e vale só a palavra. |
+| **Verificação**   | Teste automatizado CT-SIS-10 (validação do `ResetSistemaDto`); roteiro CT-SIS-12, com `curl` na API local; roteiro CT-SIS-13 no aparelho.                                      |
+| **Evidência**     | `BACKEND/src/sistema/dto/reset-sistema.dto.ts`, `@Body()` em `BACKEND/src/sistema/sistema.controller.ts`, `BACKEND/src/sistema/sistema.spec.ts`, `FRONTEND/src/app/sistema.tsx` (`textoReset` e `resetarSistema`) e `FRONTEND/src/services/autenticacao-local.ts`. |
+| **Situação**      | Implementado em 26/11/2026, atendendo à avaliação do Incremento 1 ("Resetar sistema precisa de uma confirmação mais segura"). A exigência da palavra na API foi verificada em CT-SIS-10 e CT-SIS-12; o fluxo no aparelho, CT-SIS-13, está a executar. |
 
 ### RNF-SIS-04 — Reset sem resultado pela metade
 
@@ -75,7 +75,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | Se uma das exclusões falhar, as outras são desfeitas e a resposta é de erro.                                                                                                            |
 | **Condição**      | `POST /sistema/reset` com falha do MongoDB durante as exclusões.                                                                                                                        |
 | **Verificação**   | Inspeção de `SistemaService.reset`.                                                                                                                                                     |
-| **Evidência**     | `BACKEND/src/sistema/sistema.service.ts`: as sete exclusões rodam ao mesmo tempo com `Promise.all`, sem sessão nem transação do MongoDB.                                               |
+| **Evidência**     | `BACKEND/src/sistema/sistema.service.ts`: as oito exclusões rodam ao mesmo tempo com `Promise.all`, sem sessão nem transação do MongoDB.                                               |
 | **Situação**      | **Não atendido.** Uma falha no meio pode deixar parte das coleções apagada e parte não; a API responde 500 e o administrador precisa conferir o banco.                                  |
 
 ### RNF-SIS-05 — Tempo de resposta das consultas
@@ -108,9 +108,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Produto › Portabilidade                                                                                                                        |
 | **Critério**      | A tela "Sistema" funciona do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, no iOS e no navegador.                                 |
-| **Medida**        | Consultar, popular e resetar sem erro e sem texto cortado nos cartões e nos diálogos.                                                          |
+| **Medida**        | Consultar, popular e resetar sem erro e sem texto cortado nos cartões, no diálogo e na folha do reset.                                         |
 | **Condição**      | Emuladores Android 7.0 e 16, Galaxy S24 com Android 16, aparelho iOS e navegador.                                                              |
-| **Verificação**   | Roteiros CT-SIS-01 a CT-SIS-05 e CT-SIS-08.                                                                                                    |
+| **Verificação**   | Roteiros CT-SIS-01 a CT-SIS-05, CT-SIS-08, CT-SIS-13 e CT-SIS-14.                                                                              |
 | **Evidência**     | O registro de CT-SIS-01 a CT-SIS-05 não informa em qual aparelho foram executados.                                                             |
 | **Situação**      | Pendente: não há execução registrada por aparelho; iOS não executado (CT-SIS-08).                                                              |
 
@@ -119,8 +119,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | Campo             | Conteúdo                                                                                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Classificação** | Produto › Facilidade de uso                                                                                                                 |
-| **Critério**      | A tela "Sistema" e seus diálogos usam as cores do tema ativo, sem cor fixa no código.                                                       |
-| **Medida**        | Nenhuma cor literal em `sistema.tsx`: todas vêm de `useTema().tema.cores`, assim como em `Confirmacao`, `Botao`, `Cartao` e `FaixaAviso`. |
+| **Critério**      | A tela "Sistema", seu diálogo e sua folha usam as cores do tema ativo, sem cor fixa no código.                                              |
+| **Medida**        | Nenhuma cor literal em `sistema.tsx` nem em `Confirmacao`, `FolhaInferior`, `CampoTexto`, `Botao`, `Cartao` e `FaixaAviso`: as cores vêm de `useTema().tema.cores`; só o texto do `Botao` primário usa a constante `MARCA.branco`, sobre o degradê do tema. |
 | **Condição**      | Tema do aplicativo em Claro e em Escuro.                                                                                                    |
 | **Verificação**   | Inspeção de `FRONTEND/src/app/sistema.tsx`.                                                                                                 |
 | **Evidência**     | `FRONTEND/src/app/sistema.tsx`.                                                                                                             |
@@ -135,8 +135,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | `npx vitest run` no BACKEND sem falha; `npx tsc --noEmit` e `npm run lint` no FRONTEND sem erro.                        |
 | **Condição**      | Código da branch `homolog`.                                                                                            |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-informacao-sistemas.md).                                                |
-| **Evidência**     | 16 arquivos e 227 testes aprovados em 26/11/2026. Nenhum deles chama `SistemaController` ou `SistemaService` diretamente. |
-| **Situação**      | Atendido em 26/11/2026 para a suíte existente; o serviço deste módulo não tem teste automatizado próprio.              |
+| **Evidência**     | 17 arquivos e 234 testes aprovados em 26/11/2026, já com `sistema.spec.ts`, que valida o `ResetSistemaDto` e chama `SistemaService.reset` com models simulados. Nenhum teste chama `SistemaController` nem as rotas `/sistema`. |
+| **Situação**      | Atendido em 26/11/2026. Só o reset tem teste automatizado próprio; status, relatórios e dados de teste não têm.         |
 
 ## Rastreabilidade
 

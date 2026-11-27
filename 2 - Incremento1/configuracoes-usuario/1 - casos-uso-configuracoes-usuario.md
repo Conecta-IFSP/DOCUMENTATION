@@ -16,7 +16,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 ## Atores
 
-**Usuário autenticado.** É qualquer pessoa com a sessão aberta no aparelho, seja um usuário comum ou o administrador do sistema. Pela tela "Perfil", pode alterar o próprio nome, escolher o tema, trocar o e-mail, trocar a senha e sair da conta. Só altera a própria conta: o servidor identifica a conta pelo token da sessão, e nenhuma tela deste módulo recebe o identificador de outra pessoa. Para trocar o e-mail ou a senha, precisa confirmar a identidade no aparelho (biometria, Face ID ou PIN), quando o aparelho tem bloqueio de tela. Não pode trocar o e-mail sem o código enviado ao novo endereço nem trocar a senha sem informar a atual. Não usa a recuperação de conta, que só aparece na tela de login.
+**Usuário autenticado.** É qualquer pessoa com a sessão aberta no aparelho, seja um usuário comum ou o administrador do sistema. Pela tela "Perfil", pode alterar o próprio nome, escolher o tema, trocar o e-mail, trocar a senha e sair da conta. Só altera a própria conta: o servidor identifica a conta pelo token da sessão, e nenhuma tela deste módulo recebe o identificador de outra pessoa. Para salvar um novo nome, trocar o e-mail ou trocar a senha, precisa confirmar a identidade no aparelho (biometria, Face ID ou PIN), quando o aparelho tem bloqueio de tela; escolher o tema não pede essa confirmação. Não pode trocar o e-mail sem o código enviado ao novo endereço nem trocar a senha sem informar a atual. Não usa a recuperação de conta, que só aparece na tela de login.
 
 **Visitante.** É a pessoa sem sessão aberta no aparelho, na tela de login. Pode recuperar a conta: recebe um código no e-mail, digita o código no aplicativo e define uma nova senha. Não precisa saber a senha antiga, mas precisa ter acesso à caixa de entrada do e-mail da conta, e a conta precisa estar ativa. Não altera nenhum outro dado da conta.
 
@@ -39,7 +39,7 @@ Visitante e usuário autenticado podem ser a mesma pessoa em momentos diferentes
 | UC-CFG-05   | RF-CFG-05 | Escolher tema          | Usuário autenticado |
 | UC-CFG-06   | RF-CFG-06 | Encerrar sessão        | Usuário autenticado |
 
-**Requisito RF-CFG-01 — Alterar nome do perfil.** O sistema deve permitir ao usuário autenticado ver o próprio nome e e-mail na tela "Perfil" e alterar o nome, vendo o novo nome na mesma tela, sem precisar sair dela.
+**Requisito RF-CFG-01 — Alterar nome do perfil.** O sistema deve permitir ao usuário autenticado ver o próprio nome e e-mail na tela "Perfil" e alterar o nome, depois de confirmar a identidade no aparelho, vendo o novo nome na mesma tela, sem precisar sair dela.
 
 **Requisito RF-CFG-02 — Trocar e-mail.** O sistema deve permitir ao usuário autenticado trocar o e-mail da conta, desde que confirme a troca digitando no aplicativo o código enviado ao novo endereço, em até 30 minutos.
 
@@ -51,4 +51,4 @@ Visitante e usuário autenticado podem ser a mesma pessoa em momentos diferentes
 
 **Requisito RF-CFG-06 — Encerrar sessão.** O sistema deve permitir ao usuário autenticado sair da conta no aparelho, depois de confirmar, voltando à tela de login.
 
-Não implementado: pré-visualizar o tema sem salvar (RF-CFG-05) e confirmar a identidade antes de alterar o nome (RF-CFG-01). Ver a seção "Melhorias não implementadas" de [Requisitos funcionais](2%20-%20requisitos-funcionais-configuracoes-usuario.md).
+Não implementado: pré-visualizar o tema sem salvar e confirmar a identidade antes de alterar o tema (RF-CFG-05). Ver a seção "Melhorias não implementadas" de [Requisitos funcionais](2%20-%20requisitos-funcionais-configuracoes-usuario.md).
