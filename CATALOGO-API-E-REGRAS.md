@@ -110,7 +110,7 @@ Todas exigem JWT e `USUARIO`. O service valida participação e papel de respons
 
 ## Atas
 
-Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A ata só existe depois do término da reunião.
+Documentadas em [Incremento 3 — Atas](4%20-%20Incremento%203/atas/README.md). A ata só existe depois do término da reunião.
 
 | Método e rota                     | Regra principal                                                                                       |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -123,7 +123,7 @@ Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A a
 
 ## Presença por link
 
-Documentada em [Incremento 2 — Reuniões](3%20-%20Incremento2/reunioes/README.md), RF-REU-17 a RF-REU-22. Todas exigem `X-API-Key`, JWT e `USUARIO`.
+Documentada em [Incremento 2 — Reuniões](3%20-%20Incremento%202/reunioes/README.md), RF-REU-17 a RF-REU-22. Todas exigem `X-API-Key`, JWT e `USUARIO`.
 
 | Método e rota | Quem usa | Regra principal |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ Exigem `X-API-Key`, JWT e `USUARIO`.
 
 ## Relatórios
 
-Documentado em [Incremento 3 — Relatório individual](4%20-%20Incremento3/relatorio-individual/README.md). Exige JWT e `USUARIO`. O usuário vem só do token; a rota não aceita o identificador de outra pessoa.
+Documentado em [Incremento 3 — Relatório individual](4%20-%20Incremento%203/relatorio-individual/README.md). Exige JWT e `USUARIO`. O usuário vem só do token; a rota não aceita o identificador de outra pessoa.
 
 | Método e rota | Entrada | Controller → service | Resposta/regra |
 | --- | --- | --- | --- |
@@ -155,7 +155,7 @@ Documentado em [Incremento 3 — Relatório individual](4%20-%20Incremento3/rela
 
 ## Votações
 
-Documentadas em [Incremento 3 — Votação](4%20-%20Incremento3/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
+Documentadas em [Incremento 3 — Votação](4%20-%20Incremento%203/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
 
 | Método e rota | Regra principal |
 | --- | --- |
