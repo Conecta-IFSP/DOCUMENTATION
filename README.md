@@ -91,7 +91,7 @@ Cada pasta do Incremento 1 contém os mesmos dez documentos e o SVG do diagrama 
 
 - [Atas de reunião](4%20-%20Incremento%203/atas/README.md): redação, envio com prazo, aprovação (automática no fim do prazo para quem não respondeu) e reprovação, versões e PDF.
 - [Manual de utilização](4%20-%20Incremento%203/manual-de-utilizacao/README.md): tela Ajuda com perguntas frequentes e manual completo em PDF.
-- [Relatório individual](4%20-%20Incremento%203/relatorio-individual/README.md): reuniões com presença confirmada por período, vínculos atuais com organizações e comissões, e exportação em PDF e CSV.
+- [Relatório individual](4%20-%20Incremento%203/relatorio-individual/README.md): reuniões com presença confirmada por período, vínculos atuais com organizações e comissões, e exportação em PDF e CSV; na web, desde o FRONTEND `299afc2`, o PDF é gerado com jsPDF e baixado direto, sem janela de impressão.
 - [Votação na reunião](4%20-%20Incremento%203/votacao/README.md): abertura e encerramento pelo presidente, que escolhe se a votação é fechada (ninguém vê quem votou em quê) ou aberta (todos veem depois do encerramento), voto único dos presentes numa opção, em branco ou nulo, e resultado.
 
 ## Licença

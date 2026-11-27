@@ -2,14 +2,14 @@
 
 Este documento cataloga os softwares usados no desenvolvimento do **Conecta+** e suas licenças: bibliotecas do aplicativo e da API, componentes copiados para o projeto, serviços externos, ferramentas de desenvolvimento, de documentação e de apoio.
 
-Levantamento feito em 27/11/2026 na branch `main` do FRONTEND (`4f53a25`) e do BACKEND (`6e0d3f5`), com Node.js 24.12.0 e `license-checker` 25.0.1. As licenças das bibliotecas foram lidas do `package.json` de cada pacote instalado em `node_modules`; antes do levantamento, as versões instaladas foram comparadas com o `package-lock.json` de cada repositório, sem nenhuma diferença.
+Levantamento feito em 27/11/2026 na branch `main` do FRONTEND (`4f53a25`) e do BACKEND (`6e0d3f5`) e refeito no mesmo dia para o FRONTEND no merge `def3ca2`, que traz o commit `299afc2` com a biblioteca `jspdf` 4.2.1 e 20 dependências dela, com Node.js 24.12.0 e `license-checker` 25.0.1. As licenças das bibliotecas foram lidas do `package.json` de cada pacote instalado em `node_modules`; antes do levantamento, as versões instaladas foram comparadas com o `package-lock.json` de cada repositório, sem nenhuma diferença.
 
 ## 1. Resumo
 
 | Repositório | Pacotes (total) | Usados em produção | Usados só em desenvolvimento | Licença predominante |
 | ----------- | --------------: | -----------------: | ---------------------------: | -------------------- |
 | BACKEND     |             375 |                152 |                          223 | MIT (88%)            |
-| FRONTEND    |             768 |                552 |                          216 | MIT (90%)            |
+| FRONTEND    |             789 |                573 |                          216 | MIT (90%)            |
 
 Os totais incluem as dependências diretas, declaradas no `package.json`, e as indiretas, que são as dependências delas. A lista completa, pacote por pacote, está em [licencas/backend.csv](licencas/backend.csv) e [licencas/frontend.csv](licencas/frontend.csv).
 
@@ -19,7 +19,7 @@ Todas as licenças encontradas são **permissivas** ou de **copyleft fraco**. Ne
 
 | Licença                   | BACKEND | FRONTEND |
 | ------------------------- | ------: | -------: |
-| MIT                       |     329 |      691 |
+| MIT                       |     329 |      709 |
 | ISC                       |      16 |       27 |
 | Apache-2.0                |      10 |       21 |
 | BSD-3-Clause              |      10 |        6 |
@@ -35,6 +35,9 @@ Todas as licenças encontradas são **permissivas** ou de **copyleft fraco**. Ne
 | MIT AND OFL-1.1           |       — |        1 |
 | Python-2.0                |       — |        1 |
 | CC-BY-4.0                 |       — |        1 |
+| (MPL-2.0 OR Apache-2.0)   |       — |        1 |
+| (MIT AND Zlib)            |       — |        1 |
+| MIT*                      |       — |        1 |
 
 A contagem não inclui o próprio Conecta+ (ver seção 6).
 
@@ -48,6 +51,7 @@ A contagem não inclui o próprio Conecta+ (ver seção 6).
 | **0BSD**, **MIT-0**, **Unlicense**, **CC0-1.0** | Permissiva sem condições | Nada; equivalem a domínio público. |
 | **BlueOak-1.0.0** | Permissiva | Manter a referência à licença. |
 | **Python-2.0** | Permissiva | Manter o aviso de copyright. |
+| **Zlib** | Permissiva | Não apresentar o software como próprio, manter o aviso e indicar as versões alteradas. |
 | **OFL-1.1** (SIL Open Font License) | Licença de fonte | A fonte pode ser usada e embutida no app; não pode ser vendida sozinha. |
 | **CC-BY-4.0** | Atribuição | Dar crédito ao autor. |
 | **MPL-2.0** | Copyleft fraco, por arquivo | Só os arquivos da própria biblioteca, se modificados, precisam continuar abertos. O Conecta+ não modifica nenhum. |
@@ -70,6 +74,9 @@ A contagem não inclui o próprio Conecta+ (ver seção 6).
 | `jsc-safe-url` | 0.2.4 | 0BSD | FRONTEND (indireta) | — |
 | `type-fest` | 0.21.3 (ambos), 0.7.1 (FRONTEND) | (MIT OR CC0-1.0) | Ambos (indireta) | Licença dupla, ambas permissivas. |
 | `fb-dotslash` | 0.5.8 | (MIT OR Apache-2.0) | FRONTEND (indireta) | Licença dupla, ambas permissivas. |
+| `dompurify` | 3.5.0 | (MPL-2.0 OR Apache-2.0) | FRONTEND (indireta) | Dependência opcional do `jspdf`; licença dupla; **o projeto usa sob a Apache-2.0**. |
+| `pako` | 2.2.0 | (MIT AND Zlib) | FRONTEND (indireta) | Compressão usada pelo `fast-png`, dependência do `jspdf`; as duas licenças são permissivas. |
+| `rgbcolor` | 1.0.1 | MIT* | FRONTEND (indireta) | Dependência do `canvg`, opcional do `jspdf`. O asterisco é do `license-checker`: o `package.json` declara "MIT OR SEE LICENSE IN FEEL-FREE.md", e o `LICENSE.md` do pacote é o texto da MIT; o projeto usa sob a MIT. |
 
 ## 4. Dependências diretas
 
@@ -133,7 +140,7 @@ Desenvolvimento:
 | `expo-linear-gradient` | 58.0.4 | MIT | Fundos visuais |
 | `expo-linking` | 58.0.17 | MIT | Links e retornos do login |
 | `expo-local-authentication` | 58.0.3 | MIT | Biometria, Face ID ou PIN do aparelho |
-| `expo-print` | 58.0.9 | MIT | PDF da ata, da lista de presença e do relatório |
+| `expo-print` | 58.0.9 | MIT | PDF da ata, da lista de presença e do relatório no celular |
 | `expo-router` | 58.0.33 | MIT | Navegação entre telas |
 | `expo-secure-store` | 58.0.3 | MIT | Token e tema no aparelho |
 | `expo-sharing` | 58.0.24 | MIT | Menu de compartilhamento do PDF e do CSV |
@@ -153,6 +160,7 @@ Desenvolvimento:
 | `react-native-safe-area-context` | 5.11.1 | MIT | Áreas seguras da tela |
 | `react-native-screens` | 4.30.1 | MIT | Telas nativas |
 | `react-native-web` | 0.21.4 | MIT | Execução na web |
+| `jspdf` | 4.2.1 | MIT | PDF do relatório individual baixado direto na web |
 
 Desenvolvimento:
 
@@ -222,7 +230,7 @@ O Conecta+ é distribuído sob a **licença MIT**, nos três repositórios: FRON
 
 A MIT **permite** usar, copiar, modificar, juntar a outros trabalhos, publicar, distribuir, sublicenciar e vender cópias do software, sem custo. Ela **exige** apenas que o aviso de copyright e o texto da licença acompanhem todas as cópias ou partes relevantes do software. O software é fornecido "no estado em que se encontra", sem garantia, e os autores não respondem por danos decorrentes do uso.
 
-A MIT é compatível com todas as dependências do projeto. Todas as licenças encontradas são permissivas (MIT, ISC, Apache-2.0, BSD, BlueOak, 0BSD, MIT-0, Unlicense, CC0, Python-2.0) ou de copyleft fraco por arquivo (MPL-2.0, que só alcança arquivos da própria biblioteca, que o projeto não modifica). Nenhuma exige que o Conecta+ adote a mesma licença. O `node-forge`, o único pacote com GPL-2.0, tem licença dupla e é usado sob a BSD-3-Clause. A fonte Poppins (OFL-1.1) pode ser embutida no aplicativo, e o `caniuse-lite` (CC-BY-4.0) só pede atribuição, registrada neste catálogo.
+A MIT é compatível com todas as dependências do projeto. Todas as licenças encontradas são permissivas (MIT, ISC, Apache-2.0, BSD, BlueOak, 0BSD, MIT-0, Unlicense, CC0, Python-2.0, Zlib) ou de copyleft fraco por arquivo (MPL-2.0, que só alcança arquivos da própria biblioteca, que o projeto não modifica). Nenhuma exige que o Conecta+ adote a mesma licença. O `node-forge`, o único pacote com GPL-2.0, tem licença dupla e é usado sob a BSD-3-Clause. A fonte Poppins (OFL-1.1) pode ser embutida no aplicativo, e o `caniuse-lite` (CC-BY-4.0) só pede atribuição, registrada neste catálogo.
 
 ## 7. Como atualizar este catálogo
 
