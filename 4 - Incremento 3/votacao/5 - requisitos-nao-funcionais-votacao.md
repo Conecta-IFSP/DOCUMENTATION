@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Votação na reunião
 
-> Padrão da disciplina · Módulo VOT · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo VOT · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -16,9 +16,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 **RNF-VOT-03 — Voto único.** Cada pessoa vota uma única vez em cada votação, e o voto não pode ser alterado.
 
-**RNF-VOT-04 — Sigilo do voto.** Ninguém, nem o presidente, vê pelo aplicativo em quem cada pessoa votou.
+**RNF-VOT-04 — Sigilo do voto conforme o tipo da votação.** Na votação do tipo fechada, ninguém, nem o presidente, vê pelo aplicativo em quem cada pessoa votou. Na do tipo aberta, todos os participantes veem quem votou em quê, mas só depois do encerramento.
 
-**RNF-VOT-05 — Resultado só depois do encerramento.** O resultado parcial não pode influenciar quem ainda vai votar.
+**RNF-VOT-05 — Resultado só depois do encerramento.** O resultado parcial, inclusive a quantidade de votos em branco e nulos e, na votação do tipo aberta, a lista de quem votou em quê, não pode influenciar quem ainda vai votar.
 
 **RNF-VOT-06 — Proteção contra gravação simultânea.** Votos e encerramento enviados ao mesmo tempo não podem gerar voto duplicado nem voto depois do encerramento.
 
@@ -68,29 +68,29 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Evidência**     | `ReunioesService.votar` e `ReunioesController`. |
 | **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026. |
 
-### RNF-VOT-04 — Sigilo do voto
+### RNF-VOT-04 — Sigilo do voto conforme o tipo da votação
 
 | Campo             | Conteúdo |
 | ----------------- | -------- |
 | **Classificação** | Externo › Legal › Privacidade |
-| **Critério**      | Nenhuma resposta da API contém a lista de votos nem o `usuario_id` de quem votou. |
-| **Medida**        | Cada votação devolvida tem apenas `total_votos`, `meu_voto` (o voto de quem consulta) e `resultado` (contagem por opção); a propriedade `votos` não existe na resposta, para nenhum usuário, inclusive o presidente. |
+| **Critério**      | Nenhuma resposta da API contém a lista `votos`. Na votação de `modo = FECHADA`, nenhuma resposta contém o `usuario_id` nem o nome de quem votou. Na de `modo = ABERTA`, a lista nominal só é devolvida depois do encerramento. |
+| **Medida**        | Cada votação devolvida tem `total_votos`, `meu_voto` (o voto de quem consulta), `resultado` (contagem por opção), `brancos`, `nulos` e `votos_nominais`; a propriedade `votos` não existe na resposta, para nenhum usuário, inclusive o presidente, em nenhum dos dois tipos. `votos_nominais` é `null` sempre que `modo` é `FECHADA` e, com `modo` igual a `ABERTA`, enquanto a votação não está encerrada; encerrada a votação do tipo aberta, traz, para qualquer participante, um item `{ usuario_id, nome, voto }` por voto. Na tela, a lista "Quem votou em quê" só aparece quando `votos_nominais` tem itens. |
 | **Condição**      | Todas as rotas que devolvem reunião (`GET /reunioes`, `GET /reunioes/:id` e as rotas de ação). |
-| **Verificação**   | Teste automatizado CT-VOT-08. |
-| **Evidência**     | `ReunioesService.apresentarVotacao`. |
-| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026. O `usuario_id` do voto fica gravado no banco, para garantir o voto único: quem tem acesso direto ao MongoDB consegue ligar cada voto a uma pessoa. A escolha entre votação aberta (nominal) e fechada não está implementada: toda votação é secreta no aplicativo. |
+| **Verificação**   | Testes automatizados CT-VOT-08 e CT-VOT-19; roteiros manuais CT-VOT-27 e CT-VOT-28. |
+| **Evidência**     | `ReunioesService.apresentarVotacao` e `renderizarResultado` em `FRONTEND/src/components/VotacoesReuniao.tsx`. |
+| **Situação**      | Para o voto sempre secreto, atendido em 13/11/2026 e teste CT-VOT-08 aprovado de novo em 26/11/2026. Desde 27/11/2026, o sigilo depende do tipo: CT-VOT-08 e CT-VOT-19 aprovados em 27/11/2026; roteiros manuais CT-VOT-27 e CT-VOT-28 não executados. O `usuario_id` do voto fica gravado no banco nos dois tipos, para garantir o voto único: quem tem acesso direto ao MongoDB consegue ligar cada voto a uma pessoa, inclusive na votação fechada. |
 
 ### RNF-VOT-05 — Resultado só depois do encerramento
 
 | Campo             | Conteúdo |
 | ----------------- | -------- |
 | **Classificação** | Externo › Ético |
-| **Critério**      | A contagem por opção só é devolvida com a votação encerrada. |
-| **Medida**        | Com `situacao = ABERTA`, `resultado` é `null`; com `ENCERRADA` (pelo presidente ou pelo fim da reunião), `resultado` traz uma quantidade por opção. |
+| **Critério**      | A contagem por opção, a de votos em branco, a de votos nulos e a lista nominal só são devolvidas com a votação encerrada. |
+| **Medida**        | Com `situacao = ABERTA`, `resultado`, `brancos`, `nulos` e `votos_nominais` são `null`; com `ENCERRADA` (pelo presidente ou pelo fim da reunião), `resultado` traz uma quantidade por opção, `brancos` e `nulos` trazem números e, só com `modo = ABERTA`, `votos_nominais` traz a lista. Durante a votação, só `total_votos` e `meu_voto` informam algo sobre os votos. |
 | **Condição**      | Qualquer consulta à reunião. |
-| **Verificação**   | Testes automatizados CT-VOT-08 e CT-VOT-09. |
+| **Verificação**   | Testes automatizados CT-VOT-08, CT-VOT-09, CT-VOT-17 e CT-VOT-19. |
 | **Evidência**     | `ReunioesService.apresentarVotacao`. |
-| **Situação**      | Atendido em 13/11/2026; testes aprovados de novo em 26/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; testes CT-VOT-08 e CT-VOT-09 aprovados de novo em 26/11/2026. Os quatro testes aprovados em 27/11/2026, já com os votos em branco, os nulos e a lista nominal. |
 
 ### RNF-VOT-06 — Proteção contra gravação simultânea
 
@@ -122,9 +122,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Produto › Portabilidade |
 | **Critério**      | A aba "Votações" funciona nos mesmos aparelhos que o restante do aplicativo. |
-| **Medida**        | Abrir, votar, encerrar e ver o resultado sem erro e sem texto cortado em Android 7.0 ou superior e em iOS. |
+| **Medida**        | Abrir votações dos dois tipos, votar em opção, em branco e nulo, encerrar e ver o resultado e a lista "Quem votou em quê" sem erro e sem texto cortado em Android 7.0 ou superior e em iOS. |
 | **Condição**      | APK de release e aplicativo iOS apontando para a API. |
-| **Verificação**   | Roteiros manuais CT-VOT-10 a CT-VOT-14. |
+| **Verificação**   | Roteiros manuais CT-VOT-10 a CT-VOT-14 e CT-VOT-23 a CT-VOT-28. |
 | **Evidência**     | Componentes do React Native usados também nas demais telas (`Botao`, `CampoTexto`, `FolhaInferior`, `Confirmacao`). |
 | **Situação**      | Critério definido; execução nos aparelhos pendente. |
 
@@ -134,11 +134,11 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Produto › Facilidade de uso |
 | **Critério**      | Todas as cores da aba vêm do tema ativo. |
-| **Medida**        | Nenhuma cor fixa no componente; textos, faixas, barras do resultado e etiquetas usam `useTema().tema.cores`. |
+| **Medida**        | Nenhuma cor fixa no componente; textos, faixas, barras do resultado, etiquetas, a seção "Tipo de votação", os botões "Votar em branco" e "Votar nulo", a linha do tipo no cartão e a lista "Quem votou em quê" usam `useTema().tema.cores`. |
 | **Condição**      | Tema claro e tema escuro. |
 | **Verificação**   | Inspeção do código; roteiro manual CT-VOT-14. |
 | **Evidência**     | `FRONTEND/src/components/VotacoesReuniao.tsx`. |
-| **Situação**      | Verificado por inspeção em 13/11/2026; roteiro manual pendente. |
+| **Situação**      | Verificado por inspeção em 13/11/2026 e, para os elementos do voto em branco, do voto nulo e do tipo da votação, em 27/11/2026; roteiro manual pendente. |
 
 ### RNF-VOT-10 — Testabilidade
 
@@ -146,21 +146,22 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Organizacional › Entrega |
 | **Critério**      | As regras da votação têm testes automatizados que rodam junto com a suíte do backend. |
-| **Medida**        | Os 9 testes de `votacoes.spec.ts` e o restante da suíte passam sem falha. |
+| **Medida**        | Os 22 testes de `votacoes.spec.ts` e o restante da suíte passam sem falha. |
 | **Condição**      | BACKEND na branch `homolog`, comando `npx vitest run`. |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-votacao.md). |
 | **Evidência**     | `BACKEND/src/reunioes/votacoes.spec.ts`. |
-| **Situação**      | Atendido em 26/11/2026: 16 arquivos e 227 testes aprovados. |
+| **Situação**      | Atendido em 26/11/2026: 16 arquivos e 227 testes aprovados, 9 deles em `votacoes.spec.ts`. Atendido em 27/11/2026, com as alterações do voto em branco, do voto nulo e do tipo da votação: 17 arquivos e 246 testes aprovados, 22 deles em `votacoes.spec.ts`. |
 
 ## Limitações conhecidas
 
 - Uma presença em `AGUARDANDO` já permite votar. Se quem agendou recusar essa presença depois, o voto já registrado continua valendo.
 - Um presidente de comissão que não foi incluído entre os participantes da reunião não consegue abrir votação nela ("Você não participa desta reunião").
-- Quando a reunião é cancelada durante uma votação aberta, a votação continua apresentada como "Aberta", sem resultado, até o término previsto da reunião. O presidente ainda vê "Encerrar votação", mas a API recusa com "Esta reunião foi cancelada"; os demais veem a faixa "Esta reunião foi cancelada." no lugar das opções.
+- Quando a reunião é cancelada durante uma votação aberta, a votação continua apresentada como "Em andamento", sem resultado, até o término previsto da reunião. O presidente ainda vê "Encerrar votação", mas a API recusa com "Esta reunião foi cancelada"; os demais veem a faixa "Esta reunião foi cancelada." no lugar das opções.
 - Quando a API recusa a abertura de uma votação, a folha "Nova votação" continua aberta e a mensagem fica na faixa vermelha da tela da reunião, atrás da folha.
 - Não há limite para a quantidade de votações por reunião além do tamanho máximo de um documento do MongoDB (16 MB).
-- Voto em branco ou nulo, como escolhas próprias, e a escolha entre votação aberta e fechada não estão implementados.
+- O tipo da votação (fechada ou aberta) é escolhido na abertura e não pode ser trocado depois.
+- Na votação do tipo aberta, o nome de cada votante vem da lista de participantes da reunião. Se o votante deixar de ser participante (o organizador pode tirar convidados ao editar a reunião antes do término) ou a conta dele não existir mais, o voto continua contado e a lista "Quem votou em quê" mostra "Usuário indisponível" no lugar do nome.
 
 ## Rastreabilidade
 
-RNF-VOT-01 a RNF-VOT-10 ↔ RF-VOT-01 a RF-VOT-04 ↔ CT-VOT-01 a CT-VOT-14.
+RNF-VOT-01 a RNF-VOT-10 ↔ RF-VOT-01 a RF-VOT-04 ↔ CT-VOT-01 a CT-VOT-28.

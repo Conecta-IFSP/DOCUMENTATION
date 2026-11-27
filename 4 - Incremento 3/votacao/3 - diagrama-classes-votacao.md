@@ -1,6 +1,6 @@
 # Diagrama de classes — Votação na reunião
 
-> Padrão da disciplina · Módulo VOT · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo VOT · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -26,15 +26,17 @@ classDiagram
             -titulo: string
             -descricao: string
             -opcoes: string[]
+            -modo: ModoVotacao
             -erroFormulario: string
             -confirmacao: Pendente
             +abrirFormulario() void
             +validar() string
             +enviar() Promise~void~
-            +pedirVoto(votacao: VotacaoApresentada, indice: number) void
+            +pedirVoto(votacao: VotacaoApresentada, voto: EscolhaVoto) void
             +pedirEncerramento(votacao: VotacaoApresentada) void
             +renderizarAberta(votacao: VotacaoApresentada) Element
             +renderizarResultado(votacao: VotacaoApresentada) Element
+            +descreverVoto(votacao: VotacaoApresentada, voto: EscolhaVoto) string$
         }
         class api {
             <<module>>
@@ -55,7 +57,7 @@ classDiagram
             -comissaoModel: Model~Comissao~
             -usuarioModel: Model~Usuario~
             +abrirVotacao(id: string, dto: AbrirVotacaoDto, usuarioId: string) Promise~Reuniao~
-            +votar(id: string, votacaoId: string, opcao: number, usuarioId: string) Promise~Reuniao~
+            +votar(id: string, votacaoId: string, voto: VotarDto, usuarioId: string) Promise~Reuniao~
             +encerrarVotacao(id: string, votacaoId: string, usuarioId: string) Promise~Reuniao~
             +buscarPorId(id: string, usuarioId: string) Promise~Reuniao~
             -carregar(id: string, usuarioId: string) Promise~Carga~
@@ -64,15 +66,17 @@ classDiagram
             -buscarVotacao(reuniao: Reuniao, votacaoId: string) Votacao
             -popular(reuniao: Reuniao) Promise~Reuniao~
             -apresentar(reuniao: Reuniao, usuarioId: string) Reuniao
-            -apresentarVotacao(votacao: Votacao, fim: Date, usuarioId: string) VotacaoApresentada
+            -apresentarVotacao(votacao: Votacao, fim: Date, usuarioId: string, nomes: Map) VotacaoApresentada
             -responder(reuniao: Reuniao, usuarioId: string, conflito: string) Promise~Reuniao~
         }
         class AbrirVotacaoDto {
             +titulo: string
             +descricao: string
             +opcoes: string[]
+            +modo: ModoVotacao
         }
         class VotarDto {
+            +tipo: TipoVoto
             +opcao: number
         }
         class VotacaoApresentada {
@@ -81,12 +85,22 @@ classDiagram
             +titulo: string
             +descricao: string
             +opcoes: string[]
+            +modo: ModoVotacao
             +situacao: SituacaoVotacao
             +aberta_em: Date
             +encerrada_em: Date
             +total_votos: number
-            +meu_voto: number
+            +meu_voto: EscolhaVoto
             +resultado: number[]
+            +brancos: number
+            +nulos: number
+            +votos_nominais: VotoNominal[]
+        }
+        class VotoNominal {
+            <<tipo>>
+            +usuario_id: ObjectId
+            +nome: string
+            +voto: EscolhaVoto
         }
     }
 
@@ -105,6 +119,7 @@ classDiagram
             +titulo: string
             +descricao: string
             +opcoes: string[]
+            +modo: ModoVotacao
             +situacao: SituacaoVotacao
             +aberta_por: ObjectId
             +aberta_em: Date
@@ -113,6 +128,7 @@ classDiagram
         }
         class Voto {
             +usuario_id: ObjectId
+            +tipo: TipoVoto
             +opcao: number
             +votado_em: Date
         }
@@ -141,6 +157,17 @@ classDiagram
             ABERTA
             ENCERRADA
         }
+        class ModoVotacao {
+            <<enumeration>>
+            ABERTA
+            FECHADA
+        }
+        class TipoVoto {
+            <<enumeration>>
+            OPCAO
+            BRANCO
+            NULO
+        }
     }
 
     TelaReuniao ..> VotacoesReuniao : mostra na aba Votações
@@ -155,7 +182,8 @@ classDiagram
     ReunioesService ..> VotacaoApresentada : monta
     ReunioesService ..> Reuniao : lê e grava
     ReunioesService ..> Comissao : confere o presidente
-    ReunioesService ..> Usuario : confere a conta
+    ReunioesService ..> Usuario : confere a conta e lê o nome
+    VotacaoApresentada "1" *-- "0..*" VotoNominal : votos_nominais
 
     Reuniao "1" *-- "0..*" Votacao : votacoes
     Votacao "1" *-- "0..*" Voto : votos
@@ -166,7 +194,12 @@ classDiagram
     Voto "0..*" --> "1" Usuario : usuario_id
     Participante "0..*" --> "1" Usuario : usuario_id
     Votacao ..> SituacaoVotacao : situacao
+    Votacao ..> ModoVotacao : modo
+    Voto ..> TipoVoto : tipo
     VotacaoApresentada ..> SituacaoVotacao : situacao
+    VotacaoApresentada ..> ModoVotacao : modo
+    AbrirVotacaoDto ..> ModoVotacao : modo
+    VotarDto ..> TipoVoto : tipo
 ```
 
 Figura 2 — Diagrama de classes da votação, por camada. Fonte: equipe Conecta+.
@@ -181,11 +214,15 @@ Figura 2 — Diagrama de classes da votação, por camada. Fonte: equipe Conecta
 
 Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem qualquer quantidade de votações (`0..*`), e cada `Votacao` tem de nenhum a vários votos (`0..*`), no máximo um por usuário.
 
-`VotacaoApresentada` está marcada como `<<tipo>>` porque não é gravada nem declarada como classe: é o objeto que `apresentarVotacao` monta para a resposta da API, sem a lista de votos. No aplicativo, esse formato é declarado como o tipo `Votacao` em `FRONTEND/src/services/api.ts`; o diagrama usa o nome `VotacaoApresentada` nos parâmetros de `VotacoesReuniao` para não confundi-lo com o subdocumento gravado.
+`VotacaoApresentada` está marcada como `<<tipo>>` porque não é gravada nem declarada como classe: é o objeto que `apresentarVotacao` monta para a resposta da API, sem a lista de votos. No aplicativo, esse formato é declarado como o tipo `Votacao` em `FRONTEND/src/services/api.ts`; o diagrama usa o nome `VotacaoApresentada` nos parâmetros de `VotacoesReuniao` para não confundi-lo com o subdocumento gravado. `VotoNominal` também é `<<tipo>>`: é cada item de `votos_nominais`, a lista de quem votou em quê, que só existe na resposta. `EscolhaVoto` é o tipo declarado em `FRONTEND/src/services/api.ts` como `number | 'BRANCO' | 'NULO'`, isto é, a posição de uma opção, o voto em branco ou o voto nulo; ele aparece em `meu_voto`, em `VotoNominal.voto` e no parâmetro `voto` de `pedirVoto` e de `descreverVoto`.
+
+`descreverVoto` aparece sublinhada porque é uma função do arquivo `VotacoesReuniao.tsx` declarada fora do componente, que não depende do estado dele: transforma a escolha no trecho de texto usado na confirmação e na faixa do voto.
 
 `TelaReuniao` e `VotacoesReuniao` se ligam por dependência, e não por composição: o componente não é um dado gravado dentro da tela. A tela entrega a ele a reunião, as condições de exibição e a própria função `executar`.
 
-No código, os atributos opcionais são `encerrada_em`, em `Votacao`; `descricao`, em `AbrirVotacaoDto`; e `presenca` e `saida`. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-votacao.md).
+O parâmetro `nomes` de `apresentarVotacao` é um `Map` de texto para texto (`usuario_id` do participante para o `nome`), montado por `apresentar`.
+
+No código, os atributos opcionais são `encerrada_em`, em `Votacao`; `opcao`, em `Voto`; `descricao` e `modo`, em `AbrirVotacaoDto`; `tipo` e `opcao`, em `VotarDto`; e `presenca` e `saida`. `Votacao.modo` e `Voto.tipo` não são obrigatórios no schema, mas têm valor padrão. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-votacao.md).
 
 ## Rotas atendidas pelo controller
 
@@ -202,10 +239,11 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 
 - `Votacao` e `Voto` não existem fora de `Reuniao`;
 - cada usuário tem no máximo um `Voto` por `Votacao`;
-- `Voto.opcao` é a posição da opção em `Votacao.opcoes`, começando em 0;
+- `Voto.opcao` é a posição da opção em `Votacao.opcoes`, começando em 0, e só existe quando `Voto.tipo` é `OPCAO`;
+- `Votacao.modo` é escolhido na abertura e não muda depois;
 - só o membro `RESPONSAVEL` da `Comissao` da reunião, com a comissão ativa, abre e encerra votações;
-- a lista `votos` nunca sai da API; o aplicativo recebe só o total, o próprio voto e, depois do encerramento, o resultado;
-- o aplicativo nunca decide se a votação está encerrada: ele mostra a situação que a API devolve.
+- a lista `votos` nunca sai da API; o aplicativo recebe o total, o próprio voto e, depois do encerramento, o resultado por opção, os brancos, os nulos e, só no modo `ABERTA`, os itens de `VotoNominal`;
+- o aplicativo nunca decide se a votação está encerrada nem se mostra quem votou em quê: ele mostra a situação e a lista que a API devolve.
 
 ## Rastreabilidade
 

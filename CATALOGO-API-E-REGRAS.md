@@ -1,6 +1,6 @@
 # Catálogo da API e regras implementadas
 
-Fonte: `BACKEND`, branch `homolog`, commit `785e3b2`, conferido em 27/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
+Fonte: `BACKEND`, branch `homolog`, commit `d1f1aeb`, conferido em 27/11/2026. Todas as rotas, salvo as exceções indicadas, exigem `X-API-Key`. `ApiKeyGuard` compara a chave com `timingSafeEqual`.
 
 ## Autenticação e cadastro
 
@@ -157,11 +157,13 @@ Documentado em [Incremento 3 — Relatório individual](4%20-%20Incremento%203/r
 
 Documentadas em [Incremento 3 — Votação](4%20-%20Incremento%203/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
 
-| Método e rota | Regra principal |
-| --- | --- |
-| `POST /reunioes/:id/votacoes` | responsável da comissão abre a votação com a reunião em andamento; de 2 a 10 opções sem repetição |
-| `POST /reunioes/:id/votacoes/:votacaoId/votos` | participante com entrada não recusada e sem saída vota uma única vez, antes do fim da reunião |
-| `POST /reunioes/:id/votacoes/:votacaoId/encerrar` | responsável da comissão encerra a votação aberta; o resultado por opção passa a ser devolvido |
+| Método e rota | Corpo | Regra principal |
+| --- | --- | --- |
+| `POST /reunioes/:id/votacoes` | `titulo`, `descricao` (opcional), `opcoes` e `modo` (opcional: `FECHADA`, o padrão, ou `ABERTA`) | responsável da comissão abre a votação com a reunião em andamento; de 2 a 10 opções sem repetição; outro `modo`: 400 "Escolha se a votação é aberta ou fechada"; o `modo` não muda depois |
+| `POST /reunioes/:id/votacoes/:votacaoId/votos` | `tipo` (opcional: `OPCAO`, o padrão, `BRANCO` ou `NULO`) e `opcao` (inteiro a partir de 0, exigido só no tipo `OPCAO`) | participante com entrada não recusada e sem saída vota uma única vez, antes do fim da reunião; com `BRANCO` ou `NULO`, `opcao` é ignorada e não é gravada; outro `tipo`: 400 "Tipo de voto inválido"; `opcao` ausente, não inteira ou negativa no tipo `OPCAO`: 400 "Escolha uma opção de voto"; `opcao` fora da lista: 400 "Opção de voto inválida" |
+| `POST /reunioes/:id/votacoes/:votacaoId/encerrar` | nenhum | responsável da comissão encerra a votação aberta; o resultado por opção, os brancos, os nulos e, no `modo` `ABERTA`, a lista nominal passam a ser devolvidos |
+
+Cada item de `votacoes` na resposta traz `_id`, `titulo`, `descricao`, `opcoes`, `modo`, `situacao` (`ABERTA` ou `ENCERRADA`; a votação de reunião terminada é devolvida como `ENCERRADA`), `aberta_em`, `encerrada_em`, `total_votos` (inclui brancos e nulos), `meu_voto` (posição da opção, `BRANCO`, `NULO` ou `null`), `resultado` (votos por opção, sem brancos e nulos), `brancos`, `nulos` e `votos_nominais`. Enquanto a votação não está encerrada, `resultado`, `brancos`, `nulos` e `votos_nominais` são `null`. `votos_nominais` só é preenchido com a votação encerrada e `modo` `ABERTA`: uma lista de `{ usuario_id, nome, voto }` em ordem alfabética de nome, com "Usuário indisponível" quando o votante não está mais entre os participantes; no `modo` `FECHADA`, é sempre `null`. Votações gravadas sem `modo` são devolvidas como `FECHADA`, e votos gravados sem `tipo` contam como voto em opção.
 
 ## Códigos HTTP usuais
 

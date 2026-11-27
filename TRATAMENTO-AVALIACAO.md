@@ -75,15 +75,15 @@ Situação em 26/11/2026, na branch `homolog`. Os itens de documentação (17 a 
 
 ## Avaliação do Incremento 3
 
-Situação em 26/11/2026, na branch `homolog`. A avaliação da documentação foi feita na GitHub Wiki; os itens abaixo indicam onde a correção está no repositório, que ainda precisa ser levado para a wiki.
+Situação em 27/11/2026, na branch `homolog`. A avaliação da documentação foi feita na GitHub Wiki; os itens abaixo indicam onde a correção está no repositório, que ainda precisa ser levado para a wiki.
 
 | #   | Tema                  | Observação                                                                                   | Tipo   | Situação        | Onde está |
 | --: | --------------------- | -------------------------------------------------------------------------------------------- | ------ | --------------- | --------- |
 |   1 | Ata de reunião        | Poderia deixar visualizar as versões rejeitadas da ata.                                      | Código | Corrigido       | "Versões anteriores" na aba Ata; RF-ATA-06 e CT-ATA-21. |
 |   2 | Ata de reunião        | Reprovar a ata também deveria pedir biometria.                                               | Código | Corrigido       | Confirmação de identidade do aparelho antes de reprovar; RF-ATA-04 e CT-ATA-25. |
 |   3 | Ata de reunião        | Erro `FileSystemFile.move` ao gerar o PDF.                                                   | Código | Corrigido       | No aplicativo instalado, menu de compartilhamento; no Expo Go e na web, tela de impressão; RF-ATA-08, CT-ATA-22, CT-ATA-23 e CT-ATA-26. |
-|   4 | Votação               | Não permite votar em branco ou nulo.                                                         | Código | Não implementado | Registrado no módulo VOT. |
-|   5 | Votação               | Não permite escolher votação aberta ou fechada.                                              | Código | Não implementado | Registrado no módulo VOT. |
+|   4 | Votação               | Não permite votar em branco ou nulo.                                                         | Código | Corrigido       | Botões "Votar em branco" e "Votar nulo" abaixo das opções; brancos e nulos contados à parte no resultado (27/11/2026); RF-VOT-02, RF-VOT-04, CT-VOT-16, CT-VOT-17, CT-VOT-20, CT-VOT-21 e os roteiros CT-VOT-25 a CT-VOT-27, a executar. |
+|   5 | Votação               | Não permite escolher votação aberta ou fechada.                                              | Código | Corrigido       | "Tipo de votação" na abertura, com "Fechada" (padrão) e "Aberta"; na aberta, a lista "Quem votou em quê" aparece para todos depois do encerramento (27/11/2026); RF-VOT-01, RF-VOT-04, RNF-VOT-04, CT-VOT-15, CT-VOT-18, CT-VOT-19, CT-VOT-22 e os roteiros CT-VOT-23, CT-VOT-24, CT-VOT-27 e CT-VOT-28, a executar. |
 |   6 | Relatório individual  | Poderia exibir as comissões e organizações de que a pessoa faz parte.                        | Código | Corrigido       | "Meus vínculos atuais" na tela, no PDF e no CSV; RF-REL-03, CT-REL-05 e CT-REL-38. |
 |   7 | Relatório individual  | Erro `FileSystemFile.move` ao gerar o PDF.                                                   | Código | Corrigido       | O PDF é compartilhado sem mover o arquivo; RF-REL-04 e CT-REL-18. |
 |   8 | Manual de utilização  | O manual em PDF depende de internet por estar num link.                                      | Código | Corrigido       | Manual incluído no aplicativo; módulo MAN. |

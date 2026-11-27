@@ -1,10 +1,10 @@
 # Diagrama relacional — Votação na reunião
 
-> Padrão da disciplina · Módulo VOT · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo VOT · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 
-O banco é o MongoDB, que não tem tabelas: as votações, suas opções e os votos ficam dentro do documento da reunião, na coleção `reunioes`. O diagrama abaixo é uma **visão lógica**: ele separa esses dados em entidades para deixar claras as chaves, as cardinalidades e as restrições. A votação não cria nenhuma coleção nova; ela lê a presença, que pertence ao módulo de [Reuniões](../../3%20-%20Incremento%202/reunioes/4%20-%20diagrama-relacional-reunioes.md), para decidir quem vota.
+O banco é o MongoDB, que não tem tabelas: as votações, com o seu tipo (fechada ou aberta), as suas opções e os votos, com o tipo de cada voto (em opção, em branco ou nulo), ficam dentro do documento da reunião, na coleção `reunioes`. O diagrama abaixo é uma **visão lógica**: ele separa esses dados em entidades para deixar claras as chaves, as cardinalidades e as restrições. A votação não cria nenhuma coleção nova; ela lê a presença, que pertence ao módulo de [Reuniões](../../3%20-%20Incremento%202/reunioes/4%20-%20diagrama-relacional-reunioes.md), para decidir quem vota.
 
 ## Diagrama
 
@@ -18,7 +18,7 @@ erDiagram
     USUARIO ||--o{ VOTACAO : "abre (presidente)"
     VOTACAO ||--|{ VOTACAO_OPCAO : oferece
     VOTACAO ||--o{ VOTO : recebe
-    VOTACAO_OPCAO ||--o{ VOTO : "escolhida em"
+    VOTACAO_OPCAO |o--o{ VOTO : "escolhida em"
     USUARIO ||--o{ VOTO : vota
 
     REUNIAO {
@@ -45,6 +45,7 @@ erDiagram
         ObjectId reuniao_id FK
         string titulo
         string descricao
+        string modo
         string situacao
         ObjectId aberta_por FK
         date aberta_em
@@ -58,6 +59,7 @@ erDiagram
     VOTO {
         ObjectId votacao_id PK,FK
         ObjectId usuario_id PK,FK
+        string tipo
         int opcao FK
         date votado_em
     }
@@ -83,13 +85,18 @@ Figura 3 — Visão lógica relacional da votação. Fonte: equipe Conecta+.
 | `REUNIAO_PRESENCA`     | `reunioes.participantes[].presenca`          | Subdocumento de um participante; define quem pode votar.                                                 |
 | `VOTACAO`              | `reunioes.votacoes[]`                        | Subdocumento com `_id` próprio. `reuniao_id` não é gravado: vem do documento que contém a votação.       |
 | `VOTACAO_OPCAO`        | `reunioes.votacoes[].opcoes[]`               | Lista de textos. `indice` não é gravado: é a posição do texto na lista, começando em 0.                  |
-| `VOTO`                 | `reunioes.votacoes[].votos[]`                | Subdocumento sem `_id`. `votacao_id` vem da votação que o contém; `opcao` é o `indice` da opção escolhida. |
+| `VOTO`                 | `reunioes.votacoes[].votos[]`                | Subdocumento sem `_id`. `votacao_id` vem da votação que o contém; `opcao` é o `indice` da opção escolhida e só existe no voto em opção. Por isso a ligação com `VOTACAO_OPCAO` é opcional do lado do voto: o voto em branco e o nulo não apontam para nenhuma opção. |
 | `COMISSAO`, `USUARIO`  | coleções `comissoes` e `usuarios`            | Descritas nos módulos do Incremento 1; aqui só os campos usados.                                         |
 
 ## Regras de integridade
 
 - **Voto único.** Cada pessoa vota uma vez em cada votação. O serviço confere isso antes de gravar e, além disso, o comando de gravação só acrescenta o voto se a pessoa ainda não estiver na lista de votos daquela votação; assim, dois envios ao mesmo tempo não geram dois votos.
-- **Opção existente.** O número da opção escolhida precisa apontar para uma opção da própria votação: a validação de entrada recusa número negativo ou não inteiro, e o serviço recusa número maior ou igual à quantidade de opções.
+- **Três tipos de voto.** Cada voto é de um de três tipos: em uma opção, em branco ou nulo. Quem não informa o tipo vota em uma opção. A validação de entrada recusa qualquer outro tipo, e a definição dos dados usada pela API na gravação também só aceita esses três.
+- **Opção existente, só no voto em opção.** No voto em opção, o número da opção escolhida precisa apontar para uma opção da própria votação: a validação de entrada recusa número ausente, negativo ou não inteiro, e o serviço recusa número maior ou igual à quantidade de opções. No voto em branco e no nulo, nenhum número de opção é conferido nem guardado, mesmo que venha na requisição.
+- **Brancos e nulos à parte.** Os votos em branco e os nulos entram no total de votos, mas não na contagem de nenhuma opção; a resposta traz a quantidade de cada um em separado, só depois do encerramento.
+- **Tipo da votação.** Cada votação é fechada ou aberta, e quem não escolhe abre uma votação fechada. A validação de entrada recusa outro valor. O tipo é gravado na abertura e não muda depois, porque nenhum comando de gravação o altera.
+- **Quem votou em quê, só no tipo aberta.** O vínculo entre o voto e a pessoa fica guardado nos dois tipos, para garantir o voto único. Na votação fechada, a resposta nunca o revela; na aberta, revela a lista com o nome de cada pessoa e a escolha dela, mas só depois do encerramento.
+- **Dados anteriores ao tipo.** As votações gravadas antes da existência do tipo são lidas como fechadas, e os votos gravados antes da existência do tipo do voto são lidos como votos em opção; nada precisa ser regravado.
 - **Só vota quem está presente.** O voto só é aceito de quem é participante, tem a entrada registrada e não recusada e ainda não saiu. O serviço confere antes, e o comando de gravação confere de novo no banco, para o caso de a presença mudar no intervalo.
 - **Opções diferentes.** Os textos das opções de uma votação não se repetem, sem diferenciar maiúsculas de minúsculas. O formulário avisa antes do envio, e o serviço recusa ao abrir a votação.
 - **Quem abre é o presidente.** `aberta_por` é sempre o membro com papel `RESPONSAVEL` da comissão da reunião, conferido pelo serviço no momento da abertura.

@@ -1,6 +1,6 @@
 # Diagramas de sequência — Votação na reunião
 
-> Padrão da disciplina · Módulo VOT · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo VOT · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -22,14 +22,17 @@ sequenceDiagram
     participant CM as ComissaoModel
     participant M as ReuniaoModel
     U->>V: abrirFormulario()
-    Note over U,V: Folha "Nova votação" com Sim, Não e Abstenção já preenchidas
+    Note over U,V: Folha "Nova votação" com Sim, Não e Abstenção já preenchidas<br/>e, em "Tipo de votação", a escolha Fechada já marcada
+    opt presidente marca a escolha Aberta
+        U->>V: definirModo("ABERTA")
+    end
     U->>V: enviar()
     V->>V: validar()
     alt problema no formulário
         V->>V: definirErroFormulario(problema)
     else formulário válido
         V->>T: executar("abrir-votacao", acao, "Votação aberta.")
-        T->>A: api("/reunioes/:id/votacoes", "POST", { titulo, descricao, opcoes })
+        T->>A: api("/reunioes/:id/votacoes", "POST", { titulo, descricao, opcoes, modo })
         Note over A,C: POST /reunioes/:id/votacoes
         A->>C: abrirVotacao(id, dto, req)
         C->>S: abrirVotacao(id, dto, usuarioId)
@@ -42,7 +45,7 @@ sequenceDiagram
         Note over S: Exige membro RESPONSAVEL com o usuario_id do usuário e comissão ativa
         S->>S: exigirAgendada(reuniao)
         Note over S: Exige agora maior ou igual a inicio e menor que fim<br/>e opções diferentes, comparadas em minúsculas
-        Note over S,M: filtro: _id, situacao AGENDADA e fim maior que agora.<br/>alteracao: $push em votacoes da nova votação ABERTA, com novo _id e votos vazio
+        Note over S,M: filtro: _id, situacao AGENDADA e fim maior que agora.<br/>alteracao: $push em votacoes da nova votação ABERTA, com novo _id, votos vazio<br/>e modo igual ao recebido ou, sem ele, FECHADA
         S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
         M-->>S: atualizada
         S->>S: responder(atualizada, usuarioId, conflito)
@@ -75,27 +78,31 @@ sequenceDiagram
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>V: pedirVoto(votacao, indice)
+    U->>V: pedirVoto(votacao, voto)
+    Note over U,V: voto é a posição da opção tocada, ou BRANCO em "Votar em branco",<br/>ou NULO em "Votar nulo". corpo: { opcao } para uma opção, { tipo } para BRANCO e NULO
+    V->>V: descreverVoto(votacao, voto)
     V->>V: definirConfirmacao(pendente)
-    Note over U,V: Confirmação "Votar em ...? O voto não pode ser alterado depois."
+    Note over U,V: Confirmação "Votar ...? O voto não pode ser alterado depois."<br/>com o trecho de descreverVoto
     U->>V: confirmacao.acao()
     V->>T: executar("votar-:votacaoId", acao, "Voto registrado.")
-    T->>A: api("/reunioes/:id/votacoes/:votacaoId/votos", "POST", { opcao })
+    T->>A: api("/reunioes/:id/votacoes/:votacaoId/votos", "POST", corpo)
     Note over A,C: POST /reunioes/:id/votacoes/:votacaoId/votos
     A->>C: votar(id, votacaoId, dto, req)
-    C->>S: votar(id, votacaoId, opcao, usuarioId)
+    C->>S: votar(id, votacaoId, dto, usuarioId)
     S->>S: carregar(id, usuarioId)
     S->>M: findById(id)
     M-->>S: reuniao
     S->>S: exigirAgendada(reuniao)
     S->>S: buscarVotacao(reuniao, votacaoId)
-    Note over S: Exige votação ABERTA e fim maior que agora, opcao menor que a quantidade de opções,<br/>presença não RECUSADA e sem saída, e usuário ausente de votos
-    Note over S,M: filtro: _id, AGENDADA, fim maior que agora, votação com o mesmo _id ainda ABERTA<br/>e sem voto do usuário, e participante do usuário com presença AGUARDANDO ou CONFIRMADA<br/>e sem saída. alteracao: $push do voto na votação. opcoes: arrayFilters pelo _id da votação
+    Note over S: Exige votação ABERTA e fim maior que agora. tipo ausente vale OPCAO,<br/>e só no tipo OPCAO exige opcao informada e menor que a quantidade de opções.<br/>Exige presença não RECUSADA e sem saída, e usuário ausente de votos
+    Note over S,M: filtro: _id, AGENDADA, fim maior que agora, votação com o mesmo _id ainda ABERTA<br/>e sem voto do usuário, e participante do usuário com presença AGUARDANDO ou CONFIRMADA<br/>e sem saída. alteracao: $push na votação do voto com usuario_id, tipo e votado_em,<br/>e com opcao só no tipo OPCAO. opcoes: arrayFilters pelo _id da votação
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     M-->>S: atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     alt condições ainda valem no banco
-        S->>S: apresentarVotacao(votacao, fim, usuarioId)
+        S->>S: popular(atualizada)
+        S->>S: apresentar(atualizada, usuarioId)
+        S->>S: apresentarVotacao(votacao, fim, usuarioId, nomes)
         S-->>C: reuniao
         C-->>A: 201 reuniao
         A-->>T: resultado
@@ -184,9 +191,10 @@ sequenceDiagram
     M-->>S: reuniao
     S->>S: popular(reuniao)
     S->>S: apresentar(reuniao, usuarioId)
+    Note over S: nomes: mapa do _id de cada participante populado para o nome
     loop cada votação
-        S->>S: apresentarVotacao(votacao, fim, usuarioId)
-        Note over S: Retira votos, calcula total_votos e meu_voto.<br/>ABERTA com fim já passado é apresentada como ENCERRADA.<br/>resultado só quando ENCERRADA
+        S->>S: apresentarVotacao(votacao, fim, usuarioId, nomes)
+        Note over S: Retira votos, calcula modo, total_votos e meu_voto. Sem modo, FECHADA.<br/>ABERTA com fim já passado é apresentada como ENCERRADA.<br/>resultado, brancos e nulos só quando ENCERRADA.<br/>votos_nominais só quando ENCERRADA e modo ABERTA, em ordem de nome
     end
     S-->>C: reuniao
     C-->>A: 200 reuniao
@@ -199,10 +207,13 @@ sequenceDiagram
     U->>T: definirAba("votacoes")
     T->>V: VotacoesReuniao(reuniao, presidente, emAndamento, motivoSemVoto, salvando, executar)
     loop cada votação, abertas primeiro e mais recentes antes
+        Note over V: Linha do tipo, "Votação aberta: todos veem quem votou em quê ao encerrar."<br/>ou "Votação fechada: ninguém vê quem votou em quê."
         alt votação aberta
             V->>V: renderizarAberta(votacao)
+            Note over V: Opções, "Votar em branco" e "Votar nulo", ou a faixa do voto ou do motivo
         else votação encerrada
             V->>V: renderizarResultado(votacao)
+            Note over V: Linhas das opções e as linhas Branco e Nulo.<br/>Com votos_nominais, a lista "Quem votou em quê"
         end
     end
 ```
