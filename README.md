@@ -57,7 +57,7 @@ Cada pasta do Incremento 1 contém exatamente os mesmos dez artefatos técnicos 
 
 ### Incremento 3
 
-- [Atas de reunião](4%20-%20Incremento3/atas/README.md): redação, envio com prazo, aprovação e reprovação, versões e PDF.
+- [Atas de reunião](4%20-%20Incremento3/atas/README.md): redação, envio com prazo, aprovação (automática no fim do prazo para quem não respondeu) e reprovação, versões e PDF.
 - [Manual de utilização](4%20-%20Incremento3/manual-de-utilizacao/README.md): tela Ajuda com perguntas frequentes e manual completo em PDF.
 - [Votação na reunião](4%20-%20Incremento3/votacao/README.md): abertura e encerramento pelo presidente, voto único e sigiloso dos presentes e resultado.
 

@@ -1,6 +1,6 @@
 # Dicionário relacional — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Campos do diagrama relacional · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Campos do diagrama relacional · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -31,10 +31,10 @@ Guarda a versão vigente da ata de uma reunião. Fica em `reunioes.ata`.
 | `autor_id`      | `ObjectId`                     | Não           | Não              | Sim (`USUARIO._id`) | -                                      | Presidente que escreveu esta versão.                                                 |
 | `atualizada_em` | Data e hora (`date`, UTC)      | Não           | Não              | Não               | -                                      | Momento da última gravação.                                                          |
 | `enviada_em`    | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | Nulo enquanto for rascunho.            | Momento em que a ata foi enviada para aprovação.                                     |
-| `prazo`         | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | `enviada_em` + 24, 72 ou 168 horas.    | Data limite sugerida para os presentes responderem.                                  |
+| `prazo`         | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | `enviada_em` + 24, 72 ou 168 horas.    | Data limite para os presentes responderem; quem não responde até ela aprova automaticamente. |
 | `numero`        | Inteiro (`int`)                | Sim           | Não              | Não               | Preenchido só na aprovação.            | Número da ata dentro da comissão, no ano.                                            |
 | `ano`           | Inteiro (`int`)                | Sim           | Não              | Não               | Ano no fuso `America/Sao_Paulo`.       | Ano usado junto com o número, como em "Ata nº 2/2026".                               |
-| `aprovada_em`   | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | -                                      | Momento em que a última aprovação chegou.                                            |
+| `aprovada_em`   | Data e hora (`date`, UTC)      | Sim           | Não              | Não               | -                                      | Momento em que a última aprovação chegou; na aprovação pelo fim do prazo, igual a `prazo`. |
 
 ## ATA_APROVADOR
 
@@ -60,7 +60,8 @@ Decisão de um aprovador. Fica em `reunioes.ata.avaliacoes[]`.
 | `decisao`       | Texto com valores fixos     | Não           | Não             | Não                 | `APROVADA` ou `REPROVADA`.                        | Resultado da avaliação. Não pode ser trocado depois.                       |
 | `trecho`        | Texto (até 20.000)          | Sim           | Não             | Não                 | Só na reprovação; precisa existir em `ATA.conteudo`. | Parágrafo apontado como problema.                                        |
 | `justificativa` | Texto (até 500)             | Sim           | Não             | Não                 | Só na reprovação; opcional.                       | Explicação do que precisa mudar.                                           |
-| `em`            | Data e hora (`date`, UTC)   | Não           | Não             | Não                 | -                                                 | Momento da decisão; é o que o aplicativo mostra como "Aprovou em …".       |
+| `em`            | Data e hora (`date`, UTC)   | Não           | Não             | Não                 | -                                                 | Momento da decisão; é o que o aplicativo mostra como "Aprovou em …". Na aprovação automática, igual a `ATA.prazo`. |
+| `automatica`    | Booleano (`bool`)           | Sim           | Não             | Não                 | Só existe com o valor verdadeiro.                 | Indica que o servidor registrou a aprovação no fim do prazo porque a pessoa não respondeu; o aplicativo mostra "Aprovada pelo fim do prazo em …". |
 
 ## ATA_CANCELADA
 
@@ -90,8 +91,9 @@ O `_id` carrega a comissão e o ano, por isso essa entidade não tem colunas sep
 
 - a busca de atas pendentes usa os campos `situacao`, `ata.situacao`, `ata.aprovadores`, `ata.avaliacoes.usuario_id` e `ata.autor_id`, e ordena por `ata.prazo`; convém criar o índice `{ "ata.situacao": 1, "ata.prazo": 1 }` quando o volume de reuniões crescer (ainda não criado);
 - `contadores._id` é a chave primária da coleção e já é indexada pelo MongoDB;
-- toda gravação da ata usa `findOneAndUpdate` com a ata lida como filtro: se outra pessoa gravou antes, a operação não encontra o documento e a API devolve 409;
-- a ata não pode ser alterada depois do envio: só muda de situação por aprovação, reprovação ou criação de nova versão.
+- toda gravação da ata feita por uma pessoa usa `findOneAndUpdate` com a ata lida como filtro: se outra pessoa gravou antes, a operação não encontra o documento e a API devolve 409;
+- a busca das atas com prazo encerrado usa `situacao`, `ata.situacao` e `ata.prazo`, e cada uma é gravada com `updateOne` usando a ata lida como filtro, para não sobrescrever uma avaliação gravada ao mesmo tempo;
+- a ata não pode ser alterada depois do envio: só muda de situação por aprovação, inclusive a automática no fim do prazo, reprovação ou criação de nova versão.
 
 ## Rastreabilidade
 

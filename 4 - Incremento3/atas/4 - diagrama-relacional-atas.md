@@ -1,6 +1,6 @@
 # Diagrama relacional — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Visão lógica dos documentos MongoDB · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -76,6 +76,7 @@ erDiagram
         string trecho
         string justificativa
         date em
+        boolean automatica
     }
     CONTADOR_ATA {
         string _id PK
@@ -117,6 +118,7 @@ Como `ATA_APROVADOR` e `ATA_AVALIACAO` moram dentro da ata, a reunião e a vers�
 - `ATA_APROVADOR` só recebe usuários cuja presença ficou `CONFIRMADA` no momento do envio;
 - todo `ATA_AVALIACAO` tem um `ATA_APROVADOR` correspondente, com o mesmo usuário e versão;
 - cada usuário tem no máximo uma avaliação por versão;
+- depois de `ATA.prazo`, só o servidor grava `ATA_AVALIACAO`: a aprovação de cada aprovador que não respondeu, com `automatica` verdadeiro e `em` igual ao prazo;
 - `ATA.numero` e `ATA.ano` só existem quando `ATA.situacao` é `APROVADA`, e o par é único na comissão;
 - a chave de `CONTADOR_ATA` garante uma sequência por comissão e ano; o incremento é atômico.
 

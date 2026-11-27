@@ -1,6 +1,6 @@
 # Testes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 25/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -10,7 +10,7 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 
 | Item                | Valor                                                                                     |
 | ------------------- | ------------------------------------------------------------------------------------------- |
-| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026; CT-ATA-22 e CT-ATA-24 a CT-ATA-26 em 25/11/2026 |
+| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026; CT-ATA-22 e CT-ATA-24 a CT-ATA-26 em 25/11/2026; CT-ATA-27 a CT-ATA-29 em 26/11/2026 |
 | Node.js / npm       | 24.19.0 / 11.17.0                                                                           |
 | Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local                  |
 | Aplicativo          | branch `homolog`, APK de release gerado para `x86_64` (emuladores) e `arm64-v8a` (Aparelho 4), apontando para a API local |
@@ -30,8 +30,11 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | 09/11/2026 | BACKEND  | `npm run lint`            | Sem diagnóstico                                            |
 | 09/11/2026 | FRONTEND | `npx tsc --noEmit`        | Sem erro                                                   |
 | 09/11/2026 | FRONTEND | `npx eslint src`          | Sem diagnóstico                                            |
+| 26/11/2026 | BACKEND  | `npx vitest run`          | 15 arquivos e 217 testes aprovados, nenhuma falha          |
+| 26/11/2026 | BACKEND  | `npm run build` e `npm run lint` | Aprovado, sem diagnóstico                           |
+| 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint` | Sem erro e sem diagnóstico                       |
 
-Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`, descritos abaixo.
+Em 26/11/2026, o arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts` tem 16 testes. Os das atas estão descritos abaixo (CT-ATA-01 a CT-ATA-12, CT-ATA-27 e CT-ATA-28); os dois da saída automática estão nos testes das reuniões (CT-REU-29 e CT-REU-30).
 
 ## Matriz de testes automatizados
 
@@ -50,6 +53,8 @@ Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`
 | CT-ATA-11 | RNF-ATA-04           | Simular `findOneAndUpdate` devolvendo `null` ao salvar.                                                        | 409 "A ata mudou. Atualize antes de continuar."                                                            | "informa conflito quando outra escrita alterou a ata"        |
 | CT-ATA-12 | RF-ATA-06            | Gerar a lista de presença com um presente e um sem registro.                                                  | Nome, situação e minutos corretos; a ausência não cria presença.                                           | "gera lista com nomes, situações, duração…"                  |
 | CT-ATA-13 | RF-ATA-01 a RF-ATA-05 | Percorrer o fluxo inteiro contra a API em execução, com MongoDB real: salvar, enviar, reprovar, refazer, corrigir, reenviar e aprovar. | Cada passo devolve a situação esperada; a ata termina `APROVADA`, numerada, com uma versão cancelada no histórico. | Roteiro executado pela API de teste (porta 3001).   |
+| CT-ATA-27 | RF-ATA-03 | Rodar `aprovarAtasVencidas` um minuto depois do prazo de uma ata em aprovação em que só o presidente aprovou. | Busca reuniões `AGENDADA` com ata `EM_APROVACAO` e `prazo` até o horário informado e grava com `updateOne` filtrando pela ata lida. A ata fica `APROVADA`, com `aprovada_em` igual ao prazo, número 7 e ano 2026; o segundo presente recebe `APROVADA` com `em` igual ao prazo e `automatica` verdadeiro; a aprovação do presidente fica sem `automatica`; o contador é incrementado uma vez. | "aprova no fim do prazo a ata de quem não respondeu e numera" |
+| CT-ATA-28 | RF-ATA-03, RF-ATA-04 | Aprovar e reprovar uma ata cujo prazo terminou há 1 segundo; depois aprovar com o prazo 1 minuto à frente. | 400 nas duas avaliações, sem gravar nada; com o prazo aberto, a aprovação é gravada. | "recusa avaliar a ata depois do prazo" |
 
 ## Matriz de testes manuais
 
@@ -68,7 +73,8 @@ Dos 204 testes, 12 são do arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts`
 | CT-ATA-24 | RF-ATA-04, RNF-ATA-03    | Web                 | Apontar um parágrafo, escrever a justificativa e tocar em "Reprovar ata", sem bloqueio de tela.       | Aprovado. A reprovação foi enviada sem pedido de identidade e a faixa mostrou o nome, a data e a justificativa. |
 | CT-ATA-25 | RF-ATA-04, RNF-ATA-03    | Aparelho 4, APK e Expo Go | Tocar em "Reprovar ata", cancelar o pedido de identidade e depois repetir confirmando com a digital. | Aprovado. Nos dois, o pedido de identidade do aparelho apareceu e, cancelado, a ata seguiu "Em aprovação" sem avaliação nova; no APK, confirmada a digital, a ata ficou "Reprovada" com a avaliação registrada. |
 | CT-ATA-26 | RF-ATA-08                | Aparelho 3, APK     | Tocar em "PDF da ata" numa ata aprovada, fechar o menu de compartilhamento e repetir duas vezes.       | Aprovado. Nas três vezes abriu o menu de compartilhamento do Android com "Ata nº 1-2026.pdf" (40 KB), sem tela de escolha de pasta. Na primeira tentativa logo após instalar o APK, a tela ficou em "Gerando PDF..." até o aplicativo ser reaberto. |
+| CT-ATA-29 | RF-ATA-03, RF-ATA-06, RF-ATA-08 | Aparelho 4, APK | Como presidente, abrir uma ata em aprovação com uma aprovação de 3; levar o prazo para 10 minutos antes no banco de testes; puxar a tela para baixo depois de 1 minuto e tocar em "PDF da ata". | Aprovado. Antes, a linha do prazo mostrou "Responder até 28/11/2026 às 16:41. Sem resposta, a aprovação é automática." em duas linhas. Depois, a ata virou "Ata nº 2/2026", "Aprovada", com os dois outros presentes em "Aprovada pelo fim do prazo em 26/11/2026 às 18:37"; o menu de compartilhamento abriu com "Ata nº 2-2026.pdf", e o documento termina com "Aprovada por Filipe Teste, Maria Teste (pelo fim do prazo) e Carlos Teste (pelo fim do prazo) em 26/11/2026.". |
 
 ## Rastreabilidade
 
-CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata; CT-ATA-24 e CT-ATA-25 cobrem a confirmação de identidade na reprovação; CT-ATA-26 cobre o PDF no aplicativo instalado.
+CT-ATA-01 a CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-07; CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata; CT-ATA-24 e CT-ATA-25 cobrem a confirmação de identidade na reprovação; CT-ATA-26 cobre o PDF no aplicativo instalado; CT-ATA-27 e CT-ATA-28 cobrem a aprovação pelo fim do prazo e a recusa de avaliação depois dele; CT-ATA-29 cobre a mesma aprovação nas telas e no PDF.

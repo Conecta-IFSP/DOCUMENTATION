@@ -1,15 +1,16 @@
 # Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Incremento 3 · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Incremento 3 · Revisado em 26/11/2026
 
 ## Resumo
 
-Depois que a reunião termina, o presidente da comissão escreve a ata e a envia aos participantes que tiveram presença confirmada. Cada um deles aprova ou reprova o texto. A ata só fica aprovada quando todos os presentes aprovam; nesse momento ela recebe um número na comissão, por exemplo "Ata nº 2/2026", e pode ser baixada em PDF. Uma reprovação devolve a ata ao presidente, que a corrige numa nova versão. A versão reprovada fica guardada como cancelada.
+Depois que a reunião termina, o presidente da comissão escreve a ata e a envia aos participantes que tiveram presença confirmada. Cada um deles aprova ou reprova o texto até o prazo escolhido no envio; quem não responde até lá aprova automaticamente. A ata só fica aprovada quando todos os presentes aprovam; nesse momento ela recebe um número na comissão, por exemplo "Ata nº 2/2026", e pode ser baixada em PDF. Uma reprovação devolve a ata ao presidente, que a corrige numa nova versão. A versão reprovada fica guardada como cancelada.
 
 ## Escopo
 
 - escrever e salvar o rascunho da ata;
 - enviar a ata para aprovação, com prazo de resposta;
+- aprovar automaticamente, no fim do prazo, por quem não respondeu;
 - aprovar a ata, com confirmação pela biometria ou PIN do aparelho;
 - reprovar a ata, com confirmação pela biometria ou PIN do aparelho, apontando um parágrafo e uma justificativa, ambos opcionais;
 - criar uma nova versão a partir da ata reprovada;
@@ -49,12 +50,12 @@ O presidente que esteve presente também é um participante presente: ao enviar 
 | ----------- | ---------- | ---------- | ----------------------------- |
 | UC-ATA-01   | RF-ATA-01  | SD-ATA-01  | CT-ATA-01, CT-ATA-02, CT-ATA-03, CT-ATA-14 |
 | UC-ATA-02   | RF-ATA-02  | SD-ATA-02  | CT-ATA-04, CT-ATA-10, CT-ATA-14 |
-| UC-ATA-03   | RF-ATA-03  | SD-ATA-03  | CT-ATA-05, CT-ATA-07, CT-ATA-15, CT-ATA-17 |
-| UC-ATA-04   | RF-ATA-04  | SD-ATA-04  | CT-ATA-06, CT-ATA-07, CT-ATA-10, CT-ATA-15, CT-ATA-18, CT-ATA-24, CT-ATA-25 |
+| UC-ATA-03   | RF-ATA-03  | SD-ATA-03  | CT-ATA-05, CT-ATA-07, CT-ATA-15, CT-ATA-17, CT-ATA-27, CT-ATA-28, CT-ATA-29 |
+| UC-ATA-04   | RF-ATA-04  | SD-ATA-04  | CT-ATA-06, CT-ATA-07, CT-ATA-10, CT-ATA-15, CT-ATA-18, CT-ATA-24, CT-ATA-25, CT-ATA-28 |
 | UC-ATA-05   | RF-ATA-05  | SD-ATA-05  | CT-ATA-08, CT-ATA-16          |
 | UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-02, CT-ATA-16, CT-ATA-19, CT-ATA-21 |
 | UC-ATA-07   | RF-ATA-07  | SD-ATA-07  | CT-ATA-09, CT-ATA-15          |
-| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23, CT-ATA-26 |
+| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23, CT-ATA-26, CT-ATA-29 |
 
 ## Base de conferência
 

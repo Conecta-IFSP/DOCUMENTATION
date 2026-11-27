@@ -1,6 +1,6 @@
 # Diagrama de classes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -78,6 +78,9 @@ classDiagram
             +reprovarAta(id: string, dto: ReprovarAtaDto, usuarioId: string) Promise~Reuniao~
             +refazerAta(id: string, usuarioId: string) Promise~Reuniao~
             +atasPendentes(usuarioId: string) Promise~Reuniao[]~
+            +onApplicationBootstrap() Promise~void~
+            -executarRotinas() Promise~void~
+            +aprovarAtasVencidas(agora: Date) Promise~number~
             -avaliarAta(id: string, versao: number, usuarioId: string, avaliacao: AvaliacaoAta) Promise~Reuniao~
             -concluirSeAprovada(reuniao: Reuniao, ata: Ata) Promise~Ata~
             -proximoNumeroAta(comissaoId: ObjectId, ano: number) Promise~number~
@@ -132,6 +135,7 @@ classDiagram
             +trecho: string
             +justificativa: string
             +em: Date
+            +automatica: boolean
         }
         class Participante {
             +usuario_id: ObjectId
@@ -219,7 +223,7 @@ Figura 2 — Diagrama de classes das atas, por camada. Fonte: equipe Conecta+.
 
 Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem no máximo uma `Ata` vigente (`0..1`) e qualquer quantidade de atas canceladas (`0..*`); cada `Ata` tem exatamente um autor (`1`).
 
-No código, os atributos opcionais são `enviada_em`, `prazo`, `numero`, `ano`, `aprovada_em` e `cancelada_em`, em `Ata`; `trecho` e `justificativa`, em `AvaliacaoAta`; `ata`, em `Reuniao`; e `presenca` e `saida`. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-atas.md).
+No código, os atributos opcionais são `enviada_em`, `prazo`, `numero`, `ano`, `aprovada_em` e `cancelada_em`, em `Ata`; `trecho`, `justificativa` e `automatica`, em `AvaliacaoAta`; `ata`, em `Reuniao`; e `presenca` e `saida`. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-atas.md).
 
 ## Rotas atendidas pelo controller
 
@@ -239,6 +243,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - `Ata` e `AvaliacaoAta` não existem fora de `Reuniao`;
 - cada usuário tem no máximo uma avaliação por versão da ata;
 - `aprovadores` é fixado no envio e não muda enquanto a versão estiver aberta;
+- no fim do `prazo`, cada aprovador sem avaliação recebe uma `AvaliacaoAta` `APROVADA` com `automatica` verdadeiro, gravada pelo próprio servidor;
 - `Contador` existe fora da reunião: um documento por comissão e ano, com o último número de ata usado;
 - o aplicativo nunca decide a situação da ata: ele mostra o que a API devolve.
 

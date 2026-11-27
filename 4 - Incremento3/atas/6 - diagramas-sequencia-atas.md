@@ -1,6 +1,6 @@
 # Diagramas de sequência — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -62,7 +62,7 @@ sequenceDiagram
     participant S as ReunioesService
     participant M as ReuniaoModel
     U->>T: abrirEnvio()
-    Note over U,T: A folha mostra os presentes e os prazos de 24 horas, 3 dias e 7 dias
+    Note over U,T: A folha mostra os presentes, os prazos de 24 horas, 3 dias e 7 dias<br/>e avisa que quem não responder até a data aprova automaticamente
     U->>T: definirPrazo(horas)
     U->>T: enviar()
     opt presidente esteve presente
@@ -125,7 +125,7 @@ sequenceDiagram
     S->>M: findById(id)
     M-->>S: reuniao
     S->>S: exigirEncerrada(reuniao)
-    Note over S: Recusa versão diferente, usuário fora de ata.aprovadores,<br/>decisão já registrada ou ata fora de EM_APROVACAO
+    Note over S: Recusa versão diferente, usuário fora de ata.aprovadores,<br/>decisão já registrada, ata fora de EM_APROVACAO<br/>ou ata.prazo já alcançado ("O prazo para avaliar esta ata terminou", 400)
     S->>S: concluirSeAprovada(reuniao, avaliada)
     opt todos os aprovadores aprovaram
         S->>S: proximoNumeroAta(comissaoId, ano)
@@ -140,6 +140,31 @@ sequenceDiagram
     C-->>A: 201 reuniao
     A-->>T: Resultado com a reuniao
     T->>T: definirSucesso("Ata aprovada.")
+```
+
+Aprovação no fim do prazo, feita pelo servidor para quem não respondeu:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant S as ReunioesService
+    participant M as ReuniaoModel
+    participant N as ContadorModel
+    S->>S: onApplicationBootstrap()
+    S->>S: executarRotinas()
+    Note over S: Repete a cada 60 segundos.<br/>Antes, executa registrarSaidasAutomaticas (SD-REU-07)
+    S->>S: aprovarAtasVencidas(agora)
+    S->>M: find(AGENDADA, ata.situacao EM_APROVACAO, ata.prazo até agora)
+    M-->>S: reunioes
+    loop cada reunião encontrada
+        Note over S: Para cada aprovador sem avaliação, acrescenta<br/>{ usuario_id, decisao: APROVADA, em: prazo, automatica: true }<br/>e define atualizada_em igual a prazo
+        S->>S: concluirSeAprovada(reuniao, vencida)
+        S->>S: proximoNumeroAta(comissaoId, ano)
+        S->>N: findOneAndUpdate(filtro com _id da sequência, $inc valor, upsert)
+        N-->>S: contador
+        S->>M: updateOne(filtro com _id, AGENDADA e a ata lida, $set ata)
+        M-->>S: resultado
+    end
 ```
 
 ## SD-ATA-04 — Reprovar ata
@@ -176,7 +201,7 @@ sequenceDiagram
     S->>M: findById(id)
     M-->>S: reuniao
     S->>S: exigirEncerrada(reuniao)
-    Note over S: Além das regras da aprovação, recusa trecho<br/>que não aparece em ata.conteudo
+    Note over S: Além das regras da aprovação, inclusive o prazo,<br/>recusa trecho que não aparece em ata.conteudo
     S->>S: concluirSeAprovada(reuniao, avaliada)
     S->>S: gravarAta(reuniao, ata, usuarioId)
     S->>M: findOneAndUpdate(filtro com _id, AGENDADA e a ata lida, $set ata)

@@ -1,6 +1,6 @@
 # Dicionário de classes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Complementa o diagrama de classes · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo ATA · Complementa o diagrama de classes · Revisado em 26/11/2026
 
 ## Resumo
 
@@ -13,7 +13,7 @@
 | `diferenca`            | Aplicativo (serviço) | Comparar duas versões do texto e apontar o que mudou.                             |
 | `autenticacaoLocal`    | Aplicativo (serviço) | Pedir biometria, Face ID ou PIN antes de aprovar ou reprovar.                     |
 | `ReunioesController`   | API                  | Receber as rotas HTTP das atas e repassar ao serviço.                             |
-| `ReunioesService`      | Negócio              | Aplicar autorização, prazos, versões, aprovação, reprovação e numeração.          |
+| `ReunioesService`      | Negócio              | Aplicar autorização, prazos, versões, aprovação, reprovação e numeração, e aprovar as atas no fim do prazo. |
 | `Ata`                  | Subdocumento         | Guardar o texto, a situação, o prazo e as avaliações de uma versão.               |
 | `AvaliacaoAta`         | Subdocumento         | Registrar a decisão de um participante, com motivo e horário.                     |
 | `Contador`             | Documento            | Guardar o último número de ata usado por comissão e ano.                          |
@@ -32,12 +32,12 @@ Subdocumento de `Reuniao`, definido em `BACKEND/src/reunioes/schemas/reuniao.sch
 | `autor_id`      | `Types.ObjectId`            | `objectId`  |         Sim | Identificador do usuário que salvou o texto, em `usuarios`. Não é o objeto do usuário, é a referência a ele.       |
 | `atualizada_em` | `Date`                      | `date`      |         Sim | Instante da última gravação, em UTC.                                                                               |
 | `enviada_em`    | `Date`                      | `date`      |         Não | Preenchido no envio para aprovação; ausente enquanto a ata é rascunho.                                             |
-| `prazo`         | `Date`                      | `date`      |         Não | `enviada_em` mais 24, 72 ou 168 horas. Serve para avisar; o sistema não encerra a aprovação sozinho.               |
+| `prazo`         | `Date`                      | `date`      |         Não | `enviada_em` mais 24, 72 ou 168 horas. Depois dele, ninguém avalia a versão; quem não avaliou conta como aprovação automática. |
 | `aprovadores`   | `Types.ObjectId[]`          | `array`     |         Sim | Lista de identificadores de usuários, fixada no envio com quem tinha presença `CONFIRMADA`. Padrão: lista vazia.   |
 | `avaliacoes`    | `AvaliacaoAta[]`            | `array`     |         Sim | Uma entrada por pessoa que já decidiu. Padrão: lista vazia.                                                        |
 | `numero`        | `number` (inteiro)          | `int32`     |         Não | Número da ata na comissão, a partir de 1. Atribuído só na aprovação.                                               |
 | `ano`           | `number` (inteiro)          | `int32`     |         Não | Ano da aprovação no fuso `America/Sao_Paulo`, usado junto com `numero`.                                            |
-| `aprovada_em`   | `Date`                      | `date`      |         Não | Instante em que a última aprovação chegou.                                                                         |
+| `aprovada_em`   | `Date`                      | `date`      |         Não | Instante em que a última aprovação chegou; na aprovação pelo fim do prazo, igual a `prazo`.                        |
 | `cancelada_em`  | `Date`                      | `date`      |         Não | Preenchido quando a ata reprovada vai para `atas_canceladas`.                                                      |
 
 Os campos `enviada_em`, `prazo`, `numero`, `ano`, `aprovada_em` e `cancelada_em` são opcionais porque dependem da fase: um rascunho não tem nenhum deles.
@@ -52,7 +52,8 @@ Subdocumento de `Ata`, também sem `_id` próprio. Cada usuário tem no máximo 
 | `decisao`       | `DecisaoAta` (enum string) | `string`   |         Sim | `APROVADA` ou `REPROVADA`.                                                         |
 | `trecho`        | `string`                   | `string`   |         Não | Parágrafo apontado na reprovação; até 20.000 caracteres e precisa existir no texto. |
 | `justificativa` | `string`                   | `string`   |         Não | Motivo da reprovação, até 500 caracteres. Texto em branco é guardado como ausente. |
-| `em`            | `Date`                     | `date`     |         Sim | Instante da decisão, em UTC.                                                       |
+| `em`            | `Date`                     | `date`     |         Sim | Instante da decisão, em UTC; na aprovação automática, igual a `Ata.prazo`.         |
+| `automatica`    | `boolean`                  | `bool`     |         Não | Verdadeiro quando o servidor registrou a aprovação no fim do prazo, porque a pessoa não respondeu; ausente na decisão tomada pela pessoa. |
 
 ## `Contador`
 
@@ -92,12 +93,14 @@ Diferente das demais coleções, o `_id` aqui é um texto montado pelo sistema, 
 | `publicarAta`        | `id`, `EnviarAtaDto`, `usuarioId`            | reunião atualizada  | Congela o texto, define aprovadores e prazo.                                  |
 | `aprovarAta`         | `id`, `versao`, `usuarioId`                  | reunião atualizada  | Chama `avaliarAta` com `APROVADA`.                                            |
 | `reprovarAta`        | `id`, `ReprovarAtaDto`, `usuarioId`          | reunião atualizada  | Chama `avaliarAta` com `REPROVADA`.                                           |
-| `avaliarAta`         | `id`, `versao`, `usuarioId`, avaliação       | reunião atualizada  | Confere versão, elegibilidade e repetição; grava a decisão.                   |
+| `avaliarAta`         | `id`, `versao`, `usuarioId`, avaliação       | reunião atualizada  | Confere versão, elegibilidade, repetição e prazo; grava a decisão.            |
 | `concluirSeAprovada` | `reuniao`, `ata`                             | ata                 | Se todos aprovaram, numera e marca `APROVADA`.                                |
 | `proximoNumeroAta`   | `comissaoId`, `ano`                          | número              | Incrementa e devolve o contador da comissão no ano.                           |
 | `refazerAta`         | `id`, `usuarioId`                            | reunião atualizada  | Move a ata reprovada para o histórico e abre a nova versão.                   |
 | `atasPendentes`      | `usuarioId`                                  | lista de reuniões   | Busca o que espera aprovação do usuário e as atas dele reprovadas.            |
 | `gravarAta`          | `reuniao`, `ata`, `usuarioId`                | reunião atualizada  | Grava a ata só se ela não tiver mudado desde a leitura.                       |
+| `aprovarAtasVencidas` | `agora` (padrão: horário atual)             | quantidade de reuniões encontradas | Nas atas em aprovação com `prazo` até `agora`, registra a aprovação automática de quem não avaliou e conclui a ata. |
+| `executarRotinas`    | —                                            | —                   | Chamado ao iniciar a API e a cada 60 segundos: executa `registrarSaidasAutomaticas` e `aprovarAtasVencidas`; a falha de uma não impede a outra. |
 
 ## DTOs e validação
 
