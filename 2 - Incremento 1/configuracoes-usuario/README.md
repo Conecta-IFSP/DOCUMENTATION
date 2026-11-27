@@ -51,7 +51,7 @@ Ficam fora deste módulo o cadastro, a confirmação do cadastro e o login, desc
 | UC-CFG-01   | RF-CFG-01 | SD-CFG-01 | CT-CFG-01, CT-CFG-14, CT-CFG-15, CT-CFG-17, CT-CFG-19                                            |
 | UC-CFG-02   | RF-CFG-02 | SD-CFG-02 | CT-CFG-02, CT-CFG-12, CT-CFG-15                                                                  |
 | UC-CFG-03   | RF-CFG-03 | SD-CFG-03 | CT-CFG-03, CT-CFG-07, CT-CFG-08, CT-CFG-09, CT-CFG-10, CT-CFG-11, CT-CFG-14, CT-CFG-15, CT-CFG-16 |
-| UC-CFG-04   | RF-CFG-04 | SD-CFG-04 | CT-CFG-04, CT-CFG-11, CT-CFG-12, CT-CFG-15, CT-CFG-16                                            |
+| UC-CFG-04   | RF-CFG-04 | SD-CFG-04 | CT-CFG-04, CT-CFG-11, CT-CFG-12, CT-CFG-15, CT-CFG-16, CT-CFG-20                                 |
 | UC-CFG-05   | RF-CFG-05 | SD-CFG-05 | CT-CFG-05, CT-CFG-15                                                                             |
 | UC-CFG-06   | RF-CFG-06 | SD-CFG-06 | CT-CFG-06, CT-CFG-10, CT-CFG-13, CT-CFG-15, CT-CFG-18                                            |
 

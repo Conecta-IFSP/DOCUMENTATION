@@ -135,6 +135,7 @@ classDiagram
             +atualizar() Promise~void~
             +entrar(token: string) Promise~boolean~
             +sair(aviso: string) Promise~void~
+            +limparAviso() void
             +definirUsuario(valor: Usuario) void
             +definirAviso(valor: string) void
             +ouvinte() void
@@ -149,6 +150,7 @@ classDiagram
     TelaRecuperarConta ..> autenticacaoLocal : usa
     TelaRecuperarConta ..> validacao : usa
     TelaRecuperarConta ..> CampoTexto : usa
+    TelaRecuperarConta ..> SessaoContext : limparAviso
     SessaoContext ..> api : usa
     api ..> SessaoContext : chama o ouvinte
 ```

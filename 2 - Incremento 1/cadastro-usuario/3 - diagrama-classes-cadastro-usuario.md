@@ -180,6 +180,7 @@ classDiagram
             +atualizar() Promise~void~
             +entrar(token: string) Promise~boolean~
             +sair(aviso: string) Promise~void~
+            +limparAviso() void
             +definirUsuario(valor: Usuario) void
             +definirCarregando(valor: boolean) void
         }

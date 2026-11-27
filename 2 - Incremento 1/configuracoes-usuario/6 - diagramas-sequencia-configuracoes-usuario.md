@@ -252,6 +252,7 @@ sequenceDiagram
     autonumber
     actor V as Visitante
     participant T as TelaRecuperarConta
+    participant SC as SessaoContext
     participant L as autenticacaoLocal
     participant A as api
     participant C as AuthController
@@ -327,6 +328,8 @@ sequenceDiagram
     S-->>C: mensagem
     C-->>A: 201 mensagem
     A-->>T: resultado
+    T->>SC: limparAviso()
+    Note over T,SC: Apaga o aviso da saída anterior,<br/>que "Entrar" mostraria ao voltar ao login
     T->>T: definirEtapa("concluido")
 ```
 
