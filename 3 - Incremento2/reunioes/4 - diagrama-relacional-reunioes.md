@@ -1,12 +1,12 @@
 # Diagrama relacional — Reuniões
 
-> Padrão da disciplina · Módulo REU · Visão lógica dos documentos MongoDB · Revisado em 10/11/2026
+> Padrão da disciplina · Módulo REU · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
 
 ## Resumo
 
-No MongoDB, participantes, presenças, anexos e ata ficam embutidos no documento de `reunioes`. O diagrama os separa logicamente para explicitar cardinalidades, chaves e restrições. O conteúdo dos arquivos anexados fica no GridFS, nas coleções `anexos.files` e `anexos.chunks`, e é ligado ao anexo pelo mesmo identificador.
+O banco é o MongoDB, que não tem tabelas: participantes, presenças, anexos, link de presença e correções ficam dentro do documento da reunião, na coleção `reunioes`. O diagrama abaixo é uma **visão lógica**: ele separa esses dados em entidades para deixar claras as chaves, as cardinalidades e as restrições. Além de `reunioes`, o módulo usa três coleções: as duas do GridFS, que guardam o conteúdo dos anexos, e `notificacoes`, que recebe os avisos do link de presença.
 
-A ata aparece aqui apenas como ligação; seus campos estão no [diagrama relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20diagrama-relacional-atas.md).
+O documento da reunião também guarda a ata (`ata` e `atas_canceladas`) e as votações (`votacoes`). Essas partes estão nos diagramas relacionais das [atas](../../4%20-%20Incremento3/atas/4%20-%20diagrama-relacional-atas.md) e da [votação](../../4%20-%20Incremento3/votacao/4%20-%20diagrama-relacional-votacao.md).
 
 ## Diagrama
 
@@ -14,97 +14,148 @@ A ata aparece aqui apenas como ligação; seus campos estão no [diagrama relaci
 erDiagram
     ORGANIZACAO ||--o{ COMISSAO : possui
     COMISSAO ||--o{ REUNIAO : realiza
-    USUARIO ||--o{ REUNIAO : organiza
-    REUNIAO ||--|{ REUNIAO_PARTICIPANTE : contem
+    USUARIO ||--o{ REUNIAO : agenda
+    REUNIAO ||--|{ REUNIAO_PARTICIPANTE : convida
     USUARIO ||--o{ REUNIAO_PARTICIPANTE : participa
     REUNIAO_PARTICIPANTE ||--o| REUNIAO_PRESENCA : registra
     REUNIAO ||--o{ REUNIAO_ANEXO : "tem na pauta"
     REUNIAO_ANEXO ||--|| ARQUIVO_GRIDFS : armazena
-    REUNIAO ||--o| REUNIAO_ATA : documenta
-    USUARIO ||--o{ REUNIAO_ATA : redige
+    ARQUIVO_GRIDFS ||--|{ PEDACO_GRIDFS : "dividido em"
+    REUNIAO ||--o| LINK_PRESENCA : "tem ativo"
+    USUARIO ||--o{ LINK_PRESENCA : gera
+    REUNIAO ||--o{ CORRECAO_PRESENCA : "guarda no histórico"
+    USUARIO ||--o{ CORRECAO_PRESENCA : corrige
+    USUARIO ||--o{ NOTIFICACAO : recebe
 
     REUNIAO {
         ObjectId _id PK
         ObjectId comissao_id FK
-        String titulo
-        String local
-        Date inicio
-        Date fim
-        Boolean dia_inteiro
-        Date horario_alterado_em
-        String pauta
+        string titulo
+        string local
+        date inicio
+        date fim
+        boolean dia_inteiro
+        date horario_alterado_em
+        string pauta
         ObjectId criada_por FK
-        String situacao
-        Date criado_em
-        Date atualizado_em
-    }
-    REUNIAO_ANEXO {
-        ObjectId reuniao_id PK,FK
-        ObjectId _id PK,FK
-        String nome
-        String tipo
-        Int tamanho
-        Date enviado_em
-    }
-    ARQUIVO_GRIDFS {
-        ObjectId _id PK
-        String filename
-        Int length
-        Int chunkSize
-        Date uploadDate
-        Object metadata
+        string situacao
+        int presencas_revisao
+        date criado_em
+        date atualizado_em
     }
     REUNIAO_PARTICIPANTE {
         ObjectId reuniao_id PK,FK
         ObjectId usuario_id PK,FK
-        String convite
+        string convite
     }
     REUNIAO_PRESENCA {
         ObjectId reuniao_id PK,FK
         ObjectId usuario_id PK,FK
-        Date entrada
-        Date saida
-        Boolean saida_automatica
-        String situacao
-        String marcada_por
+        date entrada
+        date saida
+        boolean saida_automatica
+        string situacao
+        string marcada_por
     }
-    REUNIAO_ATA {
+    REUNIAO_ANEXO {
+        ObjectId reuniao_id FK
+        ObjectId _id PK,FK
+        string nome
+        string tipo
+        int tamanho
+        date enviado_em
+    }
+    ARQUIVO_GRIDFS {
+        ObjectId _id PK
+        string filename
+        long length
+        int chunkSize
+        date uploadDate
+        object metadata
+    }
+    PEDACO_GRIDFS {
+        ObjectId _id PK
+        ObjectId files_id FK
+        int n
+        binary data
+    }
+    LINK_PRESENCA {
         ObjectId reuniao_id PK,FK
-        String conteudo
-        Int versao
-        String situacao
-        ObjectId autor_id FK
-        Date atualizada_em
+        string hash
+        date inicio
+        date fim
+        string responsavel_id FK
+        date criado_em
+    }
+    CORRECAO_PRESENCA {
+        ObjectId reuniao_id PK,FK
+        int posicao PK
+        string participante_id FK
+        string responsavel_id FK
+        date alterada_em
+        string motivo
+        object antes
+        object depois
+    }
+    NOTIFICACAO {
+        ObjectId _id PK
+        ObjectId usuario_id FK
+        string chave
+        string tipo
+        string titulo
+        string mensagem
+        string destino
+        date expira_em
+        date lida_em
+        date criada_em
     }
     COMISSAO {
         ObjectId _id PK
         ObjectId organizacao_id FK
-        Boolean ativo
+        boolean ativo
     }
     ORGANIZACAO {
         ObjectId _id PK
-        String status
+        string status
     }
     USUARIO {
         ObjectId _id PK
-        String nome
-        Boolean ativo
+        string nome
+        string email
+        boolean ativo
     }
 ```
 
-## Mapeamento físico
+Figura 4 — Visão lógica relacional das reuniões. Fonte: equipe Conecta+.
 
-| Visão lógica           | MongoDB                                                     |
-| ---------------------- | ----------------------------------------------------------- |
-| `REUNIAO`              | coleção `reunioes`                                          |
-| `REUNIAO_PARTICIPANTE` | `reunioes.participantes[]`                                  |
-| `REUNIAO_PRESENCA`     | `reunioes.participantes[].presenca`                         |
-| `REUNIAO_ANEXO`        | `reunioes.anexos[]`                                         |
-| `ARQUIVO_GRIDFS`       | coleções `anexos.files` e `anexos.chunks`, criadas pelo GridFS |
-| `REUNIAO_ATA`          | `reunioes.ata` e `reunioes.atas_canceladas[]`               |
+## Como as entidades lógicas viram documentos
 
-`REUNIAO_ANEXO._id` e `ARQUIVO_GRIDFS._id` são o mesmo valor: é assim que o sistema acha o conteúdo do arquivo a partir da reunião. O GridFS divide o arquivo em pedaços de 255 KB em `anexos.chunks`; o aplicativo nunca acessa essas coleções diretamente.
+| Entidade lógica        | Onde fica de verdade                                  | Observação                                                                                         |
+| ---------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `REUNIAO`              | coleção `reunioes`                                    | Documento principal.                                                                               |
+| `REUNIAO_PARTICIPANTE` | `reunioes.participantes[]`                            | Subdocumento; a chave lógica é a reunião mais o usuário.                                           |
+| `REUNIAO_PRESENCA`     | `reunioes.participantes[].presenca`                   | Subdocumento de um participante; só existe depois da entrada.                                      |
+| `REUNIAO_ANEXO`        | `reunioes.anexos[]`                                   | Subdocumento; o `_id` é o mesmo do arquivo no GridFS.                                              |
+| `ARQUIVO_GRIDFS`       | coleção `anexos.files`                                | Criada e mantida pelo GridFS; uma linha por arquivo.                                               |
+| `PEDACO_GRIDFS`        | coleção `anexos.chunks`                               | Criada e mantida pelo GridFS; o conteúdo dividido em pedaços de 255 KB.                            |
+| `LINK_PRESENCA`        | `reunioes.acesso_presenca`                            | Objeto embutido; no máximo um por reunião. Não aparece nas consultas comuns.                       |
+| `CORRECAO_PRESENCA`    | `reunioes.historico_presencas[]`                      | Item de lista; `posicao` não é gravada: é a posição do item na lista. Não aparece nas consultas comuns. |
+| `NOTIFICACAO`          | coleção `notificacoes`                                | Só os avisos do tipo `PRESENCA` são gravados por este módulo.                                      |
+| `COMISSAO`, `ORGANIZACAO`, `USUARIO` | coleções `comissoes`, `organizacoes` e `usuarios` | Descritas nos módulos do Incremento 1; aqui só os campos usados.                       |
+
+Nas entidades guardadas dentro da reunião, `reuniao_id` aparece no diagrama como parte da chave, mas não existe como campo gravado: ele vem do documento que as contém. O aplicativo nunca acessa as coleções do GridFS diretamente: o servidor lê e grava por meio do `GridFSBucket`.
+
+## Regras de integridade
+
+- um usuário aparece uma única vez em `REUNIAO_PARTICIPANTE` de cada reunião, e quem agendou sempre está na lista;
+- todo participante é integrante da comissão da reunião no momento em que é convidado;
+- `REUNIAO_PRESENCA` tem no máximo uma linha por participante, e a saída nunca passa do término da reunião;
+- uma reunião tem no máximo 10 `REUNIAO_ANEXO`, e cada um corresponde a exatamente um `ARQUIVO_GRIDFS` com o mesmo identificador;
+- `LINK_PRESENCA` só vale enquanto o início e o término da reunião forem os mesmos da geração, enquanto `responsavel_id` for o responsável da comissão e antes do término;
+- `CORRECAO_PRESENCA` só cresce: nenhum registro é alterado ou apagado;
+- `NOTIFICACAO` não se repete para o mesmo usuário e a mesma `chave`;
+- depois que a reunião é cancelada ou a ata é enviada, nenhuma presença muda, nenhuma correção é registrada e nenhum link é gerado; o link existente ainda pode ser revogado.
 
 ## Rastreabilidade
 
-RF-REU-01, RF-REU-05 a RF-REU-09 e RF-REU-13 a RF-REU-16. Os campos da ata estão no [dicionário relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20dicionario-dados-relacional-atas.md).
+RF-REU-01 a RF-REU-09 e RF-REU-13 a RF-REU-22; detalhado em [Dicionário relacional](4%20-%20dicionario-dados-relacional-reunioes.md).
