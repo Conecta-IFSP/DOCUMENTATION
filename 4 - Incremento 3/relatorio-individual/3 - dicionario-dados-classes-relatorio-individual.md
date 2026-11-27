@@ -10,9 +10,12 @@
 | `api`                         | Aplicativo (módulo)      | Enviar a requisição HTTP com `X-API-Key` e token e devolver `Resultado` com os dados ou o erro; em resposta 401 com token salvo, apagar o token por `removerToken`. |
 | `relatorioIndividual`         | Aplicativo (módulo)      | Calcular os limites do período, formatar datas e durações e montar o HTML do PDF e o texto do CSV.            |
 | `exportarRelatorioIndividual` | Aplicativo (módulo)      | Entregar o PDF ou o CSV conforme a plataforma: impressão, menu de compartilhamento ou download.               |
-| `pdf`                         | Aplicativo (módulo)      | Informar se o PDF sai pela tela de impressão (web e Expo Go).                                                 |
+| `baixarPdfRelatorio`          | Aplicativo (módulo)      | Na web, carregar as fontes, gerar o PDF e iniciar o download de "relatorio-individual.pdf" (FRONTEND `299afc2`). |
+| `pdfRelatorioIndividual`      | Aplicativo (módulo)      | Montar o PDF do relatório com jsPDF, na web.                                                                  |
+| `pdf`                         | Aplicativo (módulo)      | Informar se o PDF sai pela tela de impressão (web e Expo Go); a tela do relatório usa só para mostrar a legenda no Expo Go. |
+| `jsPDF`                       | Biblioteca (`jspdf` 4.2.1) | Gerar o PDF na web, com texto selecionável, fontes incorporadas e páginas numeradas.                       |
 | `Print`, `Sharing`, `File`    | Biblioteca (Expo)        | Gerar o PDF, abrir o menu de compartilhamento e criar e ler arquivos no aparelho.                             |
-| `Window`, `Document`, `URL`, `HTMLAnchorElement` | API do navegador | Abrir a janela de impressão, escrever nela o HTML e baixar o CSV na web.                            |
+| `Document`, `URL`, `HTMLAnchorElement` | API do navegador | Criar o link e baixar o PDF e o CSV na web.                                                |
 | `RelatorioIndividual`         | Aplicativo (tipo)        | Formato do relatório devolvido pela API.                                                                      |
 | `ParticipacaoIndividual`      | Aplicativo (tipo)        | Uma reunião do relatório, com a presença do usuário.                                                          |
 | `PeriodoRelatorio`            | Aplicativo (tipo)        | Opção de período escolhida na tela: `todos`, `mes` ou `ano`.                                                  |
@@ -69,9 +72,21 @@ Módulo `FRONTEND/src/services/exportar-relatorio-individual.ts`.
 
 | Função                        | Parâmetros                                              | Retorno           | O que faz                                                                                                                                                             |
 | ----------------------------- | ------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `exportarRelatorioIndividual` | `relatorio: RelatorioIndividual`, `formato: 'pdf' \| 'csv'` | `Promise<void>` | Web: PDF por `imprimirRelatorioWeb` e CSV por download. Celular: PDF por `Print.printAsync` (Expo Go) ou `Print.printToFileAsync` mais `Sharing.shareAsync` (aplicativo instalado); CSV por `File` mais `Sharing.shareAsync`. |
+| `exportarRelatorioIndividual` | `relatorio: RelatorioIndividual`, `formato: 'pdf' \| 'csv'` | `Promise<void>` | Web: PDF por `baixarPdfRelatorio` (desde o FRONTEND `299afc2`) e CSV por download. Celular: PDF por `Print.printAsync` (Expo Go) ou `Print.printToFileAsync` mais `Sharing.shareAsync` (aplicativo instalado); CSV por `File` mais `Sharing.shareAsync`. |
 | `logoDoRelatorio`             | —                                                       | `Promise<string>` | Lê `assets/images/logo-titulo.png` e devolve `data:image/png;base64,…`: no celular, por `Asset.downloadAsync` e `File.base64`; na web, por `fetch` e `FileReader`.    |
-| `imprimirRelatorioWeb`        | `relatorio: RelatorioIndividual`                        | `Promise<void>`   | Abre a janela, escreve o HTML, espera imagem e fontes e chama `print()`; em erro, fecha a janela e repassa o erro.                                                     |
+
+Módulo `FRONTEND/src/services/baixar-pdf-relatorio.web.ts` (só na web; no celular, `baixar-pdf-relatorio.ts` lança "O download direto de PDF está disponível no navegador." e não é chamado).
+
+| Função               | Parâmetros                                           | Retorno           | O que faz |
+| -------------------- | ---------------------------------------------------- | ----------------- | --------- |
+| `baixarPdfRelatorio` | `relatorio: RelatorioIndividual`, `logo: string`     | `Promise<void>`   | Carrega as duas fontes Poppins, chama `gerarPdfRelatorioIndividual`, transforma o PDF em `Blob` por `output("blob")` e o baixa por um link com `download` igual a "relatorio-individual.pdf"; libera o endereço temporário 10 s depois. |
+| `fonteBase64`        | `modulo: number`                                     | `Promise<string>` | Busca a fonte do aplicativo por `fetch`, com limite de 15 s, e devolve o conteúdo em base64; resposta com erro lança "Não foi possível carregar a fonte do relatório.". |
+
+Módulo `FRONTEND/src/utils/pdf-relatorio-individual.ts`.
+
+| Função                        | Parâmetros                                                   | Retorno | O que faz |
+| ----------------------------- | ------------------------------------------------------------ | ------- | --------- |
+| `gerarPdfRelatorioIndividual` | `r: RelatorioIndividual`, `recursos: RecursosPdfRelatorio` (`logo`, `fonteRegular`, `fonteNegrito`) | `jsPDF` | Monta o documento A4 em pontos, compactado, com as fontes Poppins incorporadas: logo, título, identificação, vínculos, resumo e um bloco por reunião, que fica inteiro numa página quando cabe nela; nas páginas seguintes, o cabeçalho "Conecta+ · Relatório Individual"; em todas, "Conecta+ · <página> / <total>". |
 
 O PDF do aplicativo instalado é compartilhado com o endereço devolvido por `Print.printToFileAsync`, sem mover nem renomear o arquivo. O módulo `pdf` (`FRONTEND/src/services/pdf.ts`) é usado pelo relatório só pela função `pdfPelaImpressao`, que devolve verdadeiro na web e no Expo Go; a função `entregarPdf` do mesmo módulo, usada pelas atas, não é chamada pelo relatório.
 
@@ -79,13 +94,13 @@ O PDF do aplicativo instalado é compartilhado com o endereço devolvido por `Pr
 
 | Classe              | Origem             | Membros usados                                                                                     | Uso no relatório                                                                                                                  |
 | ------------------- | ------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `jsPDF`             | `jspdf` 4.2.1      | `addFont`, `text`, `output("blob")`, além de `addFileToVFS`, `setProperties`, `addImage`, `splitTextToSize`, `addPage`, `setFont`, `setFontSize`, `setTextColor`, `setDrawColor`, `line`, `getNumberOfPages` e `setPage` | Gerar o PDF na web, importado da distribuição ESM (`jspdf/dist/jspdf.es.min.js`). |
 | `Print`             | `expo-print`       | `printAsync(opcoes): Promise<void>`, `printToFileAsync(opcoes): Promise<FilePrintResult>`         | Tela de impressão no Expo Go; geração do arquivo PDF no aplicativo instalado, em 595 × 842 pontos. Do `FilePrintResult`, só `uri` é usado. |
 | `Sharing`           | `expo-sharing`     | `isAvailableAsync(): Promise<boolean>`, `shareAsync(url, opcoes): Promise<void>`                  | Conferir e abrir o menu de compartilhamento do aparelho para o PDF e o CSV.                                                       |
 | `File`              | `expo-file-system` | `new File(...uris)`, `uri: string`, `create(): void`, `write(conteudo): Promise<void>`, `base64(): Promise<string>` | Criar e gravar o CSV no cache; ler a logo em base64.                                                          |
-| `Window`            | navegador          | `open(url, alvo): Window \| null`, `document: Document`, `focus(): void`, `print(): void`, `close(): void` | `open` é chamado no objeto global `window`; `focus`, `print` e `close`, na janela devolvida por ele (`janela`), que é fechada se algo falhar depois de aberta. |
-| `Document`          | navegador          | `open(): Document`, `write(html): void`, `close(): void`, `createElement(etiqueta): HTMLElement`, `body: HTMLElement` | No PDF, `janela.document` recebe o HTML por `open`, `write` e `close`; no CSV, `document.createElement('a')` cria o link, posto em `document.body` antes do clique. |
-| `URL`               | navegador          | `createObjectURL(objeto): string` e `revokeObjectURL(url): void`, ambos estáticos                  | Cria o endereço temporário do `Blob` com o CSV e o libera 1 segundo depois do clique, por `setTimeout`.                          |
-| `HTMLAnchorElement` | navegador          | `href: string`, `download: string`, `click(): void`, `remove(): void`                              | Link com `href` igual ao endereço do `Blob` e `download` igual a `relatorio-individual.csv`; o clique inicia o download, e `remove` tira o link da página. |
+| `Document`          | navegador          | `createElement(etiqueta): HTMLElement`, `body: HTMLElement` | No PDF e no CSV, `document.createElement('a')` cria o link, posto em `document.body` antes do clique. |
+| `URL`               | navegador          | `createObjectURL(objeto): string` e `revokeObjectURL(url): void`, ambos estáticos                  | Cria o endereço temporário do `Blob` com o CSV ou o PDF e o libera depois do clique, por `setTimeout`: 1 segundo no CSV e 10 segundos no PDF. |
+| `HTMLAnchorElement` | navegador          | `href: string`, `download: string`, `click(): void`, `remove(): void`                              | Link com `href` igual ao endereço do `Blob` e `download` igual a `relatorio-individual.csv` ou `relatorio-individual.pdf`; o clique inicia o download, e `remove` tira o link da página. |
 
 ## Models do Mongoose e `Query`
 

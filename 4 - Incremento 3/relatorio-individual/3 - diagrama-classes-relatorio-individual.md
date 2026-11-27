@@ -51,7 +51,15 @@ classDiagram
             <<module>>
             +exportarRelatorioIndividual(relatorio: RelatorioIndividual, formato: pdf | csv) Promise~void~
             -logoDoRelatorio() Promise~string~
-            -imprimirRelatorioWeb(relatorio: RelatorioIndividual) Promise~void~
+        }
+        class baixarPdfRelatorio {
+            <<module>>
+            +baixarPdfRelatorio(relatorio: RelatorioIndividual, logo: string) Promise~void~
+            -fonteBase64(modulo: number) Promise~string~
+        }
+        class pdfRelatorioIndividual {
+            <<module>>
+            +gerarPdfRelatorioIndividual(r: RelatorioIndividual, recursos: RecursosPdfRelatorio) jsPDF
         }
         class pdf {
             <<module>>
@@ -242,20 +250,15 @@ classDiagram
         +write(conteudo: string) Promise~void~
         +base64() Promise~string~
     }
-    class Window {
-        <<API do navegador>>
-        +document: Document
-        +open(url: string, alvo: string) Window | null
-        +focus() void
-        +print() void
-        +close() void
+    class jsPDF {
+        <<biblioteca>>
+        +addFont(arquivo: string, familia: string, estilo: string) string
+        +text(texto: string, x: number, y: number) jsPDF
+        +output(tipo: blob) Blob
     }
     class Document {
         <<API do navegador>>
         +body: HTMLElement
-        +open() Document
-        +write(html: string) void
-        +close() void
         +createElement(etiqueta: string) HTMLElement
     }
     class URL {
@@ -280,11 +283,17 @@ classDiagram
     exportarRelatorioIndividual ..> Print : usa
     exportarRelatorioIndividual ..> Sharing : usa
     exportarRelatorioIndividual ..> File : usa
-    exportarRelatorioIndividual ..> Window : abre a janela na web
-    exportarRelatorioIndividual ..> Document : escreve o HTML e cria o link
+    exportarRelatorioIndividual ..> baixarPdfRelatorio : PDF na web
+    exportarRelatorioIndividual ..> Document : cria o link do CSV
     exportarRelatorioIndividual ..> URL : endereço do CSV na web
     exportarRelatorioIndividual ..> HTMLAnchorElement : baixa o CSV
-    Window ..> Document : document
+    baixarPdfRelatorio ..> pdfRelatorioIndividual : monta o PDF
+    baixarPdfRelatorio ..> jsPDF : gera o Blob
+    baixarPdfRelatorio ..> Document : cria o link do PDF
+    baixarPdfRelatorio ..> URL : endereço do PDF
+    baixarPdfRelatorio ..> HTMLAnchorElement : baixa o PDF
+    pdfRelatorioIndividual ..> jsPDF : usa
+    pdfRelatorioIndividual ..> relatorioIndividual : formata datas, horas e período
     RelatorioIndividual "1" *-- "0..*" ParticipacaoIndividual : reunioes
     api ..> RelatoriosController : requisição HTTP
 
@@ -334,7 +343,7 @@ Os números nas pontas são as multiplicidades. Por exemplo, uma `Comissao` tem 
 
 `UsuarioModel`, `ReuniaoModel`, `OrganizacaoModel` e `ComissaoModel` são os models do Mongoose guardados nos atributos `usuarios`, `reunioes`, `organizacoes` e `comissoes` do serviço (o `JwtAuthGuard` guarda o mesmo `UsuarioModel` em `usuarios`); no código, o tipo de cada atributo é `Model<...Document>`. Cada model mostra só os métodos chamados por este módulo: `findById` e `findOne` em `UsuarioModel` e `find` nos outros três. Esses métodos devolvem uma `Query`, e é na `Query` que o serviço chama `select`, `populate`, `sort`, `lean` e `exec`; por isso, nas sequências, essas chamadas vão para a linha de vida `Query`. Os métodos `definir…` da tela são as funções de atualização de estado criadas por `useState`.
 
-Na web, a exportação usa as classes do navegador: `Window` para o objeto global `window` e para a janela aberta por `window.open`; `Document` para `janela.document`, no PDF, e para `document`, no CSV; `URL` para os métodos estáticos `createObjectURL` e `revokeObjectURL`, sublinhados no diagrama; e `HTMLAnchorElement` para o link criado por `document.createElement('a')`.
+Na web, desde o FRONTEND `299afc2`, o PDF é gerado pelo módulo `pdfRelatorioIndividual` (`src/utils/pdf-relatorio-individual.ts`) com a biblioteca `jsPDF` 4.2.1 e baixado pelo módulo `baixarPdfRelatorio` (`src/services/baixar-pdf-relatorio.web.ts`; no celular, o Metro usa `baixar-pdf-relatorio.ts`, que só lança um erro e não é chamado). A classe `jsPDF` mostra só os métodos que aparecem nas sequências; o módulo também chama `addFileToVFS`, `setProperties`, `addImage`, `splitTextToSize`, `addPage`, `setFont`, `setFontSize`, `setTextColor`, `setDrawColor`, `line`, `getNumberOfPages` e `setPage`. A exportação usa as classes do navegador: `Document` para `document`, no PDF e no CSV; `URL` para os métodos estáticos `createObjectURL` e `revokeObjectURL`, sublinhados no diagrama; e `HTMLAnchorElement` para o link criado por `document.createElement('a')`.
 
 O objeto devolvido pela API não tem classe própria no servidor: o tipo é deduzido pelo TypeScript a partir do que `RelatoriosService.individual` monta. O tipo `RelatorioIndividual` do aplicativo descreve exatamente esse objeto e por isso aparece como retorno do controller e do service. Os campos `usuario`, `vinculos`, `periodo` e `resumo` são objetos escritos dentro do próprio tipo, sem nome; no diagrama, eles aparecem com o caminho do campo, como `usuario.nome` e `vinculos?.organizacoes[].papel`, em que `[]` indica um item da lista. Os valores `pdf | csv` são os dois textos aceitos como formato de exportação. O `?` indica campo opcional: `vinculos` é opcional no aplicativo para que ele funcione com um servidor que ainda não envia vínculos. As enumerações não mostradas (`TipoUsuario`, `SituacaoReuniao`, `RespostaConvite`, `OrigemPresenca`, `StatusOrganizacao`, `PapelOrganizacao` e `PapelComissao`) estão no [dicionário de classes](3%20-%20dicionario-dados-classes-relatorio-individual.md).
 
@@ -352,7 +361,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - o usuário do relatório vem sempre do token (`req.usuario.sub`); `RelatorioIndividualDto` não tem campo de usuário;
 - `ParticipacaoIndividual` não existe no banco: é calculada a partir de uma `Reuniao` e da `Presenca` do usuário nela;
 - os vínculos dependem de `Organizacao.status`, `MembroOrganizacao.status`, `Comissao.ativo` e da presença do usuário em `Comissao.membros`;
-- a exportação usa só o objeto já carregado na tela; `Print`, `Sharing` e `File` são usados no celular, e `Window`, `Document`, `URL` e `HTMLAnchorElement`, na web.
+- a exportação usa só o objeto já carregado na tela; `Print`, `Sharing` e `File` são usados no celular, e `jsPDF`, `Document`, `URL` e `HTMLAnchorElement`, na web.
 
 ## Rastreabilidade
 
