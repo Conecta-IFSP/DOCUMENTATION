@@ -7,7 +7,7 @@
 | Classe                 | Camada               | Responsabilidade                                                                                   |
 | ---------------------- | -------------------- | -------------------------------------------------------------------------------------------------- |
 | `TelaAgenda`           | Aplicativo           | Mostrar o calendário e as reuniões por dia e responder convites.                                   |
-| `TelaInicio`           | Aplicativo           | Mostrar a reunião em andamento, as próximas e os convites, e marcar a entrada pelo cartão "Agora". |
+| `TelaInicio`           | Aplicativo           | Mostrar a reunião em andamento, as próximas e os convites, e marcar a entrada pelo cartão "Agora", com a identidade confirmada no aparelho. |
 | `FormularioReuniao`    | Aplicativo           | Formulário único de agendar e editar, com validação dos campos.                                    |
 | `TelaNovaReuniao`      | Aplicativo           | Enviar a nova reunião e os anexos escolhidos.                                                      |
 | `TelaEditarReuniao`    | Aplicativo           | Carregar a reunião e enviar as alterações.                                                         |
@@ -193,7 +193,7 @@ Documento da coleção `notificacoes`, definido em `BACKEND/src/notificacoes/not
 |                              | `pauta`          | opcional, texto aparado de até 2.000 caracteres                   | "A pauta deve ser um texto", "A pauta deve ter até 2000 caracteres"                                      |
 |                              | `convidados_ids` | opcional; lista sem repetição de identificadores do MongoDB      | "Informe a lista de convidados", "Não repita convidados", "Convidado inválido"                           |
 | `UpdateReuniaoDto`           | `situacao`       | opcional, só `CANCELADA`                                          | "A reunião só pode ser cancelada"                                                                        |
-|                              | demais campos    | os mesmos do `CreateReuniaoDto`, todos opcionais                  | as mesmas                                                                                                |
+|                              | demais campos    | os mesmos do `CreateReuniaoDto`, menos `comissao_id`, todos opcionais | as mesmas                                                                                            |
 | `ResponderConviteReuniaoDto` | `aceito`         | verdadeiro ou falso                                               | "Informe se o convite foi aceito"                                                                        |
 | `AtualizarPresencaDto`       | `situacao`       | `CONFIRMADA` ou `RECUSADA`                                        | "A presença deve ser CONFIRMADA ou RECUSADA"                                                             |
 | `CodigoAcessoDto`            | `codigo`         | exatamente 64 caracteres de 0 a 9 e de a a f                      | "Link de presença inválido"                                                                              |

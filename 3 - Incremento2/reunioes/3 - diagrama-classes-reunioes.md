@@ -6,7 +6,7 @@
 
 O diagrama mostra as classes que participam das reuniões, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componentes e módulos do aplicativo), **API** (controllers, services e objetos de entrada) e **Dados** (documentos guardados no MongoDB e o armazenamento de arquivos). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código, e são os mesmos chamados nos [Diagramas de sequência](6%20-%20diagramas-sequencia-reunioes.md).
 
-Para que nenhuma linha passe por cima de uma classe, o diagrama está dividido em duas partes. A primeira mostra o agendamento, a agenda, o convite, a presença marcada na tela da reunião, a lista de presença e os anexos. A segunda mostra o link de presença, a correção de horários e o histórico. As classes que aparecem nas duas partes estão completas na primeira e, na segunda, só com os membros que ela usa. A ata e as votações, que também ficam dentro de `Reuniao`, estão nos diagramas de classes das [atas](../../4%20-%20Incremento3/atas/3%20-%20diagrama-classes-atas.md) e da [votação](../../4%20-%20Incremento3/votacao/3%20-%20diagrama-classes-votacao.md).
+Para que nenhuma linha passe por cima de uma classe, o diagrama está dividido em duas partes. A primeira mostra o agendamento, a agenda, o convite, a presença marcada na tela da reunião e na tela inicial, a lista de presença e os anexos. A segunda mostra o link de presença, a correção de horários e o histórico. As classes que aparecem nas duas partes estão completas na primeira e, na segunda, só com os membros que ela usa. A ata e as votações, que também ficam dentro de `Reuniao`, estão nos diagramas de classes das [atas](../../4%20-%20Incremento3/atas/3%20-%20diagrama-classes-atas.md) e da [votação](../../4%20-%20Incremento3/votacao/3%20-%20diagrama-classes-votacao.md).
 
 ## Diagrama
 
@@ -26,6 +26,8 @@ classDiagram
         }
         class TelaInicio {
             -reunioes: Reuniao[]
+            -aviso: Aviso
+            -ocupado: string
             +marcarEntrada(reuniao: Reuniao) Promise~void~
             +responder(convite: Convite, aceito: boolean) Promise~void~
         }
@@ -196,6 +198,8 @@ classDiagram
             +situacao: SituacaoReuniao
             +participantes: Participante[]
             +presencas_revisao: number
+            +acesso_presenca: AcessoPresenca
+            +historico_presencas: RegistroCorrecao[]
             +criado_em: Date
             +atualizado_em: Date
         }
@@ -265,6 +269,7 @@ classDiagram
     TelaEditarReuniao ..> FormularioReuniao : usa
     TelaAgenda ..> api : usa
     TelaInicio ..> api : usa
+    TelaInicio ..> autenticacaoLocal : usa
     TelaNovaReuniao ..> api : usa
     TelaNovaReuniao ..> anexos : envia os anexos
     TelaEditarReuniao ..> api : usa

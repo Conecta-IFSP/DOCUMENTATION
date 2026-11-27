@@ -194,7 +194,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Produto › Facilidade de uso |
 | **Critério**      | Os campos "Início" e "Término" abrem o seletor de hora do próprio sistema, em formato de 24 horas, já na hora sugerida. |
-| **Medida**        | No Android, abre o relógio do sistema; no iOS, a roda, dentro de uma folha com o botão "Confirmar". O início sugerido é a próxima meia hora; o término, uma hora depois do início. Enquanto nada foi escolhido, o campo mostra "Escolher". |
+| **Medida**        | No Android, abre o relógio do sistema; no iOS, a roda, dentro de uma folha com o botão "Confirmar". O início sugerido é a próxima meia hora, quando a data é hoje, ou 08:00, em outro dia; o término, uma hora depois do início. Enquanto nada foi escolhido, o campo mostra "Escolher". |
 | **Condição**      | Formulário de nova reunião e de edição. |
 | **Verificação**   | CT-REU-14 (`horarios.test.cjs`) e roteiro CT-REU-26. |
 | **Evidência**     | `FRONTEND/src/components/SeletorHora.tsx` e `FRONTEND/src/utils/sugestoes-horario.ts`. |
@@ -205,12 +205,12 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | Campo             | Conteúdo |
 | ----------------- | -------- |
 | **Classificação** | Externo › Legal › Segurança |
-| **Critério**      | Marcar entrada ou saída na tela da reunião, registrar presença pelo link e corrigir horários chamam `autenticarComDispositivo` antes da requisição; sem confirmação, nada é enviado. |
+| **Critério**      | Marcar entrada ou saída na tela da reunião, marcar entrada pelo cartão "Agora" da tela inicial, registrar presença pelo link e corrigir horários chamam `autenticarComDispositivo` antes da requisição; sem confirmação, nada é enviado. |
 | **Medida**        | Em aparelho com biometria, Face ID ou PIN, o pedido do próprio aparelho aparece e, cancelado, a tela mostra o aviso de identidade sem gravar nada. O pedido não tem texto do aplicativo: o título vai com um espaço porque o `androidx.biometric` recusa título vazio. |
 | **Condição**      | Aparelho com bloqueio de tela configurado. |
-| **Verificação**   | Roteiro CT-REU-27 com PIN de tela. |
-| **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `TelaReuniao.registrar`, `TelaPresencaLink.registrar` e `TelaGestaoPresenca.corrigir`. |
-| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; o botão "Marcar entrada" do cartão "Agora" da tela inicial envia a entrada sem pedir a identidade. O link e a correção não têm roteiro executado. |
+| **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, e roteiro CT-REU-40, na tela inicial. |
+| **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `TelaReuniao.registrar`, `TelaInicio.marcarEntrada`, `TelaPresencaLink.registrar` e `TelaGestaoPresenca.corrigir`. |
+| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, a confirmação está no código e o roteiro CT-REU-40 ainda não foi executado. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` não trata um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. O link e a correção não têm roteiro executado. |
 
 ### RNF-REU-15 — Sigilo e validade do link de presença
 

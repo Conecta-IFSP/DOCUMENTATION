@@ -69,9 +69,12 @@ sequenceDiagram
     participant S as ReunioesService
     participant M as ReuniaoModel
     U->>T: carregar(continuar)
-    T->>A: api("/comissoes")
-    Note over T,A: A lista de comissões só decide se o botão "Nova reunião" aparece
-    T->>A: api("/reunioes")
+    par reuniões
+        T->>A: api("/reunioes")
+    and comissões
+        T->>A: api("/comissoes")
+        Note over T,A: A lista de comissões só decide se o botão "Nova reunião" aparece
+    end
     Note over A,C: GET /reunioes com de, ate e comissao_id opcionais
     A->>C: listar(req, de, ate, comissaoId)
     C->>S: listar(usuarioId, filtros)
@@ -269,7 +272,49 @@ sequenceDiagram
     end
 ```
 
-No cartão "Agora" da tela inicial, `marcarEntrada(reuniao)` envia a mesma requisição `POST /reunioes/:id/entrada` sem chamar `autenticarComDispositivo`.
+Entrada pelo botão "Marcar entrada" do cartão "Agora" da tela inicial, que também pede a identidade do aparelho antes de enviar a requisição:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Participante
+    participant I as TelaInicio
+    participant L as autenticacaoLocal
+    participant A as api
+    participant C as ReunioesController
+    participant S as ReunioesService
+    participant M as ReuniaoModel
+    U->>I: marcarEntrada(reuniao)
+    I->>I: definirAviso(null)
+    I->>L: autenticarComDispositivo()
+    L->>L: dispositivoProtegido()
+    alt identidade não confirmada
+        L-->>I: false
+        Note over I,L: Um erro do pedido do aparelho também vira false, pelo catch de marcarEntrada
+        Note over I: aviso com tom erro e a mensagem "Não foi possível confirmar sua identidade."
+        I->>I: definirAviso(aviso)
+    else identidade confirmada ou aparelho sem bloqueio
+        L-->>I: true
+        I->>I: definirOcupado(reuniao._id)
+        I->>A: api("/reunioes/:id/entrada", "POST")
+        Note over A,C: POST /reunioes/:id/entrada
+        A->>C: marcarEntrada(id, req)
+        C->>S: marcarEntrada(id, usuarioId)
+        S->>S: carregar(id, usuarioId)
+        S->>M: findById(id)
+        M-->>S: reuniao
+        S->>S: exigirAgendada(reuniao)
+        Note over S,M: Mesmas recusas, filtro e alteracao do diagrama anterior
+        S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
+        M-->>S: atualizada
+        S->>S: responder(atualizada, usuarioId, conflito)
+        S-->>C: reuniao
+        C-->>A: 201 reuniao
+        A-->>I: resultado
+        I->>I: definirOcupado(null)
+        I->>I: definirReunioes(lista)
+    end
+```
 
 ## SD-REU-07 — Registrar saída
 
@@ -819,7 +864,7 @@ sequenceDiagram
         C-->>A: 201 mensagem
         A-->>P: resultado
         P->>P: definirSucesso(resultado.dados.mensagem)
-        P->>P: carregar(ativa)
+        P->>P: carregar()
     end
 ```
 
@@ -858,7 +903,8 @@ sequenceDiagram
     C-->>A: 200 mensagem
     A-->>T: resultado
     T->>T: definirSucesso(resultado.dados.mensagem)
-    T->>T: carregar(continuar)
+    T->>T: definirAlvo(null)
+    T->>T: carregar()
 ```
 
 ## SD-REU-22 — Consultar gestão e histórico de presença

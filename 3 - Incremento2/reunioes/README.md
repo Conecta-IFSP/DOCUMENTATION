@@ -49,7 +49,7 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 | UC-REU-03   | RF-REU-03 | SD-REU-03 | CT-REU-03, CT-REU-15, CT-REU-17                              |
 | UC-REU-04   | RF-REU-04 | SD-REU-04 | CT-REU-04, CT-REU-16                                         |
 | UC-REU-05   | RF-REU-05 | SD-REU-05 | CT-REU-05, CT-REU-16, CT-REU-27                              |
-| UC-REU-06   | RF-REU-06 | SD-REU-06 | CT-REU-06, CT-REU-17, CT-REU-27                              |
+| UC-REU-06   | RF-REU-06 | SD-REU-06 | CT-REU-06, CT-REU-17, CT-REU-27, CT-REU-40                   |
 | UC-REU-07   | RF-REU-07 | SD-REU-07 | CT-REU-07, CT-REU-17, CT-REU-27, CT-REU-29, CT-REU-31        |
 | UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17                                         |
 | UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32        |
@@ -68,6 +68,6 @@ Os números 10, 11 e 12 não são usados neste módulo, nem como caso de uso nem
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `caca2d2`, frontend `4f03c20`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/services/anexos.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `811cf02`, frontend `8fc0a5a`; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/services/anexos.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
 
 A entrega do Incremento 2 foi conferida em 23/10/2026 sobre FRONTEND `792fab4` e BACKEND `6f2ffc4`.
