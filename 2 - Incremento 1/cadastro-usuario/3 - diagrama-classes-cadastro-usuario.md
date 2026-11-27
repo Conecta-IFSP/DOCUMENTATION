@@ -463,6 +463,8 @@ classDiagram
 
 Figura 11 — Diagrama de classes do cadastro e da autenticação, parte 10: documento `Usuario` e enumerações. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: `UsuarioModel`, da parte 9, depende de `Usuario` ("documentos do schema"); dentro desta parte, `Usuario` usa as enumerações `TipoUsuario`, `TemaUsuario` e `ProvedorAutenticacao` nos campos `tipo`, `tema` e `provedor_autenticacao`.
+
 ### Parte 11 — Bibliotecas
 
 ```mermaid

@@ -7,7 +7,7 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 Na revisão de 27/11/2026, os diagramas de classes e os diagramas de sequência do Incremento 1 e do Incremento 2 foram divididos em partes por causa do tamanho. Inteiros, eles ficavam com 11% a 60% do tamanho na largura da página e não dava para ler; em partes, cada um aparece com pelo menos 80% do tamanho. O conteúdo não mudou: toda classe, ligação, mensagem e nota continua no diagrama, numa das partes.
 
 - **Diagramas de classes:** as partes seguem as camadas (telas, serviços do aplicativo, controller, serviço, schemas, models e bibliotecas). Uma classe detalhada em outra parte aparece só com o nome, e o texto abaixo da figura diz onde ela está.
-- **Diagramas de sequência:** as partes seguem as camadas (no aplicativo, na API e nos dados), e os diagramas mais largos têm mais de uma parte na mesma camada. A numeração das mensagens continua de uma parte para a outra, e uma nota como "Mensagens 3 a 15 na parte 2" indica onde está o trecho que falta.
+- **Diagramas de sequência:** as partes seguem as camadas (no aplicativo, na API e nos dados), e os diagramas mais largos têm mais de uma parte na mesma camada. A numeração das mensagens continua de uma parte para a outra, e uma nota como "Mensagens 3 a 15 na parte 2" indica onde está o trecho que falta. Abaixo de cada parte, o texto "Ligação com as outras partes" diz quais mensagens ela tem, em que parte estão as outras e quais linhas de vida ligam as partes.
 
 | Módulo | Diagrama de classes | Diagramas de sequência |
 | --- | --- | --- |

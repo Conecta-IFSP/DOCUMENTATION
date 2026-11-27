@@ -55,6 +55,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-CFG-01 (Alterar nome do perfil), parte 1 de 4: tela "Perfil". Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 10 a 19 e 29 a 31; as demais estão na parte 2 (3 a 5, 8, 9, 20 a 22, 27 e 28), na parte 3 (6, 7 e 23 a 26) e na parte 4 (32 a 36). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `TelaPerfil` e `api`.
+
 ### SD-CFG-01 — parte 2 de 4: controller e serviço
 
 ```mermaid
@@ -87,6 +89,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-CFG-01 (Alterar nome do perfil), parte 2 de 4: controller e serviço. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3 a 5, 8, 9, 20 a 22, 27 e 28; as demais estão na parte 1 (1, 2, 10 a 19 e 29 a 31), na parte 3 (6, 7 e 23 a 26) e na parte 4 (32 a 36). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `UsuariosService`; com a parte 4, `api`.
+
 ### SD-CFG-01 — parte 3 de 4: model e documento
 
 ```mermaid
@@ -111,6 +115,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-CFG-01 (Alterar nome do perfil), parte 3 de 4: model e documento. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6, 7 e 23 a 26; as demais estão na parte 1 (1, 2, 10 a 19 e 29 a 31), na parte 2 (3 a 5, 8, 9, 20 a 22, 27 e 28) e na parte 4 (32 a 36). Linhas de vida em comum, que ligam as partes: com a parte 2, `UsuariosService`.
+
 ### SD-CFG-01 — parte 4 de 4: aviso e sessão
 
 ```mermaid
@@ -130,6 +136,8 @@ sequenceDiagram
 ```
 
 Figura 4 — Diagrama de sequência SD-CFG-01 (Alterar nome do perfil), parte 4 de 4: aviso e sessão. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 32 a 36; as demais estão na parte 1 (1, 2, 10 a 19 e 29 a 31), na parte 2 (3 a 5, 8, 9, 20 a 22, 27 e 28) e na parte 3 (6, 7 e 23 a 26). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaPerfil` e `api`; com a parte 2, `api`.
 
 ## SD-CFG-02 — Trocar e-mail
 
@@ -152,6 +160,8 @@ sequenceDiagram
 ```
 
 Figura 5 — Diagrama de sequência SD-CFG-02 (Trocar e-mail), parte 1 de 4: abertura da tela. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5; as demais estão na parte 2 (6 a 10, 26 a 29 e 41 a 43), na parte 3 (11, 12, 24, 25, 30, 31, 39 e 40) e na parte 4 (13 a 23 e 32 a 38). Linhas de vida em comum, que ligam as partes: com a parte 2, `Usuário autenticado`.
 
 ### SD-CFG-02 — parte 2 de 4: tela "Trocar e-mail"
 
@@ -185,6 +195,8 @@ sequenceDiagram
 
 Figura 5 — Diagrama de sequência SD-CFG-02 (Trocar e-mail), parte 2 de 4: tela "Trocar e-mail". Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6 a 10, 26 a 29 e 41 a 43; as demais estão na parte 1 (1 a 5), na parte 3 (11, 12, 24, 25, 30, 31, 39 e 40) e na parte 4 (13 a 23 e 32 a 38). Linhas de vida em comum, que ligam as partes: com a parte 1, `Usuário autenticado`; com a parte 3, `api`.
+
 ### SD-CFG-02 — parte 3 de 4: controller e serviço
 
 ```mermaid
@@ -213,6 +225,8 @@ sequenceDiagram
 ```
 
 Figura 5 — Diagrama de sequência SD-CFG-02 (Trocar e-mail), parte 3 de 4: controller e serviço. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11, 12, 24, 25, 30, 31, 39 e 40; as demais estão na parte 1 (1 a 5), na parte 2 (6 a 10, 26 a 29 e 41 a 43) e na parte 4 (13 a 23 e 32 a 38). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `AuthService`.
 
 ### SD-CFG-02 — parte 4 de 4: model, documento e envio do e-mail
 
@@ -255,6 +269,8 @@ sequenceDiagram
 
 Figura 5 — Diagrama de sequência SD-CFG-02 (Trocar e-mail), parte 4 de 4: model, documento e envio do e-mail. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 13 a 23 e 32 a 38; as demais estão na parte 1 (1 a 5), na parte 2 (6 a 10, 26 a 29 e 41 a 43) e na parte 3 (11, 12, 24, 25, 30, 31, 39 e 40). Linhas de vida em comum, que ligam as partes: com a parte 3, `AuthService`.
+
 ## SD-CFG-03 — Alterar senha
 
 ### SD-CFG-03 — parte 1 de 4: abertura da tela
@@ -274,6 +290,8 @@ sequenceDiagram
 ```
 
 Figura 6 — Diagrama de sequência SD-CFG-03 (Alterar senha), parte 1 de 4: abertura da tela. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4; as demais estão na parte 2 (5, 6 e 27 a 32), na parte 3 (7 a 16, 25 e 26) e na parte 4 (17 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `Usuário autenticado`.
 
 ### SD-CFG-03 — parte 2 de 4: tela "Alterar senha" e saída da conta
 
@@ -299,6 +317,8 @@ sequenceDiagram
 ```
 
 Figura 6 — Diagrama de sequência SD-CFG-03 (Alterar senha), parte 2 de 4: tela "Alterar senha" e saída da conta. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 6 e 27 a 32; as demais estão na parte 1 (1 a 4), na parte 3 (7 a 16, 25 e 26) e na parte 4 (17 a 24). Linhas de vida em comum, que ligam as partes: com a parte 1, `Usuário autenticado`; com a parte 3, `api`.
 
 ### SD-CFG-03 — parte 3 de 4: guard, controller e serviço
 
@@ -334,6 +354,8 @@ sequenceDiagram
 
 Figura 6 — Diagrama de sequência SD-CFG-03 (Alterar senha), parte 3 de 4: guard, controller e serviço. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 7 a 16, 25 e 26; as demais estão na parte 1 (1 a 4), na parte 2 (5, 6 e 27 a 32) e na parte 4 (17 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `UsuariosService`.
+
 ### SD-CFG-03 — parte 4 de 4: conferência e gravação da senha
 
 ```mermaid
@@ -355,6 +377,8 @@ sequenceDiagram
 ```
 
 Figura 6 — Diagrama de sequência SD-CFG-03 (Alterar senha), parte 4 de 4: conferência e gravação da senha. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 17 a 24; as demais estão na parte 1 (1 a 4), na parte 2 (5, 6 e 27 a 32) e na parte 3 (7 a 16, 25 e 26). Linhas de vida em comum, que ligam as partes: com a parte 3, `UsuariosService`.
 
 Sessão aberta antes da troca, em outro aparelho:
 
@@ -379,6 +403,8 @@ sequenceDiagram
 
 Figura 7 — Diagrama de sequência SD-CFG-03 (Alterar senha) em outro aparelho, parte 1 de 2: sessão no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 8 a 11; as demais estão na parte 2 (3 a 7). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-CFG-03 em outro aparelho — parte 2 de 2: guard na API
 
 ```mermaid
@@ -399,6 +425,8 @@ sequenceDiagram
 ```
 
 Figura 7 — Diagrama de sequência SD-CFG-03 (Alterar senha) em outro aparelho, parte 2 de 2: guard na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3 a 7; as demais estão na parte 1 (1, 2 e 8 a 11). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
 
 ## SD-CFG-04 — Recuperar conta
 
@@ -440,6 +468,8 @@ sequenceDiagram
 
 Figura 8 — Diagrama de sequência SD-CFG-04 (Recuperar conta), parte 1 de 5: tela "Recuperar conta". Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 16 a 19, 32 a 38 e 50 a 52; as demais estão na parte 2 (3, 4, 14, 15, 20, 21, 30, 31, 39, 40, 48 e 49), na parte 3 (5 a 13), na parte 4 (22 a 29) e na parte 5 (41 a 47). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-CFG-04 — parte 2 de 5: controller e serviço
 
 ```mermaid
@@ -478,6 +508,8 @@ sequenceDiagram
 
 Figura 8 — Diagrama de sequência SD-CFG-04 (Recuperar conta), parte 2 de 5: controller e serviço. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 14, 15, 20, 21, 30, 31, 39, 40, 48 e 49; as demais estão na parte 1 (1, 2, 16 a 19, 32 a 38 e 50 a 52), na parte 3 (5 a 13), na parte 4 (22 a 29) e na parte 5 (41 a 47). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `AuthService`; com a parte 4, `AuthService`; com a parte 5, `AuthService`.
+
 ### SD-CFG-04 — parte 3 de 5: pedido do código
 
 ```mermaid
@@ -504,6 +536,8 @@ sequenceDiagram
 
 Figura 8 — Diagrama de sequência SD-CFG-04 (Recuperar conta), parte 3 de 5: pedido do código. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5 a 13; as demais estão na parte 1 (1, 2, 16 a 19, 32 a 38 e 50 a 52), na parte 2 (3, 4, 14, 15, 20, 21, 30, 31, 39, 40, 48 e 49), na parte 4 (22 a 29) e na parte 5 (41 a 47). Linhas de vida em comum, que ligam as partes: com a parte 2, `AuthService`; com a parte 4, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`; com a parte 5, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`.
+
 ### SD-CFG-04 — parte 4 de 5: conferência do código
 
 ```mermaid
@@ -529,6 +563,8 @@ sequenceDiagram
 
 Figura 8 — Diagrama de sequência SD-CFG-04 (Recuperar conta), parte 4 de 5: conferência do código. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 22 a 29; as demais estão na parte 1 (1, 2, 16 a 19, 32 a 38 e 50 a 52), na parte 2 (3, 4, 14, 15, 20, 21, 30, 31, 39, 40, 48 e 49), na parte 3 (5 a 13) e na parte 5 (41 a 47). Linhas de vida em comum, que ligam as partes: com a parte 2, `AuthService`; com a parte 3, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`; com a parte 5, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`.
+
 ### SD-CFG-04 — parte 5 de 5: nova senha
 
 ```mermaid
@@ -551,6 +587,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-CFG-04 (Recuperar conta), parte 5 de 5: nova senha. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 41 a 47; as demais estão na parte 1 (1, 2, 16 a 19, 32 a 38 e 50 a 52), na parte 2 (3, 4, 14, 15, 20, 21, 30, 31, 39, 40, 48 e 49), na parte 3 (5 a 13) e na parte 4 (22 a 29). Linhas de vida em comum, que ligam as partes: com a parte 2, `AuthService`; com a parte 3, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`; com a parte 4, `AuthService`, `UsuarioModel` e `UsuarioModel (documento usuario)`.
 
 ## SD-CFG-05 — Escolher tema
 
@@ -591,6 +629,8 @@ sequenceDiagram
 
 Figura 9 — Diagrama de sequência SD-CFG-05 (Escolher tema), parte 1 de 4: tela "Perfil". Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 7, 8, 18 a 22 e 26; as demais estão na parte 2 (4 a 6 e 23 a 25), na parte 3 (9 a 11, 16 e 17) e na parte 4 (12 a 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `TelaPerfil`; com a parte 3, `api`.
+
 ### SD-CFG-05 — parte 2 de 4: contexto do tema
 
 ```mermaid
@@ -614,6 +654,8 @@ sequenceDiagram
 
 Figura 9 — Diagrama de sequência SD-CFG-05 (Escolher tema), parte 2 de 4: contexto do tema. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 4 a 6 e 23 a 25; as demais estão na parte 1 (1 a 3, 7, 8, 18 a 22 e 26), na parte 3 (9 a 11, 16 e 17) e na parte 4 (12 a 15). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaPerfil`.
+
 ### SD-CFG-05 — parte 3 de 4: controller e serviço
 
 ```mermaid
@@ -636,6 +678,8 @@ sequenceDiagram
 
 Figura 9 — Diagrama de sequência SD-CFG-05 (Escolher tema), parte 3 de 4: controller e serviço. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 9 a 11, 16 e 17; as demais estão na parte 1 (1 a 3, 7, 8, 18 a 22 e 26), na parte 2 (4 a 6 e 23 a 25) e na parte 4 (12 a 15). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 4, `UsuariosService`.
+
 ### SD-CFG-05 — parte 4 de 4: model e documento
 
 ```mermaid
@@ -653,6 +697,8 @@ sequenceDiagram
 ```
 
 Figura 9 — Diagrama de sequência SD-CFG-05 (Escolher tema), parte 4 de 4: model e documento. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 12 a 15; as demais estão na parte 1 (1 a 3, 7, 8, 18 a 22 e 26), na parte 2 (4 a 6 e 23 a 25) e na parte 3 (9 a 11, 16 e 17). Linhas de vida em comum, que ligam as partes: com a parte 3, `UsuariosService`.
 
 ## SD-CFG-06 — Encerrar sessão
 
@@ -681,6 +727,8 @@ sequenceDiagram
 
 Figura 10 — Diagrama de sequência SD-CFG-06 (Encerrar sessão), parte 1 de 2: tela "Perfil" e sessão. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3 e 8 a 11; as demais estão na parte 2 (4 a 7). Linhas de vida em comum, que ligam as partes: com a parte 2, `SessaoContext`.
+
 ### SD-CFG-06 — parte 2 de 2: remoção do token
 
 ```mermaid
@@ -697,6 +745,8 @@ sequenceDiagram
 ```
 
 Figura 10 — Diagrama de sequência SD-CFG-06 (Encerrar sessão), parte 2 de 2: remoção do token. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 4 a 7; as demais estão na parte 1 (1 a 3 e 8 a 11). Linhas de vida em comum, que ligam as partes: com a parte 1, `SessaoContext`.
 
 ## Rastreabilidade
 

@@ -34,6 +34,8 @@ sequenceDiagram
 
 Figura 10 — Diagrama de sequência SD-COM-01 (Listar e filtrar comissões), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 18 a 21; as demais estão na parte 2 (3, 4, 16 e 17) e na parte 3 (5 a 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-01 — parte 2 de 3: na API
 
 ```mermaid
@@ -52,6 +54,8 @@ sequenceDiagram
 ```
 
 Figura 11 — Diagrama de sequência SD-COM-01 (Listar e filtrar comissões), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 16 e 17; as demais estão na parte 1 (1, 2 e 18 a 21) e na parte 3 (5 a 15). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-01 — parte 3 de 3: no serviço e nos dados
 
@@ -83,6 +87,8 @@ sequenceDiagram
 ```
 
 Figura 12 — Diagrama de sequência SD-COM-01 (Listar e filtrar comissões), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 15; as demais estão na parte 1 (1, 2 e 18 a 21) e na parte 2 (3, 4, 16 e 17). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
 
 ## SD-COM-02 — Consultar comissão
 
@@ -118,6 +124,8 @@ sequenceDiagram
 ```
 
 Figura 13 — Diagrama de sequência SD-COM-02 (Consultar comissão), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 19, 20, 30, 31 e 43 a 45; as demais estão na parte 2 (3, 4, 17, 18, 21, 22, 28, 29, 32, 33, 41 e 42) e na parte 3 (5 a 16, 23 a 27 e 34 a 40). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
 
 ### SD-COM-02 — parte 2 de 3: na API
 
@@ -157,6 +165,8 @@ sequenceDiagram
 ```
 
 Figura 14 — Diagrama de sequência SD-COM-02 (Consultar comissão), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 17, 18, 21, 22, 28, 29, 32, 33, 41 e 42; as demais estão na parte 1 (1, 2, 19, 20, 30, 31 e 43 a 45) e na parte 3 (5 a 16, 23 a 27 e 34 a 40). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-02 — parte 3 de 3: no serviço e nos dados
 
@@ -208,6 +218,8 @@ sequenceDiagram
 
 Figura 15 — Diagrama de sequência SD-COM-02 (Consultar comissão), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5 a 16, 23 a 27 e 34 a 40; as demais estão na parte 1 (1, 2, 19, 20, 30, 31 e 43 a 45) e na parte 2 (3, 4, 17, 18, 21, 22, 28, 29, 32, 33, 41 e 42). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
+
 ## SD-COM-03 — Cadastrar comissão
 
 ### SD-COM-03 — parte 1 de 4: no aplicativo, preenchimento do formulário
@@ -235,6 +247,8 @@ sequenceDiagram
 
 Figura 16 — Diagrama de sequência SD-COM-03 (Cadastrar comissão), parte 1 de 4: no aplicativo, preenchimento do formulário. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 9; as demais estão na parte 2 (10, 28 e 29), na parte 3 (11, 12, 26 e 27) e na parte 4 (13 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `TelaNovaComissao`.
+
 ### SD-COM-03 — parte 2 de 4: no aplicativo, envio e navegação
 
 ```mermaid
@@ -255,6 +269,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-COM-03 (Cadastrar comissão), parte 2 de 4: no aplicativo, envio e navegação. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10, 28 e 29; as demais estão na parte 1 (1 a 9), na parte 3 (11, 12, 26 e 27) e na parte 4 (13 a 25). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaNovaComissao`; com a parte 3, `api`.
+
 ### SD-COM-03 — parte 3 de 4: na API
 
 ```mermaid
@@ -273,6 +289,8 @@ sequenceDiagram
 ```
 
 Figura 18 — Diagrama de sequência SD-COM-03 (Cadastrar comissão), parte 3 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11, 12, 26 e 27; as demais estão na parte 1 (1 a 9), na parte 2 (10, 28 e 29) e na parte 4 (13 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `ComissoesService`.
 
 ### SD-COM-03 — parte 4 de 4: no serviço e nos dados
 
@@ -304,6 +322,8 @@ sequenceDiagram
 ```
 
 Figura 19 — Diagrama de sequência SD-COM-03 (Cadastrar comissão), parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 13 a 25; as demais estão na parte 1 (1 a 9), na parte 2 (10, 28 e 29) e na parte 3 (11, 12, 26 e 27). Linhas de vida em comum, que ligam as partes: com a parte 3, `ComissoesService`.
 
 ## SD-COM-04 — Editar comissão
 
@@ -338,6 +358,8 @@ sequenceDiagram
 
 Figura 20 — Diagrama de sequência SD-COM-04 (Editar comissão), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 10 e 28 a 31; as demais estão na parte 2 (11, 12, 26 e 27) e na parte 3 (13 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-04 — parte 2 de 3: na API
 
 ```mermaid
@@ -356,6 +378,8 @@ sequenceDiagram
 ```
 
 Figura 21 — Diagrama de sequência SD-COM-04 (Editar comissão), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11, 12, 26 e 27; as demais estão na parte 1 (1 a 10 e 28 a 31) e na parte 3 (13 a 25). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-04 — parte 3 de 3: no serviço e nos dados
 
@@ -385,6 +409,8 @@ sequenceDiagram
 
 Figura 22 — Diagrama de sequência SD-COM-04 (Editar comissão), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 13 a 25; as demais estão na parte 1 (1 a 10 e 28 a 31) e na parte 2 (11, 12, 26 e 27). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
+
 ## SD-COM-05 — Desativar comissão
 
 ### SD-COM-05 — parte 1 de 3: no aplicativo
@@ -412,6 +438,8 @@ sequenceDiagram
 
 Figura 23 — Diagrama de sequência SD-COM-05 (Desativar comissão), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5 e 17 a 19; as demais estão na parte 2 (6, 7, 15 e 16) e na parte 3 (8 a 14). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-05 — parte 2 de 3: na API
 
 ```mermaid
@@ -432,6 +460,8 @@ sequenceDiagram
 
 Figura 24 — Diagrama de sequência SD-COM-05 (Desativar comissão), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6, 7, 15 e 16; as demais estão na parte 1 (1 a 5 e 17 a 19) e na parte 3 (8 a 14). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
+
 ### SD-COM-05 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -450,6 +480,8 @@ sequenceDiagram
 ```
 
 Figura 25 — Diagrama de sequência SD-COM-05 (Desativar comissão), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8 a 14; as demais estão na parte 1 (1 a 5 e 17 a 19) e na parte 2 (6, 7, 15 e 16). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
 
 ## SD-COM-06 — Reativar comissão
 
@@ -483,6 +515,8 @@ sequenceDiagram
 
 Figura 26 — Diagrama de sequência SD-COM-06 (Reativar comissão), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4, 16 a 18, 21 e 22; as demais estão na parte 2 (5, 6, 14, 15, 19 e 20) e na parte 3 (7 a 13). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-06 — parte 2 de 3: na API
 
 ```mermaid
@@ -508,6 +542,8 @@ sequenceDiagram
 
 Figura 27 — Diagrama de sequência SD-COM-06 (Reativar comissão), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 14, 15, 19 e 20; as demais estão na parte 1 (1 a 4, 16 a 18, 21 e 22) e na parte 3 (7 a 13). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
+
 ### SD-COM-06 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -530,6 +566,8 @@ sequenceDiagram
 ```
 
 Figura 28 — Diagrama de sequência SD-COM-06 (Reativar comissão), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 13; as demais estão na parte 1 (1 a 4, 16 a 18, 21 e 22) e na parte 2 (5, 6, 14, 15, 19 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
 
 ## SD-COM-07 — Adicionar integrante
 
@@ -563,6 +601,8 @@ sequenceDiagram
 
 Figura 29 — Diagrama de sequência SD-COM-07 (Adicionar integrante), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4, 21, 22, 26 e 27; as demais estão na parte 2 (5, 6, 19, 20, 24 e 25) e na parte 3 (7 a 18 e 23). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-07 — parte 2 de 3: na API
 
 ```mermaid
@@ -588,6 +628,8 @@ sequenceDiagram
 ```
 
 Figura 30 — Diagrama de sequência SD-COM-07 (Adicionar integrante), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 19, 20, 24 e 25; as demais estão na parte 1 (1 a 4, 21, 22, 26 e 27) e na parte 3 (7 a 18 e 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-07 — parte 3 de 3: no serviço e nos dados
 
@@ -623,6 +665,8 @@ sequenceDiagram
 ```
 
 Figura 31 — Diagrama de sequência SD-COM-07 (Adicionar integrante), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 18 e 23; as demais estão na parte 1 (1 a 4, 21, 22, 26 e 27) e na parte 2 (5, 6, 19, 20, 24 e 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
 
 ## SD-COM-08 — Substituir responsável
 
@@ -661,6 +705,8 @@ sequenceDiagram
 
 Figura 32 — Diagrama de sequência SD-COM-08 (Substituir responsável), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 10 e 26 a 28; as demais estão na parte 2 (11, 12, 24 e 25) e na parte 3 (13 a 23). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-08 — parte 2 de 3: na API
 
 ```mermaid
@@ -679,6 +725,8 @@ sequenceDiagram
 ```
 
 Figura 33 — Diagrama de sequência SD-COM-08 (Substituir responsável), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11, 12, 24 e 25; as demais estão na parte 1 (1 a 10 e 26 a 28) e na parte 3 (13 a 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-08 — parte 3 de 3: no serviço e nos dados
 
@@ -706,6 +754,8 @@ sequenceDiagram
 
 Figura 34 — Diagrama de sequência SD-COM-08 (Substituir responsável), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 13 a 23; as demais estão na parte 1 (1 a 10 e 26 a 28) e na parte 2 (11, 12, 24 e 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
+
 ## SD-COM-09 — Remover integrante
 
 ### SD-COM-09 — parte 1 de 3: no aplicativo
@@ -730,6 +780,8 @@ sequenceDiagram
 
 Figura 35 — Diagrama de sequência SD-COM-09 (Remover integrante), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 19 a 21; as demais estão na parte 2 (5, 6, 17 e 18) e na parte 3 (7 a 16). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-COM-09 — parte 2 de 3: na API
 
 ```mermaid
@@ -748,6 +800,8 @@ sequenceDiagram
 ```
 
 Figura 36 — Diagrama de sequência SD-COM-09 (Remover integrante), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 17 e 18; as demais estão na parte 1 (1 a 4 e 19 a 21) e na parte 3 (7 a 16). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ComissoesService`.
 
 ### SD-COM-09 — parte 3 de 3: no serviço e nos dados
 
@@ -773,6 +827,8 @@ sequenceDiagram
 ```
 
 Figura 37 — Diagrama de sequência SD-COM-09 (Remover integrante), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 16; as demais estão na parte 1 (1 a 4 e 19 a 21) e na parte 2 (5, 6, 17 e 18). Linhas de vida em comum, que ligam as partes: com a parte 2, `ComissoesService`.
 
 ## Rastreabilidade
 

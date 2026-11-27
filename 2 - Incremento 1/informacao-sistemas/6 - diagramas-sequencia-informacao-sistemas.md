@@ -47,6 +47,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-SIS-01 (Consultar status do servidor), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5 e 48 a 52; as demais estão na parte 2 (6 a 16), na parte 3 (17 a 32 e 41 a 47) e na parte 4 (33 a 40). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 3, `api`.
+
 ### SD-SIS-01 — parte 2 de 4: verificações antes do controller
 
 ```mermaid
@@ -77,6 +79,8 @@ sequenceDiagram
 ```
 
 Figura 4 — Diagrama de sequência SD-SIS-01 (Consultar status do servidor), parte 2 de 4: verificações antes do controller. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 16; as demais estão na parte 1 (1 a 5 e 48 a 52), na parte 3 (17 a 32 e 41 a 47) e na parte 4 (33 a 40). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `api`; com a parte 4, `UsuarioModel`.
 
 ### SD-SIS-01 — parte 3 de 4: controller, serviço, módulo `os` e banco
 
@@ -136,6 +140,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-SIS-01 (Consultar status do servidor), parte 3 de 4: controller, serviço, módulo `os` e banco. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 17 a 32 e 41 a 47; as demais estão na parte 1 (1 a 5 e 48 a 52), na parte 2 (6 a 16) e na parte 4 (33 a 40). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 2, `api`; com a parte 4, `SistemaService`.
+
 ### SD-SIS-01 — parte 4 de 4: contagens nos models
 
 ```mermaid
@@ -170,6 +176,8 @@ sequenceDiagram
 ```
 
 Figura 4 — Diagrama de sequência SD-SIS-01 (Consultar status do servidor), parte 4 de 4: contagens nos models. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 33 a 40; as demais estão na parte 1 (1 a 5 e 48 a 52), na parte 2 (6 a 16) e na parte 3 (17 a 32 e 41 a 47). Linhas de vida em comum, que ligam as partes: com a parte 2, `UsuarioModel`; com a parte 3, `SistemaService`.
 
 Se uma das verificações recusa a requisição, o controller não é chamado e o guard devolve 401, 403 ou 503; com o MongoDB fora do ar, a busca do `JwtAuthGuard` falha e a API responde 500. Nos dois casos `carregar` mostra a faixa vermelha (ver RF-SIS-01).
 
@@ -209,6 +217,8 @@ sequenceDiagram
 
 Figura 5 — Diagrama de sequência SD-SIS-02 (Consultar relatórios), parte 1 de 3: no aplicativo e na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 31 a 36; as demais estão na parte 2 (5 a 18) e na parte 3 (19 a 30). Linhas de vida em comum, que ligam as partes: com a parte 2, `SistemaService`; com a parte 3, `SistemaService`.
+
 ### SD-SIS-02 — parte 2 de 3: contagens de usuários, organizações e comissões
 
 ```mermaid
@@ -243,6 +253,8 @@ sequenceDiagram
 
 Figura 5 — Diagrama de sequência SD-SIS-02 (Consultar relatórios), parte 2 de 3: contagens de usuários, organizações e comissões. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5 a 18; as demais estão na parte 1 (1 a 4 e 31 a 36) e na parte 3 (19 a 30). Linhas de vida em comum, que ligam as partes: com a parte 1, `SistemaService`; com a parte 3, `SistemaService`.
+
 ### SD-SIS-02 — parte 3 de 3: contagens de reuniões e atas
 
 ```mermaid
@@ -267,6 +279,8 @@ sequenceDiagram
 ```
 
 Figura 5 — Diagrama de sequência SD-SIS-02 (Consultar relatórios), parte 3 de 3: contagens de reuniões e atas. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 19 a 30; as demais estão na parte 1 (1 a 4 e 31 a 36) e na parte 2 (5 a 18). Linhas de vida em comum, que ligam as partes: com a parte 1, `SistemaService`; com a parte 2, `SistemaService`.
 
 ## SD-SIS-03 — Popular dados de teste
 
@@ -302,6 +316,8 @@ sequenceDiagram
 
 Figura 6 — Diagrama de sequência SD-SIS-03 (Popular dados de teste), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5 e 19 a 23; as demais estão na parte 2 (6 a 10, 17 e 18) e na parte 3 (11 a 16). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-SIS-03 — parte 2 de 3: controller e serviço
 
 ```mermaid
@@ -329,6 +345,8 @@ sequenceDiagram
 
 Figura 6 — Diagrama de sequência SD-SIS-03 (Popular dados de teste), parte 2 de 3: controller e serviço. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6 a 10, 17 e 18; as demais estão na parte 1 (1 a 5 e 19 a 23) e na parte 3 (11 a 16). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `SistemaService`.
+
 ### SD-SIS-03 — parte 3 de 3: criação nos models
 
 ```mermaid
@@ -354,6 +372,8 @@ sequenceDiagram
 ```
 
 Figura 6 — Diagrama de sequência SD-SIS-03 (Popular dados de teste), parte 3 de 3: criação nos models. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11 a 16; as demais estão na parte 1 (1 a 5 e 19 a 23) e na parte 2 (6 a 10, 17 e 18). Linhas de vida em comum, que ligam as partes: com a parte 2, `SistemaService`.
 
 Se a API recusar o pedido, `popularDadosDeTeste` chama `mostrarToast` com a mensagem de erro e o tipo `erro`, e não chama `carregar` (ver RF-SIS-03).
 
@@ -409,6 +429,8 @@ sequenceDiagram
 
 Figura 7 — Diagrama de sequência SD-SIS-04 (Resetar sistema), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 10, 20 a 22 e 38 a 42; as demais estão na parte 2 (11 a 13, 16 a 19, 23, 36 e 37), na parte 3 (14, 15 e 24 a 31) e na parte 4 (32 a 35). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-SIS-04 — parte 2 de 4: controller, serviço e conferência da senha
 
 ```mermaid
@@ -445,6 +467,8 @@ sequenceDiagram
 
 Figura 7 — Diagrama de sequência SD-SIS-04 (Resetar sistema), parte 2 de 4: controller, serviço e conferência da senha. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 11 a 13, 16 a 19, 23, 36 e 37; as demais estão na parte 1 (1 a 10, 20 a 22 e 38 a 42), na parte 3 (14, 15 e 24 a 31) e na parte 4 (32 a 35). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `SistemaService`; com a parte 4, `SistemaService`.
+
 ### SD-SIS-04 — parte 3 de 4: busca do administrador e exclusões nos models
 
 ```mermaid
@@ -479,6 +503,8 @@ sequenceDiagram
 
 Figura 7 — Diagrama de sequência SD-SIS-04 (Resetar sistema), parte 3 de 4: busca do administrador e exclusões nos models. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 14, 15 e 24 a 31; as demais estão na parte 1 (1 a 10, 20 a 22 e 38 a 42), na parte 2 (11 a 13, 16 a 19, 23, 36 e 37) e na parte 4 (32 a 35). Linhas de vida em comum, que ligam as partes: com a parte 2, `SistemaService`; com a parte 4, `SistemaService`.
+
 ### SD-SIS-04 — parte 4 de 4: exclusões nas coleções do driver
 
 ```mermaid
@@ -500,6 +526,8 @@ sequenceDiagram
 ```
 
 Figura 7 — Diagrama de sequência SD-SIS-04 (Resetar sistema), parte 4 de 4: exclusões nas coleções do driver. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 32 a 35; as demais estão na parte 1 (1 a 10, 20 a 22 e 38 a 42), na parte 2 (11 a 13, 16 a 19, 23, 36 e 37) e na parte 3 (14, 15 e 24 a 31). Linhas de vida em comum, que ligam as partes: com a parte 2, `SistemaService`; com a parte 3, `SistemaService`.
 
 Se o `ValidationPipe` recusar o corpo, o controller não é chamado e a mensagem aparece abaixo do campo da senha; pela tela isso não acontece, porque "Apagar tudo" só fica ativo com a palavra exata e uma senha preenchida. Se uma das exclusões falhar, a API responde 500 "Internal server error", a tela mostra a mensagem no mesmo lugar e as exclusões que já terminaram não são desfeitas (ver RF-SIS-04 e RNF-SIS-04).
 
@@ -535,6 +563,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-SIS-05 (Consultar informações sobre o sistema), parte 1 de 2: no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 23 a 26; as demais estão na parte 2 (5 a 22). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
 
 ### SD-SIS-05 — parte 2 de 2: controller, serviço, módulo `os` e banco
 
@@ -578,6 +608,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-SIS-05 (Consultar informações sobre o sistema), parte 2 de 2: controller, serviço, módulo `os` e banco. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 22; as demais estão na parte 1 (1 a 4 e 23 a 26). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
 
 ## Rastreabilidade
 

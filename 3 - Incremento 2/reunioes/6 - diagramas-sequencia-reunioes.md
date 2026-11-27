@@ -36,6 +36,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-REU-01 (Agendar reunião), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4, 22 e 26; as demais estão na parte 2 (5, 6, 20 e 21), na parte 3 (7 a 19) e na parte 4 (23 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `TelaNovaReuniao`.
+
 ### SD-REU-01 — parte 2 de 4: na API
 
 ```mermaid
@@ -54,6 +56,8 @@ sequenceDiagram
 ```
 
 Figura 4 — Diagrama de sequência SD-REU-01 (Agendar reunião), parte 2 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 20 e 21; as demais estão na parte 1 (1 a 4, 22 e 26), na parte 3 (7 a 19) e na parte 4 (23 a 25). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ReunioesService`.
 
 ### SD-REU-01 — parte 3 de 4: no serviço e nos dados
 
@@ -83,6 +87,8 @@ sequenceDiagram
 
 Figura 4 — Diagrama de sequência SD-REU-01 (Agendar reunião), parte 3 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 7 a 19; as demais estão na parte 1 (1 a 4, 22 e 26), na parte 2 (5, 6, 20 e 21) e na parte 4 (23 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesService`.
+
 ### SD-REU-01 — parte 4 de 4: anexos e navegação
 
 ```mermaid
@@ -100,6 +106,8 @@ sequenceDiagram
 ```
 
 Figura 4 — Diagrama de sequência SD-REU-01 (Agendar reunião), parte 4 de 4: anexos e navegação. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 23 a 25; as demais estão na parte 1 (1 a 4, 22 e 26), na parte 2 (5, 6, 20 e 21) e na parte 3 (7 a 19). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaNovaReuniao`.
 
 ## SD-REU-02 — Consultar agenda
 
@@ -126,6 +134,8 @@ sequenceDiagram
 
 Figura 5 — Diagrama de sequência SD-REU-02 (Consultar agenda), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 16 e 17; as demais estão na parte 2 (4, 5, 14 e 15) e na parte 3 (6 a 13). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-02 — parte 2 de 3: na API
 
 ```mermaid
@@ -144,6 +154,8 @@ sequenceDiagram
 ```
 
 Figura 5 — Diagrama de sequência SD-REU-02 (Consultar agenda), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 4, 5, 14 e 15; as demais estão na parte 1 (1 a 3, 16 e 17) e na parte 3 (6 a 13). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ReunioesService`.
 
 ### SD-REU-02 — parte 3 de 3: no serviço e nos dados
 
@@ -166,6 +178,8 @@ sequenceDiagram
 ```
 
 Figura 5 — Diagrama de sequência SD-REU-02 (Consultar agenda), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 13; as demais estão na parte 1 (1 a 3, 16 e 17) e na parte 2 (4, 5, 14 e 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesService`.
 
 ## SD-REU-03 — Visualizar reunião
 
@@ -202,6 +216,8 @@ sequenceDiagram
 
 Figura 6 — Diagrama de sequência SD-REU-03 (Visualizar reunião), parte 1 de 2: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 12 a 24; as demais estão na parte 2 (3 a 11). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-03 — parte 2 de 2: na API e nos dados
 
 ```mermaid
@@ -227,6 +243,8 @@ sequenceDiagram
 
 Figura 6 — Diagrama de sequência SD-REU-03 (Visualizar reunião), parte 2 de 2: na API e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3 a 11; as demais estão na parte 1 (1, 2 e 12 a 24). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
+
 ## SD-REU-04 — Cancelar reunião
 
 ### SD-REU-04 — parte 1 de 3: confirmação no aplicativo
@@ -248,6 +266,8 @@ sequenceDiagram
 ```
 
 Figura 7 — Diagrama de sequência SD-REU-04 (Cancelar reunião), parte 1 de 3: confirmação no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5; as demais estão na parte 2 (6, 7, 18 a 20 e 22 a 24) e na parte 3 (8 a 17 e 21). Linhas de vida em comum, que ligam as partes: com a parte 2, `TelaReuniao`.
 
 ### SD-REU-04 — parte 2 de 3: envio à API
 
@@ -276,6 +296,8 @@ sequenceDiagram
 ```
 
 Figura 7 — Diagrama de sequência SD-REU-04 (Cancelar reunião), parte 2 de 3: envio à API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6, 7, 18 a 20 e 22 a 24; as demais estão na parte 1 (1 a 5) e na parte 3 (8 a 17 e 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaReuniao`; com a parte 3, `ReunioesController`.
 
 ### SD-REU-04 — parte 3 de 3: no serviço e nos dados
 
@@ -308,6 +330,8 @@ sequenceDiagram
 
 Figura 7 — Diagrama de sequência SD-REU-04 (Cancelar reunião), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 8 a 17 e 21; as demais estão na parte 1 (1 a 5) e na parte 2 (6, 7, 18 a 20 e 22 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesController`.
+
 ## SD-REU-05 — Responder convite
 
 ### SD-REU-05 — parte 1 de 4: resposta pela agenda
@@ -334,6 +358,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-REU-05 (Responder convite), parte 1 de 4: resposta pela agenda. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 23 e 24; as demais estão na parte 2 (3 e 5 a 10), na parte 3 (4, 11, 12, 22, 25 e 26) e na parte 4 (13 a 21). Linhas de vida em comum, que ligam as partes: com a parte 2, `Participante`; com a parte 3, `api`.
 
 ### SD-REU-05 — parte 2 de 4: resposta na tela da reunião
 
@@ -364,6 +390,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-REU-05 (Responder convite), parte 2 de 4: resposta na tela da reunião. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3 e 5 a 10; as demais estão na parte 1 (1, 2, 23 e 24), na parte 3 (4, 11, 12, 22, 25 e 26) e na parte 4 (13 a 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `Participante`; com a parte 3, `TelaReuniao`.
 
 ### SD-REU-05 — parte 3 de 4: envio à API
 
@@ -397,6 +425,8 @@ sequenceDiagram
 
 Figura 8 — Diagrama de sequência SD-REU-05 (Responder convite), parte 3 de 4: envio à API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 4, 11, 12, 22, 25 e 26; as demais estão na parte 1 (1, 2, 23 e 24), na parte 2 (3 e 5 a 10) e na parte 4 (13 a 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 2, `TelaReuniao`; com a parte 4, `ReunioesController`.
+
 ### SD-REU-05 — parte 4 de 4: no serviço e nos dados
 
 ```mermaid
@@ -420,6 +450,8 @@ sequenceDiagram
 ```
 
 Figura 8 — Diagrama de sequência SD-REU-05 (Responder convite), parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 13 a 21; as demais estão na parte 1 (1, 2, 23 e 24), na parte 2 (3 e 5 a 10) e na parte 3 (4, 11, 12, 22, 25 e 26). Linhas de vida em comum, que ligam as partes: com a parte 3, `ReunioesController`.
 
 A tela inicial responde ao convite pela folha "Convites" com `responder(convite, aceito)`, que envia a mesma requisição da agenda.
 
@@ -453,6 +485,8 @@ sequenceDiagram
 
 Figura 9 — Diagrama de sequência SD-REU-06 (Registrar entrada), parte 1 de 2: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 8, 20 e 21; as demais estão na parte 2 (9 a 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-06 — parte 2 de 2: na API e nos dados
 
 ```mermaid
@@ -482,6 +516,8 @@ sequenceDiagram
 ```
 
 Figura 9 — Diagrama de sequência SD-REU-06 (Registrar entrada), parte 2 de 2: na API e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 9 a 19; as demais estão na parte 1 (1 a 8, 20 e 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
 
 ### SD-REU-06, entrada pela tela inicial — parte 1 de 2: no aplicativo
 
@@ -517,6 +553,8 @@ sequenceDiagram
 
 Figura 10 — Diagrama de sequência SD-REU-06, entrada pela tela inicial, parte 1 de 2: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 9 e 21 a 23; as demais estão na parte 2 (10 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-06, entrada pela tela inicial — parte 2 de 2: na API e nos dados
 
 ```mermaid
@@ -545,6 +583,8 @@ sequenceDiagram
 ```
 
 Figura 10 — Diagrama de sequência SD-REU-06, entrada pela tela inicial, parte 2 de 2: na API e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 10 a 20; as demais estão na parte 1 (1 a 9 e 21 a 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
 
 ## SD-REU-07 — Registrar saída
 
@@ -576,6 +616,8 @@ sequenceDiagram
 
 Figura 11 — Diagrama de sequência SD-REU-07 (Registrar saída), parte 1 de 2: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 8, 20 e 21; as demais estão na parte 2 (9 a 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-07 — parte 2 de 2: na API e nos dados
 
 ```mermaid
@@ -605,6 +647,8 @@ sequenceDiagram
 ```
 
 Figura 11 — Diagrama de sequência SD-REU-07 (Registrar saída), parte 2 de 2: na API e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 9 a 19; as demais estão na parte 1 (1 a 8, 20 e 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`.
 
 ### SD-REU-07, saída automática
 
@@ -654,6 +698,8 @@ sequenceDiagram
 
 Figura 13 — Diagrama de sequência SD-REU-08 (Confirmar, recusar ou desmarcar presença), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 16 e 17; as demais estão na parte 2 (4, 5, 14 e 15) e na parte 3 (6 a 13). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-08 — parte 2 de 3: na API
 
 ```mermaid
@@ -672,6 +718,8 @@ sequenceDiagram
 ```
 
 Figura 13 — Diagrama de sequência SD-REU-08 (Confirmar, recusar ou desmarcar presença), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 4, 5, 14 e 15; as demais estão na parte 1 (1 a 3, 16 e 17) e na parte 3 (6 a 13). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ReunioesService`.
 
 ### SD-REU-08 — parte 3 de 3: no serviço e nos dados
 
@@ -698,6 +746,8 @@ sequenceDiagram
 ```
 
 Figura 13 — Diagrama de sequência SD-REU-08 (Confirmar, recusar ou desmarcar presença), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 13; as demais estão na parte 1 (1 a 3, 16 e 17) e na parte 2 (4, 5, 14 e 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesService`.
 
 ### SD-REU-08, desmarcar presença — parte 1 de 4: confirmação e identidade
 
@@ -732,6 +782,8 @@ sequenceDiagram
 
 Figura 14 — Diagrama de sequência SD-REU-08, desmarcar presença, parte 1 de 4: confirmação e identidade. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 12; as demais estão na parte 2 (13 e 26 a 28), na parte 3 (14, 15, 24 e 25) e na parte 4 (16 a 23). Linhas de vida em comum, que ligam as partes: com a parte 2, `TelaReuniao`.
+
 ### SD-REU-08, desmarcar presença — parte 2 de 4: envio à API
 
 ```mermaid
@@ -752,6 +804,8 @@ sequenceDiagram
 ```
 
 Figura 14 — Diagrama de sequência SD-REU-08, desmarcar presença, parte 2 de 4: envio à API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 13 e 26 a 28; as demais estão na parte 1 (1 a 12), na parte 3 (14, 15, 24 e 25) e na parte 4 (16 a 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaReuniao`; com a parte 3, `api`.
 
 ### SD-REU-08, desmarcar presença — parte 3 de 4: na API
 
@@ -774,6 +828,8 @@ sequenceDiagram
 ```
 
 Figura 14 — Diagrama de sequência SD-REU-08, desmarcar presença, parte 3 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 14, 15, 24 e 25; as demais estão na parte 1 (1 a 12), na parte 2 (13 e 26 a 28) e na parte 4 (16 a 23). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `ReunioesService`.
 
 ### SD-REU-08, desmarcar presença — parte 4 de 4: no serviço e nos dados
 
@@ -799,6 +855,8 @@ sequenceDiagram
 
 Figura 14 — Diagrama de sequência SD-REU-08, desmarcar presença, parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 16 a 23; as demais estão na parte 1 (1 a 12), na parte 2 (13 e 26 a 28) e na parte 3 (14, 15, 24 e 25). Linhas de vida em comum, que ligam as partes: com a parte 3, `ReunioesService`.
+
 ## SD-REU-09 — Gerar lista de presença
 
 ### SD-REU-09 — parte 1 de 5: no aplicativo
@@ -820,6 +878,8 @@ sequenceDiagram
 
 Figura 15 — Diagrama de sequência SD-REU-09 (Gerar lista de presença), parte 1 de 5: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 15 e 16; as demais estão na parte 2 (4, 5, 13 e 14), na parte 3 (6 a 12), na parte 4 (17 a 22 e 31 a 36) e na parte 5 (23 a 30). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `Participante` e `TelaRegistrosReuniao`.
+
 ### SD-REU-09 — parte 2 de 5: na API
 
 ```mermaid
@@ -838,6 +898,8 @@ sequenceDiagram
 ```
 
 Figura 15 — Diagrama de sequência SD-REU-09 (Gerar lista de presença), parte 2 de 5: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 4, 5, 13 e 14; as demais estão na parte 1 (1 a 3, 15 e 16), na parte 3 (6 a 12), na parte 4 (17 a 22 e 31 a 36) e na parte 5 (23 a 30). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `ReunioesService`.
 
 ### SD-REU-09 — parte 3 de 5: no serviço e nos dados
 
@@ -858,6 +920,8 @@ sequenceDiagram
 ```
 
 Figura 15 — Diagrama de sequência SD-REU-09 (Gerar lista de presença), parte 3 de 5: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 12; as demais estão na parte 1 (1 a 3, 15 e 16), na parte 2 (4, 5, 13 e 14), na parte 4 (17 a 22 e 31 a 36) e na parte 5 (23 a 30). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesService`.
 
 ### SD-REU-09 — parte 4 de 5: PDF no aplicativo
 
@@ -893,6 +957,8 @@ sequenceDiagram
 
 Figura 15 — Diagrama de sequência SD-REU-09 (Gerar lista de presença), parte 4 de 5: PDF no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 17 a 22 e 31 a 36; as demais estão na parte 1 (1 a 3, 15 e 16), na parte 2 (4, 5, 13 e 14), na parte 3 (6 a 12) e na parte 5 (23 a 30). Linhas de vida em comum, que ligam as partes: com a parte 1, `Participante` e `TelaRegistrosReuniao`; com a parte 5, `pdf`.
+
 ### SD-REU-09 — parte 5 de 5: entrega do PDF
 
 ```mermaid
@@ -922,6 +988,8 @@ sequenceDiagram
 ```
 
 Figura 15 — Diagrama de sequência SD-REU-09 (Gerar lista de presença), parte 5 de 5: entrega do PDF. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 23 a 30; as demais estão na parte 1 (1 a 3, 15 e 16), na parte 2 (4, 5, 13 e 14), na parte 3 (6 a 12) e na parte 4 (17 a 22 e 31 a 36). Linhas de vida em comum, que ligam as partes: com a parte 4, `pdf`.
 
 ## SD-REU-13 — Editar reunião
 
@@ -963,6 +1031,8 @@ sequenceDiagram
 
 Figura 16 — Diagrama de sequência SD-REU-13 (Editar reunião), parte 1 de 4: tela de edição. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 7, 24, 27 a 31 e 34; as demais estão na parte 2 (3 a 6, 25, 26, 35 e 36), na parte 3 (8, 9, 22, 23, 32 e 33) e na parte 4 (10 a 21). Linhas de vida em comum, que ligam as partes: com a parte 2, `TelaEditarReuniao`; com a parte 3, `api`.
+
 ### SD-REU-13 — parte 2 de 4: formulário
 
 ```mermaid
@@ -993,6 +1063,8 @@ sequenceDiagram
 
 Figura 16 — Diagrama de sequência SD-REU-13 (Editar reunião), parte 2 de 4: formulário. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3 a 6, 25, 26, 35 e 36; as demais estão na parte 1 (1, 2, 7, 24, 27 a 31 e 34), na parte 3 (8, 9, 22, 23, 32 e 33) e na parte 4 (10 a 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaEditarReuniao`.
+
 ### SD-REU-13 — parte 3 de 4: na API
 
 ```mermaid
@@ -1018,6 +1090,8 @@ sequenceDiagram
 ```
 
 Figura 16 — Diagrama de sequência SD-REU-13 (Editar reunião), parte 3 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8, 9, 22, 23, 32 e 33; as demais estão na parte 1 (1, 2, 7, 24, 27 a 31 e 34), na parte 2 (3 a 6, 25, 26, 35 e 36) e na parte 4 (10 a 21). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 4, `ReunioesService`.
 
 ### SD-REU-13 — parte 4 de 4: no serviço e nos dados
 
@@ -1053,6 +1127,8 @@ sequenceDiagram
 
 Figura 16 — Diagrama de sequência SD-REU-13 (Editar reunião), parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10 a 21; as demais estão na parte 1 (1, 2, 7, 24, 27 a 31 e 34), na parte 2 (3 a 6, 25, 26, 35 e 36) e na parte 3 (8, 9, 22, 23, 32 e 33). Linhas de vida em comum, que ligam as partes: com a parte 3, `ReunioesService`.
+
 ## SD-REU-14 — Anexar arquivo à pauta
 
 ### SD-REU-14 — parte 1 de 5: na tela da reunião
@@ -1080,6 +1156,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-REU-14 (Anexar arquivo à pauta), parte 1 de 5: na tela da reunião. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 6 e 31 a 33; as demais estão na parte 2 (7 a 11 e 30), na parte 3 (12, 13, 28 e 29), na parte 4 (14 a 17, 24, 25 e 27) e na parte 5 (18 a 23 e 26). Linhas de vida em comum, que ligam as partes: com a parte 2, `anexos`.
+
 ### SD-REU-14 — parte 2 de 5: no módulo anexos
 
 ```mermaid
@@ -1105,6 +1183,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-REU-14 (Anexar arquivo à pauta), parte 2 de 5: no módulo anexos. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 7 a 11 e 30; as demais estão na parte 1 (1 a 6 e 31 a 33), na parte 3 (12, 13, 28 e 29), na parte 4 (14 a 17, 24, 25 e 27) e na parte 5 (18 a 23 e 26). Linhas de vida em comum, que ligam as partes: com a parte 1, `anexos`; com a parte 3, `File`.
+
 ### SD-REU-14 — parte 3 de 5: na API
 
 ```mermaid
@@ -1125,6 +1205,8 @@ sequenceDiagram
 ```
 
 Figura 17 — Diagrama de sequência SD-REU-14 (Anexar arquivo à pauta), parte 3 de 5: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 12, 13, 28 e 29; as demais estão na parte 1 (1 a 6 e 31 a 33), na parte 2 (7 a 11 e 30), na parte 4 (14 a 17, 24, 25 e 27) e na parte 5 (18 a 23 e 26). Linhas de vida em comum, que ligam as partes: com a parte 2, `File`; com a parte 4, `ReunioesService`; com a parte 5, `ReunioesService`.
 
 ### SD-REU-14 — parte 4 de 5: no serviço e nos dados
 
@@ -1154,6 +1236,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-REU-14 (Anexar arquivo à pauta), parte 4 de 5: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 14 a 17, 24, 25 e 27; as demais estão na parte 1 (1 a 6 e 31 a 33), na parte 2 (7 a 11 e 30), na parte 3 (12, 13, 28 e 29) e na parte 5 (18 a 23 e 26). Linhas de vida em comum, que ligam as partes: com a parte 3, `ReunioesService`; com a parte 5, `ReunioesService`.
+
 ### SD-REU-14 — parte 5 de 5: arquivo no GridFS
 
 ```mermaid
@@ -1181,6 +1265,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-REU-14 (Anexar arquivo à pauta), parte 5 de 5: arquivo no GridFS. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 18 a 23 e 26; as demais estão na parte 1 (1 a 6 e 31 a 33), na parte 2 (7 a 11 e 30), na parte 3 (12, 13, 28 e 29) e na parte 4 (14 a 17, 24, 25 e 27). Linhas de vida em comum, que ligam as partes: com a parte 3, `ReunioesService`; com a parte 4, `ReunioesService`.
+
 ## SD-REU-15 — Baixar anexo da pauta
 
 ### SD-REU-15 — parte 1 de 3: no aplicativo
@@ -1202,6 +1288,8 @@ sequenceDiagram
 ```
 
 Figura 18 — Diagrama de sequência SD-REU-15 (Baixar anexo da pauta), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 21; as demais estão na parte 2 (5, 6 e 16 a 20) e na parte 3 (7 a 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `anexos`.
 
 ### SD-REU-15 — parte 2 de 3: download do arquivo
 
@@ -1225,6 +1313,8 @@ sequenceDiagram
 
 Figura 18 — Diagrama de sequência SD-REU-15 (Baixar anexo da pauta), parte 2 de 3: download do arquivo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5, 6 e 16 a 20; as demais estão na parte 1 (1 a 4 e 21) e na parte 3 (7 a 15). Linhas de vida em comum, que ligam as partes: com a parte 1, `anexos`; com a parte 3, `ReunioesController`.
+
 ### SD-REU-15 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -1246,6 +1336,8 @@ sequenceDiagram
 ```
 
 Figura 18 — Diagrama de sequência SD-REU-15 (Baixar anexo da pauta), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 15; as demais estão na parte 1 (1 a 4 e 21) e na parte 2 (5, 6 e 16 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesController`.
 
 ## SD-REU-16 — Remover anexo da pauta
 
@@ -1274,6 +1366,8 @@ sequenceDiagram
 
 Figura 19 — Diagrama de sequência SD-REU-16 (Remover anexo da pauta), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 6, 23 e 24; as demais estão na parte 2 (7, 8, 21 e 22) e na parte 3 (9 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `anexos`.
+
 ### SD-REU-16 — parte 2 de 3: na API
 
 ```mermaid
@@ -1292,6 +1386,8 @@ sequenceDiagram
 ```
 
 Figura 19 — Diagrama de sequência SD-REU-16 (Remover anexo da pauta), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7, 8, 21 e 22; as demais estão na parte 1 (1 a 6, 23 e 24) e na parte 3 (9 a 20). Linhas de vida em comum, que ligam as partes: com a parte 1, `anexos`; com a parte 3, `ReunioesController`.
 
 ### SD-REU-16 — parte 3 de 3: no serviço e nos dados
 
@@ -1321,6 +1417,8 @@ sequenceDiagram
 
 Figura 19 — Diagrama de sequência SD-REU-16 (Remover anexo da pauta), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 9 a 20; as demais estão na parte 1 (1 a 6, 23 e 24) e na parte 2 (7, 8, 21 e 22). Linhas de vida em comum, que ligam as partes: com a parte 2, `ReunioesController`.
+
 ## SD-REU-17 — Gerar link de presença
 
 ### SD-REU-17 — parte 1 de 4: no aplicativo
@@ -1347,6 +1445,8 @@ sequenceDiagram
 
 Figura 20 — Diagrama de sequência SD-REU-17 (Gerar link de presença), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 27 a 29; as demais estão na parte 2 (5, 6, 25 e 26), na parte 3 (7 a 10 e 21 a 24) e na parte 4 (11 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-17 — parte 2 de 4: na API
 
 ```mermaid
@@ -1365,6 +1465,8 @@ sequenceDiagram
 ```
 
 Figura 20 — Diagrama de sequência SD-REU-17 (Gerar link de presença), parte 2 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 25 e 26; as demais estão na parte 1 (1 a 4 e 27 a 29), na parte 3 (7 a 10 e 21 a 24) e na parte 4 (11 a 20). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`; com a parte 4, `PresencasService`.
 
 ### SD-REU-17 — parte 3 de 4: no serviço e nos dados
 
@@ -1388,6 +1490,8 @@ sequenceDiagram
 ```
 
 Figura 20 — Diagrama de sequência SD-REU-17 (Gerar link de presença), parte 3 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 10 e 21 a 24; as demais estão na parte 1 (1 a 4 e 27 a 29), na parte 2 (5, 6, 25 e 26) e na parte 4 (11 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`; com a parte 4, `PresencasService`.
 
 ### SD-REU-17 — parte 4 de 4: comissão, organização e código
 
@@ -1415,6 +1519,8 @@ sequenceDiagram
 
 Figura 20 — Diagrama de sequência SD-REU-17 (Gerar link de presença), parte 4 de 4: comissão, organização e código. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 11 a 20; as demais estão na parte 1 (1 a 4 e 27 a 29), na parte 2 (5, 6, 25 e 26) e na parte 3 (7 a 10 e 21 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`; com a parte 3, `PresencasService`.
+
 ## SD-REU-18 — Revogar link de presença
 
 ### SD-REU-18 — parte 1 de 3: no aplicativo
@@ -1439,6 +1545,8 @@ sequenceDiagram
 
 Figura 21 — Diagrama de sequência SD-REU-18 (Revogar link de presença), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4 e 16 a 18; as demais estão na parte 2 (5, 6, 14 e 15) e na parte 3 (7 a 13). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-18 — parte 2 de 3: na API
 
 ```mermaid
@@ -1458,6 +1566,8 @@ sequenceDiagram
 
 Figura 21 — Diagrama de sequência SD-REU-18 (Revogar link de presença), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 14 e 15; as demais estão na parte 1 (1 a 4 e 16 a 18) e na parte 3 (7 a 13). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`.
+
 ### SD-REU-18 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -1476,6 +1586,8 @@ sequenceDiagram
 ```
 
 Figura 21 — Diagrama de sequência SD-REU-18 (Revogar link de presença), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 13; as demais estão na parte 1 (1 a 4 e 16 a 18) e na parte 2 (5, 6, 14 e 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`.
 
 ## SD-REU-19 — Enviar link de presença
 
@@ -1506,6 +1618,8 @@ sequenceDiagram
 
 Figura 22 — Diagrama de sequência SD-REU-19 (Enviar link de presença), parte 1 de 5: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 7, 28 e 29; as demais estão na parte 2 (8, 9, 26 e 27), na parte 3 (10 a 16), na parte 4 (17 a 20) e na parte 5 (21 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-19 — parte 2 de 5: na API
 
 ```mermaid
@@ -1528,6 +1642,8 @@ sequenceDiagram
 
 Figura 22 — Diagrama de sequência SD-REU-19 (Enviar link de presença), parte 2 de 5: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 8, 9, 26 e 27; as demais estão na parte 1 (1 a 7, 28 e 29), na parte 3 (10 a 16), na parte 4 (17 a 20) e na parte 5 (21 a 25). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`; com a parte 4, `PresencasService`; com a parte 5, `PresencasService`.
+
 ### SD-REU-19 — parte 3 de 5: convidados no serviço
 
 ```mermaid
@@ -1549,6 +1665,8 @@ sequenceDiagram
 ```
 
 Figura 22 — Diagrama de sequência SD-REU-19 (Enviar link de presença), parte 3 de 5: convidados no serviço. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 10 a 16; as demais estão na parte 1 (1 a 7, 28 e 29), na parte 2 (8, 9, 26 e 27), na parte 4 (17 a 20) e na parte 5 (21 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`; com a parte 4, `PresencasService`; com a parte 5, `PresencasService`.
 
 ### SD-REU-19 — parte 4 de 5: avisos no aplicativo
 
@@ -1573,6 +1691,8 @@ sequenceDiagram
 ```
 
 Figura 22 — Diagrama de sequência SD-REU-19 (Enviar link de presença), parte 4 de 5: avisos no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 17 a 20; as demais estão na parte 1 (1 a 7, 28 e 29), na parte 2 (8, 9, 26 e 27), na parte 3 (10 a 16) e na parte 5 (21 a 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`; com a parte 3, `PresencasService`; com a parte 5, `PresencasService`.
 
 ### SD-REU-19 — parte 5 de 5: envio de e-mail
 
@@ -1606,6 +1726,8 @@ sequenceDiagram
 
 Figura 22 — Diagrama de sequência SD-REU-19 (Enviar link de presença), parte 5 de 5: envio de e-mail. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 21 a 25; as demais estão na parte 1 (1 a 7, 28 e 29), na parte 2 (8, 9, 26 e 27), na parte 3 (10 a 16) e na parte 4 (17 a 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`; com a parte 3, `PresencasService`; com a parte 4, `PresencasService`.
+
 ### SD-REU-19, consulta e leitura dos avisos — parte 1 de 4: no aplicativo
 
 Consulta e leitura dos avisos pelo convidado, na tela "Notificações". A consulta também cria os avisos de convite, horário, cancelamento e ata das reuniões do usuário:
@@ -1633,6 +1755,8 @@ sequenceDiagram
 ```
 
 Figura 23 — Diagrama de sequência SD-REU-19, consulta e leitura dos avisos, parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 22 a 25, 34 e 35; as demais estão na parte 2 (3, 4, 20, 21, 26, 27, 32 e 33), na parte 3 (5 a 9) e na parte 4 (10 a 19 e 28 a 31). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
 
 ### SD-REU-19, consulta e leitura dos avisos — parte 2 de 4: na API
 
@@ -1662,6 +1786,8 @@ sequenceDiagram
 
 Figura 23 — Diagrama de sequência SD-REU-19, consulta e leitura dos avisos, parte 2 de 4: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 20, 21, 26, 27, 32 e 33; as demais estão na parte 1 (1, 2, 22 a 25, 34 e 35), na parte 3 (5 a 9) e na parte 4 (10 a 19 e 28 a 31). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `NotificacoesService`; com a parte 4, `NotificacoesService`.
+
 ### SD-REU-19, consulta e leitura dos avisos — parte 3 de 4: reuniões do usuário
 
 ```mermaid
@@ -1678,6 +1804,8 @@ sequenceDiagram
 ```
 
 Figura 23 — Diagrama de sequência SD-REU-19, consulta e leitura dos avisos, parte 3 de 4: reuniões do usuário. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 9; as demais estão na parte 1 (1, 2, 22 a 25, 34 e 35), na parte 2 (3, 4, 20, 21, 26, 27, 32 e 33) e na parte 4 (10 a 19 e 28 a 31). Linhas de vida em comum, que ligam as partes: com a parte 2, `NotificacoesService`; com a parte 4, `NotificacoesService`.
 
 ### SD-REU-19, consulta e leitura dos avisos — parte 4 de 4: avisos guardados
 
@@ -1713,6 +1841,8 @@ sequenceDiagram
 
 Figura 23 — Diagrama de sequência SD-REU-19, consulta e leitura dos avisos, parte 4 de 4: avisos guardados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10 a 19 e 28 a 31; as demais estão na parte 1 (1, 2, 22 a 25, 34 e 35), na parte 2 (3, 4, 20, 21, 26, 27, 32 e 33) e na parte 3 (5 a 9). Linhas de vida em comum, que ligam as partes: com a parte 2, `NotificacoesService`; com a parte 3, `NotificacoesService`.
+
 ## SD-REU-20 — Registrar presença pelo link
 
 ### SD-REU-20 — parte 1 de 4: no aplicativo
@@ -1738,6 +1868,8 @@ sequenceDiagram
 ```
 
 Figura 24 — Diagrama de sequência SD-REU-20 (Registrar presença pelo link), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3 e 14 a 16; as demais estão na parte 2 (4, 5, 12, 13, 22, 23, 32 e 33), na parte 3 (6 a 11 e 24 a 31) e na parte 4 (17 a 21 e 34 a 36). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `TelaPresencaLink` e `api`.
 
 ### SD-REU-20 — parte 2 de 4: na API
 
@@ -1769,6 +1901,8 @@ sequenceDiagram
 ```
 
 Figura 24 — Diagrama de sequência SD-REU-20 (Registrar presença pelo link), parte 2 de 4: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 4, 5, 12, 13, 22, 23, 32 e 33; as demais estão na parte 1 (1 a 3 e 14 a 16), na parte 3 (6 a 11 e 24 a 31) e na parte 4 (17 a 21 e 34 a 36). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`; com a parte 4, `api`.
 
 ### SD-REU-20 — parte 3 de 4: no serviço e nos dados
 
@@ -1803,6 +1937,8 @@ sequenceDiagram
 
 Figura 24 — Diagrama de sequência SD-REU-20 (Registrar presença pelo link), parte 3 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6 a 11 e 24 a 31; as demais estão na parte 1 (1 a 3 e 14 a 16), na parte 2 (4, 5, 12, 13, 22, 23, 32 e 33) e na parte 4 (17 a 21 e 34 a 36). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`.
+
 ### SD-REU-20 — parte 4 de 4: identidade e registro
 
 ```mermaid
@@ -1827,6 +1963,8 @@ sequenceDiagram
 ```
 
 Figura 24 — Diagrama de sequência SD-REU-20 (Registrar presença pelo link), parte 4 de 4: identidade e registro. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 17 a 21 e 34 a 36; as demais estão na parte 1 (1 a 3 e 14 a 16), na parte 2 (4, 5, 12, 13, 22, 23, 32 e 33) e na parte 3 (6 a 11 e 24 a 31). Linhas de vida em comum, que ligam as partes: com a parte 1, `TelaPresencaLink` e `api`; com a parte 2, `api`.
 
 ## SD-REU-21 — Corrigir horários de presença
 
@@ -1856,6 +1994,8 @@ sequenceDiagram
 
 Figura 25 — Diagrama de sequência SD-REU-21 (Corrigir horários de presença), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 6 e 18 a 21; as demais estão na parte 2 (7, 8, 16 e 17) e na parte 3 (9 a 15). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-21 — parte 2 de 3: na API
 
 ```mermaid
@@ -1874,6 +2014,8 @@ sequenceDiagram
 ```
 
 Figura 25 — Diagrama de sequência SD-REU-21 (Corrigir horários de presença), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7, 8, 16 e 17; as demais estão na parte 1 (1 a 6 e 18 a 21) e na parte 3 (9 a 15). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`.
 
 ### SD-REU-21 — parte 3 de 3: no serviço e nos dados
 
@@ -1894,6 +2036,8 @@ sequenceDiagram
 ```
 
 Figura 25 — Diagrama de sequência SD-REU-21 (Corrigir horários de presença), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 9 a 15; as demais estão na parte 1 (1 a 6 e 18 a 21) e na parte 2 (7, 8, 16 e 17). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`.
 
 ## SD-REU-22 — Consultar gestão e histórico de presença
 
@@ -1932,6 +2076,8 @@ sequenceDiagram
 
 Figura 26 — Diagrama de sequência SD-REU-22 (Consultar gestão e histórico de presença), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 7, 15 a 17, 26 e 27; as demais estão na parte 2 (8, 9, 13, 14, 18, 19, 24 e 25) e na parte 3 (10 a 12 e 20 a 23). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-REU-22 — parte 2 de 3: na API
 
 ```mermaid
@@ -1960,6 +2106,8 @@ sequenceDiagram
 
 Figura 26 — Diagrama de sequência SD-REU-22 (Consultar gestão e histórico de presença), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 8, 9, 13, 14, 18, 19, 24 e 25; as demais estão na parte 1 (1 a 7, 15 a 17, 26 e 27) e na parte 3 (10 a 12 e 20 a 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `PresencasService`.
+
 ### SD-REU-22 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -1980,6 +2128,8 @@ sequenceDiagram
 ```
 
 Figura 26 — Diagrama de sequência SD-REU-22 (Consultar gestão e histórico de presença), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 10 a 12 e 20 a 23; as demais estão na parte 1 (1 a 7, 15 a 17, 26 e 27) e na parte 2 (8, 9, 13, 14, 18, 19, 24 e 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `PresencasService`.
 
 ## Rastreabilidade
 

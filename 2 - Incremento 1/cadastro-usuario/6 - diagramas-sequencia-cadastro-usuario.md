@@ -36,6 +36,8 @@ sequenceDiagram
 
 Figura 14 — Diagrama de sequência SD-USR-01 (Cadastrar e confirmar conta local), parte 1 de 5: cadastro no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 26 a 28; as demais estão na parte 2 (3 a 13 e 25), na parte 3 (14 a 24, 29 e 30), na parte 4 (31, 32 e 42 a 44) e na parte 5 (33 a 41). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 4, `Router`, `ToastProvider`, `Visitante` e `api`; com a parte 5, `api`.
+
 ### SD-USR-01 — parte 2 de 5: criação da conta na API
 
 ```mermaid
@@ -64,6 +66,8 @@ sequenceDiagram
 ```
 
 Figura 15 — Diagrama de sequência SD-USR-01 (Cadastrar e confirmar conta local), parte 2 de 5: criação da conta na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3 a 13 e 25; as demais estão na parte 1 (1, 2 e 26 a 28), na parte 3 (14 a 24, 29 e 30), na parte 4 (31, 32 e 42 a 44) e na parte 5 (33 a 41). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `UsuarioModel` e `UsuariosController`; com a parte 4, `api`; com a parte 5, `UsuarioModel` e `api`.
 
 ### SD-USR-01 — parte 3 de 5: envio do código na API
 
@@ -97,6 +101,8 @@ sequenceDiagram
 
 Figura 16 — Diagrama de sequência SD-USR-01 (Cadastrar e confirmar conta local), parte 3 de 5: envio do código na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 14 a 24, 29 e 30; as demais estão na parte 1 (1, 2 e 26 a 28), na parte 2 (3 a 13 e 25), na parte 4 (31, 32 e 42 a 44) e na parte 5 (33 a 41). Linhas de vida em comum, que ligam as partes: com a parte 2, `UsuarioModel` e `UsuariosController`; com a parte 5, `AuthService` e `UsuarioModel`.
+
 ### SD-USR-01 — parte 4 de 5: confirmação no aplicativo
 
 ```mermaid
@@ -120,6 +126,8 @@ sequenceDiagram
 ```
 
 Figura 17 — Diagrama de sequência SD-USR-01 (Cadastrar e confirmar conta local), parte 4 de 5: confirmação no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 31, 32 e 42 a 44; as demais estão na parte 1 (1, 2 e 26 a 28), na parte 2 (3 a 13 e 25), na parte 3 (14 a 24, 29 e 30) e na parte 5 (33 a 41). Linhas de vida em comum, que ligam as partes: com a parte 1, `Router`, `ToastProvider`, `Visitante` e `api`; com a parte 2, `api`; com a parte 5, `api`.
 
 ### SD-USR-01 — parte 5 de 5: confirmação na API
 
@@ -146,6 +154,8 @@ sequenceDiagram
 ```
 
 Figura 18 — Diagrama de sequência SD-USR-01 (Cadastrar e confirmar conta local), parte 5 de 5: confirmação na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 33 a 41; as demais estão na parte 1 (1, 2 e 26 a 28), na parte 2 (3 a 13 e 25), na parte 3 (14 a 24, 29 e 30) e na parte 4 (31, 32 e 42 a 44). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 2, `UsuarioModel` e `api`; com a parte 3, `AuthService` e `UsuarioModel`; com a parte 4, `api`.
 
 ## SD-USR-02 — Autenticar com senha
 
@@ -190,6 +200,8 @@ sequenceDiagram
 
 Figura 19 — Diagrama de sequência SD-USR-02 (Autenticar com senha), parte 1 de 4: login no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 13 a 16, 29 a 32, 35 e 36; as demais estão na parte 2 (3, 4, 7, 8, 11, 12, 33 e 34), na parte 3 (5, 6, 9, 10 e 17 a 22) e na parte 4 (23 a 28). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`; com a parte 3, `api`; com a parte 4, `api`.
+
 ### SD-USR-02 — parte 2 de 4: conferência da senha na API
 
 ```mermaid
@@ -221,6 +233,8 @@ sequenceDiagram
 ```
 
 Figura 20 — Diagrama de sequência SD-USR-02 (Autenticar com senha), parte 2 de 4: conferência da senha na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 7, 8, 11, 12, 33 e 34; as demais estão na parte 1 (1, 2, 13 a 16, 29 a 32, 35 e 36), na parte 3 (5, 6, 9, 10 e 17 a 22) e na parte 4 (23 a 28). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `AuthService` e `api`; com a parte 4, `api`.
 
 ### SD-USR-02 — parte 3 de 4: busca da conta e token
 
@@ -259,6 +273,8 @@ sequenceDiagram
 
 Figura 21 — Diagrama de sequência SD-USR-02 (Autenticar com senha), parte 3 de 4: busca da conta e token. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 9, 10 e 17 a 22; as demais estão na parte 1 (1, 2, 13 a 16, 29 a 32, 35 e 36), na parte 2 (3, 4, 7, 8, 11, 12, 33 e 34) e na parte 4 (23 a 28). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 2, `AuthService` e `api`; com a parte 4, `UsuarioModel` e `api`.
+
 ### SD-USR-02 — parte 4 de 4: consulta do perfil na API
 
 ```mermaid
@@ -279,6 +295,8 @@ sequenceDiagram
 ```
 
 Figura 22 — Diagrama de sequência SD-USR-02 (Autenticar com senha), parte 4 de 4: consulta do perfil na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 23 a 28; as demais estão na parte 1 (1, 2, 13 a 16, 29 a 32, 35 e 36), na parte 2 (3, 4, 7, 8, 11, 12, 33 e 34) e na parte 3 (5, 6, 9, 10 e 17 a 22). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 2, `api`; com a parte 3, `UsuarioModel` e `api`.
 
 ## SD-USR-03 — Autenticar com Google
 
@@ -312,6 +330,8 @@ sequenceDiagram
 
 Figura 23 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no aplicativo instalado, parte 1 de 4: tela de login e módulo `google`. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4, 12, 13, 38 e 39; as demais estão na parte 2 (5 a 11), na parte 3 (14 a 16 e 34 a 37) e na parte 4 (17 a 33). Linhas de vida em comum, que ligam as partes: com a parte 2, `google`; com a parte 3, `google`.
+
 ### SD-USR-03 no aplicativo instalado — parte 2 de 4: biblioteca `GoogleSignin`
 
 ```mermaid
@@ -333,6 +353,8 @@ sequenceDiagram
 ```
 
 Figura 24 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no aplicativo instalado, parte 2 de 4: biblioteca `GoogleSignin`. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 11; as demais estão na parte 1 (1 a 4, 12, 13, 38 e 39), na parte 3 (14 a 16 e 34 a 37) e na parte 4 (17 a 33). Linhas de vida em comum, que ligam as partes: com a parte 1, `google`; com a parte 3, `google`.
 
 ### SD-USR-03 no aplicativo instalado — parte 3 de 4: login na API
 
@@ -357,6 +379,8 @@ sequenceDiagram
 ```
 
 Figura 25 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no aplicativo instalado, parte 3 de 4: login na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 14 a 16 e 34 a 37; as demais estão na parte 1 (1 a 4, 12, 13, 38 e 39), na parte 2 (5 a 11) e na parte 4 (17 a 33). Linhas de vida em comum, que ligam as partes: com a parte 1, `google`; com a parte 2, `google`; com a parte 4, `AuthService`.
 
 ### SD-USR-03 no aplicativo instalado — parte 4 de 4: conferência do token e da conta
 
@@ -397,6 +421,8 @@ sequenceDiagram
 
 Figura 26 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no aplicativo instalado, parte 4 de 4: conferência do token e da conta. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 17 a 33; as demais estão na parte 1 (1 a 4, 12, 13, 38 e 39), na parte 2 (5 a 11) e na parte 3 (14 a 16 e 34 a 37). Linhas de vida em comum, que ligam as partes: com a parte 3, `AuthService`.
+
 No navegador:
 
 ### SD-USR-03 no navegador — parte 1 de 5: escolha da conta no Google
@@ -416,6 +442,8 @@ sequenceDiagram
 
 Figura 27 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no navegador, parte 1 de 5: escolha da conta no Google. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 e 2; as demais estão na parte 2 (3 a 5), na parte 3 (6 a 9, 20 e 21), na parte 4 (10 a 19) e na parte 5 (22 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `Google`.
+
 ### SD-USR-03 no navegador — parte 2 de 5: retorno do Google
 
 ```mermaid
@@ -433,6 +461,8 @@ sequenceDiagram
 ```
 
 Figura 28 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no navegador, parte 2 de 5: retorno do Google. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3 a 5; as demais estão na parte 1 (1 e 2), na parte 3 (6 a 9, 20 e 21), na parte 4 (10 a 19) e na parte 5 (22 a 24). Linhas de vida em comum, que ligam as partes: com a parte 1, `Google`; com a parte 3, `GoogleCallbackWeb`; com a parte 4, `AuthController`; com a parte 5, `GoogleCallbackWeb`.
 
 ### SD-USR-03 no navegador — parte 3 de 5: troca do código no aplicativo
 
@@ -453,6 +483,8 @@ sequenceDiagram
 ```
 
 Figura 29 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no navegador, parte 3 de 5: troca do código no aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 9, 20 e 21; as demais estão na parte 1 (1 e 2), na parte 2 (3 a 5), na parte 4 (10 a 19) e na parte 5 (22 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `GoogleCallbackWeb`; com a parte 4, `api`; com a parte 5, `GoogleCallbackWeb`.
 
 ### SD-USR-03 no navegador — parte 4 de 5: login na API
 
@@ -483,6 +515,8 @@ sequenceDiagram
 
 Figura 30 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no navegador, parte 4 de 5: login na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10 a 19; as demais estão na parte 1 (1 e 2), na parte 2 (3 a 5), na parte 3 (6 a 9, 20 e 21) e na parte 5 (22 a 24). Linhas de vida em comum, que ligam as partes: com a parte 2, `AuthController`; com a parte 3, `api`.
+
 ### SD-USR-03 no navegador — parte 5 de 5: abertura da sessão
 
 ```mermaid
@@ -497,6 +531,8 @@ sequenceDiagram
 ```
 
 Figura 31 — Diagrama de sequência SD-USR-03 (Autenticar com Google) no navegador, parte 5 de 5: abertura da sessão. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 22 a 24; as demais estão na parte 1 (1 e 2), na parte 2 (3 a 5), na parte 3 (6 a 9, 20 e 21) e na parte 4 (10 a 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `GoogleCallbackWeb`; com a parte 3, `GoogleCallbackWeb`.
 
 ## SD-USR-04 — Desbloquear sessão salva
 
@@ -527,6 +563,8 @@ sequenceDiagram
 ```
 
 Figura 32 — Diagrama de sequência SD-USR-04 (Desbloquear sessão salva), parte 1 de 3: abertura do aplicativo. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 1 a 8; as demais estão na parte 2 (9 a 23) e na parte 3 (24 a 31). Linhas de vida em comum, que ligam as partes: com a parte 2, `Navegacao` e `Usuário com sessão salva`; com a parte 3, `Navegacao`, `SessaoProvider`, `Usuário com sessão salva` e `api`.
 
 ### SD-USR-04 — parte 2 de 3: pedido de identidade
 
@@ -572,6 +610,8 @@ sequenceDiagram
 
 Figura 33 — Diagrama de sequência SD-USR-04 (Desbloquear sessão salva), parte 2 de 3: pedido de identidade. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 9 a 23; as demais estão na parte 1 (1 a 8) e na parte 3 (24 a 31). Linhas de vida em comum, que ligam as partes: com a parte 1, `Navegacao` e `Usuário com sessão salva`; com a parte 3, `DesbloqueioSessao`, `Navegacao` e `Usuário com sessão salva`.
+
 ### SD-USR-04 — parte 3 de 3: entrada com senha
 
 ```mermaid
@@ -601,6 +641,8 @@ sequenceDiagram
 ```
 
 Figura 34 — Diagrama de sequência SD-USR-04 (Desbloquear sessão salva), parte 3 de 3: entrada com senha. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 24 a 31; as demais estão na parte 1 (1 a 8) e na parte 2 (9 a 23). Linhas de vida em comum, que ligam as partes: com a parte 1, `Navegacao`, `SessaoProvider`, `Usuário com sessão salva` e `api`; com a parte 2, `DesbloqueioSessao`, `Navegacao` e `Usuário com sessão salva`.
 
 ## Rastreabilidade
 

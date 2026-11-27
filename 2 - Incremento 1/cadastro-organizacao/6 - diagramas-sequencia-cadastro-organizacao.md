@@ -40,6 +40,8 @@ sequenceDiagram
 
 Figura 11 — Diagrama de sequência SD-ORG-01 (Cadastrar organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 15, 16, 20 e 21; as demais estão na parte 2 (3, 4, 13, 14, 18 e 19) e na parte 3 (5 a 12 e 17). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-01 — parte 2 de 3: na API
 
 ```mermaid
@@ -65,6 +67,8 @@ sequenceDiagram
 ```
 
 Figura 12 — Diagrama de sequência SD-ORG-01 (Cadastrar organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 13, 14, 18 e 19; as demais estão na parte 1 (1, 2, 15, 16, 20 e 21) e na parte 3 (5 a 12 e 17). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-01 — parte 3 de 3: no serviço e nos dados
 
@@ -96,6 +100,8 @@ sequenceDiagram
 
 Figura 13 — Diagrama de sequência SD-ORG-01 (Cadastrar organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5 a 12 e 17; as demais estão na parte 1 (1, 2, 15, 16, 20 e 21) e na parte 2 (3, 4, 13, 14, 18 e 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
+
 ## SD-ORG-02 — Consultar organizações
 
 Usuário, na aba "Organizações":
@@ -126,6 +132,8 @@ sequenceDiagram
 
 Figura 14 — Diagrama de sequência SD-ORG-02 (Consultar organizações, usuário), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 9 a 12; as demais estão na parte 2 (3, 4, 7 e 8) e na parte 3 (5 e 6). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-02 (usuário) — parte 2 de 3: na API
 
 ```mermaid
@@ -148,6 +156,8 @@ sequenceDiagram
 
 Figura 15 — Diagrama de sequência SD-ORG-02 (Consultar organizações, usuário), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 7 e 8; as demais estão na parte 1 (1, 2 e 9 a 12) e na parte 3 (5 e 6). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-02 (usuário) — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -163,6 +173,8 @@ sequenceDiagram
 ```
 
 Figura 16 — Diagrama de sequência SD-ORG-02 (Consultar organizações, usuário), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 e 6; as demais estão na parte 1 (1, 2 e 9 a 12) e na parte 2 (3, 4, 7 e 8). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 Administrador do sistema, na tela "Gerenciar organizações":
 
@@ -188,6 +200,8 @@ sequenceDiagram
 
 Figura 17 — Diagrama de sequência SD-ORG-02 (Consultar organizações, administrador do sistema), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 11 e 12; as demais estão na parte 2 (4, 5, 9 e 10) e na parte 3 (6 a 8). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-02 (administrador do sistema) — parte 2 de 3: na API
 
 ```mermaid
@@ -207,6 +221,8 @@ sequenceDiagram
 
 Figura 18 — Diagrama de sequência SD-ORG-02 (Consultar organizações, administrador do sistema), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 4, 5, 9 e 10; as demais estão na parte 1 (1 a 3, 11 e 12) e na parte 3 (6 a 8). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-02 (administrador do sistema) — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -223,6 +239,8 @@ sequenceDiagram
 ```
 
 Figura 19 — Diagrama de sequência SD-ORG-02 (Consultar organizações, administrador do sistema), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 8; as demais estão na parte 1 (1 a 3, 11 e 12) e na parte 2 (4, 5, 9 e 10). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-03 — Aprovar organização
 
@@ -246,6 +264,8 @@ sequenceDiagram
 
 Figura 20 — Diagrama de sequência SD-ORG-03 (Aprovar organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 10 e 11; as demais estão na parte 2 (3, 4, 8 e 9) e na parte 3 (5 a 7). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-03 — parte 2 de 3: na API
 
 ```mermaid
@@ -265,6 +285,8 @@ sequenceDiagram
 
 Figura 21 — Diagrama de sequência SD-ORG-03 (Aprovar organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 8 e 9; as demais estão na parte 1 (1, 2, 10 e 11) e na parte 3 (5 a 7). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-03 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -279,6 +301,8 @@ sequenceDiagram
 ```
 
 Figura 22 — Diagrama de sequência SD-ORG-03 (Aprovar organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 7; as demais estão na parte 1 (1, 2, 10 e 11) e na parte 2 (3, 4, 8 e 9). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-04 — Revogar organização
 
@@ -310,6 +334,8 @@ sequenceDiagram
 
 Figura 23 — Diagrama de sequência SD-ORG-04 (Revogar organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 6 e 14 a 16; as demais estão na parte 2 (7, 8, 12 e 13) e na parte 3 (9 a 11). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-04 — parte 2 de 3: na API
 
 ```mermaid
@@ -329,6 +355,8 @@ sequenceDiagram
 
 Figura 24 — Diagrama de sequência SD-ORG-04 (Revogar organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 7, 8, 12 e 13; as demais estão na parte 1 (1 a 6 e 14 a 16) e na parte 3 (9 a 11). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-04 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -343,6 +371,8 @@ sequenceDiagram
 ```
 
 Figura 25 — Diagrama de sequência SD-ORG-04 (Revogar organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 9 a 11; as demais estão na parte 1 (1 a 6 e 14 a 16) e na parte 2 (7, 8, 12 e 13). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-05 — Editar organização
 
@@ -379,6 +409,8 @@ sequenceDiagram
 
 Figura 26 — Diagrama de sequência SD-ORG-05 (Editar organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5, 17 a 19, 23 e 24; as demais estão na parte 2 (6, 7, 15, 16, 21 e 22) e na parte 3 (8 a 14 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-05 — parte 2 de 3: na API
 
 ```mermaid
@@ -405,6 +437,8 @@ sequenceDiagram
 
 Figura 27 — Diagrama de sequência SD-ORG-05 (Editar organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 6, 7, 15, 16, 21 e 22; as demais estão na parte 1 (1 a 5, 17 a 19, 23 e 24) e na parte 3 (8 a 14 e 20). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-05 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -430,6 +464,8 @@ sequenceDiagram
 ```
 
 Figura 28 — Diagrama de sequência SD-ORG-05 (Editar organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8 a 14 e 20; as demais estão na parte 1 (1 a 5, 17 a 19, 23 e 24) e na parte 2 (6, 7, 15, 16, 21 e 22). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-06 — Excluir organização
 
@@ -468,6 +504,8 @@ sequenceDiagram
 
 Figura 29 — Diagrama de sequência SD-ORG-06 (Excluir organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 6, 18, 19 e 23 a 25; as demais estão na parte 2 (7, 8, 16, 17, 21 e 22) e na parte 3 (9 a 15 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-06 — parte 2 de 3: na API
 
 ```mermaid
@@ -494,6 +532,8 @@ sequenceDiagram
 ```
 
 Figura 30 — Diagrama de sequência SD-ORG-06 (Excluir organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7, 8, 16, 17, 21 e 22; as demais estão na parte 1 (1 a 6, 18, 19 e 23 a 25) e na parte 3 (9 a 15 e 20). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-06 — parte 3 de 3: no serviço e nos dados
 
@@ -523,6 +563,8 @@ sequenceDiagram
 
 Figura 31 — Diagrama de sequência SD-ORG-06 (Excluir organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 9 a 15 e 20; as demais estão na parte 1 (1 a 6, 18, 19 e 23 a 25) e na parte 2 (7, 8, 16, 17, 21 e 22). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
+
 ## SD-ORG-07 — Entrar por código
 
 ### SD-ORG-07 — parte 1 de 3: no aplicativo
@@ -545,6 +587,8 @@ sequenceDiagram
 
 Figura 32 — Diagrama de sequência SD-ORG-07 (Entrar por código), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2, 21 e 22; as demais estão na parte 2 (3, 4, 19 e 20) e na parte 3 (5 a 18). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-07 — parte 2 de 3: na API
 
 ```mermaid
@@ -564,6 +608,8 @@ sequenceDiagram
 ```
 
 Figura 33 — Diagrama de sequência SD-ORG-07 (Entrar por código), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 19 e 20; as demais estão na parte 1 (1, 2, 21 e 22) e na parte 3 (5 a 18). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-07 — parte 3 de 3: no serviço e nos dados
 
@@ -602,6 +648,8 @@ sequenceDiagram
 
 Figura 34 — Diagrama de sequência SD-ORG-07 (Entrar por código), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5 a 18; as demais estão na parte 1 (1, 2, 21 e 22) e na parte 2 (3, 4, 19 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
+
 ## SD-ORG-08 — Convidar usuário
 
 ### SD-ORG-08 — parte 1 de 3: no aplicativo
@@ -633,6 +681,8 @@ sequenceDiagram
 
 Figura 35 — Diagrama de sequência SD-ORG-08 (Convidar usuário), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 5 e 20 a 25; as demais estão na parte 2 (6, 7, 18 e 19) e na parte 3 (8 a 17). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-08 — parte 2 de 3: na API
 
 ```mermaid
@@ -652,6 +702,8 @@ sequenceDiagram
 ```
 
 Figura 36 — Diagrama de sequência SD-ORG-08 (Convidar usuário), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6, 7, 18 e 19; as demais estão na parte 1 (1 a 5 e 20 a 25) e na parte 3 (8 a 17). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-08 — parte 3 de 3: no serviço e nos dados
 
@@ -683,6 +735,8 @@ sequenceDiagram
 ```
 
 Figura 37 — Diagrama de sequência SD-ORG-08 (Convidar usuário), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8 a 17; as demais estão na parte 1 (1 a 5 e 20 a 25) e na parte 2 (6, 7, 18 e 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-09 — Analisar solicitação de entrada
 
@@ -717,6 +771,8 @@ sequenceDiagram
 
 Figura 38 — Diagrama de sequência SD-ORG-09 (Analisar solicitação de entrada), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 3, 16 a 19, 23 e 24; as demais estão na parte 2 (4, 15 e 22), na parte 3 (5, 14 e 21) e na parte 4 (6 a 13 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-09 — parte 2 de 4: na API, até o controller
 
 ```mermaid
@@ -739,6 +795,8 @@ sequenceDiagram
 
 Figura 39 — Diagrama de sequência SD-ORG-09 (Analisar solicitação de entrada), parte 2 de 4: na API, até o controller. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 4, 15 e 22; as demais estão na parte 1 (1 a 3, 16 a 19, 23 e 24), na parte 3 (5, 14 e 21) e na parte 4 (6 a 13 e 20). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesController`.
+
 ### SD-ORG-09 — parte 3 de 4: na API, do controller ao serviço
 
 ```mermaid
@@ -760,6 +818,8 @@ sequenceDiagram
 ```
 
 Figura 40 — Diagrama de sequência SD-ORG-09 (Analisar solicitação de entrada), parte 3 de 4: na API, do controller ao serviço. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5, 14 e 21; as demais estão na parte 1 (1 a 3, 16 a 19, 23 e 24), na parte 2 (4, 15 e 22) e na parte 4 (6 a 13 e 20). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesController`; com a parte 4, `OrganizacoesService`.
 
 ### SD-ORG-09 — parte 4 de 4: no serviço e nos dados
 
@@ -788,6 +848,8 @@ sequenceDiagram
 ```
 
 Figura 41 — Diagrama de sequência SD-ORG-09 (Analisar solicitação de entrada), parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 6 a 13 e 20; as demais estão na parte 1 (1 a 3, 16 a 19, 23 e 24), na parte 2 (4, 15 e 22) e na parte 3 (5, 14 e 21). Linhas de vida em comum, que ligam as partes: com a parte 3, `OrganizacoesService`.
 
 ## SD-ORG-10 — Gerar novo código de acesso
 
@@ -821,6 +883,8 @@ sequenceDiagram
 
 Figura 42 — Diagrama de sequência SD-ORG-10 (Gerar novo código de acesso), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 7 e 19 a 23; as demais estão na parte 2 (8, 9, 17 e 18) e na parte 3 (10 a 16). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-10 — parte 2 de 3: na API
 
 ```mermaid
@@ -840,6 +904,8 @@ sequenceDiagram
 ```
 
 Figura 43 — Diagrama de sequência SD-ORG-10 (Gerar novo código de acesso), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8, 9, 17 e 18; as demais estão na parte 1 (1 a 7 e 19 a 23) e na parte 3 (10 a 16). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-10 — parte 3 de 3: no serviço e nos dados
 
@@ -865,6 +931,8 @@ sequenceDiagram
 
 Figura 44 — Diagrama de sequência SD-ORG-10 (Gerar novo código de acesso), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10 a 16; as demais estão na parte 1 (1 a 7 e 19 a 23) e na parte 2 (8, 9, 17 e 18). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
+
 ## SD-ORG-11 — Responder convite
 
 ### SD-ORG-11 — parte 1 de 3: no aplicativo
@@ -888,6 +956,8 @@ sequenceDiagram
 
 Figura 45 — Diagrama de sequência SD-ORG-11 (Responder convite), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1, 2 e 15 a 17; as demais estão na parte 2 (3, 4, 13 e 14) e na parte 3 (5 a 12). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-11 — parte 2 de 3: na API
 
 ```mermaid
@@ -907,6 +977,8 @@ sequenceDiagram
 ```
 
 Figura 46 — Diagrama de sequência SD-ORG-11 (Responder convite), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 3, 4, 13 e 14; as demais estão na parte 1 (1, 2 e 15 a 17) e na parte 3 (5 a 12). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-11 — parte 3 de 3: no serviço e nos dados
 
@@ -933,6 +1005,8 @@ sequenceDiagram
 ```
 
 Figura 47 — Diagrama de sequência SD-ORG-11 (Responder convite), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 5 a 12; as demais estão na parte 1 (1, 2 e 15 a 17) e na parte 2 (3, 4, 13 e 14). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## SD-ORG-12 — Alterar papel do membro
 
@@ -974,6 +1048,8 @@ sequenceDiagram
 
 Figura 48 — Diagrama de sequência SD-ORG-12 (Alterar papel do membro), parte 1 de 4: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 8, 21 a 24, 28 e 29; as demais estão na parte 2 (9, 20 e 27), na parte 3 (10, 19 e 26) e na parte 4 (11 a 18 e 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-12 — parte 2 de 4: na API, até o controller
 
 ```mermaid
@@ -996,6 +1072,8 @@ sequenceDiagram
 
 Figura 49 — Diagrama de sequência SD-ORG-12 (Alterar papel do membro), parte 2 de 4: na API, até o controller. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 9, 20 e 27; as demais estão na parte 1 (1 a 8, 21 a 24, 28 e 29), na parte 3 (10, 19 e 26) e na parte 4 (11 a 18 e 25). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesController`.
+
 ### SD-ORG-12 — parte 3 de 4: na API, do controller ao serviço
 
 ```mermaid
@@ -1017,6 +1095,8 @@ sequenceDiagram
 ```
 
 Figura 50 — Diagrama de sequência SD-ORG-12 (Alterar papel do membro), parte 3 de 4: na API, do controller ao serviço. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 10, 19 e 26; as demais estão na parte 1 (1 a 8, 21 a 24, 28 e 29), na parte 2 (9, 20 e 27) e na parte 4 (11 a 18 e 25). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesController`; com a parte 4, `OrganizacoesService`.
 
 ### SD-ORG-12 — parte 4 de 4: no serviço e nos dados
 
@@ -1045,6 +1125,8 @@ sequenceDiagram
 ```
 
 Figura 51 — Diagrama de sequência SD-ORG-12 (Alterar papel do membro), parte 4 de 4: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 11 a 18 e 25; as demais estão na parte 1 (1 a 8, 21 a 24, 28 e 29), na parte 2 (9, 20 e 27) e na parte 3 (10, 19 e 26). Linhas de vida em comum, que ligam as partes: com a parte 3, `OrganizacoesService`.
 
 ## SD-ORG-13 — Remover vínculo de membro
 
@@ -1076,6 +1158,8 @@ sequenceDiagram
 
 Figura 52 — Diagrama de sequência SD-ORG-13 (Remover vínculo de membro), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 7 e 22 a 25; as demais estão na parte 2 (8, 9, 20 e 21) e na parte 3 (10 a 19). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-13 — parte 2 de 3: na API
 
 ```mermaid
@@ -1094,6 +1178,8 @@ sequenceDiagram
 ```
 
 Figura 53 — Diagrama de sequência SD-ORG-13 (Remover vínculo de membro), parte 2 de 3: na API. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 8, 9, 20 e 21; as demais estão na parte 1 (1 a 7 e 22 a 25) e na parte 3 (10 a 19). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
 
 ### SD-ORG-13 — parte 3 de 3: no serviço e nos dados
 
@@ -1123,6 +1209,8 @@ sequenceDiagram
 
 Figura 54 — Diagrama de sequência SD-ORG-13 (Remover vínculo de membro), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 10 a 19; as demais estão na parte 1 (1 a 7 e 22 a 25) e na parte 2 (8, 9, 20 e 21). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
+
 ## SD-ORG-14 — Consultar membros da organização
 
 ### SD-ORG-14 — parte 1 de 3: no aplicativo
@@ -1150,6 +1238,8 @@ sequenceDiagram
 
 Figura 55 — Diagrama de sequência SD-ORG-14 (Consultar membros da organização), parte 1 de 3: no aplicativo. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 1 a 4, 15 e 16; as demais estão na parte 2 (5, 6, 13 e 14) e na parte 3 (7 a 12). Linhas de vida em comum, que ligam as partes: com a parte 2, `api`.
+
 ### SD-ORG-14 — parte 2 de 3: na API
 
 ```mermaid
@@ -1169,6 +1259,8 @@ sequenceDiagram
 
 Figura 56 — Diagrama de sequência SD-ORG-14 (Consultar membros da organização), parte 2 de 3: na API. Fonte: equipe Conecta+.
 
+Ligação com as outras partes: esta parte tem as mensagens 5, 6, 13 e 14; as demais estão na parte 1 (1 a 4, 15 e 16) e na parte 3 (7 a 12). Linhas de vida em comum, que ligam as partes: com a parte 1, `api`; com a parte 3, `OrganizacoesService`.
+
 ### SD-ORG-14 — parte 3 de 3: no serviço e nos dados
 
 ```mermaid
@@ -1187,6 +1279,8 @@ sequenceDiagram
 ```
 
 Figura 57 — Diagrama de sequência SD-ORG-14 (Consultar membros da organização), parte 3 de 3: no serviço e nos dados. Fonte: equipe Conecta+.
+
+Ligação com as outras partes: esta parte tem as mensagens 7 a 12; as demais estão na parte 1 (1 a 4, 15 e 16) e na parte 2 (5, 6, 13 e 14). Linhas de vida em comum, que ligam as partes: com a parte 2, `OrganizacoesService`.
 
 ## Rastreabilidade
 
