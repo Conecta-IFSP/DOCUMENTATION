@@ -52,9 +52,9 @@ Todas exigem JWT, conta ativa e, no nível global, API key.
 | `POST /organizacoes/:id/codigo`                    | administrador aprovado                | —                                                                                               | troca código de acesso; até 5 tentativas em colisão                                    |
 | `POST /organizacoes/:id/convites`                  | administrador aprovado                | `email`                                                                                         | cria vínculo `CONVIDADO` para usuário ativo                                            |
 | `PATCH /organizacoes/:id/convite`                  | convidado                             | `aceitar:boolean`                                                                               | aceita como `APROVADO` ou remove convite recusado                                      |
-| `PATCH /organizacoes/:id/membros/:usuarioId`       | administrador aprovado                | `status=APROVADO                                                                                | REJEITADO`                                                                             | analisa pendente; permite reverter `REJEITADO→APROVADO` |
-| `PATCH /organizacoes/:id/membros/:usuarioId/papel` | administrador aprovado                | `papel=ADMIN                                                                                    | MEMBRO`                                                                                | promove/rebaixa; impede organização sem administrador   |
-| `DELETE /organizacoes/:id/membros/:usuarioId`      | administrador aprovado                | membro não administrador                                                                        | remove vínculo e o usuário das comissões da organização                                |
+| `PATCH /organizacoes/:id/membros/:usuarioId`       | administrador aprovado                | `status` = `APROVADO` ou `REJEITADO`                                                            | analisa pendente; permite reverter `REJEITADO→APROVADO` |
+| `PATCH /organizacoes/:id/membros/:usuarioId/papel` | administrador aprovado                | `papel` = `ADMIN` ou `MEMBRO`                                                                   | promove/rebaixa; impede organização sem administrador   |
+| `DELETE /organizacoes/:id/membros/:usuarioId`      | administrador aprovado                | membro não administrador                                                                        | remove vínculo e o usuário das comissões da organização; se ele era o responsável de uma comissão, ela fica sem responsável |
 
 ## Comissões
 
@@ -71,7 +71,7 @@ Todas exigem JWT e `USUARIO`. Leitura exige vínculo aprovado; escrita exige adm
 | `PATCH /comissoes/:id`                     | nome/descrição/ativo                                     | edição e ativação; ativação exige exatamente um responsável                                 |
 | `DELETE /comissoes/:id`                    | ID                                                       | desativação lógica (`ativo=false`)                                                          |
 | `POST /comissoes/:id/membros`              | `usuario_id`, papel opcional                             | adiciona somente `MEMBRO`; responsável usa rota específica                                  |
-| `PATCH /comissoes/:id/responsavel`         | `usuario_id`                                             | substitui atomicamente o responsável e rebaixa o anterior                                   |
+| `PATCH /comissoes/:id/responsavel`         | `usuario_id`                                             | substitui atomicamente o responsável e rebaixa o anterior; aceita também comissão inativa |
 | `PATCH /comissoes/:id/membros/:usuarioId`  | `papel`                                                  | `RESPONSAVEL` delega à substituição; não permite retirar o único responsável sem substituto |
 | `DELETE /comissoes/:id/membros/:usuarioId` | ID                                                       | remove membro comum; responsável precisa ser substituído antes                              |
 
@@ -120,13 +120,37 @@ Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A a
 | `POST /reunioes/:id/ata/reprovar` | presente reprova a versão atual antes do fim do prazo, com trecho e justificativa opcionais; a ata volta para o responsável |
 | `POST /reunioes/:id/ata/nova`     | responsável cancela a ata reprovada e abre a versão seguinte com o mesmo texto                        |
 
+## Presença por link
+
+Documentada em [Incremento 2 — Reuniões](3%20-%20Incremento2/reunioes/README.md), RF-REU-17 a RF-REU-22. Todas exigem `X-API-Key`, JWT e `USUARIO`.
+
+| Método e rota | Quem usa | Regra principal |
+| --- | --- | --- |
+| `GET /presencas/:id/gestao` | responsável da comissão | informa se há link ativo, a revisão atual das presenças e o histórico de correções (RF-REU-22) |
+| `POST /presencas/:id/link` | responsável da comissão | gera o link de presença com código durante a reunião (RF-REU-17) |
+| `DELETE /presencas/:id/link` | responsável da comissão | invalida o link ativo e expira as notificações de presença da reunião (RF-REU-18) |
+| `POST /presencas/:id/enviar` | responsável da comissão | envia o link aos convidados por notificação no aplicativo ou por e-mail; o e-mail exige SMTP configurado (RF-REU-19) |
+| `GET /presencas/:id/acesso?codigo=` | participante convidado | consulta a reunião pelo código sem registrar presença (RF-REU-20) |
+| `POST /presencas/:id/acesso` | participante convidado | registra a entrada ou a saída do próprio participante pelo código (RF-REU-20) |
+| `PATCH /presencas/:id/horarios/:usuarioId` | responsável da comissão | corrige entrada e saída com motivo de 5 a 500 caracteres, guarda os valores anteriores no histórico e exige a revisão atual das presenças (RF-REU-21) |
+| `GET /presencas/:id/historico` | responsável da comissão | lista as correções de horário registradas (RF-REU-22) |
+
+## Notificações
+
+Exigem `X-API-Key`, JWT e `USUARIO`.
+
+| Método e rota | Regra principal |
+| --- | --- |
+| `GET /notificacoes` | gera, sem repetir, as notificações de convite pendente, cancelamento, mudança de horário e ata a avaliar das reuniões do usuário; devolve até 100 notificações não expiradas, da mais recente para a mais antiga, e a quantidade de não lidas |
+| `PATCH /notificacoes/:id/lida` | marca como lida uma notificação do próprio usuário; de outro usuário ou inexistente: 404 "Notificação não encontrada" |
+
 ## Relatórios
 
-Exige JWT e `USUARIO`. O usuário vem só do token; a rota não aceita o identificador de outra pessoa.
+Documentado em [Incremento 3 — Relatório individual](4%20-%20Incremento3/relatorio-individual/README.md). Exige JWT e `USUARIO`. O usuário vem só do token; a rota não aceita o identificador de outra pessoa.
 
 | Método e rota | Entrada | Controller → service | Resposta/regra |
 | --- | --- | --- | --- |
-| `GET /relatorios/individual?de=&ate=` | `de` e `ate` opcionais, datas ISO 8601; `ate` é exclusivo e precisa ser posterior a `de` | `RelatoriosController.individual` → `RelatoriosService.individual` | `usuario` (nome e e-mail), `gerada_em`, `periodo`, `resumo` (reuniões, minutos registrados e registros sem duração), `vinculos` e `reunioes`. `reunioes` traz as reuniões não canceladas, já iniciadas, em que a presença do usuário é `CONFIRMADA`, da mais recente para a mais antiga. Cada item de `reunioes` traz `saida_automatica`, verdadeiro quando a saída foi registrada no término da reunião. `vinculos.organizacoes` traz `id`, `nome` e `papel` (`ADMIN` ou `MEMBRO`) das organizações `APROVADA` em que o vínculo do usuário é `APROVADO`; `vinculos.comissoes` traz `id`, `nome`, `organizacao_id`, `organizacao` e `papel` (`RESPONSAVEL` ou `MEMBRO`) das comissões ativas dessas organizações em que o usuário está na equipe; as duas listas são ordenadas por nome e não dependem do período. Datas inválidas: 400 "Informe uma data inicial válida" ou "Informe uma data final válida"; `ate` não posterior a `de`: 400 "O fim do período deve ser posterior ao início"; conta inativa: 401 |
+| `GET /relatorios/individual?de=&ate=` | `de` e `ate` opcionais, datas ISO 8601; `ate` é exclusivo e precisa ser posterior a `de` | `RelatoriosController.individual` → `RelatoriosService.individual` | `usuario` (nome e e-mail), `gerada_em`, `periodo`, `resumo` (reuniões, minutos registrados e registros sem duração), `vinculos` e `reunioes`. `reunioes` traz as reuniões não canceladas, já iniciadas, em que a presença do usuário é `CONFIRMADA`, da mais recente para a mais antiga. Cada item de `reunioes` traz `saida_automatica`, verdadeiro quando a saída foi registrada no término da reunião. `vinculos.organizacoes` traz `id`, `nome` e `papel` (`ADMIN` ou `MEMBRO`) das organizações `APROVADA` em que o vínculo do usuário é `APROVADO`; `vinculos.comissoes` traz `id`, `nome`, `organizacao_id`, `organizacao` e `papel` (`RESPONSAVEL` ou `MEMBRO`) das comissões ativas dessas organizações em que o usuário está na equipe; as duas listas são ordenadas por nome e, no empate, por `_id`, e não dependem do período. Datas inválidas: 400 "Informe uma data inicial válida" ou "Informe uma data final válida"; `ate` não posterior a `de`: 400 "O fim do período deve ser posterior ao início"; conta inativa: 401 |
 
 ## Votações
 

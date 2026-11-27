@@ -6,11 +6,11 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 | Repositório     | Referência auditada                                     |
 | --------------- | --------------------------------------------------------- |
-| `FRONTEND`      | branch `homolog`, Incremento 3 sobre o commit `9cb23ad`  |
-| `BACKEND`       | branch `homolog`, Incremento 3 sobre o commit `6f2ffc4`  |
+| `FRONTEND`      | branch `homolog`, commit `4f03c20`                         |
+| `BACKEND`       | branch `homolog`, commit `caca2d2`                         |
 | `DOCUMENTATION` | documentação publicada                                    |
 
-Esta documentação descreve o comportamento implementado nessa base, conferido em 09/11/2026. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
+Esta documentação descreve o comportamento implementado nessa base, conferido em 26/11/2026. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
 
 ## Leitura recomendada
 
@@ -36,6 +36,7 @@ DOCUMENTATION/
 └── 4 - Incremento3/
     ├── atas/
     ├── manual-de-utilizacao/
+    ├── relatorio-individual/
     └── votacao/
 ```
 
@@ -59,6 +60,7 @@ Cada pasta do Incremento 1 contém exatamente os mesmos dez artefatos técnicos 
 
 - [Atas de reunião](4%20-%20Incremento3/atas/README.md): redação, envio com prazo, aprovação (automática no fim do prazo para quem não respondeu) e reprovação, versões e PDF.
 - [Manual de utilização](4%20-%20Incremento3/manual-de-utilizacao/README.md): tela Ajuda com perguntas frequentes e manual completo em PDF.
+- [Relatório individual](4%20-%20Incremento3/relatorio-individual/README.md): reuniões com presença confirmada por período, vínculos atuais com organizações e comissões, e exportação em PDF e CSV.
 - [Votação na reunião](4%20-%20Incremento3/votacao/README.md): abertura e encerramento pelo presidente, voto único e sigiloso dos presentes e resultado.
 
 ## Repositórios relacionados
