@@ -6,7 +6,7 @@ Fonte: `BACKEND`, branch `homolog` com as alterações do Incremento 3 (sobre o 
 
 | Método e rota                   |              JWT | Entrada                                            | Controller → service                                                                         | Persistência/regra                                                                                      |
 | ------------------------------- | ---------------: | -------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `POST /usuarios`                |              Não | `nome`, `email`, `senha`, `tema?`                  | `UsuariosController.criar` → `UsuariosService.criar` + `AuthService.enviarCodigoVerificacao` | cria `usuarios` não verificado, bcrypt 10 e código de 7 caracteres/30 min; remove conta se envio falhar |
+| `POST /usuarios`                |              Não | `nome`, `email`, `senha`, `tema?`                  | `UsuariosController.criar` → `UsuariosService.criar` + `AuthService.enviarCodigoVerificacao` | senha ≥8 com maiúscula, minúscula, número e símbolo; cria `usuarios` não verificado, bcrypt 10 e código de 7 caracteres/30 min; responde sem esperar o e-mail e remove a conta se o envio falhar |
 | `POST /auth/verificar-cadastro` |              Não | `email`, `codigo`                                  | `verificarCadastro`                                                                          | valida SHA-256/expiração; define `email_verificado=true`                                                |
 | `POST /auth/login`              |              Não | `email`, `senha`                                   | `login`                                                                                      | exige conta ativa e e-mail confirmado; retorna JWT de 1 h                                               |
 | `POST /auth/google`             |              Não | `id_token` ou `code`, `redirect_uri`, `plataforma` | `loginComGoogle`                                                                             | valida Google; cria ou vincula conta por `google_id`/e-mail; retorna JWT                                |
@@ -19,12 +19,12 @@ Fonte: `BACKEND`, branch `homolog` com as alterações do Incremento 3 (sobre o 
 | ----------------------------------- | --: | ------------------------------------------------------------- |
 | `GET /usuarios/me`                  | Sim | busca `usuarios._id = JWT.sub`                                |
 | `PATCH /usuarios/me`                | Sim | altera `nome`/`tema`; e-mail direto é recusado                |
-| `POST /usuarios/me/email/solicitar` | Sim | valida e-mail diferente/único e envia código ao novo endereço |
+| `POST /usuarios/me/email/solicitar` | Sim | valida e-mail diferente/único e envia código ao novo endereço, sem esperar o envio |
 | `POST /usuarios/me/email/confirmar` | Sim | valida código e efetiva o novo e-mail                         |
-| `PATCH /usuarios/me/senha`          | Sim | compara senha atual, impede repetição e grava bcrypt 10       |
-| `POST /auth/recuperar-conta`        | Não | resposta genérica; envia código de 7 caracteres válido 30 min |
+| `PATCH /usuarios/me/senha`          | Sim | nova senha ≥8 com maiúscula, minúscula, número e símbolo; compara senha atual, impede repetição, grava bcrypt 10 e `senha_alterada_em`; tokens anteriores passam a receber 401 |
+| `POST /auth/recuperar-conta`        | Não | resposta genérica; envia código de 7 caracteres válido 30 min, sem esperar o envio |
 | `POST /auth/verificar-recuperacao`  | Não | consome código e retorna token aleatório de 32 bytes          |
-| `POST /auth/redefinir-senha`        | Não | consome token, grava senha e limpa recuperação                |
+| `POST /auth/redefinir-senha`        | Não | nova senha ≥8 com maiúscula, minúscula, número e símbolo; consome token, grava senha e `senha_alterada_em` e limpa recuperação; tokens anteriores passam a receber 401 |
 
 ## Administração de usuários
 
@@ -79,14 +79,14 @@ O schema valida integrantes únicos e exatamente um `RESPONSAVEL`. Alterações 
 
 ## Informações do sistema
 
-Todas exigem JWT e `ADMIN_SISTEMA`.
+Todas exigem `X-API-Key`, JWT e `ADMIN_SISTEMA`.
 
 | Método e rota                 | Origem dos dados             | Resposta/efeito                                                          |
 | ----------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
-| `GET /sistema/status`         | `node:os` + `countDocuments` | memória, CPU, uptime e contagens de usuários/organizações/comissões      |
+| `GET /sistema/status`         | `node:os` + `countDocuments` | memória, CPU, tempo ligado do computador (`os.uptime()`, não da API) e contagens de usuários/organizações/comissões |
 | `GET /sistema/relatorios`     | `countDocuments`             | totais/ativos, organizações pendentes/aprovadas e comissões ativas       |
-| `POST /sistema/popular-teste` | variáveis `TEST_USER_*`      | cria 3 usuários, 1 organização e 1 comissão; falha se variáveis ausentes |
-| `POST /sistema/reset`         | quatro models + GridFS       | apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks` e os contadores de numeração das atas |
+| `POST /sistema/popular-teste` | variáveis `TEST_USER_*`      | cria 3 usuários, 1 organização e 1 comissão e devolve nome, e-mail e cenário de cada usuário, sem a senha; falha se variáveis ausentes |
+| `POST /sistema/reset`         | quatro models + GridFS       | apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks` e os contadores de numeração das atas; não apaga `notificacoes` |
 
 ## Reuniões, presenças e anexos
 
@@ -115,10 +115,18 @@ Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A a
 | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `GET /reunioes/atas/pendentes`    | lista as atas que esperam avaliação do usuário e as atas dele que foram reprovadas                   |
 | `PATCH /reunioes/:id/ata`         | responsável salva rascunho versionado                                                                  |
-| `POST /reunioes/:id/ata/publicar` | responsável envia a versão para aprovação, com prazo de 24, 72 ou 168 horas; congela os presentes      |
-| `POST /reunioes/:id/ata/aprovar`  | presente aprova a versão atual; com todas as aprovações a ata é numerada por comissão e ano           |
-| `POST /reunioes/:id/ata/reprovar` | presente reprova a versão atual, com trecho e justificativa opcionais; a ata volta para o responsável |
+| `POST /reunioes/:id/ata/publicar` | responsável envia a versão para aprovação, com prazo de 24, 72 ou 168 horas; congela os presentes; no fim do prazo, a rotina do servidor (a cada 60 s) registra a aprovação automática de quem não respondeu e conclui a ata |
+| `POST /reunioes/:id/ata/aprovar`  | presente aprova a versão atual antes do fim do prazo; com todas as aprovações a ata é numerada por comissão e ano |
+| `POST /reunioes/:id/ata/reprovar` | presente reprova a versão atual antes do fim do prazo, com trecho e justificativa opcionais; a ata volta para o responsável |
 | `POST /reunioes/:id/ata/nova`     | responsável cancela a ata reprovada e abre a versão seguinte com o mesmo texto                        |
+
+## Relatórios
+
+Exige JWT e `USUARIO`. O usuário vem só do token; a rota não aceita o identificador de outra pessoa.
+
+| Método e rota | Entrada | Controller → service | Resposta/regra |
+| --- | --- | --- | --- |
+| `GET /relatorios/individual?de=&ate=` | `de` e `ate` opcionais, datas ISO 8601; `ate` é exclusivo e precisa ser posterior a `de` | `RelatoriosController.individual` → `RelatoriosService.individual` | `usuario` (nome e e-mail), `gerada_em`, `periodo`, `resumo` (reuniões, minutos registrados e registros sem duração), `vinculos` e `reunioes`. `reunioes` traz as reuniões não canceladas, já iniciadas, em que a presença do usuário é `CONFIRMADA`, da mais recente para a mais antiga. Cada item de `reunioes` traz `saida_automatica`, verdadeiro quando a saída foi registrada no término da reunião. `vinculos.organizacoes` traz `id`, `nome` e `papel` (`ADMIN` ou `MEMBRO`) das organizações `APROVADA` em que o vínculo do usuário é `APROVADO`; `vinculos.comissoes` traz `id`, `nome`, `organizacao_id`, `organizacao` e `papel` (`RESPONSAVEL` ou `MEMBRO`) das comissões ativas dessas organizações em que o usuário está na equipe; as duas listas são ordenadas por nome e não dependem do período. Datas inválidas: 400 "Informe uma data inicial válida" ou "Informe uma data final válida"; `ate` não posterior a `de`: 400 "O fim do período deve ser posterior ao início"; conta inativa: 401 |
 
 ## Votações
 
@@ -135,8 +143,8 @@ Documentadas em [Incremento 3 — Votação](4%20-%20Incremento3/votacao/README.
 | Código | Significado no projeto                                                   |
 | -----: | ------------------------------------------------------------------------ |
 |    400 | DTO inválido ou regra de negócio violada                                 |
-|    401 | chave da API/JWT ausente ou inválido, conta inativa                      |
+|    401 | chave da API/JWT ausente ou inválido, conta inativa ou token emitido antes da última troca de senha |
 |    403 | autenticado, mas tipo/papel/vínculo não autoriza a operação              |
 |    404 | recurso ou vínculo não encontrado                                        |
 |    409 | duplicidade, estado já alterado ou conflito concorrente                  |
-|    503 | configuração obrigatória ausente ou envio inicial de e-mail indisponível |
+|    503 | configuração obrigatória ausente, falha ao gravar o código do cadastro ou envio de e-mail de presença indisponível |
