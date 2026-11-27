@@ -86,7 +86,7 @@ Todas exigem `X-API-Key`, JWT e `ADMIN_SISTEMA`.
 | `GET /sistema/status`         | `node:os` + `countDocuments` | memória, CPU, tempo ligado do computador (`os.uptime()`, não da API) e contagens de usuários/organizações/comissões |
 | `GET /sistema/relatorios`     | `countDocuments`             | totais/ativos, organizações pendentes/aprovadas e comissões ativas       |
 | `POST /sistema/popular-teste` | variáveis `TEST_USER_*`      | cria 3 usuários, 1 organização e 1 comissão e devolve nome, e-mail e cenário de cada usuário, sem a senha; falha se variáveis ausentes |
-| `POST /sistema/reset`         | quatro models + GridFS       | apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks` e os contadores de numeração das atas; não apaga `notificacoes` |
+| `POST /sistema/reset`         | `ResetSistemaDto` + quatro models + GridFS | exige `confirmacao` igual a "RESETAR" (senão 400 "Digite RESETAR para confirmar o reset"); apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks`, os contadores de numeração das atas e as notificações |
 
 ## Reuniões, presenças e anexos
 

@@ -51,24 +51,24 @@ O JWT expira em **1 hora**. No aplicativo nativo ele é salvo por `expo-secure-s
 
 ## 5. Bibliotecas do frontend
 
-Versões resolvidas pelo `package-lock.json` da branch `homolog` em 25/11/2026, no Expo SDK 58, com todas as bibliotecas na versão esperada pelo `expo` 58.0.26 (`npx expo install --check` sem pendências):
+Versões resolvidas pelo `package-lock.json` da branch `homolog` em 26/11/2026, no Expo SDK 58, com todas as bibliotecas na versão esperada pelo `expo` 58.1.0 (`npx expo install --check` sem pendências):
 
 | Biblioteca                       |  Versão | Uso no projeto                                                     |
 | -------------------------------- | ------: | ------------------------------------------------------------------ |
-| Expo                             | 58.0.26 | runtime, bundler e ferramentas do aplicativo                       |
+| Expo                             | 58.1.0  | runtime, bundler e ferramentas do aplicativo                       |
 | React                            |  19.3.0 | componentes e estado                                               |
 | React Native                     |  0.88.1 | interface nativa Android/iOS                                       |
-| Expo Router                      | 58.0.32 | rotas por arquivos e proteção de telas                             |
+| Expo Router                      | 58.0.33 | rotas por arquivos e proteção de telas                             |
 | React Hook Form                  |  7.90.0 | estado, validação e envio dos formulários                          |
 | React Native Keyboard Controller |  1.22.7 | ajuste da tela ao teclado e janela edge-to-edge, inclusive no Expo Go |
 | Expo Secure Store                |  58.0.3 | JWT e preferência de tema no dispositivo                           |
 | Expo Local Authentication        |  58.0.3 | biometria, Face ID ou PIN ao avaliar a ata e em ações de conta     |
 | Expo Print                       |  58.0.9 | PDF da ata aprovada e do relatório individual (arquivo no aplicativo instalado, impressão no Expo Go e na web) |
 | DateTimePicker da comunidade     |   9.2.1 | seletor de hora nativo do Android e do iOS                          |
-| Expo Sharing                     | 58.0.23 | entrega do PDF (aplicativo instalado) e do CSV do relatório ao menu de compartilhamento |
+| Expo Sharing                     | 58.0.24 | entrega do PDF (aplicativo instalado) e do CSV do relatório ao menu de compartilhamento |
 | Expo Document Picker             |  58.0.5 | escolha dos arquivos anexados à pauta                              |
-| Expo File System                 | 58.0.14 | anexos, arquivos do PDF e do CSV do relatório no cache e cache do manual |
-| Expo Auth Session                | 58.0.19 | fluxo OAuth no navegador                                           |
+| Expo File System                 | 58.0.15 | anexos, arquivos do PDF e do CSV do relatório no cache e cache do manual |
+| Expo Auth Session                | 58.0.20 | fluxo OAuth no navegador                                           |
 | Google Sign-In                   |  16.1.5 | login Google nativo                                                |
 | Expo Linking                     | 58.0.17 | deep links e callbacks                                             |
 | Expo Constants                   | 58.0.16 | configuração Expo e descoberta do host local                       |
@@ -76,7 +76,7 @@ Versões resolvidas pelo `package-lock.json` da branch `homolog` em 25/11/2026, 
 | Expo Linear Gradient             |  58.0.4 | fundos visuais                                                     |
 | Expo Font                        | 58.0.12 | carregamento das fontes                                            |
 | Expo Build Properties            | 58.0.12 | ajustes da compilação nativa Android                               |
-| Expo Dev Client                  | 58.0.21 | execução de versões de desenvolvimento                             |
+| Expo Dev Client                  | 58.0.22 | execução de versões de desenvolvimento                             |
 | Expo Asset                       | 58.0.21 | leitura do manual em PDF embutido no aplicativo                    |
 | React Native WebView             |  14.0.1 | exibição do manual em PDF dentro do aplicativo, sem internet       |
 | Poppins para Expo                |   0.4.1 | família tipográfica                                                |
@@ -147,6 +147,8 @@ Ainda em 10/11/2026, com um servidor SMTP local capturando as mensagens, foram p
 Em 12/11/2026 a base foi reconferida: backend com **15 arquivos e 213 testes aprovados**, `npm run build` concluído e `npm run lint` sem diagnóstico; frontend com `npm run typecheck` sem erro. O gancho `pretypecheck` do npm executa `FRONTEND/scripts/gerar-tipos-rotas.cjs`, que gera o arquivo de rotas tipadas do expo-router antes do `tsc`. Esse arquivo não entra no Git.
 
 Em 25/11/2026, com as bibliotecas do Expo SDK 58 nas versões esperadas pelo `expo` 58.0.26: `npx expo install --check` sem pendências; `npx expo-doctor` com as 20 verificações aprovadas; `npm run typecheck` sem erro; `npx eslint src` sem diagnóstico; 18 testes Node do diretório `FRONTEND/tests` aprovados; `npx expo export` gerou os pacotes Android, iOS e web sem erro. No Expo Go 58.0.6, no emulador Android 14, foram abertos o login, a tela inicial, o manual dentro do aplicativo e o PDF da ata, sem erro no log.
+
+Em 26/11/2026, o `npx expo install --check` voltou a apontar sete bibliotecas atrás da versão esperada (`expo` 58.0.26 → 58.1.0, `expo-auth-session`, `expo-dev-client`, `expo-file-system`, `expo-router`, `expo-sharing` e `expo-splash-screen`). Depois de `npx expo install --fix`: `npx expo install --check` sem pendências; `npx expo-doctor` com as 20 verificações aprovadas; `npm run typecheck` e `npm run lint` sem erro; 47 testes Node de `FRONTEND/tests/*.test.cjs` aprovados.
 
 No mesmo dia, num Galaxy S24 com Android 16, foram percorridos no Expo Go 58.0.5 e num APK de release `arm64-v8a`: login com o teclado aberto, manual dentro do aplicativo, PDF da ata, PDF do relatório individual e pedido de identidade do aparelho ao reprovar a ata.
 

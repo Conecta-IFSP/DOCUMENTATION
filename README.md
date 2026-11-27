@@ -6,8 +6,8 @@ Este repositório reúne a especificação funcional, técnica e de testes do **
 
 | Repositório     | Referência auditada                                     |
 | --------------- | --------------------------------------------------------- |
-| `FRONTEND`      | branch `homolog`, commit `4f03c20`                         |
-| `BACKEND`       | branch `homolog`, commit `caca2d2`                         |
+| `FRONTEND`      | branch `homolog`, commit `8fc0a5a`                         |
+| `BACKEND`       | branch `homolog`, commit `811cf02`                         |
 | `DOCUMENTATION` | documentação publicada                                    |
 
 Esta documentação descreve o comportamento implementado nessa base, conferido em 26/11/2026. Alterações no código devem atualizar, na mesma entrega, os requisitos, diagramas, dicionários e testes afetados.
