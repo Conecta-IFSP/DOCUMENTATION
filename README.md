@@ -2,6 +2,24 @@
 
 Este repositório reúne a especificação funcional, técnica e de testes do **Conecta+**, aplicação acadêmica para gestão de organizações, comissões e reuniões.
 
+## Adendo: diagramas divididos em partes
+
+Na revisão de 27/11/2026, os diagramas de classes e os diagramas de sequência do Incremento 1 e do Incremento 2 foram divididos em partes por causa do tamanho. Inteiros, eles ficavam com 11% a 60% do tamanho na largura da página e não dava para ler; em partes, cada um aparece com pelo menos 80% do tamanho. O conteúdo não mudou: toda classe, ligação, mensagem e nota continua no diagrama, numa das partes.
+
+- **Diagramas de classes:** as partes seguem as camadas (telas, serviços do aplicativo, controller, serviço, schemas, models e bibliotecas). Uma classe detalhada em outra parte aparece só com o nome, e o texto abaixo da figura diz onde ela está.
+- **Diagramas de sequência:** as partes seguem as camadas (no aplicativo, na API e nos dados), e os diagramas mais largos têm mais de uma parte na mesma camada. A numeração das mensagens continua de uma parte para a outra, e uma nota como "Mensagens 3 a 15 na parte 2" indica onde está o trecho que falta.
+
+| Módulo | Diagrama de classes | Diagramas de sequência |
+| --- | --- | --- |
+| [Cadastro de usuário](2%20-%20Incremento%201/cadastro-usuario/README.md) | [11 partes](2%20-%20Incremento%201/cadastro-usuario/3%20-%20diagrama-classes-cadastro-usuario.md) | [4 SDs em 21 partes](2%20-%20Incremento%201/cadastro-usuario/6%20-%20diagramas-sequencia-cadastro-usuario.md) |
+| [Cadastro de organização](2%20-%20Incremento%201/cadastro-organizacao/README.md) | [8 partes](2%20-%20Incremento%201/cadastro-organizacao/3%20-%20diagrama-classes-cadastro-organizacao.md) | [14 SDs em 47 partes](2%20-%20Incremento%201/cadastro-organizacao/6%20-%20diagramas-sequencia-cadastro-organizacao.md) |
+| [Cadastro de comissão](2%20-%20Incremento%201/cadastro-comissao/README.md) | [7 partes](2%20-%20Incremento%201/cadastro-comissao/3%20-%20diagrama-classes-cadastro-comissao.md) | [9 SDs em 28 partes](2%20-%20Incremento%201/cadastro-comissao/6%20-%20diagramas-sequencia-cadastro-comissao.md) |
+| [Configurações de usuário](2%20-%20Incremento%201/configuracoes-usuario/README.md) | [13 partes](2%20-%20Incremento%201/configuracoes-usuario/3%20-%20diagrama-classes-configuracoes-usuario.md) | [6 SDs em 25 partes](2%20-%20Incremento%201/configuracoes-usuario/6%20-%20diagramas-sequencia-configuracoes-usuario.md) |
+| [Informações do sistema](2%20-%20Incremento%201/informacao-sistemas/README.md) | [13 partes](2%20-%20Incremento%201/informacao-sistemas/3%20-%20diagrama-classes-informacao-sistemas.md) | [5 SDs em 16 partes](2%20-%20Incremento%201/informacao-sistemas/6%20-%20diagramas-sequencia-informacao-sistemas.md) |
+| [Reuniões](3%20-%20Incremento%202/reunioes/README.md) | [25 partes](3%20-%20Incremento%202/reunioes/3%20-%20diagrama-classes-reunioes.md) | [19 SDs em 76 partes](3%20-%20Incremento%202/reunioes/6%20-%20diagramas-sequencia-reunioes.md) |
+
+Os diagramas do Incremento 3 (atas, votação, relatório individual e manual) não foram divididos.
+
 ## Base usada nesta revisão
 
 | Repositório     | Referência auditada                                     |
