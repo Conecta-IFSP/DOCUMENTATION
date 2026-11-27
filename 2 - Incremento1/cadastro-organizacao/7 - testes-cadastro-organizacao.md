@@ -11,8 +11,8 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | Item                      | Valor                                                                                                                         |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | Data da execução          | Roteiros manuais CT-ORG-01 a CT-ORG-06: registrados em 23/10/2026. Testes automatizados: 23/10/2026 e 26/11/2026.             |
-| Backend                   | Branch `homolog`: commit `6f2ffc4` em 23/10/2026; commit `99b6b4f`, com alterações locais fora deste módulo, em 26/11/2026.     |
-| Aplicativo                | Branch `homolog`: commit `792fab4` em 23/10/2026; commit `a53acce` em 26/11/2026.                                             |
+| Backend                   | Branch `homolog`: commit `6f2ffc4` em 23/10/2026; commit `99b6b4f`, com alterações locais fora deste módulo, em 26/11/2026; testes repetidos sobre o commit `caca2d2` na revisão de 26/11/2026. |
+| Aplicativo                | Branch `homolog`: commit `792fab4` em 23/10/2026; commit `a53acce` em 26/11/2026; conferido sobre o commit `6ff2d50` na revisão de 26/11/2026. |
 | Testes automatizados      | Vitest, com os models do Mongoose substituídos por dublês e, nas rotas, o servidor NestJS de teste com `supertest`. Não usam banco de dados. |
 | Roteiros manuais          | Executados pela equipe em ambiente móvel; o aparelho e a versão do sistema não foram anotados no registro.                    |
 | iOS                       | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS.                                                   |
@@ -24,10 +24,11 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | 23/10/2026 | BACKEND  | `npm test`                                           | 13 arquivos e 182 testes aprovados, incluindo `organizacoes.controller.spec.ts`, `organizacoes.service.spec.ts` e `organizacoes-acesso.spec.ts` |
 | 23/10/2026 | BACKEND  | `npm run build`                                      | Aprovado                                                                                            |
 | 26/11/2026 | BACKEND  | `npx vitest run`                                     | 16 arquivos e 227 testes aprovados, nenhuma falha                                                   |
-| 26/11/2026 | BACKEND  | `npx vitest run src/organizacoes --reporter=verbose` | 3 arquivos e 74 testes aprovados: 56 em `organizacoes.service.spec.ts`, 17 em `organizacoes-acesso.spec.ts` e 1 em `organizacoes.controller.spec.ts` |
+| 26/11/2026 | BACKEND  | `npx vitest run src/organizacoes --reporter=verbose` | 3 arquivos e 74 testes aprovados: 57 em `organizacoes.service.spec.ts`, 16 em `organizacoes-acesso.spec.ts` e 1 em `organizacoes.controller.spec.ts` |
 | 26/11/2026 | BACKEND  | `npm run build` e `npm run lint`                     | Aprovado, sem diagnóstico                                                                           |
 | 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint`                  | Sem erro e sem diagnóstico                                                                          |
 | 26/11/2026 | FRONTEND | `node --test tests/*.test.cjs`                       | 5 arquivos e 47 testes aprovados; nenhum deles é deste módulo                                       |
+| 26/11/2026 | BACKEND `caca2d2` | `npx vitest run src/auth src/usuarios src/organizacoes --reporter=verbose` | 9 arquivos e 120 testes aprovados, 74 deles nos 3 arquivos deste módulo; os nomes citados na matriz abaixo conferem com a saída |
 
 Os arquivos de teste do módulo ficam em `BACKEND/src/organizacoes/`. O teste do controller ("should be defined") só confere que a classe é montada. Nenhum dos scripts `BACKEND/test/*-mongo.mjs` testa este módulo: não há teste das organizações contra um MongoDB real.
 

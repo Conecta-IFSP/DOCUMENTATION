@@ -147,7 +147,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                       |
 | **Critério**      | As suítes do backend e do aplicativo passam inteiras antes de cada entrega.                                    |
 | **Medida**        | `npx vitest run` no BACKEND e `node --test tests/*.test.cjs` no FRONTEND sem nenhuma falha.                    |
-| **Condição**      | Código da branch `homolog`, com as alterações ainda não registradas em commit.                                 |
+| **Condição**      | Código da branch `homolog`: backend `caca2d2` e frontend `6ff2d50`.                                            |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-usuario.md).                                           |
 | **Evidência**     | 26/11/2026: BACKEND, 16 arquivos e 227 testes aprovados; FRONTEND, 5 arquivos e 47 testes aprovados.           |
 | **Situação**      | Atendido em 26/11/2026.                                                                                        |

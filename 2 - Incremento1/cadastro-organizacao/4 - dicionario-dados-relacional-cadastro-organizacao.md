@@ -31,13 +31,15 @@ Representa uma instituição cadastrada, como um câmpus. Cada documento da cole
 | `criado_em`     | Data e hora (`date`, UTC)     | Não           | Não             | Não                 | Gravado pelo Mongoose na inserção.                                           | Momento do cadastro; ordena as listas, da mais nova para a mais antiga.                                   |
 | `atualizado_em` | Data e hora (`date`, UTC)     | Não           | Não             | Não                 | Atualizado pelo Mongoose a cada gravação feita por ele.                      | Momento da última alteração do documento, inclusive dos vínculos e do código.                             |
 
+O documento também guarda o campo `__v`, controle interno de versão do Mongoose, que o sistema não usa.
+
 ### Valores de `status`
 
 | Valor      | Significado                                                                                                                       |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `PENDENTE` | Cadastrada por um usuário e aguardando a autorização do administrador do sistema (RF-ORG-01). Não aceita membros nem comissões.  |
 | `APROVADA` | Autorizada (RF-ORG-03). Aceita pedidos por código, convites e comissões.                                                         |
-| `REVOGADA` | Suspensa pelo administrador do sistema (RF-ORG-04). Os dados ficam guardados, mas nada funciona até nova autorização; só nesta situação a organização pode ser excluída (RF-ORG-06). |
+| `REVOGADA` | Suspensa pelo administrador do sistema (RF-ORG-04). Os dados ficam guardados e o aplicativo não oferece nenhuma ação sobre ela até nova autorização; a API ainda aceita recusar um convite, consultar os membros e trocar o código. Só nesta situação a organização pode ser excluída (RF-ORG-06). |
 
 ## ORGANIZACAO_MEMBRO
 

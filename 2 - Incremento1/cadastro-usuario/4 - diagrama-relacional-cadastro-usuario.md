@@ -42,7 +42,7 @@ Figura 3 — Visão lógica relacional da conta de usuário. Fonte: equipe Conec
 
 - cada e-mail pertence a uma única conta, e cada conta Google (`google_id`) a uma única conta;
 - o e-mail é guardado em minúsculas e sem espaços nas pontas, então variações de maiúsculas contam como o mesmo e-mail;
-- `verificacao_email_codigo_hash` e `verificacao_email_expira_em` existem juntos, só entre o cadastro local e a confirmação;
+- `verificacao_email_codigo_hash` e `verificacao_email_expira_em` existem juntos, do cadastro local até a confirmação pelo código; se a conta for confirmada pelo login Google, eles continuam gravados;
 - só uma conta criada pelo Google (`provedor_autenticacao = GOOGLE`) pode estar sem `senha_hash`.
 
 O detalhe de cada campo e de cada regra, com o mecanismo que a garante, está no [dicionário relacional](4%20-%20dicionario-dados-relacional-cadastro-usuario.md).

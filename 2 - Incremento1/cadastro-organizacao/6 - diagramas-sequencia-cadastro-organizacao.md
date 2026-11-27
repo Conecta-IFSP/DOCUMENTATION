@@ -164,7 +164,7 @@ sequenceDiagram
     participant C as OrganizacoesController
     participant S as OrganizacoesService
     participant M as OrganizacaoModel
-    U->>T: definirAcaoPendente(organizacao, "revogar")
+    U->>T: definirAcaoPendente({ organizacao, tipo: "revogar" })
     T->>D: Confirmacao(mensagem, confirmar, cancelar)
     Note over U,D: "Revogar nome? Ela poderá ser autorizada novamente depois."<br/>Cancelar fecha sem chamar a API
     U->>D: confirmar()
@@ -245,7 +245,7 @@ sequenceDiagram
     participant S as OrganizacoesService
     participant M as OrganizacaoModel
     participant CM as ComissaoModel
-    U->>T: definirAcaoPendente(organizacao, "excluir")
+    U->>T: definirAcaoPendente({ organizacao, tipo: "excluir" })
     T->>D: Confirmacao(mensagem, confirmar, cancelar)
     Note over U,D: "Excluir nome? A organização e suas comissões<br/>serão excluídas permanentemente."
     U->>D: confirmar()
@@ -349,8 +349,9 @@ sequenceDiagram
     S->>S: exigirOrganizacaoAprovada(organizacao)
     S->>UM: findOne({ email, ativo: true })
     UM-->>S: convidado
-    Note over S: recusa conta ADMIN_SISTEMA (404) e<br/>vínculo APROVADO, PENDENTE ou CONVIDADO (409)
+    Note over S: conta inexistente ou ADMIN_SISTEMA: 404
     S->>S: vinculoDe(organizacao, convidadoId)
+    Note over S: vínculo APROVADO, PENDENTE ou CONVIDADO: 409
     alt sem vínculo
         Note over S,M: filtro = _id, status APROVADA, membros.usuario_id com $ne do convidado e $and com o solicitante ADMIN e APROVADO<br/>alteracao = $push em membros do convidado com papel MEMBRO, status CONVIDADO e solicitado_em
         S->>M: updateOne(filtro, alteracao)
@@ -424,6 +425,7 @@ sequenceDiagram
     participant S as OrganizacoesService
     participant M as OrganizacaoModel
     U->>T: pedirNovoCodigo()
+    T->>T: definirConvidarAberto(false)
     T->>T: pedir(pendente)
     T->>D: Confirmacao(mensagem, confirmar, cancelar)
     Note over U,D: "Gerar um novo código? O código atual deixa de funcionar."
@@ -600,6 +602,7 @@ sequenceDiagram
     participant S as OrganizacoesService
     participant M as OrganizacaoModel
     U->>T: carregar()
+    Note over T: ao mesmo tempo chama api("/comissoes?organizacao_id=id") e api("/reunioes")<br/>para as comissões da organização (módulos COM e REU)
     T->>A: api("/organizacoes")
     Note over T,A: lista do usuário, como no SD-ORG-02
     A-->>T: Resultado com a lista
@@ -621,7 +624,7 @@ sequenceDiagram
     C-->>A: 200 organizacao
     A-->>T: Resultado com a organizacao
     T->>T: definirDados(novos)
-    Note over U,T: Pedidos de acesso, Administradores, Membros, Convites enviados e Pedidos recusados,<br/>em ordem alfabética. O campo Buscar filtra nome e e-mail no aparelho
+    Note over U,T: Pedidos de acesso, na ordem gravada, e Administradores, Membros, Convites enviados e Pedidos recusados,<br/>em ordem alfabética. O campo Buscar filtra nome e e-mail no aparelho, menos nos Pedidos de acesso
 ```
 
 ## Rastreabilidade

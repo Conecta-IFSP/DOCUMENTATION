@@ -312,7 +312,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - `MembroOrganizacao` não existe fora de `Organizacao`;
 - cada usuário aparece no máximo uma vez em `membros` da mesma organização;
 - toda organização tem ao menos um vínculo com papel `ADMIN` e situação `APROVADO`;
-- o papel na organização (`PapelOrganizacao`) é independente do tipo da conta (`TipoUsuario`): a conta `ADMIN_SISTEMA` nunca tem vínculo com organização;
+- o papel na organização (`PapelOrganizacao`) é independente do tipo da conta (`TipoUsuario`): as rotas que criam ou mudam vínculos recusam a conta `ADMIN_SISTEMA`, que por isso não cadastra organização, não pede entrada nem recebe convite;
 - o aplicativo não decide a situação da organização nem do vínculo: ele mostra o que a API devolve.
 
 ## Rastreabilidade

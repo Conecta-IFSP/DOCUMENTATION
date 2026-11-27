@@ -16,7 +16,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 ## Atores
 
-**Visitante.** É qualquer pessoa que abre o aplicativo sem estar conectada. Pode criar uma conta com nome, e-mail e senha e confirmá-la com o código recebido por e-mail, entrar com e-mail e senha e entrar com a conta Google. Não vê organizações, comissões nem reuniões antes de entrar. O administrador do sistema também é um visitante até entrar: ele usa o mesmo login com e-mail e senha, mas a conta dele não é criada pelo cadastro: o servidor a cria ao iniciar, com os dados configurados no ambiente, quando ainda não existe nenhum administrador do sistema.
+**Visitante.** É qualquer pessoa que abre o aplicativo sem estar conectada. Pode criar uma conta com nome, e-mail e senha e confirmá-la com o código recebido por e-mail, entrar com e-mail e senha e entrar com a conta Google. Não vê organizações, comissões nem reuniões antes de entrar. O administrador do sistema também é um visitante até entrar: ele usa o mesmo login com e-mail e senha, mas a conta dele não é criada pelo cadastro: o servidor a cria ao iniciar, com os dados configurados no ambiente, quando ainda não existe nenhum administrador do sistema nem outra conta com o e-mail configurado.
 
 **Servidor de e-mail.** É o sistema externo que entrega a mensagem com o código de confirmação do cadastro. A API não espera a entrega para responder; se ela falhar, a conta ainda não confirmada é apagada.
 
@@ -43,4 +43,4 @@ Não há generalização entre atores nem `«include»` ou `«extend»` entre ca
 ## Não implementado
 
 - Entrar pela biometria do aparelho depois do primeiro acesso, sugerido na avaliação do Incremento 1: não implementado. Enquanto o token da sessão é válido (1 hora), o aplicativo reabre já conectado, sem pedir nada.
-- Pedir um novo código de confirmação do cadastro: não implementado. Se o código expirar, a conta fica sem confirmação; ela só é confirmada se a pessoa entrar com a conta Google do mesmo e-mail (RF-USR-03).
+- Pedir um novo código de confirmação do cadastro: não implementado. Se o código expirar, a conta fica sem confirmação e o mesmo e-mail não pode ser usado num novo cadastro; ela só é confirmada se a pessoa entrar com a conta Google do mesmo e-mail (RF-USR-03).

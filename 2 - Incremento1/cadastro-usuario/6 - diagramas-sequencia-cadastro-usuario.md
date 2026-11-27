@@ -159,7 +159,13 @@ sequenceDiagram
     participant S as SessaoProvider
     V->>T: entrarComGoogle()
     T->>GM: signInWithGoogleNative()
+    GM->>GM: estaNoExpoGo()
+    Note over GM: no Expo Go, interrompe com O login Google não funciona no Expo.
+    GM->>GM: configureNativeGoogle(GoogleSignin)
+    Note over GM,SDK: opcoes = webClientId e, no iOS, iosClientId. Só na primeira chamada
+    GM->>SDK: configure(opcoes)
     GM->>SDK: hasPlayServices()
+    Note over GM,SDK: só no Android
     GM->>SDK: signOut()
     GM->>SDK: signIn()
     SDK-->>GM: conta escolhida
@@ -184,7 +190,7 @@ sequenceDiagram
     else conta local com o mesmo e-mail
         M-->>AS: null
         AS->>M: findOne(email)
-        M-->>AS: usuario
+        M-->>AS: usuario sem google_id, campo oculto
         Note over AS: grava google_id, nome, avatar_url e<br/>email_verificado true, e LOCAL vira AMBOS
         AS->>M: save()
         M-->>AS: usuario
@@ -231,7 +237,7 @@ sequenceDiagram
     Note over A,AC: POST /auth/google com code, redirect_uri e plataforma web
     A->>AC: loginComGoogle(dto)
     AC->>AS: loginComGoogle(dto)
-    Note over AS,GO: opcoes = method POST e body com code, client_id, redirect_uri e grant_type
+    Note over AS,GO: opcoes = method POST e body com code, client_id, redirect_uri, grant_type e client_secret
     AS->>GO: fetch("https://oauth2.googleapis.com/token", opcoes)
     GO-->>AS: id_token
     AS->>AS: validarIdTokenGoogle(idToken, clientID)
