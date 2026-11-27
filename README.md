@@ -17,6 +17,7 @@ Esta documentação descreve o comportamento implementado nessa base, conferido 
 1. [Padrão da documentação](PADRAO-DOCUMENTACAO.md): nomenclatura, conteúdo obrigatório e critérios de qualidade.
 2. [Arquitetura e tecnologias](ARQUITETURA-E-TECNOLOGIAS.md): componentes, segurança, bibliotecas e versões exatas.
 3. Documentos do incremento correspondente.
+4. [Catálogo de softwares e licenças](CATALOGO-SOFTWARES-E-LICENCAS.md): bibliotecas, serviços e ferramentas usados e suas licenças.
 
 ## Estrutura
 
