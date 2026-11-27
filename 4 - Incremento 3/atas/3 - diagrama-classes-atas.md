@@ -66,7 +66,6 @@ classDiagram
             +entregarPdf(html: string, nome: string) Promise~void~
             +pdfPelaImpressao() boolean
             -imprimirNaWeb(html: string) void
-            -nomearPdf(gerado: File, nome: string) Promise~string~
         }
         class diferenca {
             <<module>>
@@ -263,7 +262,6 @@ classDiagram
             <<module>>
             +entregarPdf(html: string, nome: string) Promise~void~
             -imprimirNaWeb(html: string) void
-            -nomearPdf(gerado: File, nome: string) Promise~string~
         }
         class reunioes {
             <<module>>
@@ -279,16 +277,9 @@ classDiagram
             +printAsync(opcoes: PrintOptions) Promise~void~
             +printToFileAsync(opcoes: FilePrintOptions) Promise~FilePrintResult~
         }
-        class File {
-            <<biblioteca>>
-            +uri: string
-            +exists: boolean
-            +File(partes: string[])
-            +delete() void
-            +move(destino: File) Promise~void~
-        }
         class Sharing {
             <<biblioteca>>
+            +isAvailableAsync() Promise~boolean~
             +shareAsync(url: string, opcoes: SharingOptions) Promise~void~
         }
         class Window {
@@ -338,7 +329,6 @@ classDiagram
     pdfAta ..> reunioes : nome do arquivo
     pdfAta ..> pdf : usa
     pdf ..> Print : gera o PDF
-    pdf ..> File : renomeia o PDF
     pdf ..> Sharing : compartilha o PDF
     pdf ..> Window : imprime na web
     Window --> "1" Document : document
@@ -365,7 +355,7 @@ No código, os atributos opcionais são `enviada_em`, `prazo`, `numero`, `ano`, 
 
 Em `TelaInicio.carregar`, o parâmetro `continuar` é do tipo `() => boolean`, com padrão `() => true`: a tela o usa para descartar a resposta quando deixa de estar em foco. Em `api` e `gravar`, `metodo` aceita só `'GET'`, `'POST'`, `'PATCH'` ou `'DELETE'` (em `gravar`, só `'PATCH'` ou `'POST'`), e `Resultado` é `Resultado<T>`, com `ok` e `dados` ou `erro`. Em `avaliarAta`, o tipo completo do parâmetro `avaliacao` é `Omit<AvaliacaoAta, 'usuario_id' | 'em'>`: a avaliação sem o usuário e sem o horário, que o próprio método preenche. O Mermaid só aceita um tipo dentro de `~`, por isso o diagrama mostra `Omit~AvaliacaoAta~`. Em `reunioes.situacaoDaAta`, o retorno `object` é `{ texto: string; tom: TomEtiqueta }`, o texto e a cor da etiqueta da ata, e o parâmetro aceita também `undefined`, quando não há ata.
 
-Na parte 2, `<<Model Mongoose>>` marca o `Model` que o NestJS injeta no service com `@InjectModel`, guardado nos atributos `reuniaoModel` e `contadorModel`. `select`, `populate`, `sort` e `exec` são da `Query` que `find`, `findById` e `findOneAndUpdate` devolvem; estão na classe do model porque os diagramas de sequência os chamam na linha de vida dele, na ordem do encadeamento do código. `<<biblioteca>>` marca as bibliotecas externas do aplicativo (`expo-router`, `expo-print`, `expo-file-system` e `expo-sharing`), só com os membros chamados, e `<<API do navegador>>`, os objetos `Window` e `Document` que `imprimirNaWeb` usa na web. A dependência `ReunioesService ..> Reuniao` da parte 1 passa, no código, pelo `ReuniaoModel`, e `ReunioesService ..> Contador`, pelo `ContadorModel`.
+Na parte 2, `<<Model Mongoose>>` marca o `Model` que o NestJS injeta no service com `@InjectModel`, guardado nos atributos `reuniaoModel` e `contadorModel`. `select`, `populate`, `sort` e `exec` são da `Query` que `find`, `findById` e `findOneAndUpdate` devolvem; estão na classe do model porque os diagramas de sequência os chamam na linha de vida dele, na ordem do encadeamento do código. `<<biblioteca>>` marca as bibliotecas externas do aplicativo (`expo-router`, `expo-print` e `expo-sharing`), só com os membros chamados, e `<<API do navegador>>`, os objetos `Window` e `Document` que `imprimirNaWeb` usa na web. A dependência `ReunioesService ..> Reuniao` da parte 1 passa, no código, pelo `ReuniaoModel`, e `ReunioesService ..> Contador`, pelo `ContadorModel`.
 
 ## Rotas atendidas pelo controller
 

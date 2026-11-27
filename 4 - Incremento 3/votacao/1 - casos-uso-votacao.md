@@ -6,7 +6,7 @@
 
 Este documento mostra quem usa a votação e o que cada pessoa pode fazer. Cada caso de uso é descrito em detalhe, como requisito funcional no formulário padrão, em [Requisitos funcionais](2%20-%20requisitos-funcionais-votacao.md).
 
-No aplicativo, o cartão mostra a etiqueta "Em andamento" enquanto a votação recebe votos e "Encerrada" depois. O tipo "Aberta", escolhido ao abrir a votação, diz que todos verão quem votou em quê depois do encerramento. Como a situação da votação no código também se chama `ABERTA`, neste documento o tipo aparece sempre como *votação do tipo aberta*, e o seu oposto, como *votação do tipo fechada*.
+No aplicativo, o cartão mostra a etiqueta "Em andamento" enquanto a votação recebe votos e "Encerrada" depois. O tipo "Aberta", escolhido ao abrir a votação, diz que todos verão quem votou em quê depois do encerramento. Como uma votação que ainda recebe votos também está, no sentido comum, "aberta", neste documento o tipo aparece sempre como *votação do tipo aberta*, e o seu oposto, como *votação do tipo fechada*.
 
 ## Diagrama de casos de uso
 
@@ -20,9 +20,9 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Participante da reunião.** É qualquer usuário que consta na lista de participantes da reunião, tenha ele comparecido ou não. Pode abrir a aba "Votações" da reunião, ver as votações abertas e encerradas, o tipo de cada uma e, nas encerradas, o resultado de cada opção, dos votos em branco e dos nulos. Não vota se não estiver presente. Na votação do tipo fechada, não vê em quem as outras pessoas votaram; na do tipo aberta, vê, depois do encerramento, a lista de quem votou em quê.
 
-**Participante presente.** É o participante que marcou entrada, cuja presença não foi recusada (situação `AGUARDANDO` ou `CONFIRMADA`) e que ainda não marcou saída. A seta de generalização indica que ele faz tudo o que o participante da reunião faz e, além disso, vota nas votações ainda não encerradas, uma vez em cada uma: em uma das opções, em branco ou nulo. Quem marca saída, ou recebe a saída automática no término, deixa de votar.
+**Participante presente.** É o participante que marcou entrada, cuja presença não foi recusada (está aguardando a confirmação do presidente ou já confirmada) e que ainda não marcou saída. A seta de generalização indica que ele faz tudo o que o participante da reunião faz e, além disso, vota nas votações ainda não encerradas, uma vez em cada uma: em uma das opções, em branco ou nulo. Quem marca saída, ou recebe a saída automática no término, deixa de votar.
 
-**Presidente da comissão.** É o membro da comissão com papel `RESPONSAVEL`, em comissão ativa. Também é um participante da reunião (generalização). Só ele abre e encerra votações e, ao abrir, escolhe se a votação é do tipo fechada ou aberta; o tipo não muda depois. Se marcou entrada, também é um participante presente e vota como os demais. Ele vê em quem cada pessoa votou só na votação do tipo aberta, depois do encerramento, como todos os participantes.
+**Presidente da comissão.** É o membro responsável pela comissão, numa comissão ativa. Também é um participante da reunião (generalização). Só ele abre e encerra votações e, ao abrir, escolhe se a votação é do tipo fechada ou aberta; o tipo não muda depois. Se marcou entrada, também é um participante presente e vota como os demais. Ele vê em quem cada pessoa votou só na votação do tipo aberta, depois do encerramento, como todos os participantes.
 
 ## Relacionamentos entre casos de uso
 
