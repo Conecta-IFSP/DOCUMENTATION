@@ -71,6 +71,10 @@ Cada pasta do Incremento 1 contém os mesmos dez documentos e o SVG do diagrama 
 - [Relatório individual](4%20-%20Incremento%203/relatorio-individual/README.md): reuniões com presença confirmada por período, vínculos atuais com organizações e comissões, e exportação em PDF e CSV.
 - [Votação na reunião](4%20-%20Incremento%203/votacao/README.md): abertura e encerramento pelo presidente, que escolhe se a votação é fechada (ninguém vê quem votou em quê) ou aberta (todos veem depois do encerramento), voto único dos presentes numa opção, em branco ou nulo, e resultado.
 
+## Licença
+
+O Conecta+ é distribuído sob a licença MIT, com o aviso `Copyright (c) 2026 Equipe Conecta+`, no código e na documentação. O texto está em [LICENSE](LICENSE), e as licenças das bibliotecas e ferramentas usadas estão no [Catálogo de softwares e licenças](CATALOGO-SOFTWARES-E-LICENCAS.md).
+
 ## Repositórios relacionados
 
 - [Frontend](https://github.com/Conecta-IFSP/FRONTEND)

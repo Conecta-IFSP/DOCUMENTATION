@@ -145,7 +145,7 @@ Os testes devem acompanhar a evolução do sistema e gerar evidências dos resul
 | **Compatibilidade** | O aplicativo deve ser executável em Android e iOS, conforme a definição da disciplina. |
 | **Manutenibilidade** | O código deve ser dividido em componentes e serviços, possuir nomenclatura padronizada e manter a documentação atualizada conforme a implementação de funcionalidades relevantes. |
 | **Responsividade** | A interface deve se adaptar aos tamanhos de tela suportados sem perder legibilidade ou acesso às principais ações. |
-| **Custo/licença** | O projeto deve priorizar tecnologias gratuitas e preservar a proposta de software de código aberto e sem custo de licença para o cliente. |
+| **Custo/licença** | O projeto deve priorizar tecnologias gratuitas e preservar a proposta de software de código aberto e sem custo de licença para o cliente. Na entrega final, o projeto adotou a licença MIT, registrada no arquivo [LICENSE](../LICENSE) de cada repositório. |
 
 ## Conclusão
 
