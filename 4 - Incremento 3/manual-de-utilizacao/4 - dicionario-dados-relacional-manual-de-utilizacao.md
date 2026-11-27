@@ -16,7 +16,7 @@ A tela Ajuda não envia requisições à API e não consulta nenhuma coleção d
 |---|---|---|
 | Tópicos, perguntas e respostas da Ajuda | `src/constants/ajuda.ts`, no aplicativo | Nenhuma |
 | Perguntas abertas e texto da busca | Estado da tela `src/app/ajuda.tsx`, descartado ao sair | Nenhuma |
-| Manual completo em PDF | `assets/manual/manual.pdf`, no aplicativo; cópia de documentação em `4 - Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf` | Nenhuma |
+| Manual completo em PDF | `assets/manual/manual.pdf`, no aplicativo; cópia de documentação em `4 - Incremento 3/manual-de-utilizacao/manual-usuario/manual.pdf` | Nenhuma |
 | Leitor PDF.js | `assets/pdfjs/`, no aplicativo | Nenhuma |
 | Página HTML montada do manual | `cacheConteudo`, em memória, em `src/components/ManualPdf.tsx` | Nenhuma |
 

@@ -109,7 +109,7 @@ Todas exigem JWT e `USUARIO`. O service valida participação e papel de respons
 
 ## Atas
 
-Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A ata só existe depois do término da reunião.
+Documentadas em [Incremento 3 — Atas](4%20-%20Incremento%203/atas/README.md). A ata só existe depois do término da reunião.
 
 | Método e rota                     | Regra principal                                                                                       |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -122,7 +122,7 @@ Documentadas em [Incremento 3 — Atas](4%20-%20Incremento3/atas/README.md). A a
 
 ## Votações
 
-Documentadas em [Incremento 3 — Votação](4%20-%20Incremento3/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
+Documentadas em [Incremento 3 — Votação](4%20-%20Incremento%203/votacao/README.md). As votações ficam em `reunioes.votacoes[]` e são devolvidas em toda resposta de reunião, sem a lista de votos.
 
 | Método e rota | Regra principal |
 | --- | --- |

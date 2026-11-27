@@ -48,4 +48,4 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 ## Rastreabilidade
 
-Aplica-se a RF-REU-01 a RF-REU-09 e RF-REU-13 a RF-REU-16, e à matriz CT-REU. Os requisitos não funcionais da ata estão em [RNF-ATA](../../4%20-%20Incremento3/atas/5%20-%20requisitos-nao-funcionais-atas.md).
+Aplica-se a RF-REU-01 a RF-REU-09 e RF-REU-13 a RF-REU-16, e à matriz CT-REU. Os requisitos não funcionais da ata estão em [RNF-ATA](../../4%20-%20Incremento%203/atas/5%20-%20requisitos-nao-funcionais-atas.md).

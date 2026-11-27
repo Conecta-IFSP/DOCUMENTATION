@@ -17,7 +17,7 @@
 | `Votacao` | Subdocumento | Guardar assunto, opções, situação, horários e votos de uma votação. |
 | `Voto` | Subdocumento | Registrar a escolha de um participante e o horário. |
 
-As classes `Reuniao`, `Participante`, `Presenca`, `Usuario` e `Comissao` estão descritas no [dicionário de classes das reuniões](../../3%20-%20Incremento2/reunioes/3%20-%20dicionario-dados-classes-reunioes.md); abaixo aparecem só os campos que a votação usa.
+As classes `Reuniao`, `Participante`, `Presenca`, `Usuario` e `Comissao` estão descritas no [dicionário de classes das reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md); abaixo aparecem só os campos que a votação usa.
 
 ## `Votacao`
 

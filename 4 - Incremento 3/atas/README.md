@@ -17,7 +17,7 @@ Depois que a reunião termina, o presidente da comissão escreve a ata e a envia
 - ver na tela inicial as atas que esperam uma ação do usuário;
 - gerar o PDF da ata aprovada.
 
-Ficam fora deste módulo o agendamento, os convites e a presença, que estão em [Reuniões](../../3%20-%20Incremento2/reunioes/README.md). A presença confirmada é a entrada deste módulo: ela define quem aprova a ata.
+Ficam fora deste módulo o agendamento, os convites e a presença, que estão em [Reuniões](../../3%20-%20Incremento%202/reunioes/README.md). A presença confirmada é a entrada deste módulo: ela define quem aprova a ata.
 
 ## Atores
 

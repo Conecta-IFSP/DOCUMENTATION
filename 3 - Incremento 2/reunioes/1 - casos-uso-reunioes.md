@@ -6,7 +6,7 @@
 
 Este documento mostra quem usa as reuniões e o que cada pessoa pode fazer. Cada caso de uso é descrito em detalhe, como requisito funcional no formulário padrão, em [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md).
 
-Os casos de uso da ata saíram deste módulo no Incremento 3 e estão em [Atas de reunião](../../4%20-%20Incremento3/atas/1%20-%20casos-uso-atas.md).
+Os casos de uso da ata saíram deste módulo no Incremento 3 e estão em [Atas de reunião](../../4%20-%20Incremento%203/atas/1%20-%20casos-uso-atas.md).
 
 ## Diagrama de casos de uso
 

@@ -6,7 +6,7 @@
 
 Abrange agendamento, agenda, edição, convites, presença, lista de presença e anexos da pauta. As regras centrais restringem o agendamento e a edição ao responsável da comissão e protegem operações concorrentes.
 
-A ata não é mais descrita aqui: ela foi reescrita no Incremento 3 e está em [Atas de reunião](../../4%20-%20Incremento3/atas/README.md).
+A ata não é mais descrita aqui: ela foi reescrita no Incremento 3 e está em [Atas de reunião](../../4%20-%20Incremento%203/atas/README.md).
 
 ## Escopo
 

@@ -6,7 +6,7 @@
 
 No MongoDB, participantes, presenças, anexos e ata ficam embutidos no documento de `reunioes`. O diagrama os separa logicamente para explicitar cardinalidades, chaves e restrições. O conteúdo dos arquivos anexados fica no GridFS, nas coleções `anexos.files` e `anexos.chunks`, e é ligado ao anexo pelo mesmo identificador.
 
-A ata aparece aqui apenas como ligação; seus campos estão no [diagrama relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20diagrama-relacional-atas.md).
+A ata aparece aqui apenas como ligação; seus campos estão no [diagrama relacional das atas](../../4%20-%20Incremento%203/atas/4%20-%20diagrama-relacional-atas.md).
 
 ## Diagrama
 
@@ -106,4 +106,4 @@ erDiagram
 
 ## Rastreabilidade
 
-RF-REU-01, RF-REU-05 a RF-REU-09 e RF-REU-13 a RF-REU-16. Os campos da ata estão no [dicionário relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20dicionario-dados-relacional-atas.md).
+RF-REU-01, RF-REU-05 a RF-REU-09 e RF-REU-13 a RF-REU-16. Os campos da ata estão no [dicionário relacional das atas](../../4%20-%20Incremento%203/atas/4%20-%20dicionario-dados-relacional-atas.md).

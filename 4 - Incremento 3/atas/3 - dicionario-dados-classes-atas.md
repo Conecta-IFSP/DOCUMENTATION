@@ -17,7 +17,7 @@
 | `AvaliacaoAta`         | Subdocumento         | Registrar a decisão de um participante, com motivo e horário.                     |
 | `Contador`             | Documento            | Guardar o último número de ata usado por comissão e ano.                          |
 
-As classes `Reuniao`, `Participante`, `Presenca`, `Usuario` e `Comissao` estão descritas no [dicionário de classes das reuniões](../../3%20-%20Incremento2/reunioes/3%20-%20dicionario-dados-classes-reunioes.md); abaixo aparecem só os campos que as atas usam.
+As classes `Reuniao`, `Participante`, `Presenca`, `Usuario` e `Comissao` estão descritas no [dicionário de classes das reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md); abaixo aparecem só os campos que as atas usam.
 
 ## `Ata`
 

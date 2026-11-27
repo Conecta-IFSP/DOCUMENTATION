@@ -6,7 +6,7 @@
 
 O diagrama mostra as classes que participam das reuniões, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas e módulos do aplicativo), **API** (controller, service e objetos de entrada) e **Dados** (documentos guardados no MongoDB e o armazenamento de arquivos). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código.
 
-A classe `Ata` aparece aqui só como parte de `Reuniao`; seus atributos estão no [diagrama de classes das atas](../../4%20-%20Incremento3/atas/3%20-%20diagrama-classes-atas.md).
+A classe `Ata` aparece aqui só como parte de `Reuniao`; seus atributos estão no [diagrama de classes das atas](../../4%20-%20Incremento%203/atas/3%20-%20diagrama-classes-atas.md).
 
 ## Diagrama
 

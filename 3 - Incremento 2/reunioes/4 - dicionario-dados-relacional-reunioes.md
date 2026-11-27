@@ -91,7 +91,7 @@ Guarda o conteúdo dos arquivos. São as coleções `anexos.files` e `anexos.chu
 
 ## REUNIAO_ATA
 
-A ata e suas entidades (`ATA`, `ATA_APROVADOR`, `ATA_AVALIACAO`, `ATA_CANCELADA` e `CONTADOR_ATA`) estão descritas campo a campo no [dicionário relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20dicionario-dados-relacional-atas.md).
+A ata e suas entidades (`ATA`, `ATA_APROVADOR`, `ATA_AVALIACAO`, `ATA_CANCELADA` e `CONTADOR_ATA`) estão descritas campo a campo no [dicionário relacional das atas](../../4%20-%20Incremento%203/atas/4%20-%20dicionario-dados-relacional-atas.md).
 
 ## Índices e restrições
 

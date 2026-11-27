@@ -13,7 +13,7 @@ Durante a reunião, o presidente da comissão abre votações sobre os assuntos 
 - encerrar a votação;
 - consultar as votações da reunião e o resultado das encerradas.
 
-Ficam fora deste módulo o agendamento, os convites e a presença, descritos em [Reuniões](../../3%20-%20Incremento2/reunioes/README.md), e a ata, descrita em [Atas de reunião](../atas/README.md). A presença é a entrada deste módulo: ela define quem pode votar.
+Ficam fora deste módulo o agendamento, os convites e a presença, descritos em [Reuniões](../../3%20-%20Incremento%202/reunioes/README.md), e a ata, descrita em [Atas de reunião](../atas/README.md). A presença é a entrada deste módulo: ela define quem pode votar.
 
 ## Atores
 

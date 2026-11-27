@@ -12,7 +12,7 @@
 | `Participante`         | Valor embutido       | Relacionar convidado, resposta e presença.                |
 | `Presenca`             | Valor embutido       | Registrar entrada, saída, situação e origem.              |
 | `Anexo`                | Valor embutido       | Identificar o arquivo da pauta guardado no GridFS.        |
-| `Ata`                  | Valor embutido       | Guardar texto versionado e avaliações; detalhada no [módulo ATA](../../4%20-%20Incremento3/atas/3%20-%20dicionario-dados-classes-atas.md). |
+| `Ata`                  | Valor embutido       | Guardar texto versionado e avaliações; detalhada no [módulo ATA](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md). |
 | `Comissao`             | Domínio relacionado  | Fornecer responsável, integrantes e organização.          |
 | `Usuario`              | Domínio relacionado  | Identificar participantes e validar conta ativa.          |
 | `TelaRegistrosReuniao` | Aplicativo           | Editar/aprovar ata e consultar lista de presença.         |
@@ -36,7 +36,7 @@
 | `abrirAnexo()`         | `GET /reunioes/:id/anexos/:anexoId`        | `abrirAnexo`         |
 | `removerAnexo()`       | `DELETE /reunioes/:id/anexos/:anexoId`     | `removerAnexo`       |
 
-As rotas da ata estão no [dicionário de classes das atas](../../4%20-%20Incremento3/atas/3%20-%20dicionario-dados-classes-atas.md).
+As rotas da ata estão no [dicionário de classes das atas](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md).
 
 O método `atualizar` do service recebe o `PATCH /reunioes/:id` e encaminha para `cancelar`, quando vem só `situacao`, ou para `editar`, quando vêm os demais campos.
 
@@ -91,7 +91,7 @@ O método `atualizar` do service recebe o `PATCH /reunioes/:id` e encaminha para
 
 ### `Ata`
 
-Descrita por completo no [dicionário de classes das atas](../../4%20-%20Incremento3/atas/3%20-%20dicionario-dados-classes-atas.md). Resumo dos atributos:
+Descrita por completo no [dicionário de classes das atas](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md). Resumo dos atributos:
 
 | Atributo        | Tipo             | Obrigatório | Regra                                                                   |
 | --------------- | ---------------- | ----------: | ----------------------------------------------------------------------- |

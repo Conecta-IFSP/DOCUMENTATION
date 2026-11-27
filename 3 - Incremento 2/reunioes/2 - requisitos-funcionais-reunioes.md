@@ -6,7 +6,7 @@
 
 Cada caso de uso de [Casos de uso](1%20-%20casos-uso-reunioes.md) é descrito aqui como requisito funcional de sistema, usando apenas o formulário padrão: Função, Descrição, Entradas, Origem, Saída, Destino, Ação, Pré-condição, Pós-condição e Efeitos colaterais. O diagrama de sequência de cada requisito está em [Diagramas de sequência](6%20-%20diagramas-sequencia-reunioes.md), com o mesmo número.
 
-Todas as rotas exigem o cabeçalho `X-API-Key`, um token JWT válido e uma conta de usuário comum ativa. Os textos entre aspas são as mensagens que o aplicativo mostra. Os requisitos da ata (antigos RF-REU-10 a RF-REU-12) estão em [RF-ATA-01 a RF-ATA-08](../../4%20-%20Incremento3/atas/2%20-%20requisitos-funcionais-atas.md).
+Todas as rotas exigem o cabeçalho `X-API-Key`, um token JWT válido e uma conta de usuário comum ativa. Os textos entre aspas são as mensagens que o aplicativo mostra. Os requisitos da ata (antigos RF-REU-10 a RF-REU-12) estão em [RF-ATA-01 a RF-ATA-08](../../4%20-%20Incremento%203/atas/2%20-%20requisitos-funcionais-atas.md).
 
 Dois passos se repetem em quase todos os requisitos e são descritos uma vez aqui:
 

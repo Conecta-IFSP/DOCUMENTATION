@@ -81,7 +81,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | --- | --- |
 | **Classificação** | Organizacional › Entrega |
 | **Critério** | O manual em PDF e o leitor que o exibe são entregues dentro do pacote do aplicativo, e não por um endereço da internet. O arquivo do aplicativo é a mesma versão publicada neste repositório. |
-| **Medida** | (1) `assets/manual/manual.pdf` está no commit do FRONTEND e é exibido pela tela "Manual de utilização"; (2) o código do aplicativo não guarda nenhum endereço do manual (não existe mais `URL_MANUAL_PDF`) e não chama `Linking.openURL` para ele; (3) `FRONTEND/assets/manual/manual.pdf` e `DOCUMENTATION/4 - Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf` têm o mesmo hash SHA-256. |
+| **Medida** | (1) `assets/manual/manual.pdf` está no commit do FRONTEND e é exibido pela tela "Manual de utilização"; (2) o código do aplicativo não guarda nenhum endereço do manual (não existe mais `URL_MANUAL_PDF`) e não chama `Linking.openURL` para ele; (3) `FRONTEND/assets/manual/manual.pdf` e `DOCUMENTATION/4 - Incremento 3/manual-de-utilizacao/manual-usuario/manual.pdf` têm o mesmo hash SHA-256. |
 | **Condição** | FRONTEND na branch `homolog` e DOCUMENTATION na branch `main`. |
 | **Verificação** | Procurar `URL_MANUAL_PDF` e `Linking` em `src/` do FRONTEND. Calcular o SHA-256 dos dois arquivos (`sha256sum` ou `Get-FileHash`) e comparar. Abrir o manual com o aparelho sem internet (CT-MAN-10). |
 | **Evidência** | Commit `fa1ba7a` do FRONTEND, que acrescentou `assets/manual/manual.pdf`, `assets/pdfjs/`, `src/app/manual.tsx` e `src/components/ManualPdf.tsx` e retirou `URL_MANUAL_PDF`; commit `93fa767`, que trocou o `manual.pdf` pela versão corrigida (SHA-256 `35a838f8…7b963097`). |
@@ -98,7 +98,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida** | Todas as páginas do arquivo medem 595 × 842 pontos (A4). Exceto na capa, que ocupa a página inteira, o corpo do texto, as tabelas e as imagens ficam a 20 mm do topo e da base e a 18 mm das laterais. O cabeçalho e o rodapé de cada página ficam dentro da margem, a cerca de 7 mm da borda. |
 | **Condição** | Arquivo `manual.pdf` empacotado no aplicativo e publicado na branch `main` do DOCUMENTATION (os dois são iguais, ver RNF-MAN-03). |
 | **Verificação** | Executar `pdfinfo manual.pdf` e conferir "Page size: 594.96 x 841.92 pts (A4)" (roteiro CT-MAN-11). Para as margens, extrair a posição de cada palavra com `pdftotext -bbox` ou imprimir uma página e medir. |
-| **Evidência** | `4 - Incremento3/manual-de-utilizacao/manual-usuario/manual.pdf` e `FRONTEND/assets/manual/manual.pdf`. |
+| **Evidência** | `4 - Incremento 3/manual-de-utilizacao/manual-usuario/manual.pdf` e `FRONTEND/assets/manual/manual.pdf`. |
 | **Situação** | Atendido em 25/11/2026, na versão corrigida do manual (SHA-256 `35a838f8…7b963097`, 1.220.899 bytes). Tamanho: `pdfinfo` informa 27 páginas de 594.96 × 841.92 pt (A4) (CT-MAN-11); o PDF.js 3.11.174 do projeto confirmou as 27 páginas com o mesmo tamanho. Margens, pela posição do texto extraída com `pdftotext -bbox` nas páginas 2 a 27: laterais de 18,0 mm, corpo a 19,1 mm do topo e a 21,5 mm da base. Medição em página impressa não executada (sem impressora disponível); a verificação foi feita pela posição do texto no arquivo. |
 
 ### RNF-MAN-05 — Linguagem simples

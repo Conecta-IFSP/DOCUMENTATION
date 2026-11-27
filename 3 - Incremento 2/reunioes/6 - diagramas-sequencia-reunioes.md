@@ -485,4 +485,4 @@ sequenceDiagram
 
 ## Rastreabilidade
 
-SD-REU-01 a SD-REU-09 e SD-REU-13 a SD-REU-16 correspondem aos requisitos funcionais de mesmo número. Os diagramas da ata estão em [SD-ATA-01 a SD-ATA-08](../../4%20-%20Incremento3/atas/6%20-%20diagramas-sequencia-atas.md).
+SD-REU-01 a SD-REU-09 e SD-REU-13 a SD-REU-16 correspondem aos requisitos funcionais de mesmo número. Os diagramas da ata estão em [SD-ATA-01 a SD-ATA-08](../../4%20-%20Incremento%203/atas/6%20-%20diagramas-sequencia-atas.md).
