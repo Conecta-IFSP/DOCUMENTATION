@@ -62,7 +62,7 @@ A definição do nome, ícone, logotipo, padrões de fontes e paleta de cores do
 | **Reuniões** | Lista, cadastro, edição e detalhes das reuniões. |
 | **Histórico** | Reuniões concluídas e registros associados. |
 
-## Tecnologias para o servidor.
+## Tecnologias para o servidor
 
 - **Node.js** - Responsável por executar o código do servidor fora do navegador, sendo requisito para o funcionamento de todo o backend.
 - **NestJS** - Organiza o código em módulos, controllers e services, definindo com clareza a localização de cada rota e de cada regra do sistema.
@@ -73,7 +73,7 @@ A definição do nome, ícone, logotipo, padrões de fontes e paleta de cores do
 
 ## Tecnologias para o APP
 
-- **React Native** - Linguagem principal para o desenvolvimento da aplicação, compatível com Android e iOS.
+- **React Native** - Framework principal para o desenvolvimento da aplicação, compatível com Android e iOS; a linguagem usada é o TypeScript.
 - **NativeWind** - Permite aplicar os estilos diretamente nos componentes por meio de classes, mantendo a padronização visual entre as telas.
 - **Expo** - Disponibiliza o projeto React Native previamente configurado e permite executar e testar o aplicativo diretamente no dispositivo durante o desenvolvimento, sem necessidade de compilação manual.
 - **TypeScript / JavaScript** - Linguagem utilizada na construção das telas, da navegação entre elas e das funções que se comunicam com o servidor.
@@ -151,4 +151,38 @@ Os testes devem acompanhar a evolução do sistema e gerar evidências dos resul
 
 O CONECTA+ apresenta-se como uma solução intencionalmente mais simples do que as grandes plataformas existentes. O valor do projeto não está em oferecer mais funcionalidades do que Google Calendar, Google Meet ou Microsoft Teams, mas em reunir as principais funções de gerenciamento de reuniões em um fluxo mobile coerente, com código aberto e escopo controlado.
 
-A proposta técnica baseada em React Native, Expo, NativeWind, NestJS e MongoDB é compatível com um protótipo acadêmico multiplataforma e permite separar interface, regras e dados de forma organizada. Cada funcionalidade adicionada deve contribuir para resolver um problema real relacionado às reuniões e se integrar ao fluxo de antes, durante e depois do encontro, sem transformar o CONECTA+ em uma suíte genérica.
+A proposta técnica baseada em React Native, Expo, NativeWind, NestJS e MongoDB é compatível com um protótipo acadêmico multiplataforma e permite separar interface, regras e dados de forma organizada. Cada funcionalidade adicionada deve contribuir para resolver um problema real relacionado às reuniões e se integrar ao fluxo de antes, durante e depois do encontro, sem transformar o CONECTA+ em uma suíte genérica. Na entrega final, o NativeWind não foi usado e o Google Meet não foi integrado; ver [Situação na entrega final](#situação-na-entrega-final-27112026).
+
+## Situação na entrega final (27/11/2026)
+
+Esta seção não altera a proposta acima, que fica como registro do que foi planejado. Ela compara o previsto com o que foi entregue, conferido no código do FRONTEND (`4f53a25`) e do BACKEND (`6e0d3f5`) e na documentação.
+
+| Previsto na proposta | Situação na entrega | Onde está |
+| --- | --- | --- |
+| Login e cadastro | Entregue: cadastro com confirmação por e-mail, login com senha e com Google, e desbloqueio com biometria ao abrir o aplicativo com a sessão salva | [Cadastro de usuário](../2%20-%20Incremento%201/cadastro-usuario/README.md) |
+| Tela principal com as próximas reuniões | Entregue: aba Início | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md) |
+| Calendário mensal | Entregue: a aba Agenda tem um calendário mensal que abre e fecha, com as reuniões marcadas por data | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md) (RF-REU-02) |
+| Reuniões: cadastro, consulta e edição de título, data, horário e pauta | Entregue, com reunião de dia inteiro, local opcional e anexos na pauta | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md) (RF-REU-01, RF-REU-03, RF-REU-13 a RF-REU-16) |
+| Link gerado automaticamente para uma reunião no Google Meet | **Não integrado.** O código do FRONTEND e do BACKEND não usa o Google Meet nem suas APIs; o local da reunião é um campo de texto opcional | [Catálogo de softwares e licenças](../CATALOGO-SOFTWARES-E-LICENCAS.md), seção 5 |
+| Google Meet como ferramenta das reuniões | **Não integrado.** As reuniões por vídeo acontecem fora do aplicativo; o Conecta+ cuida da agenda, da pauta, da presença, das votações e da ata | — |
+| Participantes e notificação com o link do encontro | Em parte: convites com resposta e notificações no aplicativo; o link enviado é o de registro de presença, e não o de uma chamada | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md) (RF-REU-05 e RF-REU-19) |
+| Anotações | Não há uma função própria de anotações: o registro da reunião é feito na pauta e na ata | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md) (RF-REU-01) e [Atas de reunião](../4%20-%20Incremento%203/atas/README.md) |
+| Tarefas da reunião (e o caso de teste CT05) | **Não implementado.** Não há tarefas no código, e o CT05 desta proposta não tem função correspondente | — |
+| Histórico | Entregue em três lugares: reuniões encerradas na agenda, registros da reunião (ata, versões e lista de presença) e relatório individual | [Reuniões](../3%20-%20Incremento%202/reunioes/README.md), [Atas de reunião](../4%20-%20Incremento%203/atas/README.md) e [Relatório individual](../4%20-%20Incremento%203/relatorio-individual/README.md) |
+| NativeWind para os estilos | **Não usado.** Os estilos usam o `StyleSheet` do React Native, com as cores e a tipografia do tema do aplicativo (`src/constants/theme.ts` e `TemaContext`) | [Arquitetura e tecnologias](../ARQUITETURA-E-TECNOLOGIAS.md) |
+
+### Entregue além da proposta
+
+- Organizações, com código de acesso, convites, pedidos de entrada e papéis: [Cadastro de organização](../2%20-%20Incremento%201/cadastro-organizacao/README.md).
+- Comissões com responsável e equipe: [Cadastro de comissão](../2%20-%20Incremento%201/cadastro-comissao/README.md).
+- Perfil, tema, troca de e-mail e de senha e recuperação de conta: [Configurações de usuário](../2%20-%20Incremento%201/configuracoes-usuario/README.md).
+- Informações do sistema para o administrador: [Informações do sistema](../2%20-%20Incremento%201/informacao-sistemas/README.md).
+- Presença com biometria, link de presença, correção de horários, saída automática e lista de presença em PDF: [Reuniões](../3%20-%20Incremento%202/reunioes/README.md).
+- Ata com envio, prazo, aprovação ou reprovação, versões e PDF: [Atas de reunião](../4%20-%20Incremento%203/atas/README.md).
+- Votação aberta ou fechada, com voto em branco e nulo: [Votação na reunião](../4%20-%20Incremento%203/votacao/README.md).
+- Relatório individual em PDF e CSV: [Relatório individual](../4%20-%20Incremento%203/relatorio-individual/README.md).
+- Ajuda e manual de utilização dentro do aplicativo: [Manual de utilização](../4%20-%20Incremento%203/manual-de-utilizacao/README.md).
+
+### Por que o escopo mudou
+
+O escopo mudou ao longo dos três incrementos. O foco passou de uma agenda pessoal de reuniões, com anotações e tarefas, para a gestão de reuniões de organizações e comissões, com presença, votações e ata aprovada pelos presentes. Várias funções entraram ou mudaram para atender às observações das avaliações do professor, registradas em [Tratamento das observações da avaliação](../TRATAMENTO-AVALIACAO.md): por exemplo, a edição da reunião, os anexos na pauta, o link de presença, a correção de horários, a saída automática, a confirmação com biometria, as versões da ata e o voto em branco e nulo. As anotações e as tarefas previstas não foram implementadas, e a integração com o Google Meet não foi feita. A [pesquisa de mercado](pesquisa-de-mercado.md), feita na entrega final, confirma que presença, votação e ata com aprovação são as partes que as ferramentas de agenda e de chamada atendem menos.
