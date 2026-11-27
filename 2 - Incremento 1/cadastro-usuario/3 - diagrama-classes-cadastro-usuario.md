@@ -4,7 +4,7 @@
 
 ## Resumo
 
-O diagrama mostra as classes que participam do cadastro e da autenticação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, contextos de sessão, tema e aviso e módulos do aplicativo), **API** (controllers, services, guards e objetos de entrada) e **Dados** (o model do Mongoose `UsuarioModel`, marcado `<<Model Mongoose>>`, e o documento guardado no MongoDB). As bibliotecas chamadas diretamente nos [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md) ficam fora dos pacotes, marcadas `<<biblioteca>>` ou `<<API do navegador>>`, só com os métodos chamados. Toda linha de vida e todo método das sequências aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código; das classes que também servem a outros módulos, como `AuthService` e `Usuario`, aparecem só os métodos e atributos usados aqui. Nas telas e nos contextos, os métodos `definir*` são as funções de atualização do `useState`. As classes dos vínculos do usuário com organizações (`Organizacao`, `MembroOrganizacao`, `OrganizacoesService` e as telas de organização) estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
+O diagrama mostra as classes que participam do cadastro e da autenticação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, o componente de navegação `Navegacao` e a tela de desbloqueio `DesbloqueioSessao`, contextos de sessão, tema e aviso e módulos do aplicativo), **API** (controllers, services, guards e objetos de entrada) e **Dados** (o model do Mongoose `UsuarioModel`, marcado `<<Model Mongoose>>`, e o documento guardado no MongoDB). As bibliotecas chamadas diretamente nos [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md) ficam fora dos pacotes, marcadas `<<biblioteca>>` ou `<<API do navegador>>`, só com os métodos chamados. Toda linha de vida e todo método das sequências aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código; das classes que também servem a outros módulos, como `AuthService` e `Usuario`, aparecem só os métodos e atributos usados aqui. Nas telas, nos componentes e nos contextos, os métodos `definir*` são as funções de atualização do `useState`; em `DesbloqueioSessao`, `nome`, `aoLiberar` e `aoEntrarComSenha` são as propriedades recebidas de `Navegacao`, e `pedindo` é guardado com `useRef`; `desbloqueio` e `etapa` aparecem como `string` porque, no código, o tipo de cada um é uma união de textos fixos, descrita no dicionário. As classes dos vínculos do usuário com organizações (`Organizacao`, `MembroOrganizacao`, `OrganizacoesService` e as telas de organização) estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
 
 ## Diagrama
 
@@ -36,6 +36,25 @@ classDiagram
         class GoogleCallbackWeb {
             +handleCallback() Promise~void~
         }
+        class Navegacao {
+            -desbloqueio: string
+            -bloqueado: boolean
+            +liberar() void
+            +entrarComSenha() Promise~void~
+            +definirDesbloqueio(valor: string) void
+        }
+        class DesbloqueioSessao {
+            +nome: string
+            +aoLiberar: Function
+            +aoEntrarComSenha: Function
+            -etapa: string
+            -saindo: boolean
+            -pedindo: boolean
+            +pedir() Promise~void~
+            +entrarComSenha() Promise~void~
+            +definirEtapa(valor: string) void
+            +definirSaindo(valor: boolean) void
+        }
         class SessaoProvider {
             <<context>>
             -usuario: Usuario
@@ -46,6 +65,7 @@ classDiagram
             +entrar(token: string) Promise~boolean~
             +sair(aviso: string) Promise~void~
             +definirUsuario(valor: Usuario) void
+            +definirCarregando(valor: boolean) void
         }
         class TemaProvider {
             <<context>>
@@ -74,6 +94,11 @@ classDiagram
             +getWebCallbackRedirectUri() string
             -estaNoExpoGo() boolean
             -configureNativeGoogle(GoogleSignin: GoogleSignin) void
+        }
+        class autenticacaoLocal {
+            <<module>>
+            +dispositivoProtegido() Promise~boolean~
+            +autenticarComDispositivo() Promise~boolean~
         }
         class validacao {
             <<module>>
@@ -259,6 +284,10 @@ classDiagram
     GoogleCallbackWeb ..> google : usa
     GoogleCallbackWeb ..> SessaoProvider : entrar
     GoogleCallbackWeb ..> Router : replace
+    Navegacao ..> SessaoProvider : usa
+    Navegacao ..> DesbloqueioSessao : mostra
+    DesbloqueioSessao ..> autenticacaoLocal : usa
+    DesbloqueioSessao ..> Navegacao : liberar e entrarComSenha
     SessaoProvider ..> api : usa
     google ..> api : usa
     google ..> GoogleSignin : SDK nativo
@@ -322,8 +351,9 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - uma conta tem senha local, conta Google ou as duas, conforme `provedor_autenticacao`;
 - `TipoUsuario` só distingue o usuário comum do administrador do sistema; quem administra uma organização é definido pelo vínculo, no módulo ORG;
 - o token de acesso não é uma classe nem é guardado no banco: ele é emitido pelo `AuthService` e guardado pelo módulo `api` no aparelho;
-- o aplicativo nunca decide sozinho se a sessão vale: ele confirma com `GET /usuarios/me`.
+- o aplicativo nunca decide sozinho se a sessão vale: ele confirma com `GET /usuarios/me`;
+- com a sessão salva, `Navegacao` só monta as telas depois que `DesbloqueioSessao` chama `liberar`; a confirmação de identidade fica no aparelho, e nada dela é enviado à API.
 
 ## Rastreabilidade
 
-RF-USR-01 a RF-USR-03; complementado por [Dicionário de classes](3%20-%20dicionario-dados-classes-cadastro-usuario.md) e [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md).
+RF-USR-01 a RF-USR-04; complementado por [Dicionário de classes](3%20-%20dicionario-dados-classes-cadastro-usuario.md) e [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md).

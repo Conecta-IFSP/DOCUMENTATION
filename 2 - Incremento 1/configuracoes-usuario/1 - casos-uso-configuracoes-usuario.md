@@ -27,6 +27,7 @@ Visitante e usuário autenticado podem ser a mesma pessoa em momentos diferentes
 ## Relacionamentos entre casos de uso
 
 - **«include» de Alterar senha para Encerrar sessão:** toda troca de senha concluída encerra a sessão no aparelho, com a mesma função usada por "Sair da conta", e leva ao login com o aviso "Senha alterada. Entre novamente com a nova senha.".
+- **Uso por outro módulo:** o desbloqueio da sessão salva (UC-USR-04, no módulo [Cadastro de usuário](../cadastro-usuario/README.md)) também chama a função de Encerrar sessão quando a pessoa toca em "Entrar com senha", sem o diálogo de confirmação e sem aviso. Esse caso de uso aparece no diagrama do módulo USR, e não neste.
 
 ## Requisitos funcionais de usuário
 

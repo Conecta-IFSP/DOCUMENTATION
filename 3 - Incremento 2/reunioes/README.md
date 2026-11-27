@@ -4,14 +4,14 @@
 
 ## Resumo
 
-O presidente da comissão agenda as reuniões da comissão, escolhe quem convidar, escreve a pauta e anexa arquivos para leitura prévia. Cada convidado vê a reunião na agenda e aceita ou recusa o convite. Durante a reunião, cada participante marca a própria entrada e a própria saída, confirmando a identidade no aparelho, e quem agendou confirma ou recusa essas presenças. Quem marcou entrada e não marcou saída recebe a saída automaticamente no término da reunião. O presidente também pode gerar um link de presença, válido só durante a reunião, com o qual cada convidado registra entrada e saída já confirmadas, e pode corrigir os horários de um participante, informando um motivo que fica guardado num histórico. Depois do término, qualquer participante consulta a lista de presença e gera o PDF dela.
+O presidente da comissão agenda as reuniões da comissão, escolhe quem convidar, escreve a pauta e anexa arquivos para leitura prévia. Cada convidado vê a reunião na agenda e aceita ou recusa o convite. Durante a reunião, cada participante marca a própria entrada e a própria saída, confirmando a identidade no aparelho, e quem agendou confirma ou recusa essas presenças e, confirmando a própria identidade no aparelho, pode desmarcar quem já estava presente. Quem marcou entrada e não marcou saída recebe a saída automaticamente no término da reunião. O presidente também pode gerar um link de presença, válido só durante a reunião, com o qual cada convidado registra entrada e saída já confirmadas, e pode corrigir os horários de um participante, informando um motivo que fica guardado num histórico. Depois do término, qualquer participante consulta a lista de presença e gera o PDF dela.
 
 ## Escopo
 
 - agendar, consultar, visualizar, editar e cancelar reuniões, inclusive de dia inteiro e sem local;
 - responder ao convite, inclusive desistir depois de aceitar;
 - registrar entrada e saída, com a saída automática no término;
-- confirmar ou recusar a presença registrada por um participante;
+- confirmar ou recusar a presença registrada por um participante e desmarcar a de quem já está confirmado;
 - gerar, enviar e revogar o link de presença, e registrar presença por ele;
 - corrigir horários de entrada e saída, com motivo e histórico;
 - consultar a lista de presença e gerar o PDF dela;
@@ -25,7 +25,7 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 | Ator                    | Quem é no sistema                                                                            | O que faz neste módulo                                                                                                                        |
 | ----------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Participante da reunião | Usuário que está na lista de participantes da reunião.                                       | Consulta a agenda e a reunião, responde ao convite, marca entrada e saída, registra presença pelo link, vê a lista de presença e baixa anexos. |
-| Presidente da comissão  | Membro da comissão com papel `RESPONSAVEL`. É uma especialização do participante da reunião. | Agenda, edita e cancela reuniões, confirma ou recusa presenças, cuida dos anexos, gera, envia e revoga o link de presença e corrige horários.   |
+| Presidente da comissão  | Membro da comissão com papel `RESPONSAVEL`. É uma especialização do participante da reunião. | Agenda, edita e cancela reuniões, confirma, recusa ou desmarca presenças, cuida dos anexos, gera, envia e revoga o link de presença e corrige horários.   |
 
 ## Índice padronizado
 
@@ -45,15 +45,15 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 
 | Caso de uso | Requisito | Sequência | Testes                                                       |
 | ----------- | --------- | --------- | ------------------------------------------------------------ |
-| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26, CT-REU-41 |
+| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26, CT-REU-41, CT-REU-45 |
 | UC-REU-02   | RF-REU-02 | SD-REU-02 | CT-REU-02, CT-REU-15                                         |
-| UC-REU-03   | RF-REU-03 | SD-REU-03 | CT-REU-03, CT-REU-15, CT-REU-17                              |
+| UC-REU-03   | RF-REU-03 | SD-REU-03 | CT-REU-03, CT-REU-15, CT-REU-17, CT-REU-43                   |
 | UC-REU-04   | RF-REU-04 | SD-REU-04 | CT-REU-04, CT-REU-16, CT-REU-41                              |
 | UC-REU-05   | RF-REU-05 | SD-REU-05 | CT-REU-05, CT-REU-16, CT-REU-27                              |
 | UC-REU-06   | RF-REU-06 | SD-REU-06 | CT-REU-06, CT-REU-17, CT-REU-27, CT-REU-40                   |
 | UC-REU-07   | RF-REU-07 | SD-REU-07 | CT-REU-07, CT-REU-17, CT-REU-27, CT-REU-29, CT-REU-31        |
-| UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17                                         |
-| UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32, CT-REU-42 |
+| UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17, CT-REU-43                              |
+| UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32, CT-REU-42, CT-REU-44 |
 | UC-REU-13   | RF-REU-13 | SD-REU-13 | CT-REU-21, CT-REU-24, CT-REU-41                              |
 | UC-REU-14   | RF-REU-14 | SD-REU-14 | CT-REU-22, CT-REU-25                                         |
 | UC-REU-15   | RF-REU-15 | SD-REU-15 | CT-REU-22, CT-REU-25                                         |
@@ -69,6 +69,6 @@ Os números 10, 11 e 12 não são usados neste módulo, nem como caso de uso nem
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend `6e0d3f5`, que sobre o `d1f1aeb` só acrescenta variáveis ao `.env.example`, e frontend `fd790db`, que sobre o `8cf4839` só muda um estilo do cartão de "Suas organizações", fora deste módulo; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`; `nomearPdf`, em `FRONTEND/src/services/pdf.ts`, entrou em `795d49b` e passou a esperar o `move` antes do compartilhamento em `8cf4839`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `BACKEND/src/notificacoes/notificacoes.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/notificacoes.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/components/SinoNotificacoes.tsx`, `FRONTEND/src/services/anexos.ts`, `FRONTEND/src/services/pdf.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend `6e0d3f5`, que sobre o `d1f1aeb` só acrescenta variáveis ao `.env.example`, e frontend `4f53a25`; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`; a desmarcação de presença em `FRONTEND/src/app/reunioes/[id].tsx`, a entrega do PDF sem renomear o arquivo em `FRONTEND/src/services/pdf.ts` e o teclado da `FolhaInferior` entraram em `db5b2fe`; sobre ele, `1d3e977` só muda textos de `VotacoesReuniao`, descrita no módulo VOT, e `4f53a25`, um estilo do cartão de "Suas organizações", fora deste módulo). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `BACKEND/src/notificacoes/notificacoes.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/notificacoes.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/components/Confirmacao.tsx`, `FRONTEND/src/components/SinoNotificacoes.tsx`, `FRONTEND/src/services/anexos.ts`, `FRONTEND/src/services/pdf.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
 
 A entrega do Incremento 2 foi conferida em 23/10/2026 sobre FRONTEND `792fab4` e BACKEND `6f2ffc4`.

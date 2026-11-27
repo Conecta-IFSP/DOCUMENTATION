@@ -4,7 +4,7 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o componente `Confirmacao`, o contexto `ToastProvider`, os módulos `api`, `anexos`, `pdf`, `pdfListaPresenca` e `autenticacaoLocal`, os controllers, os services, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Clipboard`, `File`, `Print`, `Sharing`, `GridFSBucket`, `GridFSBucketWriteStream`, `events`, `crypto`, `nodemailer` e `Transporter`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-reunioes.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `arquivo.delete()` ou `envio.end(dados)`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa. Regras que não são métodos, como comparar horários, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o componente `Confirmacao`, o contexto `ToastProvider`, os módulos `api`, `anexos`, `pdf`, `pdfListaPresenca` e `autenticacaoLocal`, os controllers, os services, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Clipboard`, `File`, `Print`, `Sharing`, `GridFSBucket`, `GridFSBucketWriteStream`, `events`, `crypto`, `nodemailer` e `Transporter`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-reunioes.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `copia.upload(url, opcoes)` ou `envio.end(dados)`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa. Regras que não são métodos, como comparar horários, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
 
 Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota. Para não repetir, os diagramas mostram `carregar(id, usuarioId)` do `ReunioesService` só com a leitura da reunião; antes dela, o método chama `validarId(id)` e `validarUsuario(usuarioId)`, que lê o usuário com `UsuarioModel.findById`. Da mesma forma, `carregar(id, usuarioId, presidente)` do `PresencasService` aparece completo só no SD-REU-17.
 
@@ -132,7 +132,13 @@ sequenceDiagram
     P->>A: api("/presencas/:id/gestao")
     A-->>P: resultado
     P->>P: definirPermitido(resultado.ok)
-    Note over T: buscar() é chamada de novo a cada 30 segundos e ao puxar a tela
+    Note over T: buscar() é chamada de novo a cada 30 segundos
+    U->>T: atualizar()
+    Note over U,T: O participante puxa a tela para baixo
+    T->>T: definirErro("")
+    T->>T: definirSucesso("")
+    T->>T: buscar()
+    Note over T: A faixa de sucesso de qualquer ação some sozinha 4 segundos depois
 ```
 
 ## SD-REU-04 — Cancelar reunião
@@ -429,6 +435,59 @@ sequenceDiagram
     T->>T: definirReuniao(resultado.dados)
 ```
 
+Desmarcar, pela pílula "Desmarcar presença" da seção "Presentes", quem já está com presença confirmada. A pílula só aparece para quem agendou, fora da linha dele mesmo, com a reunião iniciada, não cancelada e a ata inexistente ou em rascunho:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Presidente
+    participant T as TelaReuniao
+    participant K as Confirmacao
+    participant L as autenticacaoLocal
+    participant A as api
+    participant C as ReunioesController
+    participant S as ReunioesService
+    participant M as ReuniaoModel
+    U->>T: desmarcarPresenca(pessoa)
+    T->>T: definirConfirmacao(pendente)
+    T->>K: Confirmacao(mensagem, rotuloConfirmar, perigo)
+    Note over U,K: "Desmarcar a presença de" seguido do nome, com Cancelar e o botão vermelho Desmarcar
+    U->>K: confirmar()
+    Note over K,T: confirmar chama confirmacao.acao, que fecha o diálogo antes de pedir a identidade
+    K->>T: definirConfirmacao(null)
+    T->>L: autenticarComDispositivo()
+    L->>L: dispositivoProtegido()
+    alt identidade não confirmada
+        L-->>T: false
+        T->>T: definirSucesso("")
+        T->>T: definirErro("Não foi possível confirmar sua identidade.")
+    else identidade confirmada ou aparelho sem bloqueio
+        L-->>T: true
+        T->>T: executar(chave, acao, mensagem)
+        Note over T: mensagem = "Presença de" seguido do nome e de "desmarcada."
+        T->>A: api("/reunioes/:id/presencas/:usuarioId", "PATCH", { situacao: "RECUSADA" })
+        Note over A,C: PATCH /reunioes/:id/presencas/:usuarioId
+        A->>C: atualizarPresenca(id, usuarioId, dto, req)
+        C->>S: atualizarPresenca(id, participanteId, situacao, usuarioId)
+        S->>S: validarId(participanteId)
+        S->>S: carregarComoDono(id, usuarioId)
+        S->>M: findById(id)
+        M-->>S: reuniao
+        S->>S: exigirAgendada(reuniao)
+        Note over S: Mesmas recusas do diagrama anterior
+        Note over S,M: filtro: _id, ata lida, AGENDADA e participante com presenca.<br/>alteracao: $set participantes.$.presenca.situacao RECUSADA e $inc presencas_revisao.<br/>entrada, saida e marcada_por não mudam
+        S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
+        M-->>S: atualizada
+        S->>S: responder(atualizada, usuarioId, conflito)
+        S-->>C: reuniao
+        C-->>A: 200 reuniao
+        A-->>T: resultado
+        T->>T: definirReuniao(resultado.dados)
+        T->>T: definirSucesso(mensagem)
+        Note over T: A pessoa passa para Ausentes, com Marcar presente, e a faixa some 4 segundos depois
+    end
+```
+
 ## SD-REU-09 — Gerar lista de presença
 
 ```mermaid
@@ -443,9 +502,8 @@ sequenceDiagram
     participant UM as UsuarioModel
     participant P as pdfListaPresenca
     participant D as pdf
-    participant I as Print
-    participant FS as File
     participant H as Sharing
+    participant I as Print
     U->>T: definirAba("presenca")
     T->>T: carregarLista()
     T->>A: api("/reunioes/:id/lista-presenca")
@@ -475,34 +533,27 @@ sequenceDiagram
         D->>I: printAsync({ html, width: 595, height: 842 })
         I-->>D: concluído
     else Aplicativo instalado
-        D->>I: printToFileAsync({ html, width: 595, height: 842 })
-        I-->>D: impresso
-        D->>FS: File(impresso.uri)
-        FS-->>D: gerado
-        D->>D: nomearPdf(gerado, nome)
-        Note over D: nomearPdf é async e entregarPdf espera o endereço que ela devolve
-        D->>FS: File(Paths.cache, nomeArquivo)
-        FS-->>D: arquivo
-        Note over D,FS: nomeArquivo = nome seguido de .pdf
-        opt arquivo.exists verdadeiro
-            D->>FS: delete()
-            Note over D,FS: delete é chamado em arquivo
+        D->>H: isAvailableAsync()
+        H-->>D: disponivel
+        alt compartilhamento indisponível
+            Note over D: lança "O compartilhamento de arquivos não está disponível neste aparelho."<br/>sem gerar o PDF
+        else compartilhamento disponível
+            D->>I: printToFileAsync({ html, width: 595, height: 842 })
+            I-->>D: uri
+            Note over D,I: O PDF fica no cache com o nome dado pelo Print e não é renomeado nem movido
+            D->>H: shareAsync(uri, opcoes)
+            Note over D,H: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome
+            H-->>D: concluído
         end
-        D->>FS: move(arquivo)
-        Note over D,FS: move é chamado em gerado e nomearPdf espera a Promise dele
-        alt File, exists, delete e move sem erro
-            FS-->>D: concluído
-            Note over D: endereco = arquivo.uri, com o nome novo
-        else um desses passos lançou erro, inclusive o move
-            FS-->>D: erro
-            Note over D: o catch de nomearPdf devolve endereco = gerado.uri, com o nome dado pelo Print
-        end
-        D->>H: shareAsync(endereco, opcoes)
-        Note over D,H: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome.<br/>O compartilhamento só começa depois que nomearPdf termina
-        H-->>D: concluído
     end
-    D-->>P: concluído
-    P-->>T: concluído
+    alt PDF entregue
+        D-->>P: concluído
+        P-->>T: concluído
+    else erro na geração ou no compartilhamento
+        D-->>P: erro
+        P-->>T: erro
+        T->>T: definirErro("Não foi possível gerar o PDF da lista de presença.")
+    end
     T->>T: definirGerandoPdf(false)
 ```
 
