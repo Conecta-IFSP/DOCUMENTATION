@@ -1,10 +1,10 @@
 # Diagrama relacional — Informações do sistema
 
-> Padrão da disciplina · Módulo SIS · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo SIS · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 
-O banco é o MongoDB, que não tem tabelas. Este módulo não tem coleção própria: ele conta, cria e apaga documentos das coleções dos outros módulos. O diagrama abaixo é uma **visão lógica** dessas coleções: os membros de organizações e comissões, que ficam dentro dos documentos, aparecem como entidades separadas para deixar claras as chaves e as cardinalidades. Só entram os campos que este módulo lê, grava ou usa como filtro. A entidade `NOTIFICACAO` aparece porque o reset também apaga essa coleção.
+O banco é o MongoDB, que não tem tabelas. Este módulo não tem coleção própria: ele conta, cria, lê e apaga documentos das coleções dos outros módulos. O diagrama abaixo é uma **visão lógica** dessas coleções: os membros de organizações e comissões e a ata de cada reunião, que ficam dentro dos documentos, aparecem como entidades separadas para deixar claras as chaves e as cardinalidades. Só entram os campos que este módulo lê, grava ou usa como filtro. A entidade `NOTIFICACAO` aparece porque o reset também apaga essa coleção. As informações sobre o sistema (RF-SIS-05) e as métricas do servidor (RF-SIS-01) não vêm de coleções: vêm do processo da API, do sistema operacional e de comandos do MongoDB (`ping`, `dbStats` e `buildInfo`), e por isso não aparecem no diagrama.
 
 ## Diagrama
 
@@ -17,6 +17,7 @@ erDiagram
     COMISSAO ||--|{ COMISSAO_MEMBRO : tem
     USUARIO ||--o{ COMISSAO_MEMBRO : integra
     COMISSAO ||--o{ REUNIAO : realiza
+    REUNIAO ||--o| ATA : registra
     REUNIAO ||--o{ ARQUIVO_GRIDFS : anexa
     ARQUIVO_GRIDFS ||--|{ PARTE_GRIDFS : "é dividido em"
     COMISSAO ||--o{ CONTADOR_ATA : numera
@@ -64,6 +65,11 @@ erDiagram
     REUNIAO {
         ObjectId _id PK
         ObjectId comissao_id FK
+        string situacao
+    }
+    ATA {
+        ObjectId reuniao_id PK,FK
+        string situacao
     }
     ARQUIVO_GRIDFS {
         ObjectId _id PK
@@ -94,21 +100,23 @@ Figura 3 — Visão lógica relacional das coleções usadas pelas informações
 
 | Entidade lógica      | Onde fica de verdade              | O que este módulo faz                                                                    |
 | -------------------- | --------------------------------- | ---------------------------------------------------------------------------------------- |
-| `USUARIO`            | coleção `usuarios`                | Conta (todos e ativos), cria as três contas de teste e apaga as que não são `ADMIN_SISTEMA`. |
+| `USUARIO`            | coleção `usuarios`                | Conta (todos e ativos), cria as três contas de teste, lê o `senha_hash` de quem pede o reset e apaga as contas que não são `ADMIN_SISTEMA`. |
 | `ORGANIZACAO`        | coleção `organizacoes`            | Conta (todas, pendentes e aprovadas), cria a organização de teste e apaga todas.          |
 | `ORGANIZACAO_MEMBRO` | `organizacoes.membros[]`          | Grava os dois membros da organização de teste; some junto com a organização.             |
 | `COMISSAO`           | coleção `comissoes`               | Conta (todas e ativas), cria a comissão de teste e apaga todas.                           |
 | `COMISSAO_MEMBRO`    | `comissoes.membros[]`             | Grava o responsável da comissão de teste; some junto com a comissão.                      |
-| `REUNIAO`            | coleção `reunioes`                | Apaga todas, com tudo o que está dentro delas (ata, votações, presenças e dados de anexos). |
+| `REUNIAO`            | coleção `reunioes`                | Conta (todas, agendadas e canceladas) e apaga todas, com tudo o que está dentro delas (ata, atas canceladas, votações, presenças e dados de anexos). |
+| `ATA`                | `reunioes.ata`                    | Conta as reuniões que têm ata, as em aprovação e as aprovadas; some junto com a reunião.  |
 | `ARQUIVO_GRIDFS`     | coleção `anexos.files`            | Apaga todos os documentos.                                                                |
 | `PARTE_GRIDFS`       | coleção `anexos.chunks`           | Apaga todos os documentos.                                                                |
 | `CONTADOR_ATA`       | coleção `contadores`              | Apaga todos os documentos.                                                                |
 | `NOTIFICACAO`        | coleção `notificacoes`            | Apaga todos os documentos, inclusive os das contas de administrador do sistema.           |
 
-Em `ORGANIZACAO_MEMBRO` e `COMISSAO_MEMBRO`, o identificador da organização ou da comissão aparece como parte da chave, mas não é um campo gravado: ele vem do documento que contém a lista. Em `ARQUIVO_GRIDFS`, `metadata_reuniao_id` representa o campo `metadata.reuniao_id`; o mesmo identificador do arquivo também fica gravado em `reunioes.anexos[]._id`. Em `CONTADOR_ATA`, a comissão e o ano não são campos: estão dentro do `_id`, no formato `atas:<id da comissão>:<ano>`.
+Em `ORGANIZACAO_MEMBRO` e `COMISSAO_MEMBRO`, o identificador da organização ou da comissão aparece como parte da chave, mas não é um campo gravado: ele vem do documento que contém a lista. O mesmo vale para `ATA.reuniao_id`: a ata é um objeto dentro da reunião, e cada reunião tem no máximo uma ata atual. Em `ARQUIVO_GRIDFS`, `metadata_reuniao_id` representa o campo `metadata.reuniao_id`; o mesmo identificador do arquivo também fica gravado em `reunioes.anexos[]._id`. Em `CONTADOR_ATA`, a comissão e o ano não são campos: estão dentro do `_id`, no formato `atas:<id da comissão>:<ano>`.
 
 ## Regras de integridade
 
+- o reset só apaga algo depois que a senha enviada confere com o `USUARIO.senha_hash` da conta que fez o pedido;
 - o reset preserva toda conta cujo `tipo` é `ADMIN_SISTEMA`; qualquer outro valor, ou a falta do campo, leva a conta à exclusão;
 - o reset apaga organizações, comissões e reuniões inteiras, por isso não sobram membros, atas ou anexos sem o documento que os contém;
 - o reset apaga as duas coleções do GridFS por completo, sem conferir a que reunião cada arquivo pertence, porque todas as reuniões também são apagadas;
@@ -118,4 +126,4 @@ Em `ORGANIZACAO_MEMBRO` e `COMISSAO_MEMBRO`, o identificador da organização ou
 
 ## Rastreabilidade
 
-RF-SIS-01 a RF-SIS-04; detalhado em [Dicionário relacional](4%20-%20dicionario-dados-relacional-informacao-sistemas.md).
+RF-SIS-01 a RF-SIS-05; detalhado em [Dicionário relacional](4%20-%20dicionario-dados-relacional-informacao-sistemas.md).

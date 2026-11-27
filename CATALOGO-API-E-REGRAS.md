@@ -81,12 +81,13 @@ O schema valida integrantes únicos e exatamente um `RESPONSAVEL`. Alterações 
 
 Todas exigem `X-API-Key`, JWT e `ADMIN_SISTEMA`.
 
-| Método e rota                 | Origem dos dados             | Resposta/efeito                                                          |
-| ----------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
-| `GET /sistema/status`         | `node:os` + `countDocuments` | memória, CPU, tempo ligado do computador (`os.uptime()`, não da API) e contagens de usuários/organizações/comissões |
-| `GET /sistema/relatorios`     | `countDocuments`             | totais/ativos, organizações pendentes/aprovadas e comissões ativas       |
-| `POST /sistema/popular-teste` | variáveis `TEST_USER_*`      | cria 3 usuários, 1 organização e 1 comissão e devolve nome, e-mail e cenário de cada usuário, sem a senha; falha se variáveis ausentes |
-| `POST /sistema/reset`         | `ResetSistemaDto` + quatro models + GridFS | exige `confirmacao` igual a "RESETAR" (senão 400 "Digite RESETAR para confirmar o reset"); apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks`, os contadores de numeração das atas e as notificações |
+| Método e rota                 | Origem dos dados                                                       | Resposta/efeito                                                          |
+| ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `GET /sistema/sobre`          | `package.json` da API, `process`, `node:os` e comando `buildInfo`      | nome "Conecta+", versão da API, ambiente (`NODE_ENV` ou `development`), início e fuso horário da API; sete tecnologias (Node.js, TypeScript, NestJS, MongoDB, Mongoose, bcrypt e class-validator), com a versão declarada no `package.json` sem `^`/`~` (Node.js e MongoDB com a versão em execução); sistema operacional, arquitetura, processador, núcleos e memória total do servidor |
+| `GET /sistema/status`         | `node:os`, `process.uptime()`, comandos `ping` e `dbStats` + `countDocuments` | memória em uso, CPU em uso em porcentagem (medida em 200 ms), tempo ativo do computador (`os.uptime()`) e da API (`process.uptime()`); banco com `conectado`, latência do `ping`, armazenamento em MB e contagens de usuários/organizações/comissões/reuniões, ou só `conectado: false` se uma dessas consultas falhar |
+| `GET /sistema/relatorios`     | `countDocuments`                                                       | usuários total/ativos, organizações total/pendentes/aprovadas, comissões total/ativas, reuniões total/agendadas/canceladas e atas total/em aprovação/aprovadas, pela `ata.situacao` atual de cada reunião |
+| `POST /sistema/popular-teste` | variáveis `TEST_USER_*`                                                | cria 3 usuários, 1 organização e 1 comissão e devolve nome, e-mail e cenário de cada usuário, sem a senha; falha se variáveis ausentes |
+| `POST /sistema/reset`         | `ResetarSistemaDto` + quatro models + GridFS                           | corpo `{ "senha": "<senha do administrador>", "confirmacao": "RESET" }`; outra `confirmacao`: 400 "Digite RESET para confirmar"; `senha` ausente ou que não é texto: 400 "Informe a senha do administrador"; `confirmarSenhaAdmin` compara a senha com o `senha_hash` de quem pede, por bcrypt: 400 "Senha incorreta" ou, sem senha cadastrada, 400 "Defina uma senha na sua conta para resetar o sistema", sem apagar nada; com a senha certa, apaga usuários não administradores, organizações, comissões, reuniões, os anexos guardados em `anexos.files`/`anexos.chunks`, os contadores de numeração das atas e as notificações, sem transação, e devolve 201 `{ status: "sistema_resetado", resetado_em }` |
 
 ## Reuniões, presenças e anexos
 

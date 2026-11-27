@@ -1,6 +1,6 @@
 # Dicionário relacional — Informações do sistema
 
-> Padrão da disciplina · Módulo SIS · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo SIS · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -18,17 +18,18 @@ Descreve cada campo das entidades do [diagrama relacional](4%20-%20diagrama-rela
 | `ORGANIZACAO.codigo_acesso`                                                   | Função `gerarCodigoAcesso`, valor padrão do schema         | Texto de 10 caracteres, cada um sorteado com `randomInt` entre 31 símbolos: letras maiúsculas sem I, L e O, e os algarismos de 2 a 9.                                                                                                                                         | Não é sequencial: cada organização recebe um sorteio novo. O índice único impede repetição.                                                       |
 | `CONTADOR_ATA._id`                                                            | `ReunioesService.proximoNumeroAta` (módulo de atas)        | Texto `atas:<id da comissão>:<ano>`.                                                                                                                                                                                                                                         | Não muda. Um documento por comissão e ano; o reset apaga todos, e a numeração recomeça.                                                            |
 | `ORGANIZACAO_MEMBRO` e `COMISSAO_MEMBRO` (chave lógica)                       | Não é gerado                                               | O item é identificado pelo documento que contém a lista mais o `usuario_id`.                                                                                                                                                                                                  | Não há.                                                                                                                                            |
+| `ATA.reuniao_id` (chave lógica)                                               | Não é gerado                                               | A ata é identificada pela reunião que a contém; cada reunião tem no máximo uma ata atual.                                                                                                                                                                                    | Não há.                                                                                                                                            |
 
 ## USUARIO
 
-Conta de acesso ao aplicativo. É a coleção `usuarios`. Este módulo conta as contas, cria as três contas de teste e, no reset, apaga as que não são de administrador do sistema.
+Conta de acesso ao aplicativo. É a coleção `usuarios`. Este módulo conta as contas, cria as três contas de teste e, no reset, confere a senha de quem pede e apaga as contas que não são de administrador do sistema.
 
 | Campo              | Tipo de dado              | Pode ser nulo | Chave primária  | Chave estrangeira | Outros                                                            | Descrição                                                                                     |
 | ------------------ | ------------------------- | ------------- | --------------- | ----------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `_id`              | `ObjectId`                | Não           | Sim (exclusivo) | Não               | Ver tabela de identificadores.                                    | Identifica a conta.                                                                           |
 | `nome`             | Texto (`string`)          | Não           | Não             | Não               | Aparado nas pontas.                                               | Nome da pessoa; nas contas de teste, vem da configuração do servidor.                         |
 | `email`            | Texto (`string`)          | Não           | Não             | Não               | Único; gravado em minúsculas e aparado.                           | E-mail de acesso. Repetido, a inserção é recusada pelo índice único.                          |
-| `senha_hash`       | Texto (`string`)          | Sim           | Não             | Não               | Nunca devolvido nas consultas.                                    | Resultado do bcrypt (custo 10) aplicado à senha; nas contas de teste, à senha da configuração. |
+| `senha_hash`       | Texto (`string`)          | Sim           | Não             | Não               | Escondido das consultas (`select: false`); nunca devolvido.       | Resultado do bcrypt (custo 10) aplicado à senha; nas contas de teste, à senha da configuração. No reset, é lido com `select('+senha_hash')` e comparado com a senha enviada por `bcrypt.compare`; sem ele, o reset é recusado. |
 | `tipo`             | Texto com valores fixos   | Não           | Não             | Não               | `USUARIO` (padrão) ou `ADMIN_SISTEMA`.                            | Define se a conta é de administrador do sistema; o reset preserva só `ADMIN_SISTEMA`.         |
 | `ativo`            | Booleano (`bool`)         | Não           | Não             | Não               | Padrão verdadeiro.                                                | Conta liberada para entrar; contada em `usuarios.ativos`.                                     |
 | `email_verificado` | Booleano (`bool`)         | Não           | Não             | Não               | Padrão verdadeiro.                                                | Indica se o e-mail foi confirmado; as contas de teste já nascem confirmadas.                  |
@@ -85,12 +86,22 @@ Participação de uma conta numa comissão. Fica em `comissoes.membros[]` e é a
 
 ## REUNIAO
 
-Reunião de uma comissão. É a coleção `reunioes`. Este módulo só apaga todos os documentos, no reset; os demais campos, inclusive ata, votações, presenças e anexos gravados dentro da reunião, estão no [dicionário relacional das reuniões](../../3%20-%20Incremento2/reunioes/4%20-%20dicionario-dados-relacional-reunioes.md).
+Reunião de uma comissão. É a coleção `reunioes`. Este módulo conta as reuniões nos relatórios e no status e apaga todos os documentos no reset; os demais campos, inclusive votações, presenças e anexos gravados dentro da reunião, estão no [dicionário relacional das reuniões](../../3%20-%20Incremento2/reunioes/4%20-%20dicionario-dados-relacional-reunioes.md).
 
 | Campo         | Tipo de dado | Pode ser nulo | Chave primária  | Chave estrangeira    | Outros                         | Descrição                    |
 | ------------- | ------------ | ------------- | --------------- | -------------------- | ------------------------------ | ---------------------------- |
 | `_id`         | `ObjectId`   | Não           | Sim (exclusivo) | Não                  | Ver tabela de identificadores. | Identifica a reunião.        |
 | `comissao_id` | `ObjectId`   | Não           | Não             | Sim (`COMISSAO._id`) | -                              | Comissão que fez a reunião.  |
+| `situacao`    | Texto com valores fixos | Não | Não        | Não                  | `AGENDADA` (padrão) ou `CANCELADA`. | Situação da reunião; os relatórios contam `AGENDADA` e `CANCELADA`. A reunião que já terminou continua `AGENDADA`. |
+
+## ATA
+
+Ata atual da reunião. Fica em `reunioes.ata`, existe só depois que o presidente começa a ata e é apagada junto com a reunião. Os demais campos estão no [dicionário relacional das atas](../../4%20-%20Incremento3/atas/4%20-%20dicionario-dados-relacional-atas.md). As versões reprovadas substituídas ficam em `reunioes.atas_canceladas[]` e não são contadas por este módulo.
+
+| Campo        | Tipo de dado            | Pode ser nulo | Chave primária  | Chave estrangeira   | Outros                                                                 | Descrição                                                                                          |
+| ------------ | ----------------------- | ------------- | --------------- | ------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `reuniao_id` | `ObjectId`              | Não           | Sim (exclusivo) | Sim (`REUNIAO._id`) | Não é gravado: é o documento que contém a ata.                         | Reunião da ata.                                                                                    |
+| `situacao`   | Texto com valores fixos | Não           | Não             | Não                 | `RASCUNHO`, `EM_APROVACAO`, `APROVADA`, `REPROVADA` ou `CANCELADA`.    | Situação da ata; os relatórios contam as reuniões com o campo presente, as `EM_APROVACAO` e as `APROVADA`. |
 
 ## ARQUIVO_GRIDFS
 
@@ -139,9 +150,9 @@ Aviso mostrado a uma conta no aplicativo. É a coleção `notificacoes`. Este m�
 - `organizacoes.codigo_acesso` tem índice único; o código da organização de teste é sorteado na criação;
 - `notificacoes` tem índice único no par `usuario_id` e `chave`, e índice em `usuario_id`;
 - a regra "exatamente um `RESPONSAVEL` e nenhuma conta repetida" de `COMISSAO_MEMBRO` é uma validação do Mongoose, conferida em cada gravação da comissão, inclusive na comissão de teste;
-- as contagens dos relatórios usam filtros por igualdade em `usuarios.ativo`, `organizacoes.status` e `comissoes.ativo`; nenhum desses campos tem índice próprio, então o MongoDB percorre a coleção inteira em cada contagem;
+- as contagens dos relatórios usam filtros por igualdade em `usuarios.ativo`, `organizacoes.status`, `comissoes.ativo`, `reunioes.situacao` e `reunioes.ata.situacao`, e por existência em `reunioes.ata.situacao`; nenhum desses campos tem índice próprio, então o MongoDB percorre a coleção inteira em cada contagem;
 - o reset usa `deleteMany` com filtro vazio em sete coleções (`organizacoes`, `comissoes`, `reunioes`, `anexos.files`, `anexos.chunks`, `contadores` e `notificacoes`) e com `tipo` diferente de `ADMIN_SISTEMA` em `usuarios`; o MongoDB não confere chaves estrangeiras, mas, como todas as coleções que apontam para contas são esvaziadas, não restam referências a contas apagadas quando as oito exclusões terminam.
 
 ## Rastreabilidade
 
-RF-SIS-01 a RF-SIS-04; [Diagrama relacional](4%20-%20diagrama-relacional-informacao-sistemas.md) e [Testes](7%20-%20testes-informacao-sistemas.md).
+RF-SIS-01 a RF-SIS-05; [Diagrama relacional](4%20-%20diagrama-relacional-informacao-sistemas.md) e [Testes](7%20-%20testes-informacao-sistemas.md).
