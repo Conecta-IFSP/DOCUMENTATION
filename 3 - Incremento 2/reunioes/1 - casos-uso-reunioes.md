@@ -18,7 +18,7 @@ Cada linha entre um ator e um caso de uso leva o código do requisito funcional 
 
 **Participante da reunião.** É o usuário que está na lista de participantes da reunião, porque foi convidado ou porque a agendou. Ele consulta a agenda, abre a reunião, aceita ou recusa o convite, marca a própria entrada e a própria saída, registra a presença pelo link que o presidente divulgou, vê a lista de presença, gera o PDF dela e baixa os arquivos da pauta. Na tela "Notificações", recebe os avisos de convite, de mudança de horário, de cancelamento e de pedido de presença das reuniões de que participa. Não altera os dados da reunião, não confirma a presença de outras pessoas e não corrige horários.
 
-**Presidente da comissão.** É o membro da comissão com o papel de responsável (`RESPONSAVEL`). Só ele agenda reuniões para a comissão. A seta de generalização indica que ele também é um participante da reunião: faz tudo o que o participante faz, com uma diferença, não responde ao convite da reunião que agendou, porque já entra com o convite aceito, e a entrada que ele marca já nasce confirmada. Quem agendou a reunião é quem a edita, cancela, confirma ou recusa presenças e cuida dos anexos. Gerar, enviar e revogar o link de presença, corrigir horários e consultar o histórico de correções cabem ao responsável atual da comissão, que normalmente é a mesma pessoa; se a comissão trocar de responsável, o novo responsável passa a cuidar do link e das correções, e quem agendou continua cuidando do restante.
+**Presidente da comissão.** É o membro da comissão com o papel de responsável (`RESPONSAVEL`). Só ele agenda reuniões para a comissão. A seta de generalização indica que ele também é um participante da reunião: faz tudo o que o participante faz, com uma diferença, não responde ao convite da reunião que agendou, porque já entra com o convite aceito, e a entrada que ele marca já nasce confirmada. Quem agendou a reunião é quem a edita, cancela, confirma, recusa ou desmarca presenças e cuida dos anexos. Gerar, enviar e revogar o link de presença, corrigir horários e consultar o histórico de correções cabem ao responsável atual da comissão, que normalmente é a mesma pessoa; se a comissão trocar de responsável, o novo responsável passa a cuidar do link e das correções, e quem agendou continua cuidando do restante.
 
 ## Relacionamentos entre casos de uso
 
@@ -65,7 +65,7 @@ Os números 10, 11 e 12 não são usados neste módulo.
 
 **Requisito RF-REU-07 — Registrar saída.** O sistema deve permitir ao participante que marcou entrada marcar também a sua saída, com a mesma confirmação no aparelho. Se a pessoa não marcar, o sistema registra a saída no horário de término da reunião.
 
-**Requisito RF-REU-08 — Confirmar ou recusar presença.** O sistema deve permitir a quem agendou confirmar ou recusar a entrada marcada por um participante e marcar como presente quem não marcou entrada, depois que a reunião começar.
+**Requisito RF-REU-08 — Confirmar ou recusar presença.** O sistema deve permitir a quem agendou confirmar ou recusar a entrada marcada por um participante, desmarcar a presença de quem já está confirmado, depois de confirmar a intenção e a própria identidade no aparelho, e marcar como presente quem não marcou entrada, depois que a reunião começar e enquanto a ata não for enviada.
 
 **Requisito RF-REU-09 — Gerar lista de presença.** O sistema deve mostrar ao participante quem esteve presente, com horário de entrada, de saída e tempo de permanência, e gerar o PDF dessa lista.
 

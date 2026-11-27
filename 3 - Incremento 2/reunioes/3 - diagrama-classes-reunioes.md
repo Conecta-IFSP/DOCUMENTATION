@@ -59,10 +59,12 @@ classDiagram
             -salvando: string
             -confirmacao: Pendente
             +buscar() Promise~void~
+            +atualizar() Promise~void~
             +executar(chave: string, acao: Function, mensagem: string) Promise~boolean~
             +recusarConvite() void
             +registrar(chave: string) Promise~void~
             +marcarPresenca(pessoa: Pessoa, situacao: string) void
+            +desmarcarPresenca(pessoa: Pessoa) void
             +adicionarAnexos() Promise~void~
             +abrir(item: ItemAnexo) Promise~void~
             +confirmarRemocao(item: ItemAnexo) void
@@ -77,6 +79,8 @@ classDiagram
             <<component>>
             +mensagem: string
             +carregando: boolean
+            +rotuloConfirmar: string
+            +perigo: boolean
             +confirmar() void
             +cancelar() void
         }
@@ -89,6 +93,7 @@ classDiagram
             +definirAba(valor: Aba) void
             +definirLista(valor: ListaPresenca) void
             +definirGerandoPdf(valor: boolean) void
+            +definirErro(valor: string) void
         }
         class pdfListaPresenca {
             <<module>>
@@ -101,7 +106,6 @@ classDiagram
             +entregarPdf(html: string, nome: string) Promise~void~
             +pdfPelaImpressao() boolean
             -imprimirNaWeb(html: string) void
-            -nomearPdf(gerado: File, nome: string) Promise~string~
         }
         class autenticacaoLocal {
             <<module>>
@@ -716,7 +720,6 @@ classDiagram
         class pdf {
             <<module>>
             +entregarPdf(html: string, nome: string) Promise~void~
-            -nomearPdf(gerado: File, nome: string) Promise~string~
         }
         class ToastProvider {
             <<contexto>>
@@ -735,12 +738,8 @@ classDiagram
         }
         class File {
             <<biblioteca>>
-            +uri: string
-            +exists: boolean
             +File(partes: string[])
             +copy(destino: File) Promise~void~
-            +move(destino: File) Promise~void~
-            +delete() void
             +upload(url: string, opcoes: UploadOptions) Promise~UploadResult~
             +downloadFileAsync(url: string, destino: File, opcoes: DownloadOptions) Promise~File~$
             +canPreview(arquivo: File, opcoes: FileCanPreviewOptions) Promise~boolean~$
@@ -753,6 +752,7 @@ classDiagram
         }
         class Sharing {
             <<biblioteca>>
+            +isAvailableAsync() Promise~boolean~
             +shareAsync(url: string, opcoes: SharingOptions) Promise~void~
         }
     }
@@ -765,8 +765,7 @@ classDiagram
     TelaGestaoPresenca ..> Clipboard : copia o link
     anexos ..> File : envia, baixa e abre
     pdf ..> Print : gera o PDF
-    pdf ..> File : renomeia o PDF
-    pdf ..> Sharing : compartilha o PDF
+    pdf ..> Sharing : confere e compartilha o PDF
 ```
 
 Figura 5 — Bibliotecas e contexto chamados pelas telas e pelos módulos do aplicativo. Fonte: equipe Conecta+.

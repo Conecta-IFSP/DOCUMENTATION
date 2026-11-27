@@ -4,7 +4,7 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-atas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api`, `autenticacaoLocal`, `diferenca`, `reunioes`, `pdfAta` e `pdf`, o `ReunioesController`, o `ReunioesService`, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Print`, `File`, `Sharing` e, na web, `Window` e `Document`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-atas.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `arquivo.delete()`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. O retorno `resposta` é o `Resultado` devolvido por `api`: `ok` verdadeiro e `dados` no sucesso, ou `ok` falso e `erro` com a mensagem da API. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de versão, aparecem em notas.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-atas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api`, `autenticacaoLocal`, `diferenca`, `reunioes`, `pdfAta` e `pdf`, o `ReunioesController`, o `ReunioesService`, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Print`, `Sharing` e, na web, `Window` e `Document`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-atas.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `janela.print()`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. O retorno `resposta` é o `Resultado` devolvido por `api`: `ok` verdadeiro e `dados` no sucesso, ou `ok` falso e `erro` com a mensagem da API. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de versão, aparecem em notas.
 
 Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota.
 
@@ -354,7 +354,6 @@ sequenceDiagram
     participant W as Window
     participant DC as Document
     participant I as Print
-    participant FS as File
     participant C as Sharing
     U->>T: baixarPdf()
     T->>T: definirGerandoPdf(true)
@@ -381,32 +380,19 @@ sequenceDiagram
         Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
         I-->>D: concluído
     else Aplicativo instalado
-        D->>I: printToFileAsync({ html, width: 595, height: 842 })
-        I-->>D: impresso
-        D->>FS: File(impresso.uri)
-        FS-->>D: gerado
-        D->>D: nomearPdf(gerado, nome)
-        Note over D: nomearPdf é async e entregarPdf espera o endereço que ela devolve
-        D->>FS: File(Paths.cache, nomeArquivo)
-        FS-->>D: arquivo
-        Note over D,FS: nomeArquivo = nome seguido de .pdf, por exemplo Ata nº 1-2026.pdf
-        opt arquivo.exists verdadeiro
-            D->>FS: delete()
-            Note over D,FS: delete é chamado em arquivo
+        D->>C: isAvailableAsync()
+        C-->>D: disponivel
+        alt compartilhamento indisponível
+            Note over D: lança "O compartilhamento de arquivos não está disponível neste aparelho."<br/>sem gerar o PDF
+        else compartilhamento disponível
+            D->>I: printToFileAsync({ html, width: 595, height: 842 })
+            I-->>D: uri
+            Note over D,I: O PDF fica no cache com o nome dado pelo Print e não é renomeado nem movido
+            D->>C: shareAsync(uri, opcoes)
+            Note over D,C: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome
+            Note over C: Abre o menu de compartilhamento do aparelho
+            C-->>D: concluído
         end
-        D->>FS: move(arquivo)
-        Note over D,FS: move é chamado em gerado e nomearPdf espera a Promise dele
-        alt File, exists, delete e move sem erro
-            FS-->>D: concluído
-            Note over D: endereco = arquivo.uri, com o nome novo
-        else um desses passos lançou erro, inclusive o move
-            FS-->>D: erro
-            Note over D: o catch de nomearPdf devolve endereco = gerado.uri, com o nome dado pelo Print
-        end
-        Note over D,C: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome
-        D->>C: shareAsync(endereco, opcoes)
-        Note over C: Abre o menu de compartilhamento do aparelho, só depois que nomearPdf termina
-        C-->>D: concluído
     end
     D-->>P: concluído
     P-->>T: concluído

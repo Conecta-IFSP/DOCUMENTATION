@@ -16,9 +16,9 @@ Cada linha entre o ator e um caso de uso leva o código do requisito funcional q
 
 ## Atores
 
-**Usuário comum.** É a pessoa com conta ativa do tipo `USUARIO` que entrou no aplicativo. Pode abrir a aba "Relatório", ver as reuniões em que a presença dela foi confirmada, escolher o período, ver as organizações e comissões de que faz parte e exportar o relatório em PDF ou em CSV. Não pode ver o relatório de outra pessoa nem escolher de quem é o relatório: o sistema usa sempre a conta que está conectada. Também não pode alterar nada pelo relatório: presenças, saídas e vínculos são apenas lidos. O papel que a pessoa tem nas organizações e comissões (administrador, responsável ou membro) não muda o que ela pode fazer neste módulo; ele só aparece como informação nos vínculos.
+**Usuário comum.** É a pessoa com uma conta ativa de usuário comum que entrou no aplicativo. Pode abrir a aba "Relatório", ver as reuniões em que a presença dela foi confirmada, escolher o período, ver as organizações e comissões de que faz parte e exportar o relatório em PDF ou em CSV. Não pode ver o relatório de outra pessoa nem escolher de quem é o relatório: o sistema usa sempre a conta que está conectada. Também não pode alterar nada pelo relatório: presenças, saídas e vínculos são apenas lidos. O papel que a pessoa tem nas organizações e comissões (administrador, responsável ou membro) não muda o que ela pode fazer neste módulo; ele só aparece como informação nos vínculos.
 
-O **administrador do sistema** (conta do tipo `ADMIN_SISTEMA`) não aparece no diagrama porque não tem acesso a este módulo: o aplicativo não mostra a aba "Relatório" para a conta dele e, se a consulta chegar à API, ela é recusada com a mensagem "O administrador do sistema não pode realizar esta operação".
+O **administrador do sistema** (a conta que administra o sistema inteiro) não aparece no diagrama porque não tem acesso a este módulo: o aplicativo não mostra a aba "Relatório" para a conta dele e, se a consulta chegar à API, ela é recusada com a mensagem "O administrador do sistema não pode realizar esta operação".
 
 ## Relacionamentos entre casos de uso
 

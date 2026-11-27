@@ -4,28 +4,30 @@
 
 ## Resumo
 
-Qualquer pessoa pode criar uma conta no Conecta+ com nome, e-mail e uma senha forte; a conta só passa a entrar depois que a pessoa digita o código de 7 caracteres enviado ao e-mail. Também é possível entrar com a conta Google, que cria a conta no primeiro acesso ou se liga à conta que já existe com o mesmo e-mail. Depois de entrar, a sessão vale por 1 hora e é conferida a cada chamada: se a conta for desativada ou a senha trocada, o aplicativo volta à tela de entrada.
+Qualquer pessoa pode criar uma conta no Conecta+ com nome, e-mail e uma senha forte; a conta só passa a entrar depois que a pessoa digita o código de 7 caracteres enviado ao e-mail. Também é possível entrar com a conta Google, que cria a conta no primeiro acesso ou se liga à conta que já existe com o mesmo e-mail. Depois de entrar, a sessão vale por 1 hora e é conferida a cada chamada: se a conta for desativada ou a senha trocada, o aplicativo volta à tela de entrada. Quem abre o aplicativo com a sessão ainda salva no aparelho precisa confirmar a identidade com a biometria, o Face ID ou o PIN do aparelho antes de ver qualquer tela; se não conseguir, pode tentar de novo ou entrar com a senha.
 
 ## Escopo
 
 - criar a conta local e confirmar o e-mail com o código enviado;
 - entrar com e-mail e senha e manter a sessão enquanto o token for válido;
-- entrar com a conta Google, no aplicativo instalado e na web.
+- entrar com a conta Google, no aplicativo instalado e na web;
+- desbloquear a sessão salva ao abrir o aplicativo, com a biometria, o Face ID ou o PIN do aparelho.
 
 Ficam fora deste módulo:
 
 - a participação do usuário nas organizações (pedido de acesso por código, convite e resposta, decisão do administrador, papel e remoção de membros), documentada no módulo [Cadastro de organização](../cadastro-organizacao/README.md), em RF-ORG-07 a RF-ORG-14;
 - o perfil, a troca de e-mail e de senha, a recuperação de conta, o tema e a saída da sessão, documentados em [Configurações de usuário](../configuracoes-usuario/README.md).
 
-Não estão implementados: entrar pela biometria do aparelho depois do primeiro acesso e pedir um novo código de confirmação do cadastro.
+Não está implementado: pedir um novo código de confirmação do cadastro. A biometria não substitui o login: ela só desbloqueia a sessão que já está salva no aparelho, enquanto o token vale (1 hora); depois disso, a pessoa entra de novo com a senha ou com o Google.
 
 ## Atores
 
-| Ator               | Quem é no sistema                              | O que faz neste módulo                                   |
-| ------------------ | ---------------------------------------------- | -------------------------------------------------------- |
-| Visitante          | Pessoa sem sessão no aplicativo.               | Cria e confirma a conta; entra com senha ou com Google.  |
-| Servidor de e-mail | Sistema externo de envio de e-mail.            | Entrega o código de confirmação.                         |
-| Google             | Sistema externo de identidade.                 | Confirma a conta Google e devolve os dados dela.         |
+| Ator                     | Quem é no sistema                                                     | O que faz neste módulo                                                        |
+| ------------------------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Visitante                | Pessoa sem sessão no aplicativo.                                      | Cria e confirma a conta; entra com senha ou com Google.                       |
+| Usuário com sessão salva | Pessoa que já entrou neste aparelho e cuja sessão continua guardada. | Ao abrir o aplicativo, confirma a identidade no aparelho ou entra com senha. |
+| Servidor de e-mail       | Sistema externo de envio de e-mail.                                   | Entrega o código de confirmação.                                              |
+| Google                   | Sistema externo de identidade.                                        | Confirma a conta Google e devolve os dados dela.                              |
 
 ## Índice padronizado
 
@@ -48,9 +50,10 @@ Não estão implementados: entrar pela biometria do aparelho depois do primeiro 
 | UC-USR-01   | RF-USR-01 | SD-USR-01 | CT-USR-01, CT-USR-08, CT-USR-09, CT-USR-11, CT-USR-12, CT-USR-13, CT-USR-24, CT-USR-26 |
 | UC-USR-02   | RF-USR-02 | SD-USR-02 | CT-USR-02, CT-USR-07, CT-USR-14, CT-USR-15, CT-USR-16, CT-USR-24, CT-USR-25 |
 | UC-USR-03   | RF-USR-03 | SD-USR-03 | CT-USR-03, CT-USR-17, CT-USR-24                                             |
+| UC-USR-04   | RF-USR-04 | SD-USR-04 | CT-USR-24, CT-USR-27, CT-USR-28, CT-USR-29                                  |
 
-CT-USR-04 a CT-USR-06 e CT-USR-18 a CT-USR-23 foram registrados neste módulo, mas verificam os vínculos com organizações; eles apontam para RF-ORG-07 a RF-ORG-14, documentados no módulo [Cadastro de organização](../cadastro-organizacao/README.md). CT-USR-10 verifica a recuperação de conta (RF-CFG-04) e serve de medida para RNF-USR-06; CT-USR-25 mede o tempo do login (RNF-USR-07); CT-USR-08, CT-USR-11 e CT-USR-12 também cobrem requisitos do módulo CFG.
+CT-USR-04 a CT-USR-06 e CT-USR-18 a CT-USR-23 foram registrados neste módulo, mas verificam os vínculos com organizações; eles apontam para RF-ORG-07 a RF-ORG-14, documentados no módulo [Cadastro de organização](../cadastro-organizacao/README.md). CT-USR-10 verifica a recuperação de conta (RF-CFG-04) e serve de medida para RNF-USR-06; CT-USR-25 mede o tempo do login (RNF-USR-07); CT-USR-08, CT-USR-11 e CT-USR-12 também cobrem requisitos do módulo CFG; CT-USR-28 também cobre o encerramento da sessão (RF-CFG-06) pelo botão "Entrar com senha".
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend no commit `d1f1aeb`, frontend no commit `10abe49`; os arquivos do módulo não têm alterações locais, e desde a conferência anterior, sobre `caca2d2` e `6ff2d50`, só mudaram neles os tipos de votação em `FRONTEND/src/services/api.ts`, que não fazem parte deste módulo). Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `fd790db`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS, e o frontend só muda o aviso e o cartão da votação, a entrega do PDF e um estilo do cartão de "Suas organizações", fora deste módulo; o diagrama de classes, o dicionário de classes e as sequências foram revistos sobre o `8cf4839`, e o `fd790db` não muda nada do que eles mostram. Os arquivos principais são `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.controller.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/login/index.tsx`, `FRONTEND/src/app/login/cadastro.tsx`, `FRONTEND/src/app/login/verificar-cadastro.tsx`, `FRONTEND/src/app/login/google-callback/index.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/services/api.ts`, `FRONTEND/src/services/google.ts` e `FRONTEND/src/utils/validacao.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend no commit `d1f1aeb`, frontend no commit `10abe49`; os arquivos do módulo não têm alterações locais, e desde a conferência anterior, sobre `caca2d2` e `6ff2d50`, só mudaram neles os tipos de votação em `FRONTEND/src/services/api.ts`, que não fazem parte deste módulo). Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `4f53a25`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS. No frontend, o commit `db5b2fe` acrescenta o desbloqueio da sessão salva na abertura do aplicativo (`FRONTEND/src/app/_layout.tsx` e o novo `FRONTEND/src/components/DesbloqueioSessao.tsx`), documentado aqui como RF-USR-04; os demais commits (`db5b2fe` na tela da reunião, na `FolhaInferior` e na entrega do PDF, `1d3e977` na votação e `4f53a25` no cartão de "Suas organizações") ficam fora deste módulo. O diagrama de classes, o dicionário de classes e as sequências foram revistos sobre o `4f53a25`. Os arquivos principais são `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.controller.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/_layout.tsx`, `FRONTEND/src/app/login/index.tsx`, `FRONTEND/src/app/login/cadastro.tsx`, `FRONTEND/src/app/login/verificar-cadastro.tsx`, `FRONTEND/src/app/login/google-callback/index.tsx`, `FRONTEND/src/components/DesbloqueioSessao.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/services/api.ts`, `FRONTEND/src/services/autenticacao-local.ts`, `FRONTEND/src/services/google.ts` e `FRONTEND/src/utils/validacao.ts`.

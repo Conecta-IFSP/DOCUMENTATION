@@ -66,7 +66,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**    | Botão "Aprovar" da aba Ata, botão "Reprovar ata" da folha de reprovação e botão "Enviar" quando o presidente esteve presente.                            |
 | **Verificação** | Testes manuais CT-ATA-17 e CT-ATA-15 no emulador Android 16, com PIN cadastrado, CT-ATA-18 no Android 7.0 e CT-ATA-24 na web, sem bloqueio de tela, e CT-ATA-25 num Galaxy S24 com digital. |
 | **Evidência**   | `FRONTEND/src/services/autenticacao-local.ts`, `TelaRegistrosReuniao.aprovar` e `TelaRegistrosReuniao.reprovar`.                                        |
-| **Situação**    | Atendido no Android: aprovação com PIN no emulador e reprovação com a digital num Galaxy S24 (CT-ATA-25). No iOS o mesmo módulo é usado para Face ID, mas não houve execução em aparelho iOS; validação pendente. |
+| **Situação**    | Atendido no Android: aprovação com PIN no emulador e reprovação com a digital num Galaxy S24 (CT-ATA-25). No iOS o mesmo módulo é usado para Face ID, mas a ata não foi testada no iPhone (Expo Go) e o build nativo não foi executado, porque não há Mac; validação pendente. |
 
 ### RNF-ATA-04 — Proteção contra gravação simultânea
 
@@ -123,10 +123,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Produto › Portabilidade |
 | **Critério**    | O fluxo completo funciona do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS.                                                |
 | **Medida**      | Escrever, enviar, aprovar, reprovar, criar nova versão e gerar o PDF, sem erro e sem texto cortado.                                              |
-| **Condição**    | Emuladores Android 16 (1080 × 2400), Android 14 e Android 7.0 (720 × 1280), e Galaxy S24 com Android 16.                                         |
-| **Verificação** | Roteiros CT-ATA-14 a CT-ATA-19; para o PDF no aplicativo instalado, CT-ATA-26, CT-ATA-29 e CT-ATA-30.                                            |
-| **Evidência**   | Capturas de tela da execução de 09/11/2026; registros de 25/11, 26/11 e 27/11/2026 em [Testes](7%20-%20testes-atas.md).                          |
-| **Situação**    | Atendido no Android. iOS não executado por falta de equipamento; validação pendente. O PDF no aplicativo instalado foi conferido em CT-ATA-26 e CT-ATA-29, antes do frontend `795d49b`, e em CT-ATA-30, em 27/11/2026 no Galaxy S24, nos frontends `10abe49` e `8cf4839`; neste último, a versão atual, `nomearPdf` espera o `move` antes do compartilhamento, e nos dois o menu abriu com "Ata nº 1-2026.pdf", sem erro no log. |
+| **Condição**    | Emuladores Android 16 (1080 × 2400), Android 14, Android 7.0 (720 × 1280) e Pixel 6 com Android 15, e Galaxy S24 com Android 16.            |
+| **Verificação** | Roteiros CT-ATA-14 a CT-ATA-19 e CT-ATA-32; para o PDF no aplicativo instalado, CT-ATA-31 (versão atual); CT-ATA-26, CT-ATA-29 e CT-ATA-30 conferiram versões anteriores. |
+| **Evidência**   | Capturas de tela da execução de 09/11/2026; registros de 25/11, 26/11 e 27/11/2026 em [Testes](7%20-%20testes-atas.md); print de CT-ATA-32 em `evidencias/`. |
+| **Situação**    | Atendido no Android. O PDF no aplicativo instalado, na versão atual (FRONTEND `db5b2fe`, sem renomear nem mover o arquivo), foi aprovado em CT-ATA-31, em 27/11/2026, no emulador Pixel 6 com Android 15: o menu de compartilhamento abriu duas vezes, sem travar em "Gerando PDF..." e sem o erro "Missing 'READ' permission". CT-ATA-26, CT-ATA-29 e CT-ATA-30 conferiram versões anteriores, que renomeavam o PDF com `nomearPdf`. iOS: o aplicativo foi aberto no Expo Go num iPhone, mas o fluxo da ata não foi testado nele, e o build nativo não foi executado, porque não há Mac (CT-ATA-20). |
 
 ### RNF-ATA-09 — Legibilidade nos dois temas
 

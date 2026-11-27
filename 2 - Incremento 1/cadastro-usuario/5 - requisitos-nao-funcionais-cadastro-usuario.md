@@ -30,6 +30,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 
 **RNF-USR-10 — Testabilidade.** Os testes automatizados devem passar antes de cada entrega.
 
+**RNF-USR-11 — Sessão salva protegida pelo aparelho.** Quem abre o aplicativo com a sessão salva não pode ver nenhuma tela antes de confirmar a identidade com a biometria, o Face ID ou o PIN do aparelho.
+
 ## Requisitos não funcionais de sistema
 
 ### RNF-USR-01 — Guarda da senha e do código
@@ -152,6 +154,18 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Evidência**     | 27/11/2026: BACKEND, 17 arquivos e 246 testes aprovados; FRONTEND, 5 arquivos e 47 testes aprovados.           |
 | **Situação**      | Atendido em 27/11/2026.                                                                                        |
 
+### RNF-USR-11 — Sessão salva protegida pelo aparelho
+
+| Campo             | Conteúdo                                                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Classificação** | Externo › Legal › Segurança                                                                                                                                                                                                                      |
+| **Critério**      | Com a sessão salva e o aparelho com bloqueio de tela, `Navegacao` só monta as telas do aplicativo depois que `autenticarComDispositivo` devolve verdadeiro; o único outro caminho é "Entrar com senha", que apaga o token do aparelho.            |
+| **Medida**        | Ao abrir o aplicativo com a sessão salva, o pedido do aparelho aparece antes de qualquer tela com dados; cancelado, só a tela de desbloqueio fica visível (logotipo, "Olá, " com o primeiro nome, o aviso e os dois botões), sem organizações, comissões nem reuniões; depois de "Entrar com senha", o aplicativo mostra "Entrar" e uma nova abertura não encontra sessão. Em aparelho sem bloqueio de tela e na web, o aplicativo abre sem pedido. |
+| **Condição**      | Aplicativo aberto do início com um token ainda aceito pela API (menos de 1 hora depois do login). Não vale ao trazer o aplicativo de volta do segundo plano nem quando a primeira consulta do perfil falha sem 401, por exemplo sem conexão (limitação registrada no RF-USR-04). |
+| **Verificação**   | Inspeção de `Navegacao` em `FRONTEND/src/app/_layout.tsx`, de `FRONTEND/src/components/DesbloqueioSessao.tsx` e de `FRONTEND/src/services/autenticacao-local.ts`; roteiros CT-USR-27 a CT-USR-29 e, no iOS, CT-USR-24.                          |
+| **Evidência**     | FRONTEND `db5b2fe`, integrado na `homolog` em 27/11/2026 e conferido sobre o `4f53a25`. Os roteiros ainda não foram executados.                                                                                                                  |
+| **Situação**      | Implementado em 27/11/2026. Em aparelho sem bloqueio de tela, a abertura direta foi conferida num emulador Android 14 (CT-USR-29, em parte); o pedido de identidade num aparelho com bloqueio (CT-USR-27 e CT-USR-28) e o iOS não foram executados.                                                                                                                            |
+
 ## Rastreabilidade
 
-RNF-USR-01 a RNF-USR-10 cobrem RF-USR-01 a RF-USR-03 e são verificados pela matriz CT-USR.
+RNF-USR-01 a RNF-USR-11 cobrem RF-USR-01 a RF-USR-04 e são verificados pela matriz CT-USR.

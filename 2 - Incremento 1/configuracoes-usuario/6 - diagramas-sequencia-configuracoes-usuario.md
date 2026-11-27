@@ -407,6 +407,7 @@ sequenceDiagram
     SC-->>T: concluído
     T->>T: definirConfirmandoSaida(false)
     Note over U,SC: Stack.Protected retira as telas autenticadas e o aplicativo mostra "Entrar".<br/>A API não é chamada e o token continua válido no servidor até expirar
+    Note over SC: o Entrar com senha do desbloqueio da sessão salva chama<br/>o mesmo sair, sem diálogo e sem aviso, como no SD-USR-04
 ```
 
 ## Rastreabilidade

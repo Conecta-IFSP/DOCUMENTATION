@@ -127,7 +127,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Um Android e um iPhone com o aplicativo aberto (instalado ou pelo Expo Go). Na web, o leitor do manual não é exibido, porque a `WebView` não tem implementação para navegador. |
 | **Verificação**   | Roteiro CT-MAN-12, que repete CT-MAN-01 a CT-MAN-04 em cada aparelho, e roteiro CT-MAN-16 para o leitor do manual. |
 | **Evidência**     | `src/app/ajuda.tsx` não tem código específico de plataforma; `src/components/ManualPdf.tsx` trata o encerramento da `WebView` no iOS (`onContentProcessDidTerminate`) e no Android (`onRenderProcessGone`). |
-| **Situação**      | Ajuda: atendido em 13/11/2026, em iPhone 14 (iOS 27.2) e no emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), via Expo Go (CT-MAN-12). Leitor do manual: executado em parte em 27/11/2026 no emulador Android 14 (CT-MAN-16): a seta volta à Ajuda e, com o tema escuro, o manual é desenhado de novo com o fundo escuro; o zoom com pinça e o iOS continuam pendentes. |
+| **Situação**      | Ajuda: atendido em 13/11/2026, em iPhone 14 (iOS 27.2) e no emulador Pixel 6 do Android Studio (Android 15, API 35, x86_64), via Expo Go (CT-MAN-12). Leitor do manual: executado em parte em 27/11/2026 no emulador Android 14 (CT-MAN-16): a seta volta à Ajuda e, com o tema escuro, o manual é desenhado de novo com o fundo escuro; o zoom com pinça e o iOS continuam pendentes na versão atual. Nas execuções de 25/11/2026 (numeração da época, ver "Execuções de 25/11/2026" em [Testes](7%20-%20testes-manual-de-utilizacao.md)), o leitor foi aprovado no iPhone 14 (iOS 27.2), pelo Expo Go, com as 27 páginas, o zoom com pinça e os temas claro e escuro, e no emulador Pixel 6 (Android 15), pelo Expo Go e com build release em modo avião. O build nativo para iPhone não foi executado, porque não há Mac. |
 
 ### RNF-MAN-08 — Versão do Expo e sistemas suportados
 
@@ -151,7 +151,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Qualquer alteração de conteúdo da Ajuda. |
 | **Verificação**   | Incluir uma pergunta de teste em `src/constants/ajuda.ts`, conferir que ela aparece na tela e é encontrada pela busca, e conferir com `git diff --stat` que apenas esse arquivo mudou. |
 | **Evidência**     | Commit `63d3bcb` do FRONTEND ("ajuste das perguntas"), que removeu três perguntas alterando apenas `src/constants/ajuda.ts`. Os commits `0778723`, `066d347` e `8fd815f` mudam o texto de três perguntas junto com as funcionalidades que elas descrevem; `4f03c20` muda o texto de `relatorio-o-que-e` e `6ff2d50` divide um passo de `conta-email-senha`, os dois alterando só `src/constants/ajuda.ts`. O commit `10abe49` muda o texto de quatro perguntas do tópico Votação junto com a tela de votação (`VotacoesReuniao.tsx` e `services/api.ts`). Nenhum deles altera `ajuda.tsx`, `Sanfona.tsx` nem `busca-ajuda.ts`. |
-| **Situação**      | Atendido por inspeção e pelo commit `63d3bcb`, em 13/11/2026. Conferido de novo em 26/11/2026 pelos commits `4f03c20` e `6ff2d50` e em 27/11/2026 pelo commit `10abe49`. |
+| **Situação**      | Atendido por inspeção e pelo commit `63d3bcb`, em 13/11/2026. Conferido de novo em 26/11/2026 pelos commits `4f03c20` e `6ff2d50` e em 27/11/2026 pelo commit `10abe49`. Limitação conhecida: este requisito trata só da Ajuda; o manual em PDF (`manual-usuario/manual.pdf`, igual a `FRONTEND/assets/manual/manual.pdf`) é a versão de 25/11/2026 e não cobre funções que entraram depois: votação aberta ou fechada, voto em branco ou nulo, desbloqueio com biometria ou PIN ao abrir o aplicativo com a sessão salva, desmarcar a presença de um participante, saída automática no fim da reunião, aprovação da ata pelo fim do prazo e vínculos atuais no relatório individual. Atualizar o PDF exige trocar o arquivo nos dois repositórios e gerar um novo build. |
 
 ### RNF-MAN-10 — Exibição do manual sem travar o aparelho
 
@@ -163,7 +163,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | APK de release, sem internet, primeira abertura do manual depois de abrir o aplicativo. |
 | **Verificação**   | Roteiro CT-MAN-18, cronometrando do toque à primeira página. |
 | **Evidência**     | `src/components/ManualPdf.tsx`: `renderizar`, `renovarVigia` e `canvasParaUrl`. |
-| **Situação**      | Critério implementado, conferido por inspeção em 26/11/2026; medição pendente. |
+| **Situação**      | Critério implementado, conferido por inspeção em 26/11/2026; medição na condição do critério (Android 7.0 com 2 GB, CT-MAN-18) pendente. Em outras condições, em 25/11/2026 (ver "Execuções de 25/11/2026" em [Testes](7%20-%20testes-manual-de-utilizacao.md)): no iPhone 14 (iOS 27.2), pelo Expo Go, primeira página em 0,70 s e as 27 páginas em 1,96 s, com cronômetro, e 0,46 s na segunda abertura; no emulador Pixel 6 (Android 15), com build release, pico de memória de 711,1 MiB (aplicativo + `WebView`), 280,5 MiB acima da referência, sem crescimento a cada abertura e sem o aplicativo fechar. |
 
 ## Base de conferência
 

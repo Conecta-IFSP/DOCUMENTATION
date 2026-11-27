@@ -71,7 +71,7 @@ Versões resolvidas pelo `package-lock.json` da branch `homolog` (commit `10abe4
 | React Hook Form                  |  7.90.0 | estado, validação e envio dos formulários                          |
 | React Native Keyboard Controller |  1.22.7 | ajuste da tela ao teclado e janela edge-to-edge, inclusive no Expo Go |
 | Expo Secure Store                |  58.0.3 | JWT e preferência de tema no dispositivo                           |
-| Expo Local Authentication        |  58.0.3 | biometria, Face ID ou PIN ao marcar entrada e saída, corrigir horários de presença, enviar, aprovar e reprovar a ata e em ações de conta (nome, e-mail, senha e recuperação) |
+| Expo Local Authentication        |  58.0.3 | biometria, Face ID ou PIN ao abrir o aplicativo com a sessão salva (RF-USR-04), ao marcar entrada e saída, desmarcar e corrigir presenças, enviar, aprovar e reprovar a ata e em ações de conta (nome, e-mail, senha e recuperação) |
 | Expo Print                       |  58.0.9 | PDF da ata aprovada, da lista de presença e do relatório individual: arquivo no aplicativo instalado e tela de impressão no Expo Go; na web o aplicativo abre o documento numa janela e chama a impressão do navegador |
 | DateTimePicker da comunidade     |   9.2.1 | seletor de hora nativo do Android e do iOS                          |
 | Expo Sharing                     | 58.0.24 | entrega do PDF (aplicativo instalado) e do CSV do relatório ao menu de compartilhamento |

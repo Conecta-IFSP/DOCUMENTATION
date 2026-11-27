@@ -4,7 +4,7 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-cadastro-usuario.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código e estão no [Diagrama de classes](3%20-%20diagrama-classes-cadastro-usuario.md): as telas do aplicativo, os contextos `SessaoProvider`, `TemaProvider` e `ToastProvider`, os módulos `api` e `google`, os controllers, os services, o `JwtAuthGuard`, o model do Mongoose `UsuarioModel` e as bibliotecas chamadas diretamente (`Router`, `Location`, `GoogleSignin`, `bcrypt`, `JwtService`, `Transporter` e `fetch`). O Google, no login pela web, é um sistema externo e aparece como ator. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de situação, aparecem em notas, assim como as rotas HTTP. Os retornos são identificadores; uma nota diz o que cada um traz quando isso não é evidente.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-cadastro-usuario.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código e estão no [Diagrama de classes](3%20-%20diagrama-classes-cadastro-usuario.md): as telas do aplicativo, o componente `Navegacao` e a tela `DesbloqueioSessao`, os contextos `SessaoProvider`, `TemaProvider` e `ToastProvider`, os módulos `api`, `google` e `autenticacaoLocal`, os controllers, os services, o `JwtAuthGuard`, o model do Mongoose `UsuarioModel` e as bibliotecas chamadas diretamente (`Router`, `Location`, `GoogleSignin`, `bcrypt`, `JwtService`, `Transporter` e `fetch`). O Google, no login pela web, é um sistema externo e aparece como ator. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de situação, aparecem em notas, assim como as rotas HTTP. Os retornos são identificadores; uma nota diz o que cada um traz quando isso não é evidente.
 
 Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes pelo `ApiKeyGuard`; o SD-USR-02 mostra em detalhe o `JwtAuthGuard`, que protege `GET /usuarios/me`. O `resultado` devolvido pelo módulo `api` é o tipo `Resultado`: `ok` verdadeiro com `dados`, ou `ok` falso com `erro`. Os diagramas dos vínculos do usuário com organizações estão no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
 
@@ -292,6 +292,74 @@ sequenceDiagram
     W->>R: replace("/inicio")
 ```
 
+## SD-USR-04 — Desbloquear sessão salva
+
+A consulta `GET /usuarios/me` passa pelo `JwtAuthGuard` e chega a `UsuariosController.buscarMeuPerfil`, como no SD-USR-02; aqui ela aparece só como a chamada ao módulo `api`. O pedido de identidade é feito pelo próprio aparelho, dentro de `autenticarComDispositivo`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Usuário com sessão salva
+    participant N as Navegacao
+    participant D as DesbloqueioSessao
+    participant L as autenticacaoLocal
+    participant S as SessaoProvider
+    participant A as api
+    Note over U,N: A pessoa abre o aplicativo. LayoutRaiz monta SessaoProvider e Navegacao
+    Note over N: carregando verdadeiro, mostra o indicador "Verificando sessão"
+    S->>S: atualizar()
+    S->>A: obterToken()
+    A-->>S: token
+    S->>A: api("/usuarios/me")
+    Note over A: GET /usuarios/me com Authorization Bearer
+    A-->>S: resultado
+    Note over S,A: resultado.ok verdadeiro, com o perfil em resultado.dados
+    S->>S: definirUsuario(resultado.dados)
+    S->>S: definirCarregando(false)
+    N->>N: definirDesbloqueio("pendente")
+    Note over N: sem usuário, seria liberado e o aplicativo iria para Entrar
+    Note over N,D: o Stack não é montado e Navegacao mostra DesbloqueioSessao<br/>com nome, aoLiberar = liberar e aoEntrarComSenha = entrarComSenha
+    D->>D: pedir()
+    D->>D: definirEtapa("verificando")
+    D->>L: dispositivoProtegido()
+    alt web ou aparelho sem bloqueio de tela
+        L-->>D: false
+        D->>N: liberar()
+        N->>N: definirDesbloqueio("liberado")
+    else aparelho com bloqueio de tela
+        L-->>D: true
+        D->>L: autenticarComDispositivo()
+        L->>L: dispositivoProtegido()
+        Note over U,L: o aparelho pede biometria, Face ID ou PIN
+        alt identidade confirmada
+            L-->>D: true
+            D->>N: liberar()
+            N->>N: definirDesbloqueio("liberado")
+            Note over N: o Stack é montado e o index redireciona para /inicio
+        else pedido cancelado, recusado ou com erro
+            L-->>D: false
+            D->>D: definirEtapa("falhou")
+            Note over U,D: Olá e o primeiro nome, o aviso,<br/>Tentar novamente e Entrar com senha
+            opt Tentar novamente
+                U->>D: pedir()
+                Note over D,L: repete o pedido desde a etapa verificando
+            end
+            opt Entrar com senha
+                U->>D: entrarComSenha()
+                D->>D: definirSaindo(true)
+                D->>N: entrarComSenha()
+                N->>S: sair()
+                S->>A: removerToken()
+                Note over A: SecureStore ou localStorage, chave conecta_mais_token
+                S->>S: definirUsuario(null)
+                S-->>N: concluído
+                N->>N: definirDesbloqueio("liberado")
+                Note over N: sem usuário, o index redireciona para /login e a tela Entrar abre sem aviso
+            end
+        end
+    end
+```
+
 ## Rastreabilidade
 
-SD-USR-01 a SD-USR-03 correspondem, na mesma ordem, a UC-USR-01 a UC-USR-03 e a RF-USR-01 a RF-USR-03.
+SD-USR-01 a SD-USR-04 correspondem, na mesma ordem, a UC-USR-01 a UC-USR-04 e a RF-USR-01 a RF-USR-04.
