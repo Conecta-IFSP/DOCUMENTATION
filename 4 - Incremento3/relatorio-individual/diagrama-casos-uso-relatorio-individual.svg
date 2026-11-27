@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 590" width="720" height="590" font-family="Arial, Helvetica, sans-serif" font-size="14">
+  <title>Diagrama de casos de uso: Conecta+ — Relatório individual</title>
+  <defs>
+    <marker id="seta-aberta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="#000" stroke-width="1.2"/></marker>
+  </defs>
+  <rect width="720" height="590" fill="#fff"/>
+  <rect x="295" y="50" width="395" height="515" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="492" y="76" text-anchor="middle" font-weight="bold">Conecta+ — Relatório individual</text>
+  <g stroke="#000" stroke-width="1.2"><line x1="110" y1="320" x2="393" y2="153"/><line x1="110" y1="320" x2="365" y2="243"/><line x1="110" y1="320" x2="330" y2="317"/><line x1="110" y1="320" x2="361" y2="388"/><line x1="110" y1="320" x2="391" y2="477"/></g>
+  <g><rect x="188" y="244" width="71" height="17" fill="#fff"/><text x="224" y="257" text-anchor="middle" font-size="12">RF-REL-02</text><rect x="188" y="276" width="71" height="17" fill="#fff"/><text x="224" y="289" text-anchor="middle" font-size="12">RF-REL-03</text><rect x="188" y="309" width="71" height="17" fill="#fff"/><text x="224" y="322" text-anchor="middle" font-size="12">RF-REL-01</text><rect x="188" y="342" width="71" height="17" fill="#fff"/><text x="224" y="355" text-anchor="middle" font-size="12">RF-REL-04</text><rect x="188" y="375" width="71" height="17" fill="#fff"/><text x="224" y="388" text-anchor="middle" font-size="12">RF-REL-05</text></g>
+  <g fill="#fff" stroke="#000" stroke-width="1.3"><ellipse cx="440" cy="125" rx="110" ry="31"/><ellipse cx="440" cy="220" rx="110" ry="31"/><ellipse cx="440" cy="315" rx="110" ry="31"/><ellipse cx="440" cy="410" rx="110" ry="31"/><ellipse cx="440" cy="505" rx="110" ry="31"/></g>
+  <g text-anchor="middle"><text x="440" y="122">Filtrar relatório</text><text x="440" y="138">por período</text><text x="440" y="225">Ver vínculos atuais</text><text x="440" y="312">Consultar relatório</text><text x="440" y="328">individual</text><text x="440" y="407">Exportar relatório</text><text x="440" y="423">em PDF</text><text x="440" y="502">Exportar relatório</text><text x="440" y="518">em CSV</text></g>
+  <g stroke="#000" stroke-width="1.2" fill="none" stroke-dasharray="6 4"><line x1="440" y1="284" x2="440" y2="252" marker-end="url(#seta-aberta)"/><line x1="440" y1="379" x2="440" y2="347" marker-end="url(#seta-aberta)"/><polyline points="550,125 585,125 585,303 551,303" marker-end="url(#seta-aberta)"/><polyline points="550,505 615,505 615,327 551,327" marker-end="url(#seta-aberta)"/></g>
+  <g font-size="12"><text x="448" y="272">«include»</text><text x="448" y="367">«extend»</text><text x="591" y="218">«extend»</text><text x="621" y="420">«extend»</text></g>
+  <g stroke="#000" stroke-width="1.5" fill="none"><circle cx="88" cy="290" r="11"/><line x1="88" y1="301" x2="88" y2="335"/><line x1="68" y1="313" x2="108" y2="313"/><line x1="88" y1="335" x2="72" y2="362"/><line x1="88" y1="335" x2="104" y2="362"/></g>
+  <g text-anchor="middle"><text x="88" y="382">Usuário</text><text x="88" y="399">comum</text></g>
+</svg>
