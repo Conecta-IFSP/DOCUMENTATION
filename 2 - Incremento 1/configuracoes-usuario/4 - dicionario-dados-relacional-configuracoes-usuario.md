@@ -1,6 +1,6 @@
 # Dicionário relacional — Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -15,7 +15,7 @@ Descreve cada campo das entidades do [diagrama relacional](4%20-%20diagrama-rela
 | `RECUPERACAO_SENHA` (chave lógica)     | Não é gerada                                                  | É o próprio `_id` da conta.                                                                                                                                                                                                                                                  | Não se aplica. Um novo pedido substitui o anterior.                                                                                              |
 | Código de confirmação e de recuperação | `AuthService.gerarCodigoVerificacao`, no servidor             | 7 caracteres; cada um é sorteado entre as 36 letras de A a Z e algarismos de 0 a 9, com um byte de `randomBytes` (resto da divisão por 36). É enviado por e-mail como `XXX-XXXX` e guardado só como SHA-256.                                                                | Não há sequência: cada pedido sorteia um código novo.                                                                                            |
 | Token de redefinição                   | `AuthService.verificarRecuperacao`, no servidor               | 32 bytes de `randomBytes`, devolvidos ao aplicativo como 64 caracteres hexadecimais e guardados só como SHA-256.                                                                                                                                                            | Não há sequência: cada verificação sorteia um token novo.                                                                                       |
-| `iat` do token da sessão               | `JwtService.signAsync`, no login (módulo de cadastro)         | Inteiro com os segundos desde 01/01/1970 no momento em que o token foi emitido. Não é gravado no banco; vai dentro do token.                                                                                                                                                 | Não se aplica. É comparado com `senha_alterada_em` em toda requisição autenticada.                                                              |
+| `iat` do token da sessão               | `JwtService.signAsync`, no login com e-mail e senha, ou `JwtService.sign`, no login com Google (módulo de cadastro) | Inteiro com os segundos desde 01/01/1970 no momento em que o token foi emitido. Não é gravado no banco; vai dentro do token.                                                                                                                                                 | Não se aplica. É comparado com `senha_alterada_em` em toda requisição autenticada.                                                              |
 
 ## USUARIO
 
@@ -76,10 +76,10 @@ A chave do armazenamento é o próprio nome do campo, por isso cada uma aparece 
 ## Índices e restrições
 
 - `_id` tem o índice padrão do MongoDB;
-- `email` tem índice único, criado pelo Mongoose a partir de `unique: true` no schema; a API também procura outra conta com o mesmo e-mail antes de gravar, para devolver uma mensagem clara em vez do erro do índice;
-- os campos ocultos (`senha_hash`, `reset_senha_*` e `email_pendente*`) usam `select: false`: só aparecem quando o serviço pede com `select('+campo')`, e nunca nas respostas da API;
+- `email` tem índice único, criado pelo Mongoose a partir do schema: o banco recusa uma segunda conta com o mesmo endereço; a API também procura outra conta com o mesmo e-mail antes de gravar, para devolver uma mensagem clara em vez do erro do índice;
+- os campos ocultos (`senha_hash`, `reset_senha_*` e `email_pendente*`) ficam fora das consultas comuns: só são lidos quando o serviço os pede pelo nome, e nunca aparecem nas respostas da API;
 - a busca da redefinição usa `reset_senha_token_hash` e `reset_senha_expira_em` sem índice próprio; com poucas contas isso não pesa, e um índice nesses campos ainda não foi criado;
-- as gravações deste módulo usam `save()`, que grava só os campos alterados, sem filtro de versão: duas alterações do mesmo campo ao mesmo tempo ficam com a última que chegar.
+- as gravações deste módulo regravam só os campos alterados do documento, sem conferir se outra gravação mudou o mesmo campo antes: duas alterações do mesmo campo ao mesmo tempo ficam com a última que chegar.
 
 ## Rastreabilidade
 

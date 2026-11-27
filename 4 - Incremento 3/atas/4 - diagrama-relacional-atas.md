@@ -1,6 +1,6 @@
 # Diagrama relacional — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 

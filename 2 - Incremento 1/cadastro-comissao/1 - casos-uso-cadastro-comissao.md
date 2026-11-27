@@ -1,6 +1,6 @@
 # Casos de uso — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Revisado em 27/11/2026
 
 ## Resumo
 

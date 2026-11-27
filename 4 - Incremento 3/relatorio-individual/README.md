@@ -1,6 +1,6 @@
 # Relatório individual
 
-> Padrão da disciplina · Módulo REL · Incremento 3 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Incremento 3 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -52,6 +52,6 @@ Os requisitos não funcionais RNF-REL-01 a RNF-REL-13 e os testes que os verific
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026: backend no commit `caca2d2` e frontend no commit `6ff2d50`. A versão atual do relatório entrou no backend `99b6b4f` e no frontend `a53acce`; nos commits seguintes, a única mudança que afeta o relatório é a do `JwtAuthGuard` (backend `543e03f`), que passou a recusar o token emitido antes da última troca de senha. Os arquivos principais são `BACKEND/src/relatorios/relatorios.controller.ts`, `relatorios.service.ts`, `relatorio-individual.dto.ts` e `relatorios.module.ts`; `FRONTEND/src/app/(abas)/relatorio.tsx`, `src/services/exportar-relatorio-individual.ts`, `src/services/pdf.ts` (só a função `pdfPelaImpressao`), `src/utils/relatorio-individual.ts` e `src/types/relatorio-individual.ts`. O registro de verificação da equipe está em `FRONTEND/tests/RELATORIO.md`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026: backend no commit `d1f1aeb` e frontend no commit `10abe49`. Os diagramas de classes e de sequência foram revistos no mesmo dia sobre o backend `6e0d3f5` e o frontend `8cf4839`; esses commits só mudam o `.env.example`, o cartão da votação e as funções `entregarPdf` e `nomearPdf`, que o relatório não usa. A versão atual do relatório entrou no backend `99b6b4f` e no frontend `a53acce`; nos commits seguintes, a única mudança que afeta o relatório é a do `JwtAuthGuard` (backend `543e03f`), que passou a recusar o token emitido antes da última troca de senha. No frontend, `pdf.ts` mudou só na função `entregarPdf`, que o relatório não usa, e `api.ts` ganhou só tipos da votação. Os arquivos principais são `BACKEND/src/relatorios/relatorios.controller.ts`, `relatorios.service.ts`, `relatorio-individual.dto.ts` e `relatorios.module.ts`; `FRONTEND/src/app/(abas)/relatorio.tsx`, `src/services/exportar-relatorio-individual.ts`, `src/services/pdf.ts` (só a função `pdfPelaImpressao`), `src/utils/relatorio-individual.ts` e `src/types/relatorio-individual.ts`. O registro de verificação da equipe está em `FRONTEND/tests/RELATORIO.md`.
 
-As duas observações da avaliação do Incremento 3 (17/11/2026) sobre o relatório são atendidas no código: as organizações e comissões do usuário aparecem na tela, no PDF e no CSV (RF-REL-03); e o PDF do aplicativo instalado é compartilhado direto do arquivo gerado pela impressão, sem a chamada `FileSystemFile.move` apontada no erro da avaliação (RF-REL-04, CT-REL-18). A confirmação no aparelho ainda não foi executada (CT-REL-34).
+As duas observações da avaliação do Incremento 3 (17/11/2026) sobre o relatório são atendidas no código: as organizações e comissões do usuário aparecem na tela, no PDF e no CSV (RF-REL-03); e o PDF do aplicativo instalado é compartilhado direto do arquivo gerado pela impressão, sem a chamada `FileSystemFile.move` apontada no erro da avaliação (RF-REL-04, CT-REL-18). No aparelho, a exportação do PDF foi confirmada num Galaxy S24 com Android 16 (CT-REL-38); o restante do roteiro no aparelho segue pendente (CT-REL-34).

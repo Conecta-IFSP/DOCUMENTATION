@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Relatório individual
 
-> Padrão da disciplina · Módulo REL · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -155,7 +155,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | A partir do controle de período, no máximo 12 toques em Tab levam o foco a "Exportar CSV"; o título "Relatório individual" tem papel de cabeçalho; o controle tem o papel `radiogroup` com o rótulo "Período do relatório", e cada opção, o papel `radio` com o estado de marcada. |
 | **Condição**      | Web; leitor de tela no Android (TalkBack) e no iOS (VoiceOver).                                                                                                                                                                  |
 | **Verificação**   | CT-REL-31. Leitor de tela: CT-REL-37, não executado.                                                                                                                                                                                        |
-| **Evidência**     | `CabecalhoAba` e `ControleSegmentado`, usados em `relatorio.tsx`.                                                                                                                                                                |
+| **Evidência**     | Em `relatorio.tsx`, o título "Relatório individual" com `accessibilityRole="header"`, escrito dentro do `CabecalhoAba`, e o `ControleSegmentado`, que dá os papéis `radiogroup` e `radio` e o estado de marcada.                  |
 | **Situação**      | Parcial. A navegação por teclado foi aprovada em 26/11/2026. Na web, a opção marcada não é exposta como `aria-checked`, pendência do componente compartilhado `ControleSegmentado` registrada pela equipe. Leitor de tela pendente. |
 
 ### RNF-REL-11 — Portabilidade
@@ -166,9 +166,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Consulta, PDF e CSV funcionam no aplicativo instalado (Android 7.0 a 16 e iOS), no Expo Go e na web.                                                                                             |
 | **Medida**        | Em cada forma de uso, a consulta mostra o relatório e cada exportação abre o menu de compartilhamento, a tela de impressão ou o download, sem erro.                                                |
 | **Condição**      | Aparelhos Android e iOS com o aplicativo instalado e com o Expo Go; navegador.                                                                                                                   |
-| **Verificação**   | Web: CT-REL-23 a CT-REL-33. Android e iOS: apenas com as bibliotecas simuladas (CT-REL-18 a CT-REL-22); execução em aparelho registrada como pendente (CT-REL-34 a CT-REL-36).                  |
+| **Verificação**   | Web: CT-REL-23 a CT-REL-33. Android e iOS: com as bibliotecas simuladas (CT-REL-18 a CT-REL-22); no aparelho, só a consulta e o PDF no Android com o aplicativo instalado (CT-REL-38); o restante está registrado como pendente (CT-REL-34 a CT-REL-36). |
 | **Evidência**     | Ramos por `Platform.OS` e `isRunningInExpoGo` em `exportarRelatorioIndividual`.                                                                                                                  |
-| **Situação**      | Atendido na web em 26/11/2026. Android, iOS e Expo Go pendentes: os testes com bibliotecas simuladas não comprovam as permissões nem o comportamento nativo.                                      |
+| **Situação**      | Atendido na web em 26/11/2026. No Android com o aplicativo instalado, a consulta e o PDF foram confirmados em 26/11/2026 (CT-REL-38); o CSV no Android, o Expo Go e o iOS seguem pendentes, porque os testes com bibliotecas simuladas não comprovam as permissões nem o comportamento nativo. |
 
 ### RNF-REL-12 — Desempenho com histórico longo
 
@@ -189,10 +189,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                                                                                                                                      |
 | **Critério**      | Os testes automatizados do relatório e as suítes dos dois projetos passam antes de cada entrega.                                                                                                                              |
 | **Medida**        | `node test/relatorio-individual-mongo.mjs` termina com a linha "PASSOU"; `node --test tests/*.test.cjs` sem falha; `npx vitest run` sem falha. O teste de interface `tests/relatorio-browser.e2e.cjs` exige Playwright instalado à parte e é executado separadamente. |
-| **Condição**      | Branch `homolog` (backend `caca2d2`, frontend `6ff2d50`), MongoDB local na porta 27019.                                                                                                                                        |
+| **Condição**      | Branch `homolog` (backend `d1f1aeb`, frontend `10abe49`), MongoDB local na porta 27019.                                                                                                                                        |
 | **Verificação**   | Execuções registradas em [Testes](7%20-%20testes-relatorio-individual.md).                                                                                                                                                    |
-| **Evidência**     | Em 26/11/2026, sobre backend `caca2d2` e frontend `6ff2d50`: script com MongoDB aprovado; `node --test` com 47 testes aprovados, 33 deles do relatório; `npx vitest run` com 16 arquivos e 227 testes aprovados.                                                            |
-| **Situação**      | Atendido em 26/11/2026.                                                                                                                                                                                                       |
+| **Evidência**     | Em 27/11/2026, sobre backend `d1f1aeb` e frontend `10abe49`: script com MongoDB aprovado; `node --test` com 47 testes aprovados, 33 deles do relatório; `npx vitest run` com 17 arquivos e 246 testes aprovados. Em 26/11/2026, sobre backend `caca2d2` e frontend `6ff2d50`, as mesmas suítes também passaram (com 16 arquivos e 227 testes no `vitest`). |
+| **Situação**      | Atendido em 27/11/2026.                                                                                                                                                                                                       |
 
 ## Rastreabilidade
 

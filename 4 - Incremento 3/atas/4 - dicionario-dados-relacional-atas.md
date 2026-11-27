@@ -1,6 +1,6 @@
 # Dicionário relacional — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -16,7 +16,42 @@ Descreve cada campo das entidades do [diagrama relacional](4%20-%20diagrama-rela
 | `CONTADOR_ATA._id`               | `ReunioesService.proximoNumeroAta`    | Texto montado pelo sistema: `atas:<id da comissão>:<ano>`, por exemplo `atas:66f3c1d2e4b07a9f2c1a4b0f:2026`.                                                                                   | Não muda. Um documento por comissão e ano.                                   |
 | `CONTADOR_ATA.valor`             | MongoDB, pela operação `$inc`         | Inteiro. Na primeira ata aprovada o documento é criado com `valor = 1` (`upsert`).                                                                                                            | Sobe de 1 em 1. A operação é atômica, então duas aprovações ao mesmo tempo nunca recebem o mesmo número. |
 
-Um número de ata consumido não volta: se uma reunião for apagada depois, a sequência segue de onde parou. O número é reservado antes de a ata ser gravada; se essa gravação falhar (conflito 409, ou a aprovação pelo fim do prazo não encontrar a ata como foi lida), o número reservado fica sem ata e a sequência pula um valor.
+Um número de ata consumido não volta: nenhuma operação das atas ou das reuniões devolve um número ao contador, e a API não tem rota para apagar uma reunião. Só o reset do sistema, do módulo de Informações do Sistema, apaga de uma vez as reuniões, as comissões e a coleção `contadores`. O número é reservado antes de a ata ser gravada; se essa gravação falhar (conflito 409, ou a aprovação pelo fim do prazo não encontrar a ata como foi lida), o número reservado fica sem ata e a sequência pula um valor.
+
+## REUNIAO
+
+Documento da coleção `reunioes`. Só aparecem os campos que as atas usam; os demais e as regras de gravação estão no [dicionário relacional das reuniões](../../3%20-%20Incremento%202/reunioes/4%20-%20dicionario-dados-relacional-reunioes.md).
+
+| Campo               | Tipo de dado              | Pode ser nulo | Chave primária  | Chave estrangeira    | Outros                                                                                          | Descrição                                                                    |
+| ------------------- | ------------------------- | ------------- | --------------- | -------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `_id`               | `ObjectId`                | Não           | Sim (exclusivo) | Não                  | Ver "Como os identificadores são criados".                                                     | Identificador da reunião; a ata e as versões canceladas são identificadas por ele. |
+| `comissao_id`       | `ObjectId`                | Não           | Não             | Sim (`COMISSAO._id`) | -                                                                                               | Comissão em que se confere o presidente e cuja sequência numera a ata.       |
+| `titulo`            | Texto                     | Não           | Não             | Não                  | Gravado sem os espaços das pontas.                                                              | Título mostrado na tela da ata, nas pendências e no PDF.                     |
+| `fim`               | Data e hora (`date`, UTC) | Não           | Não             | Não                  | A ata só é escrita, enviada, avaliada ou refeita a partir desse instante.                       | Término da reunião.                                                          |
+| `situacao`          | Texto com valores fixos   | Não           | Não             | Não                  | `AGENDADA` ou `CANCELADA`; valor inicial `AGENDADA`.                                            | A ata só muda enquanto a reunião está `AGENDADA`.                            |
+| `presencas_revisao` | Inteiro (`int`)           | Sim           | Não             | Não                  | Padrão 0; soma 1 a cada mudança de presença. Documentos antigos podem não ter o campo, e o valor 0 também aceita a ausência. | Revisão das presenças; `gravarAta` só grava se ela não mudou desde a leitura. |
+
+## REUNIAO_PARTICIPANTE
+
+Convidado da reunião. Fica em `reunioes.participantes[]`.
+
+| Campo        | Tipo de dado            | Pode ser nulo | Chave primária  | Chave estrangeira   | Outros                                                    | Descrição                                                   |
+| ------------ | ----------------------- | ------------- | --------------- | ------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
+| `reuniao_id` | `ObjectId`              | Não           | Sim (inclusivo) | Sim (`REUNIAO._id`) | Não é gravado: é o documento que contém o participante.   | Reunião do convite.                                         |
+| `usuario_id` | `ObjectId`              | Não           | Sim (inclusivo) | Sim (`USUARIO._id`) | Não se repete na mesma reunião.                           | Pessoa convidada; só os participantes consultam a ata.      |
+| `convite`    | Texto com valores fixos | Não           | Não             | Não                 | `PENDENTE`, `ACEITO` ou `RECUSADO`; padrão `PENDENTE`.    | Resposta ao convite. As atas não leem este campo.           |
+
+## REUNIAO_PRESENCA
+
+Presença de um participante. Fica em `reunioes.participantes[].presenca`.
+
+| Campo        | Tipo de dado              | Pode ser nulo | Chave primária  | Chave estrangeira                       | Outros                                       | Descrição                                                                 |
+| ------------ | ------------------------- | ------------- | --------------- | --------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------- |
+| `reuniao_id` | `ObjectId`                | Não           | Sim (inclusivo) | Sim (`REUNIAO_PARTICIPANTE.reuniao_id`) | Não é gravado: vem do participante.          | Reunião da presença.                                                      |
+| `usuario_id` | `ObjectId`                | Não           | Sim (inclusivo) | Sim (`REUNIAO_PARTICIPANTE.usuario_id`) | Não é gravado: vem do participante.          | Pessoa da presença.                                                       |
+| `entrada`    | Data e hora (`date`, UTC) | Não           | Não             | Não                                     | -                                            | Momento da entrada.                                                       |
+| `saida`      | Data e hora (`date`, UTC) | Sim           | Não             | Não                                     | Ausente enquanto a pessoa não sai.           | Momento da saída.                                                         |
+| `situacao`   | Texto com valores fixos   | Não           | Não             | Não                                     | `AGUARDANDO`, `CONFIRMADA` ou `RECUSADA`.    | Só quem está `CONFIRMADA` no envio entra em `ATA_APROVADOR`.              |
 
 ## ATA
 
@@ -83,9 +118,30 @@ Sequência de numeração. É a coleção `contadores`.
 | Campo   | Tipo de dado    | Pode ser nulo | Chave primária  | Chave estrangeira | Outros                                                              | Descrição                                                        |
 | ------- | --------------- | ------------- | --------------- | ----------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | `_id`   | Texto           | Não           | Sim (exclusivo) | Não               | Formato `atas:<id da comissão>:<ano>`; montado pelo sistema.        | Identifica a sequência de atas de uma comissão num ano.           |
+| `comissao_id` | `ObjectId` | Não         | Não             | Sim (`COMISSAO._id`) | Não é gravado: é a parte do meio do `_id`.                       | Comissão da sequência.                                             |
+| `ano`   | Inteiro (`int`) | Não           | Não             | Não               | Não é gravado: é a parte final do `_id`, no fuso `America/Sao_Paulo`. | Ano da sequência.                                                |
 | `valor` | Inteiro (`int`) | Não           | Não             | Não               | Criado com 1 no primeiro uso; sobe de 1 em 1 por operação atômica.  | Último número de ata entregue para essa comissão naquele ano.     |
 
-O `_id` carrega a comissão e o ano, por isso essa entidade não tem colunas separadas para eles. Para descobrir a comissão basta ler a parte do meio do identificador.
+O `_id` carrega a comissão e o ano, por isso o documento não tem campos separados para eles; no diagrama, `comissao_id` e `ano` aparecem como colunas lógicas, lidas do próprio identificador.
+
+## COMISSAO
+
+Documento da coleção `comissoes`. Só aparecem os campos que as atas usam; os demais estão no módulo de comissões.
+
+| Campo   | Tipo de dado      | Pode ser nulo | Chave primária  | Chave estrangeira | Outros                                               | Descrição                                                                  |
+| ------- | ----------------- | ------------- | --------------- | ----------------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| `_id`   | `ObjectId`        | Não           | Sim (exclusivo) | Não               | Gerado da mesma forma que `REUNIAO._id`.             | Identificador da comissão; entra no `_id` de `CONTADOR_ATA`.               |
+| `ativo` | Booleano (`bool`) | Não           | Não             | Não               | Padrão verdadeiro.                                   | Com a comissão inativa, o presidente não escreve, não envia nem refaz a ata. |
+
+## USUARIO
+
+Documento da coleção `usuarios`. Só aparecem os campos que as atas usam; os demais estão no módulo de cadastro de usuário.
+
+| Campo   | Tipo de dado      | Pode ser nulo | Chave primária  | Chave estrangeira | Outros                                   | Descrição                                                                      |
+| ------- | ----------------- | ------------- | --------------- | ----------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| `_id`   | `ObjectId`        | Não           | Sim (exclusivo) | Não               | Gerado da mesma forma que `REUNIAO._id`. | Identificador referenciado por participantes, autores, aprovadores e avaliações. |
+| `nome`  | Texto             | Não           | Não             | Não               | Gravado sem os espaços das pontas.       | Nome mostrado na lista de aprovadores, nas faixas de reprovação e no PDF.      |
+| `ativo` | Booleano (`bool`) | Não           | Não             | Não               | Padrão verdadeiro.                       | Conta desativada não usa as rotas das atas: a API a recusa antes.              |
 
 ## Índices e restrições
 

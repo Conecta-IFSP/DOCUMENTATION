@@ -1,6 +1,6 @@
 # Casos de uso — Relatório individual
 
-> Padrão da disciplina · Módulo REL · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Revisado em 27/11/2026
 
 ## Resumo
 

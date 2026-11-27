@@ -1,10 +1,10 @@
 # Diagrama de classes — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Revisado em 27/11/2026
 
 ## Resumo
 
-O diagrama mostra as classes que participam do cadastro de organização, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componente de confirmação e módulos do aplicativo), **API** (controller, serviço, guardas de acesso e objetos de entrada) e **Dados** (documentos guardados no MongoDB e enumerações). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. As telas são componentes de função do React: os atributos são os estados mais relevantes e os métodos são as funções internas que o usuário dispara.
+O diagrama mostra as classes que participam do cadastro de organização, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componente de confirmação e módulos do aplicativo), **API** (controller, serviço, guardas de acesso e objetos de entrada) e **Dados** (os models do Mongoose `OrganizacaoModel`, `UsuarioModel` e `ComissaoModel`, marcados `<<Model Mongoose>>`, o módulo `organizacaoSchema`, os documentos guardados no MongoDB e as enumerações). Toda linha de vida e todo método dos [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-organizacao.md) aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. As telas são componentes de função do React: os atributos são os estados mais relevantes e os métodos são as funções internas que o usuário dispara, as funções de atualização do `useState` (`definir*`) chamadas nas sequências e, em `TelaGerenciarOrganizacoes`, o `reset` do formulário de edição.
 
 ## Diagrama
 
@@ -17,19 +17,25 @@ classDiagram
             -erro: string
             -enviada: DadosOrganizacao
             +enviar() Promise~void~
+            +definirErro(valor: string) void
+            +definirEnviada(valor: DadosOrganizacao) void
         }
         class TelaEntrarComCodigo {
             -erro: string
             -enviado: Pedido
             +enviar() Promise~void~
+            +definirEnviado(valor: Pedido) void
         }
         class TelaOrganizacoes {
             -organizacoes: Organizacao[]
             -busca: string
             -respondendo: string
+            -aviso: Aviso
             +carregar(continuar: Function) Promise~void~
             +atualizar() Promise~void~
             +responder(organizacao: Organizacao, aceitar: boolean) Promise~void~
+            +definirOrganizacoes(valor: Organizacao[]) void
+            +definirAviso(valor: Aviso) void
         }
         class TelaOrganizacao {
             -dados: Dados
@@ -37,6 +43,8 @@ classDiagram
             -email: string
             -menu: Membro
             -confirmacao: Pendente
+            -aviso: Aviso
+            -convidarAberto: boolean
             +carregar() Promise~Dados~
             +atualizar() Promise~void~
             +aprovar(membro: Membro) Promise~void~
@@ -47,17 +55,29 @@ classDiagram
             +pedirNovoCodigo() void
             +opcoesDe(membro: Membro) object[]
             +caminho(usuarioId: string, sufixo: string) string
+            +definirDados(valor: Dados) void
+            +definirAviso(valor: Aviso) void
+            +definirMenu(valor: Membro) void
+            +definirConvidarAberto(valor: boolean) void
+            +definirEmail(valor: string) void
         }
         class TelaGerenciarOrganizacoes {
             -organizacoes: Organizacao[]
             -busca: string
             -editandoId: string
             -acaoPendente: AcaoPendente
+            -erro: string
             +carregar(termoBusca: string) Promise~void~
-            +atualizar(id: string, dados: Organizacao) Promise~boolean~
+            +atualizar(id: string, dados: Partial~Organizacao~) Promise~boolean~
             +salvarEdicao() Promise~void~
             +excluir(organizacao: Organizacao) Promise~void~
             +confirmarAcao() Promise~void~
+            +definirOrganizacoes(valor: SetStateAction~Organizacao[]~) void
+            +definirBusca(valor: string) void
+            +definirEditandoId(valor: string) void
+            +definirAcaoPendente(valor: AcaoPendente) void
+            +definirErro(valor: string) void
+            +reset(valores: object) void
         }
         class TelaInicio {
             -organizacoes: Organizacao[]
@@ -175,6 +195,31 @@ classDiagram
     }
 
     namespace Dados {
+        class OrganizacaoModel {
+            <<Model Mongoose>>
+            +create(dados: object) Promise~OrganizacaoDocument~
+            +exists(filtro: object) Query~object~
+            +find(filtro: object) Query~OrganizacaoDocument[]~
+            +findById(id: string) Query~OrganizacaoDocument~
+            +findOne(filtro: object) Query~OrganizacaoDocument~
+            +findByIdAndUpdate(id: string, dados: object, opcoes: object) Query~OrganizacaoDocument~
+            +updateOne(filtro: object, alteracao: object, opcoes: object) Query~UpdateResult~
+            +deleteOne(filtro: object) Query~DeleteResult~
+        }
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~UsuarioDocument~
+            +findOne(filtro: object) Query~UsuarioDocument~
+        }
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +updateMany(filtro: object, alteracao: object) Query~UpdateResult~
+            +deleteMany(filtro: object) Query~DeleteResult~
+        }
+        class organizacaoSchema {
+            <<module>>
+            +gerarCodigoAcesso() string
+        }
         class Organizacao {
             +_id: ObjectId
             +nome: string
@@ -259,10 +304,15 @@ classDiagram
     OrganizacoesController ..> ResponderConviteDto : recebe
     OrganizacoesController ..> UpdateStatusMembroDto : recebe
     OrganizacoesController ..> UpdatePapelMembroDto : recebe
-    OrganizacoesService ..> Organizacao : lê e grava
-    OrganizacoesService ..> Usuario : confere a conta
-    OrganizacoesService ..> Comissao : apaga ou tira da equipe
-    UsuarioAtivoGuard ..> Usuario : relê a conta
+    OrganizacoesService --> "1" OrganizacaoModel : organizacaoModel
+    OrganizacoesService --> "1" UsuarioModel : usuarioModel
+    OrganizacoesService --> "1" ComissaoModel : comissaoModel
+    OrganizacoesService ..> organizacaoSchema : gerarCodigoAcesso
+    UsuarioAtivoGuard --> "1" UsuarioModel : usuarios
+    OrganizacaoModel ..> Organizacao : documentos do schema
+    UsuarioModel ..> Usuario : documentos do schema
+    ComissaoModel ..> Comissao : documentos do schema
+    organizacaoSchema ..> Organizacao : default de codigo_acesso
 
     Organizacao "1" *-- "1..*" MembroOrganizacao : membros
     Organizacao "0..*" --> "1" Usuario : criada_por
@@ -282,9 +332,9 @@ Figura 2 — Diagrama de classes do cadastro de organização, por camada. Fonte
 | ---------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Losango cheio (composição)   | A parte só existe dentro do todo e é apagada junto com ele.             | `Organizacao *-- MembroOrganizacao`: o vínculo é gravado dentro do documento da organização e não tem identificador próprio. |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `MembroOrganizacao --> Usuario`: `usuario_id` guarda o identificador de um documento de `usuarios`.                         |
-| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `OrganizacoesService ..> Comissao`: o serviço apaga comissões ou tira uma pessoa da equipe delas.                         |
+| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `OrganizacoesService ..> organizacaoSchema`: o serviço sorteia um código com `gerarCodigoAcesso`.                          |
 
-Os números nas pontas são as multiplicidades. Uma `Organizacao` tem ao menos um vínculo (`1..*`), porque nasce com o do criador e nunca fica sem administrador; cada vínculo aponta para exatamente um `Usuario` (`1`), e um usuário pode ter vínculos com várias organizações (`0..*`). Cada `Comissao` pertence a uma única organização.
+Os números nas pontas são as multiplicidades. Uma `Organizacao` tem ao menos um vínculo (`1..*`), porque nasce com o do criador e nunca fica sem administrador; cada vínculo aponta para exatamente um `Usuario` (`1`), e um usuário pode ter vínculos com várias organizações (`0..*`). Cada `Comissao` pertence a uma única organização. O `OrganizacoesService` guarda uma instância de cada model (`1`), injetada pelo NestJS, e o `UsuarioAtivoGuard` guarda o `UsuarioModel`; cada model lê e grava os documentos do seu schema. O `ComissaoModel` é usado aqui só para apagar as comissões de uma organização excluída e para tirar das comissões quem perde o vínculo.
 
 No código, os atributos opcionais são `descricao`, em `Organizacao`, e `aprovado_em`, em `MembroOrganizacao`. `codigo_acesso` é obrigatório, mas não sai nas consultas comuns (`select: false`). A obrigatoriedade de cada atributo está no [dicionário de classes](3%20-%20dicionario-dados-classes-cadastro-organizacao.md). `MembroComissao` pertence ao módulo de comissões e não é detalhado aqui.
 

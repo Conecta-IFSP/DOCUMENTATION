@@ -4,9 +4,9 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-votacao.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: a tela `TelaReuniao`, o componente `VotacoesReuniao`, o módulo `api`, o `ReunioesController`, o `ReunioesService` e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa. Regras que não são métodos, como comparações de horário, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-votacao.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código e no [Diagrama de classes](3%20-%20diagrama-classes-votacao.md): a tela `TelaReuniao`, os componentes `VotacoesReuniao` e `Confirmacao`, a confirmação pendente `Pendente`, o módulo `api`, o `ReunioesController`, o `ReunioesService` e os models do Mongoose `ReuniaoModel` e `ComissaoModel`. Toda mensagem é a chamada de um método existente, com seus parâmetros, e vai para a linha de vida dona do método: o toque em Votar ou Encerrar no diálogo chama `confirmar` da `Confirmacao`, que chama `acao` do objeto `Pendente` guardado em `confirmacao`. As mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa, com o nome do valor devolvido; o código HTTP e a mensagem de erro da resposta ficam em notas. Regras que não são métodos, como comparações de horário, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
 
-Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota. O método `carregar(id, usuarioId)` aparece só com a leitura da reunião; antes dela, ele chama `validarId(id)` e `validarUsuario(usuarioId)`, que lê o usuário com `UsuarioModel.findById`.
+Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota. O método `carregar(id, usuarioId)` aparece só com a leitura da reunião; antes dela, ele chama `validarId(id)` e `validarUsuario(usuarioId)`, que lê o usuário com `UsuarioModel.findById`. Os models devolvem uma `Query`, na qual o serviço chama `exec()`; essa chamada não é repetida nos diagramas.
 
 ## SD-VOT-01 — Abrir votação
 
@@ -31,7 +31,7 @@ sequenceDiagram
     alt problema no formulário
         V->>V: definirErroFormulario(problema)
     else formulário válido
-        V->>T: executar("abrir-votacao", acao, "Votação aberta.")
+        V->>T: executar("abrir-votacao", acao, "Votação iniciada.")
         T->>A: api("/reunioes/:id/votacoes", "POST", { titulo, descricao, opcoes, modo })
         Note over A,C: POST /reunioes/:id/votacoes
         A->>C: abrirVotacao(id, dto, req)
@@ -51,14 +51,17 @@ sequenceDiagram
         S->>S: responder(atualizada, usuarioId, conflito)
         alt reunião encontrada pelo filtro
             S-->>C: reuniao
-            C-->>A: 201 reuniao
+            C-->>A: reuniao
+            Note over A,C: Resposta 201 com a reunião em JSON
             A-->>T: resultado
             T->>T: definirReuniao(resultado.dados)
+            T->>T: definirSucesso("Votação iniciada.")
             T-->>V: true
             V->>V: definirFormulario(false)
         else reunião cancelada ou terminada nesse intervalo
             S-->>C: ConflictException
-            C-->>A: 409 "A reunião mudou. Atualize a tela."
+            C-->>A: ConflictException
+            Note over A,C: Resposta 409 com a mensagem "A reunião mudou. Atualize a tela."
             A-->>T: resultado
             T->>T: definirErro(resultado.erro)
             T-->>V: false
@@ -73,6 +76,8 @@ sequenceDiagram
     autonumber
     actor U as Participante presente
     participant V as VotacoesReuniao
+    participant CF as Confirmacao
+    participant P as Pendente
     participant T as TelaReuniao
     participant A as api
     participant C as ReunioesController
@@ -82,9 +87,12 @@ sequenceDiagram
     Note over U,V: voto é a posição da opção tocada, ou BRANCO em "Votar em branco",<br/>ou NULO em "Votar nulo". corpo: { opcao } para uma opção, { tipo } para BRANCO e NULO
     V->>V: descreverVoto(votacao, voto)
     V->>V: definirConfirmacao(pendente)
-    Note over U,V: Confirmação "Votar ...? O voto não pode ser alterado depois."<br/>com o trecho de descreverVoto
-    U->>V: confirmacao.acao()
-    V->>T: executar("votar-:votacaoId", acao, "Voto registrado.")
+    Note over V,P: pendente guarda a mensagem, o rótulo Votar e a função acao
+    Note over U,CF: A Confirmacao mostra "Votar ...? O voto não pode ser alterado depois."<br/>com o trecho de descreverVoto
+    U->>CF: confirmar()
+    Note over CF,P: confirmar é a função passada pelo VotacoesReuniao, que chama confirmacao.acao()
+    CF->>P: acao()
+    P->>T: executar("votar-:votacaoId", acao, "Voto registrado.")
     T->>A: api("/reunioes/:id/votacoes/:votacaoId/votos", "POST", corpo)
     Note over A,C: POST /reunioes/:id/votacoes/:votacaoId/votos
     A->>C: votar(id, votacaoId, dto, req)
@@ -104,18 +112,21 @@ sequenceDiagram
         S->>S: apresentar(atualizada, usuarioId)
         S->>S: apresentarVotacao(votacao, fim, usuarioId, nomes)
         S-->>C: reuniao
-        C-->>A: 201 reuniao
+        C-->>A: reuniao
+        Note over A,C: Resposta 201 com a reunião em JSON
         A-->>T: resultado
         T->>T: definirReuniao(resultado.dados)
         T->>T: definirSucesso("Voto registrado.")
+        T-->>P: true
     else votação encerrada, presença alterada ou voto repetido no intervalo
         S-->>C: ConflictException
-        C-->>A: 409 "A votação mudou. Atualize a tela."
+        C-->>A: ConflictException
+        Note over A,C: Resposta 409 com a mensagem "A votação mudou. Atualize a tela."
         A-->>T: resultado
         T->>T: definirErro(resultado.erro)
+        T-->>P: false
     end
-    T-->>V: concluído
-    V->>V: definirConfirmacao(null)
+    P->>V: definirConfirmacao(null)
 ```
 
 ## SD-VOT-03 — Encerrar votação
@@ -125,6 +136,8 @@ sequenceDiagram
     autonumber
     actor U as Presidente
     participant V as VotacoesReuniao
+    participant CF as Confirmacao
+    participant P as Pendente
     participant T as TelaReuniao
     participant A as api
     participant C as ReunioesController
@@ -133,9 +146,12 @@ sequenceDiagram
     participant M as ReuniaoModel
     U->>V: pedirEncerramento(votacao)
     V->>V: definirConfirmacao(pendente)
-    Note over U,V: Confirmação "Encerrar a votação ...? Ninguém mais poderá votar."
-    U->>V: confirmacao.acao()
-    V->>T: executar("encerrar-:votacaoId", acao, "Votação encerrada.")
+    Note over V,P: pendente guarda a mensagem, o rótulo Encerrar, perigo true e a função acao
+    Note over U,CF: A Confirmacao mostra "Encerrar a votação ...? Ninguém mais poderá votar."
+    U->>CF: confirmar()
+    Note over CF,P: confirmar é a função passada pelo VotacoesReuniao, que chama confirmacao.acao()
+    CF->>P: acao()
+    P->>T: executar("encerrar-:votacaoId", acao, "Votação encerrada.")
     T->>A: api("/reunioes/:id/votacoes/:votacaoId/encerrar", "POST")
     Note over A,C: POST /reunioes/:id/votacoes/:votacaoId/encerrar
     A->>C: encerrarVotacao(id, votacaoId, req)
@@ -155,18 +171,21 @@ sequenceDiagram
     S->>S: responder(atualizada, usuarioId, conflito)
     alt votação ainda aberta
         S-->>C: reuniao
-        C-->>A: 201 reuniao
+        C-->>A: reuniao
+        Note over A,C: Resposta 201 com a reunião em JSON
         A-->>T: resultado
         T->>T: definirReuniao(resultado.dados)
         T->>T: definirSucesso("Votação encerrada.")
+        T-->>P: true
     else encerrada por outra chamada no intervalo
         S-->>C: ConflictException
-        C-->>A: 409 "A votação mudou. Atualize a tela."
+        C-->>A: ConflictException
+        Note over A,C: Resposta 409 com a mensagem "A votação mudou. Atualize a tela."
         A-->>T: resultado
         T->>T: definirErro(resultado.erro)
+        T-->>P: false
     end
-    T-->>V: concluído
-    V->>V: definirConfirmacao(null)
+    P->>V: definirConfirmacao(null)
 ```
 
 ## SD-VOT-04 — Consultar votações e resultado
@@ -197,11 +216,14 @@ sequenceDiagram
         Note over S: Retira votos, calcula modo, total_votos e meu_voto. Sem modo, FECHADA.<br/>ABERTA com fim já passado é apresentada como ENCERRADA.<br/>resultado, brancos e nulos só quando ENCERRADA.<br/>votos_nominais só quando ENCERRADA e modo ABERTA, em ordem de nome
     end
     S-->>C: reuniao
-    C-->>A: 200 reuniao
+    C-->>A: reuniao
+    Note over A,C: Resposta 200 com a reunião em JSON
     A-->>T: resultado
     T->>T: definirReuniao(resultado.dados)
     T->>A: api("/comissoes/:comissaoId")
+    Note over T,A: GET /comissoes/:comissaoId, descrito no módulo de cadastro de comissão
     A-->>T: comissao
+    Note over T: presidente = comissao.ok, comissão ativa e o usuário como membro RESPONSAVEL
     T->>T: definirPresidente(presidente)
     Note over T: buscar() se repete a cada 30 segundos e ao puxar a tela
     U->>T: definirAba("votacoes")

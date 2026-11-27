@@ -1,6 +1,6 @@
 # Casos de uso — Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Revisado em 27/11/2026
 
 ## Resumo
 

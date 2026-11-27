@@ -1,6 +1,6 @@
 # Dicionário relacional — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -87,7 +87,8 @@ Representa a conta de uma pessoa. É a coleção `usuarios`, mantida pelo [módu
 
 - Quando o administrador da organização remove uma pessoa da organização, o módulo de organização retira essa pessoa de `membros` de todas as comissões da organização com `updateMany` e `$pull`, sem rodar o validador de `membros`. Se a pessoa era o responsável, a comissão fica sem responsável. A comissão continua visível, mas adicionar, remover e reativar passam a ser recusados com "Defina exatamente um responsável para regularizar esta comissão" até que o administrador escolha outro responsável (RF-COM-08). Com a comissão inativa, o aplicativo não oferece essa troca (ver RF-COM-06).
 - Quando o administrador do sistema exclui uma organização revogada, o módulo de organização apaga todas as comissões dela com `deleteMany`.
-- A rotina de restauração do sistema (`POST /sistema/reset`) apaga todas as comissões.
+- O reset do sistema (`POST /sistema/reset`), feito pelo administrador do sistema com a própria senha e a palavra `RESET`, apaga todas as comissões com `deleteMany`, junto com as organizações, as reuniões e as contas comuns.
+- A criação de dados de teste (`POST /sistema/popular-teste`) grava a "Comissão de Teste", ativa, na "Organização de Teste", com um único integrante, o responsável.
 
 ## Índices
 

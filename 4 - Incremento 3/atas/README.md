@@ -1,6 +1,6 @@
 # Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Incremento 3 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Incremento 3 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -55,8 +55,8 @@ O presidente que esteve presente também é um participante presente: ao enviar 
 | UC-ATA-05   | RF-ATA-05  | SD-ATA-05  | CT-ATA-08, CT-ATA-13, CT-ATA-16 |
 | UC-ATA-06   | RF-ATA-06  | SD-ATA-06  | CT-ATA-16, CT-ATA-19, CT-ATA-21, CT-ATA-29 |
 | UC-ATA-07   | RF-ATA-07  | SD-ATA-07  | CT-ATA-09, CT-ATA-15          |
-| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23, CT-ATA-26, CT-ATA-29 |
+| UC-ATA-08   | RF-ATA-08  | SD-ATA-08  | CT-ATA-22, CT-ATA-23, CT-ATA-26, CT-ATA-29, CT-ATA-30 |
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `caca2d2`, frontend `4f03c20`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/dto/ata.dto.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/schemas/contador.schema.ts`, `BACKEND/src/reunioes/atas-presencas.spec.ts`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/services/pdfAta.ts`, `FRONTEND/src/services/pdf.ts`, `FRONTEND/src/utils/reunioes.ts` e `FRONTEND/src/utils/diferenca.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026: backend no commit `6e0d3f5`, que sobre o `d1f1aeb` só acrescenta variáveis ao `.env.example`, e frontend no commit `8cf4839`. Desde a conferência anterior (backend `caca2d2`, frontend `4f03c20`), a única mudança que afeta as atas é a função `nomearPdf` de `FRONTEND/src/services/pdf.ts`, que entrou no frontend `795d49b` para dar ao PDF o nome "Ata nº N-AAAA.pdf" e, no `8cf4839`, passou a esperar o `move` antes do compartilhamento (RF-ATA-08); as demais mudanças do período são da votação, das Informações do Sistema e da confirmação de identidade na entrada e no nome do perfil. Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/dto/ata.dto.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/schemas/contador.schema.ts`, `BACKEND/src/reunioes/atas-presencas.spec.ts`, `BACKEND/src/presencas/presencas.service.ts` (só o fechamento das presenças depois do envio), `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/[id].tsx` (só o cartão "Ata"), `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/services/pdfAta.ts`, `FRONTEND/src/services/pdf.ts`, `FRONTEND/src/services/autenticacao-local.ts`, `FRONTEND/src/utils/reunioes.ts` e `FRONTEND/src/utils/diferenca.ts`.

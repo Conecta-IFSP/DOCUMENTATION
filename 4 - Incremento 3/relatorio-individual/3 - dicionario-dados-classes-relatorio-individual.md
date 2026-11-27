@@ -1,6 +1,6 @@
 # Dicionário de classes — Relatório individual
 
-> Padrão da disciplina · Módulo REL · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -11,15 +11,19 @@
 | `relatorioIndividual`         | Aplicativo (módulo)      | Calcular os limites do período, formatar datas e durações e montar o HTML do PDF e o texto do CSV.            |
 | `exportarRelatorioIndividual` | Aplicativo (módulo)      | Entregar o PDF ou o CSV conforme a plataforma: impressão, menu de compartilhamento ou download.               |
 | `pdf`                         | Aplicativo (módulo)      | Informar se o PDF sai pela tela de impressão (web e Expo Go).                                                 |
-| `Print`, `Sharing`, `File`    | Aplicativo (bibliotecas) | Gerar o PDF, abrir o menu de compartilhamento e criar e ler arquivos no aparelho.                             |
-| `window`                      | Aplicativo (navegador)   | Abrir a janela de impressão e baixar o CSV na web.                                                            |
+| `Print`, `Sharing`, `File`    | Biblioteca (Expo)        | Gerar o PDF, abrir o menu de compartilhamento e criar e ler arquivos no aparelho.                             |
+| `Window`, `Document`, `URL`, `HTMLAnchorElement` | API do navegador | Abrir a janela de impressão, escrever nela o HTML e baixar o CSV na web.                            |
 | `RelatorioIndividual`         | Aplicativo (tipo)        | Formato do relatório devolvido pela API.                                                                      |
 | `ParticipacaoIndividual`      | Aplicativo (tipo)        | Uma reunião do relatório, com a presença do usuário.                                                          |
+| `PeriodoRelatorio`            | Aplicativo (tipo)        | Opção de período escolhida na tela: `todos`, `mes` ou `ano`.                                                  |
 | `ApiKeyGuard`, `JwtAuthGuard`, `UsuarioComumGuard` | API | Conferir a chave do aplicativo, o token e a conta, e barrar o administrador do sistema.                    |
 | `RelatoriosController`        | API                      | Receber `GET /relatorios/individual` e repassar o usuário do token e os filtros ao serviço.                   |
-| `RelatoriosService`           | Negócio                  | Validar o período, ler usuário, vínculos e reuniões e calcular durações e resumo.                             |
+| `RelatoriosService`           | API                      | Validar o período, ler usuário, vínculos e reuniões e calcular durações e resumo.                             |
 | `RelatorioIndividualDto`      | API                      | Receber e validar os limites `de` e `ate` do período.                                                         |
+| `UsuarioModel`, `ReuniaoModel`, `OrganizacaoModel`, `ComissaoModel` | Dados (Model Mongoose) | Ler os documentos das coleções `usuarios`, `reunioes`, `organizacoes` e `comissoes`. |
+| `Query`                       | Biblioteca (Mongoose)    | Completar a leitura com campos, `populate`, ordem e `lean`, e executá-la com `exec`.                          |
 | `Usuario`, `Reuniao`, `Participante`, `Presenca`, `Organizacao`, `MembroOrganizacao`, `Comissao`, `MembroComissao` | Dados | Documentos e subdocumentos lidos pelo relatório. |
+| `SituacaoPresenca`, `StatusMembroOrganizacao` | Dados (enumeração) | Valores da situação da presença e do vínculo com a organização usados nos filtros.      |
 
 As classes do pacote Dados estão descritas por completo nos módulos que as gravam: [Reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md), [Cadastro de organização](../../2%20-%20Incremento%201/cadastro-organizacao/3%20-%20dicionario-dados-classes-cadastro-organizacao.md), [Cadastro de comissão](../../2%20-%20Incremento%201/cadastro-comissao/3%20-%20dicionario-dados-classes-cadastro-comissao.md) e [Cadastro de usuário](../../2%20-%20Incremento%201/cadastro-usuario/3%20-%20dicionario-dados-classes-cadastro-usuario.md). Abaixo aparecem só os campos que o relatório usa.
 
@@ -71,15 +75,29 @@ Módulo `FRONTEND/src/services/exportar-relatorio-individual.ts`.
 
 O PDF do aplicativo instalado é compartilhado com o endereço devolvido por `Print.printToFileAsync`, sem mover nem renomear o arquivo. O módulo `pdf` (`FRONTEND/src/services/pdf.ts`) é usado pelo relatório só pela função `pdfPelaImpressao`, que devolve verdadeiro na web e no Expo Go; a função `entregarPdf` do mesmo módulo, usada pelas atas, não é chamada pelo relatório.
 
-## Bibliotecas chamadas na exportação
+## Bibliotecas e classes do navegador chamadas na exportação
 
-| Classe    | Origem                          | Métodos usados                                               | Uso no relatório                                                                                  |
-| --------- | ------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `Print`   | `expo-print`                    | `printAsync(opcoes)`, `printToFileAsync(opcoes)`             | Tela de impressão no Expo Go; geração do arquivo PDF no aplicativo instalado, em 595 × 842 pontos. |
-| `Sharing` | `expo-sharing`                  | `isAvailableAsync()`, `shareAsync(url, opcoes)`              | Conferir e abrir o menu de compartilhamento do aparelho para o PDF e o CSV.                        |
-| `File`    | `expo-file-system`              | `new File(...)`, `create()`, `write(conteudo)`, `base64()`   | Criar e gravar o CSV no cache; ler a logo em base64.                                               |
-| `Model`, `Query` | `mongoose`               | `find`, `findById`, `findOne`; `select`, `populate`, `sort`, `lean`, `exec` | Leituras do `RelatoriosService` e do `JwtAuthGuard` no MongoDB. `lean` devolve objetos simples, sem os métodos de documento. |
-| `window`  | navegador                       | `open`, `document.write`, `focus`, `print`, `close`, `URL.createObjectURL`, `URL.revokeObjectURL`, `document.createElement` | Janela de impressão do PDF e download do CSV na web. |
+| Classe              | Origem             | Membros usados                                                                                     | Uso no relatório                                                                                                                  |
+| ------------------- | ------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Print`             | `expo-print`       | `printAsync(opcoes): Promise<void>`, `printToFileAsync(opcoes): Promise<FilePrintResult>`         | Tela de impressão no Expo Go; geração do arquivo PDF no aplicativo instalado, em 595 × 842 pontos. Do `FilePrintResult`, só `uri` é usado. |
+| `Sharing`           | `expo-sharing`     | `isAvailableAsync(): Promise<boolean>`, `shareAsync(url, opcoes): Promise<void>`                  | Conferir e abrir o menu de compartilhamento do aparelho para o PDF e o CSV.                                                       |
+| `File`              | `expo-file-system` | `new File(...uris)`, `uri: string`, `create(): void`, `write(conteudo): Promise<void>`, `base64(): Promise<string>` | Criar e gravar o CSV no cache; ler a logo em base64.                                                          |
+| `Window`            | navegador          | `open(url, alvo): Window \| null`, `document: Document`, `focus(): void`, `print(): void`, `close(): void` | `open` é chamado no objeto global `window`; `focus`, `print` e `close`, na janela devolvida por ele (`janela`), que é fechada se algo falhar depois de aberta. |
+| `Document`          | navegador          | `open(): Document`, `write(html): void`, `close(): void`, `createElement(etiqueta): HTMLElement`, `body: HTMLElement` | No PDF, `janela.document` recebe o HTML por `open`, `write` e `close`; no CSV, `document.createElement('a')` cria o link, posto em `document.body` antes do clique. |
+| `URL`               | navegador          | `createObjectURL(objeto): string` e `revokeObjectURL(url): void`, ambos estáticos                  | Cria o endereço temporário do `Blob` com o CSV e o libera 1 segundo depois do clique, por `setTimeout`.                          |
+| `HTMLAnchorElement` | navegador          | `href: string`, `download: string`, `click(): void`, `remove(): void`                              | Link com `href` igual ao endereço do `Blob` e `download` igual a `relatorio-individual.csv`; o clique inicia o download, e `remove` tira o link da página. |
+
+## Models do Mongoose e `Query`
+
+Os models são criados pelo `MongooseModule` a partir dos schemas e injetados pelo NestJS com `@InjectModel`. No código, o tipo de cada atributo é `Model<...Document>`; no diagrama, cada model é uma classe com o nome do schema seguido de `Model` e só os métodos chamados por este módulo.
+
+| Classe             | Guardado em                                              | Métodos usados                                  | Uso no relatório                                                                                               |
+| ------------------ | -------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `UsuarioModel`     | `RelatoriosService.usuarios` e `JwtAuthGuard.usuarios`   | `findById(id): Query`, `findOne(filtro): Query` | O serviço lê nome, e-mail e `ativo` do usuário do token com `findById`; o guard confere a conta ativa com `findOne({ _id, ativo: true })`. |
+| `ReuniaoModel`     | `RelatoriosService.reunioes`                             | `find(filtro): Query`                           | Lê as reuniões agendadas com presença confirmada do usuário, já iniciadas, dentro do período.                  |
+| `OrganizacaoModel` | `RelatoriosService.organizacoes`                         | `find(filtro): Query`                           | Lê as organizações aprovadas em que o usuário tem vínculo aprovado.                                            |
+| `ComissaoModel`    | `RelatoriosService.comissoes`                            | `find(filtro): Query`                           | Lê as comissões ativas dessas organizações em que o usuário é membro.                                          |
+| `Query`            | devolvida por `find`, `findById` e `findOne`             | `select(campos)`, `populate(opcoes)`, `sort(ordem)`, `lean()`, que devolvem a própria `Query`, e `exec(): Promise` | Escolhe os campos, troca `comissao_id` pelo nome da comissão e da organização, ordena e executa a leitura. `lean` faz `exec` devolver objetos simples, sem os métodos de documento. |
 
 ## `RelatorioIndividual` e `ParticipacaoIndividual`
 
@@ -111,7 +129,7 @@ Tipos de `FRONTEND/src/types/relatorio-individual.ts`. Descrevem o objeto JSON d
 | `saida_automatica`                | `boolean`        |         Não | Verdadeiro quando a saída foi registrada pelo servidor no término previsto da reunião.             |
 | `minutos`                         | `number \| null` |         Sim | Parte inteira de (saída − entrada) em minutos; nulo se a saída falta, é anterior à entrada ou é futura. |
 
-`PeriodoRelatorio` é o tipo de texto com os valores `todos`, `mes` e `ano`.
+`PeriodoRelatorio` é o tipo de texto declarado em `FRONTEND/src/utils/relatorio-individual.ts`, com os valores `todos` ("Todo período"), `mes` ("Este mês") e `ano` ("Este ano"), as três opções do controle "Período do relatório". O valor inicial na tela é `todos`.
 
 ## Classes da API
 
@@ -123,7 +141,7 @@ Tipos de `FRONTEND/src/types/relatorio-individual.ts`. Descrevem o objeto JSON d
 | `RelatoriosController`   | `relatorios: RelatoriosService`                                                                    | `individual(req, filtros)`: `Promise<RelatorioIndividual>`               | Rota `GET /relatorios/individual`; usa sempre `req.usuario.sub`.                                                              |
 | `RelatoriosService`      | `reunioes: Model<ReuniaoDocument>`, `usuarios: Model<UsuarioDocument>`, `organizacoes: Model<OrganizacaoDocument>`, `comissoes: Model<ComissaoDocument>` | `individual(usuarioId, filtros)`: `Promise<RelatorioIndividual>` | Lê `usuarios`, `organizacoes`, `comissoes` e `reunioes`, esta com `populate` do nome da comissão e da organização; não grava.  |
 
-O `RelatoriosModule` (`BACKEND/src/relatorios/relatorios.module.ts`) registra o controller e o service e disponibiliza os models `Reuniao`, `Usuario`, `Comissao` e `Organizacao`, além do `AuthModule`, que fornece os guards.
+O `RelatoriosModule` (`BACKEND/src/relatorios/relatorios.module.ts`) registra o controller e o service, disponibiliza os models `Reuniao`, `Usuario`, `Comissao` e `Organizacao` e importa o `AuthModule`, que exporta o `JwtModule` e o `JwtAuthGuard`; o `UsuarioComumGuard` não tem dependências e é criado pelo próprio NestJS.
 
 ## DTO e validação
 
@@ -167,6 +185,11 @@ O `ValidationPipe` global usa `whitelist`, que remove da consulta qualquer parâ
 |                     | `membros`            | `MembroComissao[]`                 |         Sim | Exatamente um `RESPONSAVEL` e nenhum usuário repetido.                                             |
 | `MembroComissao`    | `usuario_id`         | `ObjectId`                         |         Sim | Comparado com o usuário do token.                                                                  |
 |                     | `papel`              | `PapelComissao` (`RESPONSAVEL`, `MEMBRO`) | Sim | Mostrado como "Responsável" ou "Membro".                                                         |
+
+| Enumeração                | Valores                                        | Uso no relatório                                                                                       |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `SituacaoPresenca`        | `AGUARDANDO`, `CONFIRMADA`, `RECUSADA`         | Valor de `Presenca.situacao`; só a presença `CONFIRMADA` entra no filtro das reuniões e no relatório.  |
+| `StatusMembroOrganizacao` | `PENDENTE`, `APROVADO`, `REJEITADO`, `CONVIDADO` | Valor de `MembroOrganizacao.status`; só o vínculo `APROVADO` entra no filtro das organizações.       |
 
 As enumerações `RespostaConvite` (`PENDENTE`, `ACEITO`, `RECUSADO`) e `OrigemPresenca` (`LINK`, `PROPRIO`, `RESPONSAVEL`) fazem parte dos subdocumentos lidos, mas não são usadas pelo relatório.
 

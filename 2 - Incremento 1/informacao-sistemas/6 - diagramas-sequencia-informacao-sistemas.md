@@ -4,9 +4,9 @@
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api`, `ToastContext` e `versao`, os guards, o `SistemaController`, o `SistemaService`, o módulo `os` do Node.js, a biblioteca `bcrypt`, a conexão do Mongoose e os models. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como a comparação do tipo da conta, e as rotas HTTP aparecem em notas.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-informacao-sistemas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código e estão no [Diagrama de classes](3%20-%20diagrama-classes-informacao-sistemas.md): o item `ItemMenu` da tela inicial, a `TelaSistema`, os módulos `api`, `ToastContext` e `versao`, os guards, o `SistemaController`, o `SistemaService`, os models do Mongoose (`UsuarioModel`, `OrganizacaoModel`, `ComissaoModel` e `ReuniaoModel`) e as bibliotecas chamadas diretamente: o `Router` do `expo-router`, o módulo `os` do Node.js, o `bcrypt` e, do driver do MongoDB, o `Db` da conexão (`conexao.db`) e a `Collection` que ele devolve. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como a comparação do tipo da conta, e as rotas HTTP aparecem em notas. Os retornos são identificadores, com os nomes usados no código; uma nota diz o que cada um traz quando isso não é evidente.
 
-O SD-SIS-01 mostra as três verificações que o NestJS executa antes do controller (`ApiKeyGuard`, `JwtAuthGuard` e `AdminSistemaGuard`), cada uma pelo seu método `canActivate`. Nos outros diagramas, essas verificações acontecem da mesma forma e estão resumidas numa nota. A função `carregar` da `TelaSistema` pede ao mesmo tempo as rotas de SD-SIS-05, SD-SIS-01 e SD-SIS-02 e só atualiza os cartões quando as três dão certo; cada diagrama mostra uma dessas rotas.
+O SD-SIS-01 mostra as três verificações que o NestJS executa antes do controller (`ApiKeyGuard`, `JwtAuthGuard` e `AdminSistemaGuard`), cada uma pelo seu método `canActivate`. Nos outros diagramas, essas verificações acontecem da mesma forma e estão resumidas numa nota. A função `carregar` da `TelaSistema` pede ao mesmo tempo as rotas de SD-SIS-05, SD-SIS-01 e SD-SIS-02 e só atualiza os cartões quando as três dão certo; cada diagrama mostra uma dessas rotas. Os blocos `par` marcam chamadas feitas ao mesmo tempo com `Promise.all`.
 
 ## SD-SIS-01 — Consultar status do servidor
 
@@ -14,7 +14,8 @@ O SD-SIS-01 mostra as três verificações que o NestJS executa antes do control
 sequenceDiagram
     autonumber
     actor U as Administrador do sistema
-    participant I as TelaInicio
+    participant IM as ItemMenu
+    participant R as Router
     participant T as TelaSistema
     participant A as api
     participant K as ApiKeyGuard
@@ -23,25 +24,31 @@ sequenceDiagram
     participant C as SistemaController
     participant S as SistemaService
     participant O as os
-    participant X as Connection
+    participant D as Db
     participant MU as UsuarioModel
     participant MO as OrganizacaoModel
     participant MC as ComissaoModel
     participant MR as ReuniaoModel
-    U->>I: aoTocar()
-    I->>T: router.push("/sistema")
+    Note over U,IM: Na TelaInicio, o item Sistema só aparece para a conta ADMIN_SISTEMA
+    U->>IM: aoTocar()
+    Note over IM,R: aoTocar é a função que a TelaInicio passa ao item
+    IM->>R: push("/sistema")
+    Note over R,T: O Router abre a TelaSistema
     T->>T: carregar()
     Note over T: useFocusEffect chama carregar ao abrir a tela.<br/>Ao mesmo tempo, carregar pede sobre (SD-SIS-05) e relatórios (SD-SIS-02)
     T->>A: api("/sistema/status")
     A->>A: obterToken()
     Note over A,K: GET /sistema/status com os cabeçalhos X-API-Key e Authorization Bearer
     A->>K: canActivate(context)
+    K->>K: isPublicBrowserRedirect(request)
+    Note over K: Falso para esta rota. Lê API_ACCESS_TOKEN da configuração e o cabeçalho X-API-Key
     K->>K: chavesIguais(recebida, esperada)
     K-->>A: true
     A->>J: canActivate(context)
     J->>J: extrairToken(requisicao)
     Note over J: jwtService.verifyAsync confere assinatura e validade.<br/>sub precisa ser um ObjectId válido
-    J->>MU: findOne({ _id: requisicao.usuario.sub, ativo: true })
+    J->>MU: findOne(filtro)
+    Note over J,MU: filtro = _id igual a requisicao.usuario.sub e ativo true
     MU-->>J: usuario
     Note over J: Recusa token emitido antes de senha_alterada_em.<br/>Copia tipo e email do banco para a requisição
     J-->>A: true
@@ -51,51 +58,62 @@ sequenceDiagram
     A->>C: status()
     C->>S: status()
     S->>O: totalmem()
-    O-->>S: bytes totais
+    O-->>S: memoriaTotal
     S->>O: freemem()
-    O-->>S: bytes livres
-    Note over S,MR: usoCpuPercentual e infoBanco rodam em paralelo (Promise.all)
-    S->>S: usoCpuPercentual()
-    S->>O: cpus()
-    O-->>S: tempos de cada processador
-    Note over S: Espera 200 ms com setTimeout
-    S->>O: cpus()
-    O-->>S: tempos de cada processador
-    Note over S: uso_percentual = 100 vezes 1 menos a variação do tempo ocioso<br/>dividida pela variação do tempo total, arredondado
-    S->>S: infoBanco()
-    S->>X: db.command({ ping: 1 })
-    alt banco respondeu
-        X-->>S: ok
-        Note over S: latencia_ms = diferença de performance.now() antes e depois do ping
-        S->>X: db.command({ dbStats: 1 })
-        S->>MU: countDocuments()
-        S->>MO: countDocuments()
-        S->>MC: countDocuments()
-        S->>MR: countDocuments()
-        Note over S,MR: dbStats e as quatro contagens rodam em paralelo (Promise.all)
-        X-->>S: estatisticas
-        MU-->>S: total de usuarios
-        MO-->>S: total de organizacoes
-        MC-->>S: total de comissoes
-        MR-->>S: total de reunioes
-        Note over S: banco = conectado true, latencia_ms, armazenamento em MB e colecoes
-    else alguma consulta ao banco falhou
-        X-->>S: erro
-        Note over S: banco = conectado false
+    O-->>S: memoriaLivre
+    Note over S,O: memoriaTotal e memoriaLivre em bytes
+    par usoCpuPercentual e infoBanco (Promise.all)
+        S->>S: usoCpuPercentual()
+        S->>O: cpus()
+        O-->>S: cpus
+        Note over S,O: antes = soma dos tempos total e ocioso de cada item de cpus
+        Note over S: Espera 200 ms com setTimeout
+        S->>O: cpus()
+        O-->>S: cpus
+        Note over S,O: depois = a mesma soma. uso_percentual = 100 vezes 1 menos a variação<br/>do tempo ocioso dividida pela variação do tempo total, arredondado
+    and
+        S->>S: infoBanco()
+        S->>D: command({ ping: 1 })
+        alt banco respondeu
+            D-->>S: ok
+            Note over S: latencia_ms = diferença de performance.now() antes e depois do ping
+            par dbStats e as quatro contagens (Promise.all)
+                S->>D: command({ dbStats: 1 })
+                D-->>S: estatisticas
+            and
+                S->>MU: countDocuments()
+                MU-->>S: usuarios
+            and
+                S->>MO: countDocuments()
+                MO-->>S: organizacoes
+            and
+                S->>MC: countDocuments()
+                MC-->>S: comissoes
+            and
+                S->>MR: countDocuments()
+                MR-->>S: reunioes
+            end
+            Note over S: banco = conectado true, latencia_ms, armazenamento em MB<br/>e colecoes com usuarios, organizacoes, comissoes e reunioes
+        else alguma consulta ao banco falhou
+            D-->>S: erro
+            Note over S: banco = conectado false
+        end
     end
     S->>O: cpus()
-    O-->>S: lista de processadores
+    O-->>S: cpus
+    Note over S,O: nucleos = cpus.length
     S->>O: uptime()
-    O-->>S: segundos desde que o computador ligou
-    Note over S: api.tempo_ativo_segundos = process.uptime() arredondado
-    S-->>C: objeto de status
-    C-->>A: 200 objeto de status
-    A-->>T: Resultado com os dados
+    O-->>S: tempoAtivo
+    Note over S,O: tempoAtivo = segundos desde que o computador ligou.<br/>api.tempo_ativo_segundos = process.uptime() arredondado
+    S-->>C: status
+    Note over C,S: status = servidor, api, banco_de_dados e verificado_em
+    C-->>A: 200 status
+    A-->>T: resultadoStatus
     T->>T: definirCarregando(false)
     alt sobre, status e relatórios deram certo
         T->>T: definirAviso(null)
         T->>T: definirStatus(resultadoStatus.dados)
-        Note over T: Cartões Servidor e Banco de dados, com formatarTempoAtivo nos tempos ativos
+        Note over T: Cartões Servidor e Banco de dados, com formatarTempoAtivo nos tempos ativos.<br/>CPU em uso mostra o percentual e o número de núcleos
     else alguma das três falhou
         Note over T: aviso = tom "erro", titulo "Não foi possível carregar as informações do sistema"<br/>e a mensagem da primeira que falhou
         T->>T: definirAviso(aviso)
@@ -124,28 +142,42 @@ sequenceDiagram
     Note over A,C: GET /sistema/relatorios. Antes do controller,<br/>ApiKeyGuard, JwtAuthGuard e AdminSistemaGuard como em SD-SIS-01
     A->>C: relatorios()
     C->>S: relatorios()
-    S->>MU: countDocuments()
-    S->>MU: countDocuments({ ativo: true })
-    S->>MO: countDocuments()
-    S->>MO: countDocuments({ status: StatusOrganizacao.PENDENTE })
-    S->>MO: countDocuments({ status: StatusOrganizacao.APROVADA })
-    S->>MC: countDocuments()
-    S->>MC: countDocuments({ ativo: true })
-    Note over S,MR: As seis contagens de reuniões passam pela função local contar(filtro)
-    S->>MR: countDocuments({})
-    S->>MR: countDocuments({ situacao: SituacaoReuniao.AGENDADA })
-    S->>MR: countDocuments({ situacao: SituacaoReuniao.CANCELADA })
-    S->>MR: countDocuments({ "ata.situacao": { $exists: true } })
-    S->>MR: countDocuments({ "ata.situacao": SituacaoAta.EM_APROVACAO })
-    S->>MR: countDocuments({ "ata.situacao": SituacaoAta.APROVADA })
-    Note over S,MR: As treze contagens rodam em paralelo (Promise.all)<br/>e os filtros são por igualdade ou por existência do campo
-    MU-->>S: total e ativos
-    MO-->>S: total, pendentes e aprovadas
-    MC-->>S: total e ativas
-    MR-->>S: reuniões total, agendadas e canceladas, atas total, em aprovação e aprovadas
-    S-->>C: objeto de relatórios
-    C-->>A: 200 objeto de relatórios
-    A-->>T: Resultado com os dados
+    Note over S,MR: As treze contagens rodam ao mesmo tempo (Promise.all),<br/>com filtros por igualdade ou por existência do campo
+    par usuários
+        S->>MU: countDocuments()
+        MU-->>S: usuariosTotal
+        S->>MU: countDocuments({ ativo: true })
+        MU-->>S: usuariosAtivos
+    and organizações
+        S->>MO: countDocuments()
+        MO-->>S: orgTotal
+        S->>MO: countDocuments({ status: StatusOrganizacao.PENDENTE })
+        MO-->>S: orgPendentes
+        S->>MO: countDocuments({ status: StatusOrganizacao.APROVADA })
+        MO-->>S: orgAprovadas
+    and comissões
+        S->>MC: countDocuments()
+        MC-->>S: comissoesTotal
+        S->>MC: countDocuments({ ativo: true })
+        MC-->>S: comissoesAtivas
+    and reuniões e atas, pela função local contar(filtro)
+        S->>MR: countDocuments({})
+        MR-->>S: reunioesTotal
+        S->>MR: countDocuments({ situacao: SituacaoReuniao.AGENDADA })
+        MR-->>S: reunioesAgendadas
+        S->>MR: countDocuments({ situacao: SituacaoReuniao.CANCELADA })
+        MR-->>S: reunioesCanceladas
+        S->>MR: countDocuments({ "ata.situacao": { $exists: true } })
+        MR-->>S: atasTotal
+        S->>MR: countDocuments({ "ata.situacao": SituacaoAta.EM_APROVACAO })
+        MR-->>S: atasEmAprovacao
+        S->>MR: countDocuments({ "ata.situacao": SituacaoAta.APROVADA })
+        MR-->>S: atasAprovadas
+    end
+    S-->>C: relatorios
+    Note over C,S: relatorios = usuarios, organizacoes, comissoes, reunioes e atas, cada um com os seus totais
+    C-->>A: 200 relatorios
+    A-->>T: resultadoRelatorios
     alt sobre, status e relatórios deram certo
         T->>T: definirAviso(null)
         T->>T: definirRelatorios(resultadoRelatorios.dados)
@@ -184,23 +216,24 @@ sequenceDiagram
         A->>C: popularDadosDeTeste()
         C->>S: popularDadosDeTeste()
         S->>S: obterConfiguracaoUsuariosTeste()
-        Note over S: Lê TEST_USERS_PASSWORD e as seis variáveis TEST_USER_*.<br/>Faltando alguma, 400 "Configure as contas de teste no .env: " e os nomes
-        S->>B: hash(senha, 10)
-        B-->>S: senha_hash
+        Note over S: Lê TEST_USERS_PASSWORD e as seis variáveis TEST_USER_*.<br/>Faltando alguma, 400 "Configure as contas de teste no .env: " e os nomes, sem criar nada
+        S->>B: hash(configuracao.senha, 10)
+        B-->>S: senhaHash
         loop três contas, em paralelo
             S->>MU: create({ nome, email, senha_hash })
             MU-->>S: usuario
         end
-        Note over S,MU: E-mail já cadastrado: o índice único recusa e a API responde 500
+        Note over S,MU: E-mail já cadastrado, como numa segunda confirmação:<br/>o índice único recusa e a API responde 500 "Internal server error"
         Note over S,MO: dados = nome "Organização de Teste", cidade, descricao, criada_por, status APROVADA<br/>e membros com um ADMIN e um MEMBRO, ambos APROVADO
         S->>MO: create(dados)
         MO-->>S: organizacao
         Note over S,MC: dados = nome "Comissão de Teste", descricao, organizacao_id<br/>e membros com um RESPONSAVEL
         S->>MC: create(dados)
         MC-->>S: comissao
-        S-->>C: status dados_de_teste_criados e usuarios
-        C-->>A: 201 objeto
-        A-->>T: Resultado com os dados
+        S-->>C: resposta
+        Note over C,S: resposta = status dados_de_teste_criados e usuarios com nome, email e cenario
+        C-->>A: 201 resposta
+        A-->>T: resultado
         T->>T: definirAcaoEmAndamento(null)
         T->>T: definirConfirmacaoTeste(false)
         T->>M: mostrarToast("3 usuários de teste criados.", "sucesso")
@@ -228,7 +261,8 @@ sequenceDiagram
     participant MO as OrganizacaoModel
     participant MC as ComissaoModel
     participant MR as ReuniaoModel
-    participant X as Connection
+    participant D as Db
+    participant CO as Collection
     U->>T: definirResetAberto(true)
     Note over U,T: Toque em "Resetar sistema". O cartão mostra o aviso, os campos "Digite RESET para confirmar"<br/>e "Sua senha de administrador" e os botões "Apagar tudo" e "Cancelar"
     Note over U,T: palavra e senha = o que o administrador digita nos dois campos
@@ -251,44 +285,47 @@ sequenceDiagram
         C->>S: reset(requisicao.usuario.sub, dto.senha)
         S->>S: confirmarSenhaAdmin(adminId, senha)
         S->>MU: findById(adminId)
-        S->>MU: select("+senha_hash")
-        S->>MU: exec()
+        Note over S,MU: encadeia select("+senha_hash"), porque o hash é um campo oculto
         MU-->>S: admin
         Note over S: Sem senha_hash: 400 "Defina uma senha na sua conta para resetar o sistema"
         S->>B: compare(senha, admin.senha_hash)
         alt senha errada
             B-->>S: false
-            S-->>C: BadRequestException "Senha incorreta"
-            C-->>A: 400 Senha incorreta
-            A-->>T: Resultado com o erro
+            S-->>C: BadRequestException
+            C-->>A: 400 "Senha incorreta"
+            A-->>T: resultado
+            Note over T,A: resultado.ok falso, com a mensagem em resultado.erro
             T->>T: definirAcaoEmAndamento(null)
             T->>T: definirErroReset(resultado.erro)
             Note over T: A mensagem aparece abaixo do campo da senha e o cartão continua aberto.<br/>Nada foi apagado
         else senha certa
             B-->>S: true
-            S->>MU: deleteMany({ tipo: { $ne: TipoUsuario.ADMIN_SISTEMA } })
-            S->>MO: deleteMany({})
-            S->>MC: deleteMany({})
-            S->>MR: deleteMany({})
-            S->>X: db.collection("anexos.files").deleteMany({})
-            S->>X: db.collection("anexos.chunks").deleteMany({})
-            S->>X: db.collection("contadores").deleteMany({})
-            S->>X: db.collection("notificacoes").deleteMany({})
-            Note over S,X: As oito exclusões rodam em paralelo (Promise.all), sem transação
+            Note over S,CO: As oito exclusões rodam ao mesmo tempo (Promise.all), sem transação
+            S->>MU: deleteMany(filtro)
+            Note over S,MU: filtro = tipo diferente de ADMIN_SISTEMA
             MU-->>S: resultado
+            S->>MO: deleteMany({})
             MO-->>S: resultado
+            S->>MC: deleteMany({})
             MC-->>S: resultado
+            S->>MR: deleteMany({})
             MR-->>S: resultado
-            X-->>S: resultados
-            S-->>C: status sistema_resetado e resetado_em
-            C-->>A: 201 objeto
-            A-->>T: Resultado com os dados
+            loop anexos.files, anexos.chunks, contadores e notificacoes
+                S->>D: collection(nome)
+                D-->>S: colecao
+                S->>CO: deleteMany({})
+                CO-->>S: resultado
+            end
+            S-->>C: resposta
+            Note over C,S: resposta = status sistema_resetado e resetado_em
+            C-->>A: 201 resposta
+            A-->>T: resultado
             T->>T: definirAcaoEmAndamento(null)
             T->>T: fecharReset()
             T->>M: mostrarToast("Sistema resetado. O administrador foi mantido.", "sucesso")
             Note over M: Aviso verde no topo da tela por 4 segundos
             T->>T: carregar()
-            Note over T: carregar não é esperado e pede sobre, status e relatórios
+            Note over T: carregar não é esperado e pede sobre, status e relatórios.<br/>No banco ficam só as contas ADMIN_SISTEMA
         end
     end
 ```
@@ -307,11 +344,11 @@ sequenceDiagram
     participant C as SistemaController
     participant S as SistemaService
     participant O as os
-    participant X as Connection
+    participant D as Db
     Note over T: TECNOLOGIAS_APP é montada com versaoPacote quando o arquivo da tela é carregado
     T->>V: versaoDoApp()
-    V-->>T: versao e build
-    Note over T,V: versaoDoApp é chamada a cada desenho da tela e lê version do app.json
+    V-->>T: versaoApp
+    Note over T,V: versaoApp = versao e build. versaoDoApp é chamada a cada desenho da tela<br/>e lê version do app.json
     U->>T: carregar()
     Note over U,T: Ao abrir a tela ou ao puxar a tela para baixo.<br/>Ao mesmo tempo, carregar pede status (SD-SIS-01) e relatórios (SD-SIS-02)
     T->>A: api("/sistema/sobre")
@@ -319,30 +356,32 @@ sequenceDiagram
     A->>C: sobre()
     C->>S: sobre()
     S->>O: cpus()
-    O-->>S: lista de processadores
+    O-->>S: cpus
     Note over S: sistema = nome Conecta+, versao_api do package.json, ambiente NODE_ENV ou development,<br/>iniciada_em = agora menos process.uptime() e fuso_horario de Intl.DateTimeFormat
     Note over S: As versões de TypeScript, NestJS, Mongoose, bcrypt e class-validator vêm de versaoDe(nome),<br/>que lê o package.json e retira o ^ ou o ~. A do Node.js vem de process.versions.node
     S->>S: versaoMongo()
-    S->>X: db.command({ buildInfo: 1 })
+    S->>D: command({ buildInfo: 1 })
     alt comando respondeu
-        X-->>S: info
+        D-->>S: info
         Note over S: versão do MongoDB = info.version
     else comando falhou
-        X-->>S: erro
+        D-->>S: erro
         Note over S: versão do MongoDB = texto vazio
     end
     S->>O: type()
-    O-->>S: nome do sistema operacional
+    O-->>S: tipoSO
     S->>O: release()
-    O-->>S: versão do sistema operacional
+    O-->>S: versaoSO
+    Note over S,O: sistema_operacional = tipoSO e versaoSO
     S->>O: arch()
     O-->>S: arquitetura
     S->>O: totalmem()
-    O-->>S: bytes totais
-    Note over S: servidor = sistema_operacional, arquitetura, cpu_modelo do primeiro processador,<br/>nucleos e memoria_total_mb
-    S-->>C: objeto sobre
-    C-->>A: 200 objeto sobre
-    A-->>T: Resultado com os dados
+    O-->>S: memoriaTotal
+    Note over S: servidor = sistema_operacional, arquitetura, cpu_modelo do primeiro item de cpus,<br/>nucleos e memoria_total_mb
+    S-->>C: sobre
+    Note over C,S: sobre = sistema, tecnologias e servidor
+    C-->>A: 200 sobre
+    A-->>T: resultadoSobre
     alt sobre, status e relatórios deram certo
         T->>T: definirAviso(null)
         T->>T: definirSobre(resultadoSobre.dados)

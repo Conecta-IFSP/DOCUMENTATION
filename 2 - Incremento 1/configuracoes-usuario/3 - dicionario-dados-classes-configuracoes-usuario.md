@@ -1,6 +1,6 @@
 # Dicionário de classes — Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -12,6 +12,7 @@
 | `TelaRecuperarConta`   | Aplicativo           | A tela "Recuperar conta", com as etapas e-mail, código, senha e concluído.                           |
 | `SessaoContext`        | Aplicativo (estado)  | A sessão aberta no aparelho: o usuário logado, o aviso do login e as funções de entrar e sair.        |
 | `TemaContext`          | Aplicativo (estado)  | A preferência de tema e o tema efetivo usado por todas as telas.                                     |
+| `ToastContext`         | Aplicativo (estado)  | O aviso rápido (toast) mostrado por alguns segundos no alto da tela.                                 |
 | `CampoTexto`           | Aplicativo           | O campo de texto com rótulo, mensagem de erro e texto de ajuda.                                       |
 | `validacao`            | Aplicativo (serviço) | As regras de preenchimento conferidas na tela antes de chamar a API.                                 |
 | `api`                  | Aplicativo (serviço) | O acesso à API: monta a requisição com a chave e o token e guarda o token no aparelho.                |
@@ -22,7 +23,13 @@
 | `AuthService`          | Negócio              | Os códigos enviados por e-mail: troca de e-mail e recuperação de conta.                              |
 | `JwtAuthGuard`         | API                  | A conferência do token em toda rota autenticada.                                                      |
 | DTOs                   | API                  | Os objetos de entrada de cada rota, com as regras de validação.                                       |
+| `UsuarioModel`         | Dados (model)        | O model do Mongoose da coleção `usuarios`: busca e grava os documentos `Usuario`.                     |
 | `Usuario`              | Documento            | A conta de uma pessoa, na coleção `usuarios`.                                                         |
+| `Router`               | Biblioteca           | O roteador do `expo-router`, que abre as telas protegidas.                                            |
+| `SecureStore`          | Biblioteca           | O armazenamento seguro do aparelho (`expo-secure-store`), onde ficam o token e a preferência de tema. |
+| `bcrypt`               | Biblioteca           | Gera e confere o hash das senhas.                                                                     |
+| `crypto`               | Biblioteca           | O módulo `node:crypto` do Node.js, que sorteia os bytes do token de redefinição.                      |
+| `Transporter`          | Biblioteca           | O transportador do Nodemailer que envia os e-mails pelo servidor SMTP.                                |
 
 ## `Usuario`
 
@@ -112,11 +119,12 @@ Os campos opcionais existem só enquanto o processo correspondente está em anda
 
 | Classe               | Atributos principais                                                                    | Operações                                                                                                                                                                                       |
 | -------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TelaPerfil`         | `perfil` (nome, e-mail e tema lidos da API), `preferenciaSelecionada`, folhas abertas, `salvandoTema` | `carregarPerfil` (lê `/usuarios/me` ao ganhar foco e ao puxar a tela); `abrirEdicaoNome`; `salvarNome` (pede a identidade e grava o nome); `selecionarTema`; `abrirProtegida` (pede a identidade e navega); `sair`.    |
-| `TelaTrocarEmail`    | `etapa` (`novo`, `codigo` ou `concluido`), `atual`, `novo`, `codigo`, `reenviado`        | `enviarCodigo` e `solicitar` (pedem o código); `reenviar`; `confirmar` (envia o código); `voltar` (da etapa do código volta ao novo e-mail).                                                     |
+| `TelaPerfil`         | `perfil` (nome, e-mail e tema lidos da API), `preferenciaSelecionada`, folhas abertas, `salvandoTema`, `aviso` (faixa da tela) e `avisoNome` (faixa da folha "Editar nome"), do tipo `Aviso` (`tom`, `titulo` e `mensagem`) | `carregarPerfil` (lê `/usuarios/me` ao ganhar foco e ao puxar a tela); `abrirEdicaoNome`; `salvarNome` (pede a identidade e grava o nome); `selecionarTema`; `abrirProtegida` (pede a identidade e navega com `Router.push`); `sair`. Atualizadores do `useState`, todos com retorno `void`: `definirPerfil(valor: Perfil)`, `definirAviso(valor: Aviso)`, `definirAvisoNome(valor: Aviso)`, `definirEditandoNome(valor: boolean)`, `definirEscolhendoTema(valor: boolean)` (abre ou fecha a folha do tema), `definirConfirmandoSaida(valor: boolean)` (abre ou fecha o diálogo de saída), `definirPreferenciaSelecionada(valor: PreferenciaTema)` e `definirSalvandoTema(valor: boolean)`. |
+| `TelaTrocarEmail`    | `etapa` (`novo`, `codigo` ou `concluido`), `atual`, `novo`, `codigo`, `reenviado`        | `enviarCodigo` e `solicitar` (pedem o código); `reenviar`; `confirmar` (envia o código); `voltar` (da etapa do código volta ao novo e-mail). `definirEtapa(valor: Etapa): void` troca a etapa mostrada (atualizador do `useState`). |
 | `TelaAlterarSenha`   | `erro` (motivo devolvido pela API)                                                       | `salvar` (envia as senhas e, com sucesso, chama `sair` com o aviso); `voltar`.                                                                                                                  |
-| `TelaRecuperarConta` | `etapa` (`email`, `codigo`, `senha` ou `concluido`), `email`, `codigo`, `token` (só na memória), `reenviado` | `solicitar`; `reenviar`; `verificarCodigo`; `redefinir` (pede a identidade e envia a nova senha); `voltar`.                                                                  |
-| `SessaoContext`      | `usuario` (ou `null`), `carregando`, `erro`, `aviso` (texto mostrado no login), `geracao` (contador que invalida respostas antigas) | `atualizar` (relê `/usuarios/me` ao abrir, a cada 30 s, ao voltar ao aplicativo e a cada troca de tela); `entrar`; `sair(aviso)` (apaga o token, limpa o usuário e guarda o aviso). |
+| `TelaRecuperarConta` | `etapa` (`email`, `codigo`, `senha` ou `concluido`), `email`, `codigo`, `token` (só na memória), `reenviado` | `solicitar`; `reenviar`; `verificarCodigo`; `redefinir` (pede a identidade e envia a nova senha); `voltar`. Atualizadores do `useState`: `definirEtapa(valor: Etapa): void` e `definirToken(valor: string): void` (guarda o token devolvido por `verificar-recuperacao`). |
+| `SessaoContext`      | `usuario` (ou `null`), `carregando`, `erro`, `aviso` (texto mostrado no login), `geracao` (contador que invalida respostas antigas) | `atualizar` (relê `/usuarios/me` ao abrir, a cada 30 s e ao voltar ao aplicativo; a navegação do `_layout.tsx` também a chama a cada troca de tela); `entrar`; `sair(aviso)` (apaga o token, limpa o usuário e guarda o aviso). `definirUsuario(valor: Usuario): void` e `definirAviso(valor: string): void`: atualizadores do `useState`; com `usuario` `null`, o aplicativo mostra o login. `ouvinte(): void`: a função que o `SessaoContext` registra com `observarSessaoInvalida` ao abrir; o módulo `api` a chama depois de apagar o token num 401, e ela limpa o usuário e grava o aviso "Sua sessão expirou ou a conta está indisponível. Entre novamente.". |
+| `ToastContext`       | `toast` (`ToastAtual`: `id`, `mensagem` e `tipo`, ou `null`)                             | `mostrarToast(mensagem: string, tipo: TipoToast, duracao: number): void`: mostra o aviso; `tipo` é `sucesso`, `erro` ou `informacao` (padrão), e `duracao` é 4000 ms quando não informada. É entregue às telas pelo hook `useToast`. |
 | `TemaContext`        | `preferencia` (`sistema`, `claro` ou `escuro`), `tema` (cores do tema efetivo)          | `definirPreferencia` (troca o estado e grava a chave `conecta_mais_tema`); `lerPreferencia` e `gravarPreferencia` (SecureStore no Android e iOS, `localStorage` na web); `ehPreferenciaTema`. |
 | `CampoTexto`         | `rotulo`, `erro`, `ajuda` (texto cinza abaixo do campo, escondido quando há erro), `dica` | Componente visual; não chama a API.                                                                                                                                                            |
 | `validacao`          | —                                                                                       | `validarNome`, `validarEmail`, `validarSenha`, `validarNovaSenha`, `validarConfirmacaoSenha` (devolvem a mensagem de erro ou nada) e `normalizarEmail`.                                         |
@@ -124,6 +132,23 @@ Os campos opcionais existem só enquanto o processo correspondente está em anda
 | `autenticacaoLocal`  | —                                                                                       | `dispositivoProtegido` (falso na web e sem biometria, PIN ou senha de bloqueio); `autenticarComDispositivo` (verdadeiro sem proteção; senão, o resultado do pedido do aparelho, que aceita o PIN no lugar da biometria). |
 
 As funções `lerPreferencia`, `gravarPreferencia` e `ehPreferenciaTema` ficam no arquivo `TemaContext.tsx`, fora do componente; `definirPreferencia` é entregue às telas pelo hook `useTema`. As funções de `SessaoContext` são entregues pelo hook `useSessao`.
+
+## Model do Mongoose e bibliotecas
+
+O `UsuarioModel` é o `Model<UsuarioDocument>` que o NestJS injeta com `@InjectModel(Usuario.name)` nos atributos `usuarioModel` (`UsuariosService` e `AuthService`) e `usuarios` (`JwtAuthGuard`). As consultas devolvem uma `Query`, concluída com `.exec()`; quando a consulta usa `.select` para ler campos ocultos, os diagramas de sequência mostram isso em nota. As bibliotecas aparecem só com os métodos chamados nos diagramas de sequência.
+
+| Classe         | Estereótipo          | Método                                       | Retorno                     | O que faz                                                                                                                   |
+| -------------- | -------------------- | -------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `UsuarioModel` | `<<Model Mongoose>>` | `findById(id: string)`                       | `Query<UsuarioDocument>`    | Busca a conta pelo `_id`.                                                                                                   |
+|                |                      | `findOne(filtro: object)`                    | `Query<UsuarioDocument>`    | Busca a primeira conta que atende ao filtro: e-mail de outra conta, conta ativa pelo e-mail, hash do token de redefinição ainda válido ou `_id` com `ativo: true` (guard); `null` se não há. |
+|                |                      | `save()`                                     | `Promise<UsuarioDocument>`  | Chamado no documento devolvido por `findById` ou `findOne` (linha de vida "UsuarioModel (documento usuario)"): grava os campos alterados e atualiza `atualizado_em`. |
+| `Router`       | `<<biblioteca>>`     | `push(rota: Href)`                           | `void`                      | Abre a tela por cima da atual (`expo-router` 58.0.33).                                                                      |
+| `SecureStore`  | `<<biblioteca>>`     | `setItemAsync(chave: string, valor: string)` | `Promise<void>`             | Grava o valor na chave (`conecta_mais_tema` ou `conecta_mais_token`) no Android e no iOS (`expo-secure-store` 58.0.3).      |
+|                |                      | `deleteItemAsync(chave: string)`             | `Promise<void>`             | Apaga a chave `conecta_mais_token` ao sair.                                                                                 |
+| `bcrypt`       | `<<biblioteca>>`     | `compare(dado: string, hash: string)`        | `Promise<boolean>`          | Diz se a senha informada corresponde ao hash gravado.                                                                       |
+|                |                      | `hash(dado: string, custo: number)`          | `Promise<string>`           | Gera o hash da nova senha, com custo 10.                                                                                    |
+| `crypto`       | `<<biblioteca>>`     | `randomBytes(tamanho: number)`               | `Buffer`                    | Sorteia 32 bytes; em hexadecimal, eles formam o token de redefinição de 64 caracteres.                                     |
+| `Transporter`  | `<<biblioteca>>`     | `sendMail(mensagem: SendMailOptions)`        | `Promise<SentMessageInfo>`  | Envia o e-mail pelo servidor SMTP; a API não espera o fim do envio.                                                         |
 
 ## Rastreabilidade
 

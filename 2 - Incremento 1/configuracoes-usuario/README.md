@@ -1,6 +1,6 @@
 # Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Incremento 1 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Incremento 1 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -53,8 +53,8 @@ Ficam fora deste módulo o cadastro, a confirmação do cadastro e o login, desc
 | UC-CFG-03   | RF-CFG-03 | SD-CFG-03 | CT-CFG-03, CT-CFG-07, CT-CFG-08, CT-CFG-09, CT-CFG-10, CT-CFG-11, CT-CFG-14, CT-CFG-15, CT-CFG-16 |
 | UC-CFG-04   | RF-CFG-04 | SD-CFG-04 | CT-CFG-04, CT-CFG-11, CT-CFG-12, CT-CFG-15, CT-CFG-16                                            |
 | UC-CFG-05   | RF-CFG-05 | SD-CFG-05 | CT-CFG-05, CT-CFG-15                                                                             |
-| UC-CFG-06   | RF-CFG-06 | SD-CFG-06 | CT-CFG-06, CT-CFG-10, CT-CFG-13, CT-CFG-15                                                       |
+| UC-CFG-06   | RF-CFG-06 | SD-CFG-06 | CT-CFG-06, CT-CFG-10, CT-CFG-13, CT-CFG-15, CT-CFG-18                                            |
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026: backend sobre `caca2d2` e frontend sobre `8fc0a5a`. Esses commits incluem a regra de senha forte, o registro de `senha_alterada_em` com recusa dos tokens anteriores, o envio de e-mail sem espera e os avisos nas telas de senha; no frontend, a confirmação de identidade antes de salvar o nome entrou em `4abc6fa`. Os arquivos principais são `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `FRONTEND/src/app/perfil.tsx`, `FRONTEND/src/app/login/alterar-senha.tsx`, `FRONTEND/src/app/login/trocar-email.tsx`, `FRONTEND/src/app/login/recuperar-conta.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/contexts/TemaContext.tsx` e `FRONTEND/src/services/autenticacao-local.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026: backend `d1f1aeb` e frontend `10abe49`. A revisão anterior, de 26/11/2026, usou o backend `caca2d2` e o frontend `8fc0a5a`; desde então, a única mudança nos arquivos deste módulo é o subtítulo da linha "Ajuda" do perfil, que passou a "Manual de utilização". Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `8cf4839`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS, e o frontend só muda o aviso e o cartão da votação e a entrega do PDF, fora deste módulo; o diagrama de classes, o dicionário de classes e as sequências foram revistos sobre esses commits. Esses commits incluem a regra de senha forte, o registro de `senha_alterada_em` com recusa dos tokens anteriores, o envio de e-mail sem espera e os avisos nas telas de senha; no frontend, a confirmação de identidade antes de salvar o nome entrou em `4abc6fa`. Os arquivos principais são `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `FRONTEND/src/app/perfil.tsx`, `FRONTEND/src/app/login/alterar-senha.tsx`, `FRONTEND/src/app/login/trocar-email.tsx`, `FRONTEND/src/app/login/recuperar-conta.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/contexts/TemaContext.tsx` e `FRONTEND/src/services/autenticacao-local.ts`.

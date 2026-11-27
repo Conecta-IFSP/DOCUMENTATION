@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Reuniões
 
-> Padrão da disciplina · Módulo REU · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -124,9 +124,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Os fluxos funcionam do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS. |
 | **Medida**        | Agendar, editar, responder convite, marcar entrada e saída, anexar e gerar o PDF da lista sem erro e sem texto cortado. |
 | **Condição**      | Emuladores Android 16, 14 e 7.0, Galaxy S24 com Android 16 e Expo Go. |
-| **Verificação**   | Roteiros CT-REU-24 a CT-REU-28, CT-REU-31 e CT-REU-32. |
-| **Evidência**     | Registros de execução de 09/11/2026 a 26/11/2026 em [Testes](7%20-%20testes-reunioes.md). |
-| **Situação**      | Atendido no Android. iOS não executado por falta de equipamento; validação pendente. |
+| **Verificação**   | Roteiros CT-REU-24 a CT-REU-28, CT-REU-31, CT-REU-32 e CT-REU-42. |
+| **Evidência**     | Registros de execução de 09/11/2026 a 27/11/2026 em [Testes](7%20-%20testes-reunioes.md). |
+| **Situação**      | Atendido no Android. O PDF da lista no aplicativo instalado foi conferido no Galaxy S24 em 26/11/2026 (CT-REU-32) e de novo em 27/11/2026 (CT-REU-42), com o frontend `8cf4839`, em que `nomearPdf` espera o `move` antes do compartilhamento: o menu abriu com o nome novo e sem erro no log. iOS não executado por falta de equipamento; validação pendente. |
 
 ### RNF-REU-08 — Atualização da tela
 
@@ -161,8 +161,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | BACKEND: `npx vitest run`, `npm run build` e `npm run lint` sem falha. FRONTEND: `npx tsc --noEmit`, `npm run lint` e `node --test tests/*.test.cjs` sem falha. |
 | **Condição**      | Branch `homolog` dos dois projetos. |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-reunioes.md). |
-| **Evidência**     | 26/11/2026: BACKEND com 16 arquivos e 227 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados. |
-| **Situação**      | Atendido em 26/11/2026. |
+| **Evidência**     | 26/11/2026: BACKEND com 16 arquivos e 227 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados. 27/11/2026, backend `d1f1aeb` e frontend `10abe49`: BACKEND com 17 arquivos e 246 testes aprovados, `npm run lint` sem diagnóstico e `npx tsc -p tsconfig.build.json --noEmit` sem erro; FRONTEND com 5 arquivos e 47 testes aprovados, `npx tsc --noEmit` e `npm run lint` sem diagnóstico. |
+| **Situação**      | Atendido em 26/11/2026. Em 27/11/2026, repetido sobre a nova base, com o `npm run build` substituído pela compilação sem gerar arquivos (`tsc --noEmit` com a configuração do build). |
 
 ### RNF-REU-11 — Limite dos anexos
 
@@ -210,7 +210,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Aparelho com bloqueio de tela configurado. |
 | **Verificação**   | Roteiro CT-REU-27 com PIN de tela, na tela da reunião, e roteiro CT-REU-40, na tela inicial. |
 | **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `TelaReuniao.registrar`, `TelaInicio.marcarEntrada`, `TelaPresencaLink.registrar` e `TelaGestaoPresenca.corrigir`. |
-| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, a confirmação está no código e o roteiro CT-REU-40 ainda não foi executado. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` não trata um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. O link e a correção não têm roteiro executado. |
+| **Situação**      | Atendido no Android em 10/11/2026 na tela da reunião. Na tela inicial, o roteiro CT-REU-40 foi executado em parte em 26/11/2026: o pedido do aparelho apareceu e, cancelado, a tela mostrou o aviso sem gravar a entrada; falta a confirmação com a digital. Limitações: em aparelho sem bloqueio e na web, a função devolve verdadeiro e a marcação segue sem confirmação; na tela da reunião, `registrar` não trata um erro lançado pelo pedido do aparelho, que não envia nada mas também não mostra aviso, enquanto a tela inicial trata esse erro como identidade não confirmada. O link e a correção não têm roteiro executado. |
 
 ### RNF-REU-15 — Sigilo e validade do link de presença
 

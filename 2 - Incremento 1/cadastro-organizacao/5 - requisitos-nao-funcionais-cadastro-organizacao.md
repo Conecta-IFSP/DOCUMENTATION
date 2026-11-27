@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -36,10 +36,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Classificação** | Externo › Legal › Segurança                                                                                                                                                                            |
 | **Critério**      | Toda rota de `/organizacoes` exige a chave do aplicativo (`X-API-Key`), um token JWT válido e uma conta ativa, relida no banco a cada requisição.                                                       |
-| **Medida**        | Nas 12 rotas do módulo, requisição sem token, com token inválido ou expirado, ou de conta desativada ou excluída recebe HTTP 401, e o serviço não é chamado.                                            |
+| **Medida**        | Nas 12 rotas do módulo, requisição sem token, com token inválido ou expirado, com token emitido antes da última troca de senha, ou de conta desativada ou excluída recebe HTTP 401, e o serviço não é chamado. |
 | **Condição**      | Todas as rotas de `OrganizacoesController`.                                                                                                                                                            |
-| **Verificação**   | Teste automatizado CT-ORG-27 e, para a rota de remoção de membro, CT-ORG-24.                                                                                                                           |
-| **Evidência**     | `@UseGuards(JwtAuthGuard, UsuarioAtivoGuard)` em `BACKEND/src/organizacoes/organizacoes.controller.ts`, `ApiKeyGuard` global em `BACKEND/src/app.module.ts` e `BACKEND/src/organizacoes/organizacoes-acesso.spec.ts`. A chave `X-API-Key` vai dentro do aplicativo e não é um segredo forte; quem protege os dados de cada pessoa é o token. |
+| **Verificação**   | Teste automatizado CT-ORG-27 e, para a rota de remoção de membro, CT-ORG-24. O token anterior à troca de senha não é testado nas rotas deste módulo: a regra é de `JwtAuthGuard` e está coberta pelo CT-USR-15, nos testes do [Cadastro de usuário](../cadastro-usuario/7%20-%20testes-cadastro-usuario.md). |
+| **Evidência**     | `@UseGuards(JwtAuthGuard, UsuarioAtivoGuard)` em `BACKEND/src/organizacoes/organizacoes.controller.ts`, `senha_alterada_em` conferido em `BACKEND/src/auth/jwt-auth.guard.ts`, `ApiKeyGuard` global em `BACKEND/src/app.module.ts` e `BACKEND/src/organizacoes/organizacoes-acesso.spec.ts`. A chave `X-API-Key` vai dentro do aplicativo e não é um segredo forte; quem protege os dados de cada pessoa é o token. |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                                                                                |
 
 ### RNF-ORG-02 — Autorização por papel
@@ -86,7 +86,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Toda ação que apaga dados, retira acesso, muda papel ou invalida o código abre o diálogo `Confirmacao`, e "Cancelar" fecha o diálogo sem chamar a API.                                                                                         |
 | **Medida**        | Nove ações com diálogo: revogar e excluir organização; recusar pedido; remover acesso, cancelar convite e excluir pedido recusado; tornar administrador e tornar membro (ou deixar de ser administrador); gerar novo código. Nenhuma requisição é feita antes do toque no botão de confirmação, e os botões do diálogo ficam inativos enquanto a requisição está em andamento. |
 | **Condição**      | Telas "Gerenciar organizações" e tela da organização.                                                                                                                                                                                          |
-| **Verificação**   | Inspeção do código em 26/11/2026. Roteiro em aparelho CT-ORG-28: não executado.                                                                                                                                                                |
+| **Verificação**   | Inspeção do código em 27/11/2026. Roteiro em aparelho CT-ORG-28: não executado. CT-ORG-31, em 27/11/2026, conferiu no Galaxy S24 o diálogo e a confirmação de "Gerar novo código".                                                                |
 | **Evidência**     | `FRONTEND/src/components/Confirmacao.tsx`, `TelaGerenciarOrganizacoes.confirmarAcao` (`FRONTEND/src/app/organizacoes/aprovacao.tsx`) e `TelaOrganizacao.pedir` e `confirmar` (`FRONTEND/src/app/(abas)/organizacao.tsx`).                    |
 | **Situação**      | Atendido no código; execução em aparelho pendente (CT-ORG-28). Autorizar organização, aprovar pedido, aprovar pedido recusado e responder convite não pedem confirmação, por não retirarem acesso de ninguém.                                  |
 
@@ -110,7 +110,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O texto de exemplo (placeholder) de cada campo cabe na largura do campo, sem ultrapassar a borda.                                                                                                                           |
 | **Medida**        | Os textos de exemplo das telas do módulo têm no máximo 11 caracteres: "Organização", "Cidade", "Descrição", "Nome", "Código", "E-mail" e "Buscar". Nos campos de uma linha montados com `CampoTexto`, o exemplo é desenhado numa linha só e cortado com reticências se faltar espaço. |
 | **Condição**      | Menor tela usada nos testes do projeto: emulador Android 7.0, 720 × 1280.                                                                                                                                                   |
-| **Verificação**   | Inspeção do código em 26/11/2026. Conferência em aparelho CT-ORG-29: não executada.                                                                                                                                         |
+| **Verificação**   | Inspeção do código em 27/11/2026. Conferência em aparelho CT-ORG-29: não executada.                                                                                                                                         |
 | **Evidência**     | Atributos `placeholder` em `FRONTEND/src/app/organizacoes/*.tsx`, `FRONTEND/src/app/(abas)/organizacoes.tsx` e `FRONTEND/src/app/(abas)/organizacao.tsx`; `numberOfLines={1}` e `ellipsizeMode="tail"` em `FRONTEND/src/components/CampoTexto.tsx`. |
 | **Situação**      | Atendido no código; conferência em tela pequena pendente (CT-ORG-29).                                                                                                                                                       |
 
@@ -133,10 +133,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                  |
 | **Critério**      | A suíte do backend passa inteira antes de cada entrega, incluindo os testes deste módulo.                 |
 | **Medida**        | `npx vitest run` sem nenhuma falha.                                                                       |
-| **Condição**      | Código da branch `homolog` em 26/11/2026.                                                                 |
+| **Condição**      | Código da branch `homolog`, commit `d1f1aeb`, em 27/11/2026.                                              |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-organizacao.md).                                  |
-| **Evidência**     | 16 arquivos e 227 testes aprovados, dos quais 3 arquivos e 74 testes são deste módulo, em 26/11/2026.     |
-| **Situação**      | Atendido em 26/11/2026.                                                                                   |
+| **Evidência**     | 17 arquivos e 246 testes aprovados, dos quais 3 arquivos e 74 testes são deste módulo, em 27/11/2026.     |
+| **Situação**      | Atendido em 27/11/2026.                                                                                   |
 
 ## Rastreabilidade
 

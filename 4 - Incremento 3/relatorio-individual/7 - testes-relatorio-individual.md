@@ -1,22 +1,22 @@
 # Testes — Relatório individual
 
-> Padrão da disciplina · Módulo REL · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Revisado em 27/11/2026
 
 ## Resumo
 
-Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. A API é testada por um script de integração com MongoDB real e requisições HTTP; as funções de formatação e exportação do aplicativo, por testes `node --test`, com as bibliotecas do Expo simuladas; e a tela na web, por um roteiro automatizado com Playwright e API simulada, executado pela equipe. A execução em aparelho Android e iOS, no aplicativo instalado e no Expo Go, ainda não foi feita e está registrada como pendente. Nada aqui está marcado como aprovado sem ter sido executado.
+Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. A API é testada por um script de integração com MongoDB real e requisições HTTP; as funções de formatação e exportação do aplicativo, por testes `node --test`, com as bibliotecas do Expo simuladas; e a tela na web, por um roteiro automatizado com Playwright e API simulada, executado pela equipe. No aparelho, só a abertura do relatório e a exportação do PDF foram executadas, num Android com o aplicativo instalado (CT-REL-38); o restante no Android, o Expo Go e o iOS estão registrados como pendentes. Nada aqui está marcado como aprovado sem ter sido executado.
 
 ## Ambiente
 
 | Item                    | Valor                                                                                                                                                                                       |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data da execução        | 26/11/2026                                                                                                                                                                                  |
+| Data da execução        | 27/11/2026 nas execuções desta revisão (script com MongoDB, `vitest`, `node --test`, `tsc` e lint); 26/11/2026 no roteiro web e no CT-REL-38                                                |
 | Node.js / npm           | 24.19.0 / 11.17.0 nas execuções desta revisão; 24.14.0 / 11.14.1 no registro da equipe (`FRONTEND/tests/RELATORIO.md`)                                                                      |
-| Backend                 | branch `homolog`, commit `caca2d2`, com `dist` gerado por `npm run build`; a conferência anterior usou `99b6b4f`, e depois dele só o `JwtAuthGuard` mudou para o relatório                                                                                                                   |
-| Aplicativo              | branch `homolog`, commit `6ff2d50` (a conferência anterior usou `a53acce`, e os arquivos do relatório não mudaram depois dele); versões do `package-lock.json`: Expo 58.0.26, React Native 0.88.1, expo-print 58.0.9, expo-sharing 58.0.23, expo-file-system 58.0.14                                                    |
+| Backend                 | branch `homolog`, commit `d1f1aeb`, com `dist` compilado desse mesmo código; a versão do relatório entrou no `99b6b4f`, e depois dele só o `JwtAuthGuard` mudou para o relatório                                                                                                              |
+| Aplicativo              | branch `homolog`, commit `10abe49` (a versão do relatório entrou no `a53acce`; depois dele, os arquivos usados pelo relatório mudaram só em `pdf.ts`, na função `entregarPdf`, que o relatório não chama, e em `api.ts`, nos tipos da votação); versões do `package-lock.json`: Expo 58.1.0, React Native 0.88.1, expo-print 58.0.9, expo-sharing 58.0.24, expo-file-system 58.0.15 |
 | Banco de testes         | MongoDB local na porta 27019 (8.3.7 nesta revisão; 8.0.16 no registro da equipe), com um banco temporário `conecta_teste_relatorio_<aleatório>` que o script cria e apaga ao terminar          |
 | Interface web           | `npx expo start --web --port 8091` com API simulada pelo próprio teste e navegador Microsoft Edge sem janela (Playwright); executado pela equipe sobre frontend `56f4141` e backend `187f0bf`, base integrada em `a53acce` e `99b6b4f` |
-| Android e iOS           | Não executado: aplicativo instalado e Expo Go pendentes no aparelho; a equipe não dispõe de equipamento Apple                                                                               |
+| Android e iOS           | Galaxy S24 com Android 16 e APK de release, só no CT-REL-38 (26/11/2026); o restante do roteiro no aplicativo instalado e o Expo Go seguem pendentes no aparelho; a equipe não dispõe de equipamento Apple |
 
 ## Comandos
 
@@ -45,12 +45,12 @@ O roteiro web usa uma chave fictícia e intercepta todas as chamadas à API; nen
 
 | Data       | Projeto  | Comando                                                         | Resultado                                                                                                     |
 | ---------- | -------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 26/11/2026 | BACKEND  | `node test/relatorio-individual-mongo.mjs`                      | Aprovado: "PASSOU: relatório individual com MongoDB/HTTP, autenticação, isolamento por usuário, filtros, histórico e duração." Executado pela equipe e de novo nesta revisão, sobre `caca2d2`. |
-| 26/11/2026 | BACKEND  | `npx vitest run`                                                | 16 arquivos e 227 testes aprovados, sobre `caca2d2`; nenhum deles é específico do relatório.                                |
-| 26/11/2026 | BACKEND  | `npm run lint`                                                  | Sem diagnóstico, sobre `caca2d2`.                                                                                            |
-| 26/11/2026 | FRONTEND | `node --test tests/relatorio-individual.test.cjs tests/exportacao-relatorio.test.cjs` | 33 testes aprovados: 19 do primeiro arquivo e 14 do segundo, sobre `6ff2d50`.                          |
-| 26/11/2026 | FRONTEND | `node --test tests/*.test.cjs`                                  | 5 arquivos e 47 testes aprovados, sobre `6ff2d50`.                                                                           |
-| 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint`                             | Sem erro e sem diagnóstico, sobre `a53acce`.                                                                                 |
+| 27/11/2026 | BACKEND  | `node test/relatorio-individual-mongo.mjs`                      | Aprovado: "PASSOU: relatório individual com MongoDB/HTTP, autenticação, isolamento por usuário, filtros, histórico e duração." Executado pela equipe em 26/11/2026 e de novo nesta revisão, sobre `d1f1aeb`. |
+| 27/11/2026 | BACKEND  | `npx vitest run`                                                | 17 arquivos e 246 testes aprovados, sobre `d1f1aeb`; nenhum deles é específico do relatório. Em 26/11/2026, sobre `caca2d2`: 16 arquivos e 227 testes. |
+| 27/11/2026 | BACKEND  | `npm run lint`                                                  | Sem diagnóstico, sobre `d1f1aeb`.                                                                                            |
+| 27/11/2026 | FRONTEND | `node --test tests/relatorio-individual.test.cjs tests/exportacao-relatorio.test.cjs` | 33 testes aprovados: 19 do primeiro arquivo e 14 do segundo, sobre `10abe49`.                          |
+| 27/11/2026 | FRONTEND | `node --test tests/*.test.cjs`                                  | 5 arquivos e 47 testes aprovados, sobre `10abe49`.                                                                           |
+| 27/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint`                             | Sem erro e sem diagnóstico, sobre `10abe49`.                                                                                 |
 | 26/11/2026 | FRONTEND | `node tests/relatorio-browser.e2e.cjs`                          | 21 cenários aprovados, segundo o registro da equipe em `FRONTEND/tests/RELATORIO.md`. Não reexecutado nesta revisão, porque exige Playwright instalado à parte. |
 
 ## Matriz de testes automatizados
@@ -126,7 +126,7 @@ Executado pela equipe em 26/11/2026, com resultado registrado em `FRONTEND/tests
 
 ## Pendências registradas pela equipe
 
-O registro `FRONTEND/tests/RELATORIO.md` lista, além das execuções acima: o componente compartilhado `ControleSegmentado` não expõe `aria-checked` na web; a barra inferior pode cortar rótulos com a fonte ampliada; não há teste de carga com histórico grande, e a rota não tem paginação; e a função `entregarPdf`, usada por outros módulos, ainda move o arquivo do PDF. Esta última não afeta o relatório, que não usa essa função.
+O registro `FRONTEND/tests/RELATORIO.md` lista, além das execuções acima: o componente compartilhado `ControleSegmentado` não expõe `aria-checked` na web; a barra inferior pode cortar rótulos com a fonte ampliada; não há teste de carga com histórico grande, e a rota não tem paginação; e a função `entregarPdf`, usada por outros módulos, ainda move o arquivo do PDF (desde o frontend `795d49b`, pela função `nomearPdf`). Esta última não afeta o relatório, que não usa essa função.
 
 ## Rastreabilidade
 

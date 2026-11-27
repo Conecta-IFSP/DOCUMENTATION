@@ -8,6 +8,7 @@
 | ------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `TelaInicio`        | Aplicativo              | Tela inicial. Para o administrador do sistema, mostra o item "Sistema", que abre a `TelaSistema`.               |
 | `TelaSistema`       | Aplicativo              | Tela "Sistema": mostra as informações, o status e os relatórios e aciona popular dados de teste e resetar.      |
+| `ItemMenu`          | Aplicativo (componente) | Item de menu da tela inicial com título, descrição e ícone; o item "Sistema" abre a `TelaSistema`.             |
 | `Metrica`           | Aplicativo (componente) | Par rótulo e valor dos cartões "Sobre o sistema", "Servidor" e "Banco de dados".                               |
 | `LinhaTecnologia`   | Aplicativo (componente) | Linha do cartão "Tecnologias": nome, uso e versão de uma biblioteca.                                           |
 | `ColunaRelatorio`   | Aplicativo (componente) | Coluna do cartão "Relatórios": título e uma ou duas contagens.                                                 |
@@ -31,6 +32,16 @@
 | `Ata`               | Subdocumento            | Ata atual da reunião, dentro de `Reuniao`. Este módulo só conta pela `situacao`.                                |
 | `Contador`          | Documento               | Último número de ata usado por comissão e ano, na coleção `contadores`. Este módulo só o apaga.                 |
 | `Notificacao`       | Documento               | Aviso mostrado a uma conta, na coleção `notificacoes`. Este módulo só o apaga.                                  |
+| `UsuarioModel`      | Dados (model)           | Model do Mongoose da coleção `usuarios`.                                                                        |
+| `OrganizacaoModel`  | Dados (model)           | Model do Mongoose da coleção `organizacoes`.                                                                    |
+| `ComissaoModel`     | Dados (model)           | Model do Mongoose da coleção `comissoes`.                                                                       |
+| `ReuniaoModel`      | Dados (model)           | Model do Mongoose da coleção `reunioes`.                                                                        |
+| `Router`            | Biblioteca              | Roteador do `expo-router`, que abre a `TelaSistema`.                                                            |
+| `os`                | Biblioteca              | Módulo `node:os` do Node.js: memória, processadores, tempo ativo e sistema operacional do computador da API.   |
+| `bcrypt`            | Biblioteca              | Gera o hash da senha das contas de teste e confere a senha do administrador no reset.                          |
+| `Connection`        | Biblioteca              | Conexão do Mongoose com o MongoDB, injetada com `@InjectConnection`.                                           |
+| `Db`                | Biblioteca              | Banco do driver do MongoDB (`conexao.db`): envia comandos e dá acesso às coleções sem model.                  |
+| `Collection`        | Biblioteca              | Coleção do driver do MongoDB, usada no reset para apagar as coleções sem model.                                |
 
 As classes de dados são definidas e descritas campo a campo nos módulos que as criam: `Usuario` em [Cadastro de usuário](../cadastro-usuario/3%20-%20dicionario-dados-classes-cadastro-usuario.md), `Organizacao` e `MembroOrganizacao` em [Cadastro de organização](../cadastro-organizacao/3%20-%20dicionario-dados-classes-cadastro-organizacao.md), `Comissao` e `MembroComissao` em [Cadastro de comissão](../cadastro-comissao/3%20-%20dicionario-dados-classes-cadastro-comissao.md), `Reuniao` e `Notificacao` em [Reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md) e `Ata` e `Contador` em [Atas](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md). Abaixo aparecem só os campos que este módulo usa.
 
@@ -61,6 +72,11 @@ Componente da rota `sistema`, em `FRONTEND/src/app/sistema.tsx`. Só existe para
 | `resetarSistema`      | —                  | `Promise<void>`  | Chama `POST /sistema/reset` com `{ confirmacao: palavra, senha }`. Na falha, grava a mensagem em `erroReset` e mantém o cartão aberto. No sucesso, chama `fecharReset`, mostra o aviso "Sistema resetado. O administrador foi mantido." e chama `carregar` sem esperar. |
 | `formatarTempoAtivo`  | `segundos: number` | `string`         | Função do mesmo arquivo. Converte segundos para "Dd Hh" quando há pelo menos um dia e para "Hh Mmin" nos demais casos, descartando as casas decimais.                          |
 | `versaoPacote`        | `nome: string`     | `string`         | Função do mesmo arquivo. Devolve a versão do pacote declarada no `package.json` do aplicativo (`dependencies` têm prioridade sobre `devDependencies`), sem o `^` ou o `~` do início, ou texto vazio. |
+| `definirSobre`, `definirStatus`, `definirRelatorios` | `valor: Sobre`, `valor: Status`, `valor: Relatorios` | `void` | Atualizadores do `useState`: guardam as três respostas de `carregar`. |
+| `definirCarregando`, `definirConfirmacaoTeste`, `definirResetAberto` | `valor: boolean` | `void` | Atualizadores do `useState`: tiram o indicador de carregamento, abrem ou fecham o diálogo dos dados de teste e abrem ou fecham o cartão do reset. |
+| `definirAviso`        | `valor: Aviso`     | `void`           | Atualizador do `useState`: mostra a faixa de erro, ou a tira com `null`.                                                                                                       |
+| `definirAcaoEmAndamento` | `valor: string` | `void`           | Atualizador do `useState`: `'popular-teste'` ou `'reset'` enquanto a requisição não volta, e `null` depois.                                                                    |
+| `definirPalavra`, `definirSenha`, `definirErroReset` | `valor: string` | `void` | Atualizadores do `useState`: guardam o que é digitado nos dois campos do reset e a mensagem de erro mostrada abaixo da senha (`null` para apagá-la). |
 
 A constante `TECNOLOGIAS_APP`, do mesmo arquivo, é uma lista fixa de seis itens `{ nome, versao, uso }`, montada com `versaoPacote` quando o arquivo é carregado: TypeScript, Expo SDK, React Native, React, Expo Router e React Hook Form.
 
@@ -95,7 +111,18 @@ Tela da aba Início, em `FRONTEND/src/app/(abas)/inicio.tsx`. Neste módulo inte
 | ------------------------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `administradorDoSistema` | `boolean` | Verdadeiro quando o `tipo` do usuário da sessão é `ADMIN_SISTEMA`. Nesse caso a tela mostra só os itens "Gerenciar organizações" e "Sistema", e não busca reuniões nem atas pendentes. |
 
-O item "Sistema" tem a descrição "Informações do sistema, status, relatórios e reset." e o ícone `hardware-chip-outline` e, ao ser tocado, executa `router.push('/sistema')`.
+O item "Sistema" é um `ItemMenu` com a descrição "Informações do sistema, status, relatórios e reset." e o ícone `hardware-chip-outline`; a função `aoTocar` que a tela passa a ele executa `router.push('/sistema')`.
+
+## `ItemMenu`
+
+Componente em `FRONTEND/src/components/ItemMenu.tsx`, usado pela `TelaInicio`.
+
+| Atributo ou método | Tipo               | Obrigatório | Regra                                                                  |
+| ------------------ | ------------------ | ----------: | ---------------------------------------------------------------------- |
+| `titulo`           | `string`           |         Sim | Texto principal do item, por exemplo "Sistema".                        |
+| `descricao`        | `string`           |         Não | Texto menor abaixo do título.                                          |
+| `icone`            | `IoniconsIconName` |         Sim | Ícone mostrado à esquerda.                                             |
+| `aoTocar()`        | `() => void`       |         Sim | Função recebida da tela, chamada quando a pessoa toca no item.         |
 
 ## `Confirmacao`
 
@@ -160,7 +187,7 @@ Em `BACKEND/src/auth/jwt-auth.guard.ts`.
 | Atributo      | Tipo              | Regra                                         |
 | ------------- | ----------------- | --------------------------------------------- |
 | `jwtService`  | `JwtService`      | Confere assinatura e validade do token.       |
-| `usuarios`    | `Model<Usuario>`  | Busca a conta dona do token.                  |
+| `usuarios`    | `Model<UsuarioDocument>` | Busca a conta dona do token.           |
 
 | Método         | Parâmetros                  | Retorno            | O que faz                                                                                                                                                                                                                                       |
 | -------------- | --------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -194,10 +221,10 @@ Em `BACKEND/src/sistema/sistema.service.ts`. No carregamento do arquivo, lê o `
 
 | Atributo        | Tipo                  | Regra                                                                                    |
 | --------------- | --------------------- | ---------------------------------------------------------------------------------------- |
-| `usuarios`      | `Model<Usuario>`      | Model da coleção `usuarios`.                                                             |
-| `organizacoes`  | `Model<Organizacao>`  | Model da coleção `organizacoes`.                                                         |
-| `comissoes`     | `Model<Comissao>`     | Model da coleção `comissoes`.                                                            |
-| `reunioes`      | `Model<Reuniao>`      | Model da coleção `reunioes`; usado no status, nos relatórios e no reset.                 |
+| `usuarios`      | `Model<UsuarioDocument>` | Model da coleção `usuarios`.                                                          |
+| `organizacoes`  | `Model<OrganizacaoDocument>` | Model da coleção `organizacoes`.                                                  |
+| `comissoes`     | `Model<ComissaoDocument>` | Model da coleção `comissoes`.                                                        |
+| `reunioes`      | `Model<ReuniaoDocument>` | Model da coleção `reunioes`; usado no status, nos relatórios e no reset.              |
 | `conexao`       | `Connection`          | Conexão do Mongoose; usada para enviar `ping`, `dbStats` e `buildInfo` e, no reset, para apagar `anexos.files`, `anexos.chunks`, `contadores` e `notificacoes` pelo nome. |
 
 | Método                           | Parâmetros                         | Retorno                      | O que faz                                                                                                                                                                                           |
@@ -251,6 +278,37 @@ Não têm classe no código: são montados no próprio método.
 |                | `usuarios`                                | lista de objetos   | Três itens `{ nome, email, cenario }`. Não traz senha.                                  |
 | Reset          | `status`                                  | `string`           | Sempre `"sistema_resetado"`.                                                            |
 |                | `resetado_em`                             | `Date`             | Horário do fim das exclusões.                                                           |
+
+## Models do Mongoose e bibliotecas
+
+Os quatro models são `Model<...>` injetados pelo NestJS com `@InjectModel` nos atributos `usuarios`, `organizacoes`, `comissoes` e `reunioes` do `SistemaService`; o `JwtAuthGuard` recebe o `UsuarioModel` no atributo `usuarios`. As consultas devolvem uma `Query`, concluída com `.exec()`; o `select("+senha_hash")` do reset aparece numa nota do diagrama de sequência. As bibliotecas aparecem só com os métodos chamados nos diagramas de sequência.
+
+| Classe             | Estereótipo          | Método                                 | Retorno                         | O que faz                                                                                              |
+| ------------------ | -------------------- | -------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `UsuarioModel`     | `<<Model Mongoose>>` | `findOne(filtro: object)`              | `Query<UsuarioDocument>`        | No `JwtAuthGuard`, busca a conta ativa dona do token.                                                  |
+|                    |                      | `findById(id: string)`                 | `Query<UsuarioDocument>`        | No reset, busca a conta do administrador para conferir a senha.                                       |
+|                    |                      | `countDocuments(filtro: object)`       | `Query<number>`                 | Conta as contas (todas ou só as ativas).                                                               |
+|                    |                      | `create(dados: object)`                | `Promise<UsuarioDocument>`      | Cria cada conta de teste; e-mail repetido é recusado pelo índice único.                              |
+|                    |                      | `deleteMany(filtro: object)`           | `Query<DeleteResult>`           | No reset, apaga as contas cujo `tipo` não é `ADMIN_SISTEMA`.                                           |
+| `OrganizacaoModel` | `<<Model Mongoose>>` | `countDocuments(filtro: object)`       | `Query<number>`                 | Conta as organizações (todas, pendentes e aprovadas).                                                  |
+|                    |                      | `create(dados: object)`                | `Promise<OrganizacaoDocument>`  | Cria a "Organização de Teste".                                                                         |
+|                    |                      | `deleteMany(filtro: object)`           | `Query<DeleteResult>`           | No reset, apaga todas as organizações.                                                                 |
+| `ComissaoModel`    | `<<Model Mongoose>>` | `countDocuments(filtro: object)`       | `Query<number>`                 | Conta as comissões (todas e ativas).                                                                   |
+|                    |                      | `create(dados: object)`                | `Promise<ComissaoDocument>`     | Cria a "Comissão de Teste".                                                                            |
+|                    |                      | `deleteMany(filtro: object)`           | `Query<DeleteResult>`           | No reset, apaga todas as comissões.                                                                    |
+| `ReuniaoModel`     | `<<Model Mongoose>>` | `countDocuments(filtro: object)`       | `Query<number>`                 | Conta as reuniões e as atas pela situação.                                                             |
+|                    |                      | `deleteMany(filtro: object)`           | `Query<DeleteResult>`           | No reset, apaga todas as reuniões, com as atas e as votações dentro delas.                            |
+| `Router`           | `<<biblioteca>>`     | `push(rota: Href)`                     | `void`                          | Abre `/sistema` por cima da tela inicial (`expo-router` 58.0.33).                                      |
+| `os`               | `<<biblioteca>>`     | `totalmem()`, `freemem()`              | `number`                        | Memória total e livre do computador da API, em bytes.                                                  |
+|                    |                      | `cpus()`                               | `CpuInfo[]`                     | Um item por processador lógico, com o modelo e os tempos (`times`) usados na medição do uso da CPU.  |
+|                    |                      | `uptime()`                             | `number`                        | Segundos desde que o computador foi ligado.                                                            |
+|                    |                      | `type()`, `release()`, `arch()`        | `string`                        | Nome e versão do sistema operacional e arquitetura do processador.                                     |
+| `bcrypt`           | `<<biblioteca>>`     | `hash(dado: string, custo: number)`    | `Promise<string>`               | Gera o hash da senha das contas de teste, com custo 10.                                                |
+|                    |                      | `compare(dado: string, hash: string)`  | `Promise<boolean>`              | Diz se a senha digitada no reset corresponde ao `senha_hash` do administrador.                         |
+| `Connection`       | `<<biblioteca>>`     | atributo `db: Db`                      | —                               | O banco da conexão do Mongoose (`conexao.db`).                                                         |
+| `Db`               | `<<biblioteca>>`     | `command(comando: object)`             | `Promise<Document>`             | Envia ao MongoDB `ping`, `dbStats` e `buildInfo`.                                                      |
+|                    |                      | `collection(nome: string)`             | `Collection`                    | Dá acesso a `anexos.files`, `anexos.chunks`, `contadores` e `notificacoes`, que não têm model aqui.   |
+| `Collection`       | `<<biblioteca>>`     | `deleteMany(filtro: object)`           | `Promise<DeleteResult>`         | No reset, apaga todos os documentos da coleção (filtro `{}`).                                          |
 
 ## Classes de dados (campos usados)
 

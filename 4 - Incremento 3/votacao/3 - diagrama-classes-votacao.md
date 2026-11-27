@@ -4,7 +4,7 @@
 
 ## Resumo
 
-O diagrama mostra as classes que participam da votação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (tela, componente e módulo de acesso à API), **API** (controller, service e objetos de entrada e de saída) e **Dados** (documentos guardados no MongoDB). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código e são os mesmos chamados nos [Diagramas de sequência](6%20-%20diagramas-sequencia-votacao.md).
+O diagrama mostra as classes que participam da votação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (tela, componentes, o tipo da confirmação pendente e o módulo de acesso à API), **API** (controller, service e objetos de entrada e de saída) e **Dados** (os models do Mongoose, marcados `<<Model Mongoose>>`, e os documentos guardados no MongoDB). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. Toda linha de vida e todo método chamado nos [Diagramas de sequência](6%20-%20diagramas-sequencia-votacao.md) aparecem aqui, inclusive as funções de estado `definir…` da tela e do componente, que são as funções de atualização criadas por `useState`, e os models `ReuniaoModel` e `ComissaoModel`. Cada classe está descrita no [Dicionário de classes](3%20-%20dicionario-dados-classes-votacao.md).
 
 ## Diagrama
 
@@ -20,6 +20,11 @@ classDiagram
             -salvando: string
             +buscar() Promise~void~
             +executar(chave: string, acao: Function, mensagem: string) Promise~boolean~
+            -definirReuniao(valor: Reuniao | null) void
+            -definirAba(valor: Aba) void
+            -definirErro(valor: string) void
+            -definirSucesso(valor: string) void
+            -definirPresidente(valor: boolean) void
         }
         class VotacoesReuniao {
             -formulario: boolean
@@ -28,7 +33,12 @@ classDiagram
             -opcoes: string[]
             -modo: ModoVotacao
             -erroFormulario: string
-            -confirmacao: Pendente
+            -confirmacao: Pendente | null
+            +VotacoesReuniao(reuniao: Reuniao, presidente: boolean, emAndamento: boolean, motivoSemVoto: string | null, salvando: string | null, executar: Executar) JSX.Element
+            -definirFormulario(valor: boolean) void
+            -definirModo(valor: ModoVotacao) void
+            -definirErroFormulario(valor: string) void
+            -definirConfirmacao(valor: Pendente | null) void
             +abrirFormulario() void
             +validar() string
             +enviar() Promise~void~
@@ -41,6 +51,22 @@ classDiagram
         class api {
             <<module>>
             +api(caminho: string, metodo: string, corpo: unknown) Promise~Resultado~
+        }
+        class Confirmacao {
+            <<componente>>
+            +mensagem?: string
+            +rotuloConfirmar?: string
+            +perigo?: boolean
+            +carregando: boolean
+            +confirmar() void
+            +cancelar() void
+        }
+        class Pendente {
+            <<tipo>>
+            +mensagem: string
+            +rotulo: string
+            +perigo?: boolean
+            +acao() Promise~unknown~
         }
     }
 
@@ -105,6 +131,19 @@ classDiagram
     }
 
     namespace Dados {
+        class ReuniaoModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~ReuniaoDocument~
+            +findOneAndUpdate(filtro: FilterQuery, alteracao: UpdateQuery, opcoes: QueryOptions) Query~ReuniaoDocument~
+        }
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +findById(id: ObjectId) Query~ComissaoDocument~
+        }
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~UsuarioDocument~
+        }
         class Reuniao {
             +_id: ObjectId
             +comissao_id: ObjectId
@@ -174,15 +213,20 @@ classDiagram
     TelaReuniao ..> api : usa
     VotacoesReuniao ..> api : usa
     VotacoesReuniao ..> TelaReuniao : chama executar
+    VotacoesReuniao ..> Confirmacao : pede a confirmação
+    VotacoesReuniao ..> Pendente : guarda em confirmacao
     api ..> ReunioesController : requisição HTTP
 
     ReunioesController --> "1" ReunioesService : reunioesService
     ReunioesController ..> AbrirVotacaoDto : recebe
     ReunioesController ..> VotarDto : recebe
     ReunioesService ..> VotacaoApresentada : monta
-    ReunioesService ..> Reuniao : lê e grava
-    ReunioesService ..> Comissao : confere o presidente
-    ReunioesService ..> Usuario : confere a conta e lê o nome
+    ReunioesService "1" --> "1" ReuniaoModel : reuniaoModel
+    ReunioesService "1" --> "1" ComissaoModel : comissaoModel
+    ReunioesService "1" --> "1" UsuarioModel : usuarioModel
+    ReuniaoModel ..> Reuniao : documentos do schema
+    ComissaoModel ..> Comissao : documentos do schema
+    UsuarioModel ..> Usuario : documentos do schema
     VotacaoApresentada "1" *-- "0..*" VotoNominal : votos_nominais
 
     Reuniao "1" *-- "0..*" Votacao : votacoes
@@ -210,9 +254,11 @@ Figura 2 — Diagrama de classes da votação, por camada. Fonte: equipe Conecta
 | ---------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | Losango cheio (composição)   | A parte só existe dentro do todo e é apagada junto com ele.             | `Reuniao *-- Votacao`: a votação é gravada dentro do documento da reunião. `Votacao *-- Voto`: o voto é gravado dentro da votação. |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `Voto --> Usuario`: `usuario_id` guarda o identificador de um documento de `usuarios`.                                           |
-| Seta tracejada (dependência) | Uma classe usa a outra numa chamada, sem guardá-la como atributo.       | `ReunioesService ..> Comissao`: o serviço lê a comissão para saber quem é o presidente.                                          |
+| Seta tracejada (dependência) | Uma classe usa a outra numa chamada, sem guardá-la como atributo.       | `ComissaoModel ..> Comissao`: o model lê a comissão, para o serviço saber quem é o presidente.                                   |
 
-Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem qualquer quantidade de votações (`0..*`), e cada `Votacao` tem de nenhum a vários votos (`0..*`), no máximo um por usuário.
+Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem qualquer quantidade de votações (`0..*`), e cada `Votacao` tem de nenhum a vários votos (`0..*`), no máximo um por usuário. O `ReunioesService` guarda exatamente um model de cada coleção (`1`), injetado pelo NestJS nos atributos `reuniaoModel`, `comissaoModel` e `usuarioModel`; cada model mostra só os métodos que a votação chama: `findById` e `findOneAndUpdate` em `ReuniaoModel`, e `findById` em `ComissaoModel` (por `exigirPresidente`) e em `UsuarioModel` (por `validarUsuario`, dentro de `carregar`). Esses métodos devolvem uma `Query`, na qual o serviço chama `exec()`.
+
+`Confirmacao` é o diálogo de confirmação (`FRONTEND/src/components/Confirmacao.tsx`), e `Pendente` é o tipo, declarado em `VotacoesReuniao.tsx`, do estado `confirmacao`: guarda a mensagem, o rótulo do botão e a função `acao`, que envia o voto ou o encerramento. O botão de confirmar do diálogo chama `confirmar`, função passada pelo `VotacoesReuniao` que executa `confirmacao.acao()`.
 
 `VotacaoApresentada` está marcada como `<<tipo>>` porque não é gravada nem declarada como classe: é o objeto que `apresentarVotacao` monta para a resposta da API, sem a lista de votos. No aplicativo, esse formato é declarado como o tipo `Votacao` em `FRONTEND/src/services/api.ts`; o diagrama usa o nome `VotacaoApresentada` nos parâmetros de `VotacoesReuniao` para não confundi-lo com o subdocumento gravado. `VotoNominal` também é `<<tipo>>`: é cada item de `votos_nominais`, a lista de quem votou em quê, que só existe na resposta. `EscolhaVoto` é o tipo declarado em `FRONTEND/src/services/api.ts` como `number | 'BRANCO' | 'NULO'`, isto é, a posição de uma opção, o voto em branco ou o voto nulo; ele aparece em `meu_voto`, em `VotoNominal.voto` e no parâmetro `voto` de `pedirVoto` e de `descreverVoto`.
 
@@ -222,7 +268,7 @@ Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem q
 
 O parâmetro `nomes` de `apresentarVotacao` é um `Map` de texto para texto (`usuario_id` do participante para o `nome`), montado por `apresentar`.
 
-No código, os atributos opcionais são `encerrada_em`, em `Votacao`; `opcao`, em `Voto`; `descricao` e `modo`, em `AbrirVotacaoDto`; `tipo` e `opcao`, em `VotarDto`; e `presenca` e `saida`. `Votacao.modo` e `Voto.tipo` não são obrigatórios no schema, mas têm valor padrão. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-votacao.md).
+No código, os atributos opcionais são `_id` (gerado na abertura) e `encerrada_em`, em `Votacao`; `opcao`, em `Voto`; `descricao` e `modo`, em `AbrirVotacaoDto`; `tipo` e `opcao`, em `VotarDto`; e `presenca` e `saida`. `Votacao.modo` e `Voto.tipo` não são obrigatórios no schema, mas têm valor padrão. A obrigatoriedade de cada um está no [dicionário de classes](3%20-%20dicionario-dados-classes-votacao.md).
 
 ## Rotas atendidas pelo controller
 

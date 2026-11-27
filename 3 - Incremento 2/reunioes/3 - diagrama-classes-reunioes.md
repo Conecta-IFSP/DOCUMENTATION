@@ -1,12 +1,12 @@
 # Diagrama de classes — Reuniões
 
-> Padrão da disciplina · Módulo REU · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Revisado em 27/11/2026
 
 ## Resumo
 
 O diagrama mostra as classes que participam das reuniões, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componentes e módulos do aplicativo), **API** (controllers, services e objetos de entrada) e **Dados** (documentos guardados no MongoDB e o armazenamento de arquivos). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código, e são os mesmos chamados nos [Diagramas de sequência](6%20-%20diagramas-sequencia-reunioes.md).
 
-Para que nenhuma linha passe por cima de uma classe, o diagrama está dividido em duas partes. A primeira mostra o agendamento, a agenda, o convite, a presença marcada na tela da reunião e na tela inicial, a lista de presença e os anexos. A segunda mostra o link de presença, a correção de horários e o histórico. As classes que aparecem nas duas partes estão completas na primeira e, na segunda, só com os membros que ela usa. A ata e as votações, que também ficam dentro de `Reuniao`, estão nos diagramas de classes das [atas](../../4%20-%20Incremento%203/atas/3%20-%20diagrama-classes-atas.md) e da [votação](../../4%20-%20Incremento%203/votacao/3%20-%20diagrama-classes-votacao.md).
+Para que nenhuma linha passe por cima de uma classe, o diagrama está dividido em quatro partes. A primeira mostra o agendamento, a agenda, o convite, a presença marcada na tela da reunião e na tela inicial, a lista de presença e os anexos. A segunda mostra o link de presença, a correção de horários, o histórico e as notificações. A terceira mostra os models do Mongoose e as bibliotecas que os services chamam, e a quarta, as bibliotecas e o contexto que as telas e os módulos do aplicativo chamam. Toda linha de vida e todo método dos diagramas de sequência estão em uma dessas partes, inclusive os atualizadores de estado das telas (`definir*`). As classes que aparecem em mais de uma parte estão completas na primeira em que aparecem e, nas outras, só com os membros que elas usam. A ata e as votações, que também ficam dentro de `Reuniao`, estão nos diagramas de classes das [atas](../../4%20-%20Incremento%203/atas/3%20-%20diagrama-classes-atas.md) e da [votação](../../4%20-%20Incremento%203/votacao/3%20-%20diagrama-classes-votacao.md).
 
 ## Diagrama
 
@@ -23,6 +23,7 @@ classDiagram
             +carregar(continuar: Function) Promise~void~
             +responder(reuniao: Reuniao, aceito: boolean) Promise~void~
             +escolherDia(dia: Date) void
+            +definirReunioes(valor: Reuniao[]) void
         }
         class TelaInicio {
             -reunioes: Reuniao[]
@@ -30,15 +31,20 @@ classDiagram
             -ocupado: string
             +marcarEntrada(reuniao: Reuniao) Promise~void~
             +responder(convite: Convite, aceito: boolean) Promise~void~
+            +definirAviso(valor: Aviso) void
+            +definirOcupado(valor: string) void
+            +definirReunioes(valor: Reuniao[]) void
         }
         class FormularioReuniao {
             -reuniao: Reuniao
             -anexos: ArquivoEscolhido[]
+            -erro: string
             +salvar() Promise~void~
             +calcularHorario(dados: DadosReuniao) Horario
             +alternarDiaInteiro() void
             +alternarConvidado(pessoaId: string) void
             +adicionarAnexos() Promise~void~
+            +definirErro(valor: string) void
         }
         class TelaNovaReuniao {
             +aoSalvar(envio: EnvioReuniao) Promise~string~
@@ -60,12 +66,29 @@ classDiagram
             +adicionarAnexos() Promise~void~
             +abrir(item: ItemAnexo) Promise~void~
             +confirmarRemocao(item: ItemAnexo) void
+            +definirReuniao(valor: Reuniao) void
+            +definirPresidente(valor: boolean) void
+            +definirOpcoes(valor: boolean) void
+            +definirConfirmacao(valor: Pendente) void
+            +definirErro(valor: string) void
+            +definirSucesso(valor: string) void
+        }
+        class Confirmacao {
+            <<component>>
+            +mensagem: string
+            +carregando: boolean
+            +confirmar() void
+            +cancelar() void
         }
         class TelaRegistrosReuniao {
+            -aba: Aba
             -lista: ListaPresenca
             -gerandoPdf: boolean
             +carregarLista() Promise~void~
             +baixarLista() Promise~void~
+            +definirAba(valor: Aba) void
+            +definirLista(valor: ListaPresenca) void
+            +definirGerandoPdf(valor: boolean) void
         }
         class pdfListaPresenca {
             <<module>>
@@ -78,7 +101,7 @@ classDiagram
             +entregarPdf(html: string, nome: string) Promise~void~
             +pdfPelaImpressao() boolean
             -imprimirNaWeb(html: string) void
-            -nomearPdf(gerado: File, nome: string) string
+            -nomearPdf(gerado: File, nome: string) Promise~string~
         }
         class autenticacaoLocal {
             <<module>>
@@ -277,6 +300,7 @@ classDiagram
     TelaReuniao ..> api : usa
     TelaReuniao ..> anexos : usa
     TelaReuniao ..> autenticacaoLocal : usa
+    TelaReuniao ..> Confirmacao : pede confirmação
     TelaRegistrosReuniao ..> api : usa
     TelaRegistrosReuniao ..> pdfListaPresenca : usa
     pdfListaPresenca ..> pdf : usa
@@ -309,7 +333,7 @@ classDiagram
 
 Figura 2 — Diagrama de classes das reuniões, parte 1. Fonte: equipe Conecta+.
 
-### 2. Link de presença, correção e histórico
+### 2. Link de presença, correção, histórico e notificações
 
 ```mermaid
 classDiagram
@@ -319,6 +343,7 @@ classDiagram
         class AcessoPresidente {
             -permitido: boolean
             +AcessoPresidente(reuniaoId: string) Element
+            +definirPermitido(valor: boolean) void
         }
         class TelaGestaoPresenca {
             -link: LinkPresenca
@@ -327,23 +352,43 @@ classDiagram
             -historico: RegistroCorrecao[]
             -alvo: Participante
             -motivo: string
+            -confirmacao: string
             +carregar(continuar: Function) Promise~void~
             +agir(acao: Function) Promise~void~
             +gerar() Promise~void~
             +revogar() Promise~void~
             +enviar(canal: string) Promise~void~
             +corrigir() Promise~void~
+            +definirConfirmacao(valor: string) void
+            +definirLink(valor: LinkPresenca) void
+            +definirAlvo(valor: Participante) void
+            +definirHistorico(valor: RegistroCorrecao[]) void
+            +definirSucesso(valor: string) void
         }
         class TelaPresencaLink {
             -dados: DadosAcesso
             +carregar(ativa: Function) Promise~void~
             +registrar(acao: string) Promise~void~
             +abrirApp() void
+            +definirDados(valor: DadosAcesso) void
+            +definirErro(valor: string) void
+            +definirSucesso(valor: string) void
         }
         class retornoPresenca {
             <<module>>
             +guardarRetornoPresenca(id: string, codigo: string) Promise~void~
             +consumirRetornoPresenca() Promise~RetornoPresenca~
+        }
+        class TelaNotificacoes {
+            -itens: Notificacao[]
+            -abrindo: string
+            +carregar(ativa: Function) Promise~void~
+            +abrir(item: Notificacao) Promise~void~
+            +definirItens(valor: Notificacao[]) void
+        }
+        class SinoNotificacoes {
+            -total: number
+            +SinoNotificacoes() Element
         }
         class TelaReuniao {
             -reuniao: Reuniao
@@ -392,9 +437,17 @@ classDiagram
             -validarLink(r: Reuniao, c: Comissao, codigo: string) void
             -url(id: string, codigo: string) string
         }
+        class NotificacoesController {
+            -service: NotificacoesService
+            +listar(req: RequisicaoAutenticada) Promise~ListaNotificacoes~
+            +ler(id: string, req: RequisicaoAutenticada) Promise~Mensagem~
+        }
         class NotificacoesService {
             -notificacoes: Model~Notificacao~
+            -reunioes: Model~Reuniao~
             +criar(usuarioId: string, dados: DadosNotificacao) Promise~void~
+            +listar(usuarioId: string) Promise~ListaNotificacoes~
+            +ler(id: string, usuarioId: string) Promise~Mensagem~
             +invalidarPresenca(reuniaoId: string) Promise~void~
         }
         class CodigoAcessoDto {
@@ -448,6 +501,7 @@ classDiagram
             +lida_em: Date
             +expira_em: Date
             +criada_em: Date
+            +atualizada_em: Date
         }
         class Presenca {
             +entrada: Date
@@ -472,7 +526,10 @@ classDiagram
     TelaPresencaLink ..> api : usa
     TelaPresencaLink ..> autenticacaoLocal : usa
     TelaPresencaLink ..> retornoPresenca : usa
+    TelaNotificacoes ..> api : usa
+    SinoNotificacoes ..> api : usa
     api ..> PresencasController : requisição HTTP
+    api ..> NotificacoesController : requisição HTTP
 
     PresencasController --> "1" PresencasService : s
     PresencasController ..> CodigoAcessoDto : recebe
@@ -485,7 +542,9 @@ classDiagram
     PresencasService ..> Reuniao : lê e grava
     PresencasService ..> Comissao : confere o responsável
     PresencasService ..> Usuario : busca os e-mails
-    NotificacoesService ..> Notificacao : grava
+    NotificacoesController --> "1" NotificacoesService : service
+    NotificacoesService ..> Notificacao : grava e lê
+    NotificacoesService ..> Reuniao : lê as reuniões do usuário
 
     Reuniao "1" *-- "0..1" AcessoPresenca : acesso_presenca
     Reuniao "1" *-- "0..*" RegistroCorrecao : historico_presencas
@@ -499,6 +558,219 @@ classDiagram
 
 Figura 3 — Diagrama de classes das reuniões, parte 2. Fonte: equipe Conecta+.
 
+### 3. Models do Mongoose e bibliotecas da API
+
+```mermaid
+classDiagram
+    direction LR
+
+    namespace API {
+        class ReunioesService {
+            -reuniaoModel: Model~Reuniao~
+            -comissaoModel: Model~Comissao~
+            -organizacaoModel: Model~Organizacao~
+            -usuarioModel: Model~Usuario~
+            -conexao: Connection
+            -arquivos() GridFSBucket
+        }
+        class PresencasService {
+            -reunioes: Model~Reuniao~
+            -comissoes: Model~Comissao~
+            -organizacoes: Model~Organizacao~
+            -usuarios: Model~Usuario~
+        }
+        class NotificacoesService {
+            -notificacoes: Model~Notificacao~
+            -reunioes: Model~Reuniao~
+        }
+        class events {
+            <<biblioteca>>
+            +once(emissor: EventEmitter, evento: string) Promise~unknown[]~
+        }
+        class crypto {
+            <<biblioteca>>
+            +randomBytes(tamanho: number) Buffer
+        }
+        class nodemailer {
+            <<biblioteca>>
+            +createTransport(opcoes: SMTPTransportOptions) Transporter
+        }
+        class Transporter {
+            <<biblioteca>>
+            +sendMail(mensagem: MailOptions) Promise~SentMessageInfo~
+        }
+    }
+
+    namespace Dados {
+        class ReuniaoModel {
+            <<Model Mongoose>>
+            +create(dados: object) Promise~Reuniao~
+            +find(filtro: object) Query~Reuniao[]~
+            +findById(id: string) Query~Reuniao~
+            +findOneAndUpdate(filtro: object, alteracao: object, opcoes: object) Query~Reuniao~
+            +updateOne(filtro: object, alteracao: object, opcoes: object) Query~UpdateResult~
+            +select(campos: string) Query
+            +populate(caminho: string, campos: string) Query
+            +sort(ordem: object) Query
+            +lean() Query
+            +exec() Promise~unknown~
+        }
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~Comissao~
+        }
+        class OrganizacaoModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~Organizacao~
+        }
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +find(filtro: object) Query~Usuario[]~
+            +findById(id: string) Query~Usuario~
+            +select(campos: string) Query
+            +exec() Promise~unknown~
+        }
+        class NotificacaoModel {
+            <<Model Mongoose>>
+            +find(filtro: object) Query~Notificacao[]~
+            +findOne(filtro: object) Query~Notificacao~
+            +updateOne(filtro: object, alteracao: object, opcoes: object) Query~UpdateResult~
+            +updateMany(filtro: object, alteracao: object) Query~UpdateResult~
+            +select(campos: string) Query
+            +sort(ordem: object) Query
+            +limit(quantidade: number) Query
+            +lean() Query
+            +exec() Promise~unknown~
+        }
+        class Reuniao
+        class Comissao
+        class Organizacao
+        class Usuario
+        class Notificacao
+        class GridFSBucket {
+            <<MongoDB>>
+            +openUploadStream(nome: string, opcoes: object) GridFSBucketWriteStream
+        }
+        class GridFSBucketWriteStream {
+            <<MongoDB>>
+            +id: ObjectId
+            +end(dados: Buffer) void
+        }
+    }
+
+    ReunioesService --> "1" ReuniaoModel : reuniaoModel
+    ReunioesService --> "1" ComissaoModel : comissaoModel
+    ReunioesService --> "1" OrganizacaoModel : organizacaoModel
+    ReunioesService --> "1" UsuarioModel : usuarioModel
+    PresencasService --> "1" ReuniaoModel : reunioes
+    PresencasService --> "1" ComissaoModel : comissoes
+    PresencasService --> "1" OrganizacaoModel : organizacoes
+    PresencasService --> "1" UsuarioModel : usuarios
+    NotificacoesService --> "1" NotificacaoModel : notificacoes
+    NotificacoesService --> "1" ReuniaoModel : reunioes
+    ReunioesService ..> GridFSBucket : arquivos()
+    ReunioesService ..> GridFSBucketWriteStream : envia o conteúdo
+    ReunioesService ..> events : espera o fim do envio
+    PresencasService ..> crypto : sorteia o código
+    PresencasService ..> nodemailer : cria o envio SMTP
+    PresencasService ..> Transporter : envia os e-mails
+    GridFSBucket ..> GridFSBucketWriteStream : cria
+    nodemailer ..> Transporter : cria
+
+    ReuniaoModel ..> Reuniao : lê e grava
+    ComissaoModel ..> Comissao : lê
+    OrganizacaoModel ..> Organizacao : lê
+    UsuarioModel ..> Usuario : lê
+    NotificacaoModel ..> Notificacao : lê e grava
+```
+
+Figura 4 — Models do Mongoose e bibliotecas chamadas pelos services. Fonte: equipe Conecta+.
+
+### 4. Bibliotecas e contexto do aplicativo
+
+```mermaid
+classDiagram
+    direction LR
+
+    namespace Aplicativo {
+        class TelaNovaReuniao {
+            +aoSalvar(envio: EnvioReuniao) Promise~string~
+        }
+        class TelaEditarReuniao {
+            +aoConcluir() void
+        }
+        class TelaNotificacoes {
+            +abrir(item: Notificacao) Promise~void~
+        }
+        class AcessoPresidente {
+            +AcessoPresidente(reuniaoId: string) Element
+        }
+        class TelaGestaoPresenca {
+            +agir(acao: Function) Promise~void~
+        }
+        class anexos {
+            <<module>>
+            +enviarAnexo(reuniaoId: string, arquivo: ArquivoEscolhido) Promise~Resultado~
+            +abrirAnexo(reuniaoId: string, anexo: Anexo) Promise~string~
+        }
+        class pdf {
+            <<module>>
+            +entregarPdf(html: string, nome: string) Promise~void~
+            -nomearPdf(gerado: File, nome: string) Promise~string~
+        }
+        class ToastProvider {
+            <<contexto>>
+            +mostrarToast(mensagem: string, tipo: TipoToast, duracao: number) void
+        }
+        class Router {
+            <<biblioteca>>
+            +push(rota: Href) void
+            +replace(rota: Href) void
+            +back() void
+            +canGoBack() boolean
+        }
+        class Clipboard {
+            <<biblioteca>>
+            +setStringAsync(texto: string) Promise~boolean~
+        }
+        class File {
+            <<biblioteca>>
+            +uri: string
+            +exists: boolean
+            +File(partes: string[])
+            +copy(destino: File) Promise~void~
+            +move(destino: File) Promise~void~
+            +delete() void
+            +upload(url: string, opcoes: UploadOptions) Promise~UploadResult~
+            +downloadFileAsync(url: string, destino: File, opcoes: DownloadOptions) Promise~File~$
+            +canPreview(arquivo: File, opcoes: FileCanPreviewOptions) Promise~boolean~$
+            +preview(arquivo: File, opcoes: FilePreviewOptions) Promise~void~$
+        }
+        class Print {
+            <<biblioteca>>
+            +printAsync(opcoes: PrintOptions) Promise~void~
+            +printToFileAsync(opcoes: FilePrintOptions) Promise~FilePrintResult~
+        }
+        class Sharing {
+            <<biblioteca>>
+            +shareAsync(url: string, opcoes: SharingOptions) Promise~void~
+        }
+    }
+
+    TelaNovaReuniao ..> Router : abre a reunião criada
+    TelaEditarReuniao ..> ToastProvider : avisa a atualização
+    TelaEditarReuniao ..> Router : volta ou abre a reunião
+    TelaNotificacoes ..> Router : abre o destino
+    AcessoPresidente ..> Router : abre a gestão de presença
+    TelaGestaoPresenca ..> Clipboard : copia o link
+    anexos ..> File : envia, baixa e abre
+    pdf ..> Print : gera o PDF
+    pdf ..> File : renomeia o PDF
+    pdf ..> Sharing : compartilha o PDF
+```
+
+Figura 5 — Bibliotecas e contexto chamados pelas telas e pelos módulos do aplicativo. Fonte: equipe Conecta+.
+
 ## Como ler as ligações
 
 | Ligação                      | Significado                                                             | Exemplo no diagrama                                                                                          |
@@ -511,6 +783,8 @@ Figura 3 — Diagrama de classes das reuniões, parte 2. Fonte: equipe Conecta+.
 Os números nas pontas são as multiplicidades. Por exemplo, uma `Reuniao` tem ao menos um `Participante` (`1..*`), que é quem a agendou, de zero a dez anexos (`0..10`), no máximo um link de presença ativo (`0..1`) e qualquer quantidade de registros de correção (`0..*`).
 
 `AcessoPresenca` e `RegistroCorrecao` estão marcados como `<<tipo>>` porque não são classes de schema do Mongoose: `acesso_presenca` é declarado em `Reuniao` com um tipo de objeto escrito no próprio campo, e cada item de `historico_presencas` é o objeto montado por `PresencasService.corrigir`. Os dois campos são gravados com `select: false`, então só aparecem quando a consulta os pede.
+
+Os estereótipos das partes 3 e 4 indicam de onde vem cada classe. `<<Model Mongoose>>` é o `Model` que o NestJS injeta em cada service com `@InjectModel`: é o atributo do service, como `reuniaoModel` em `ReunioesService` e `reunioes` em `PresencasService`, e as duas apontam para o mesmo `ReuniaoModel`. `select`, `populate`, `sort`, `lean`, `limit` e `exec` são da `Query` que `find`, `findById`, `findOne`, `findOneAndUpdate`, `updateOne` e `updateMany` devolvem; estão na classe do model porque os diagramas de sequência os chamam na linha de vida dele, na ordem do encadeamento do código. `<<biblioteca>>` marca as bibliotecas externas, só com os membros chamados; `<<MongoDB>>`, as classes do driver do MongoDB; `<<contexto>>`, o provedor de contexto do React; e `<<component>>`, um componente visual. O `$` no fim de um método de `File` indica método estático, chamado na própria classe, como `File.downloadFileAsync`. As dependências `ReunioesService ..> Reuniao` e `PresencasService ..> Reuniao` das partes 1 e 2 passam, no código, pelo `ReuniaoModel` da parte 3.
 
 No código, os atributos opcionais são `horario_alterado_em` e `acesso_presenca`, em `Reuniao`; `presenca`, em `Participante`; `saida` e `saida_automatica`, em `Presenca`; `saida`, em `CorrigirHorarioDto`; e `lida_em` e `expira_em`, em `Notificacao`. Nos objetos de entrada, só `comissao_id`, `titulo`, `inicio` e `fim` são obrigatórios em `CreateReuniaoDto`, e todos os campos de `UpdateReuniaoDto` são opcionais. A obrigatoriedade de cada atributo está no [dicionário de classes](3%20-%20dicionario-dados-classes-reunioes.md).
 
@@ -540,6 +814,8 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 | `PresencasController.enviar`           | `POST /presencas/:id/enviar`                |
 | `PresencasController.corrigir`         | `PATCH /presencas/:id/horarios/:usuarioId`  |
 | `PresencasController.historico`        | `GET /presencas/:id/historico`              |
+| `NotificacoesController.listar`        | `GET /notificacoes`                         |
+| `NotificacoesController.ler`           | `PATCH /notificacoes/:id/lida`              |
 
 ## Regras representadas
 
@@ -548,6 +824,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - `Usuario`, `Comissao` e `Notificacao` ficam em coleções próprias, por isso as associações são feitas por identificador;
 - quem agendou a reunião é identificado por `criada_por`; o responsável que gerou o link, por `AcessoPresenca.responsavel_id`;
 - o link guarda só o resumo do código (`hash`), nunca o código;
+- os avisos de convite, horário, cancelamento e ata não são gravados no momento do fato: `NotificacoesService.listar` os cria quando o usuário consulta as notificações;
 - `FormularioReuniao` é o mesmo componente nas telas de criar e de editar;
 - o aplicativo nunca decide se a presença vale: ele mostra o que a API devolve.
 

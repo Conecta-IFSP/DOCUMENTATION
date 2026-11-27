@@ -1,6 +1,6 @@
 # Diagrama relacional — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 

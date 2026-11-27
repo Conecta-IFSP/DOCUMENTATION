@@ -1,6 +1,6 @@
 # Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Incremento 1 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Incremento 1 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -48,9 +48,9 @@ O responsável da comissão não tem ação própria neste módulo: ele consulta
 | ----------- | --------- | --------- | -------------------------------------------------------------------------------------- |
 | UC-COM-01   | RF-COM-01 | SD-COM-01 | CT-COM-01, CT-COM-07, CT-COM-08, CT-COM-09, CT-COM-10                                  |
 | UC-COM-02   | RF-COM-02 | SD-COM-02 | CT-COM-01, CT-COM-10, CT-COM-11, CT-COM-12, CT-COM-13, CT-COM-27, CT-COM-31            |
-| UC-COM-03   | RF-COM-03 | SD-COM-03 | CT-COM-02, CT-COM-14, CT-COM-15, CT-COM-16, CT-COM-17, CT-COM-30                       |
+| UC-COM-03   | RF-COM-03 | SD-COM-03 | CT-COM-02, CT-COM-14, CT-COM-15, CT-COM-16, CT-COM-17, CT-COM-30, CT-COM-33            |
 | UC-COM-04   | RF-COM-04 | SD-COM-04 | CT-COM-03, CT-COM-13, CT-COM-17                                                        |
-| UC-COM-05   | RF-COM-05 | SD-COM-05 | CT-COM-03, CT-COM-13, CT-COM-18                                                        |
+| UC-COM-05   | RF-COM-05 | SD-COM-05 | CT-COM-03, CT-COM-13, CT-COM-18, CT-COM-34                                             |
 | UC-COM-06   | RF-COM-06 | SD-COM-06 | CT-COM-03, CT-COM-18, CT-COM-19                                                        |
 | UC-COM-07   | RF-COM-07 | SD-COM-07 | CT-COM-04, CT-COM-13, CT-COM-20, CT-COM-21, CT-COM-22, CT-COM-26, CT-COM-30            |
 | UC-COM-08   | RF-COM-08 | SD-COM-08 | CT-COM-05, CT-COM-13, CT-COM-19, CT-COM-23, CT-COM-24, CT-COM-30, CT-COM-31            |
@@ -60,4 +60,4 @@ CT-COM-28 verifica o acesso às rotas (RNF-COM-01); CT-COM-29 verifica a rota au
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `caca2d2`, frontend `6ff2d50`); os arquivos do módulo não têm alterações locais além desses commits. Os arquivos principais são `BACKEND/src/comissoes/comissoes.controller.ts`, `BACKEND/src/comissoes/comissoes.service.ts`, `BACKEND/src/comissoes/schemas/comissao.schema.ts`, os DTOs em `BACKEND/src/comissoes/dto/`, `FRONTEND/src/app/comissoes/nova.tsx`, `FRONTEND/src/app/comissoes/[id].tsx`, a aba Comissões de `FRONTEND/src/app/(abas)/organizacao.tsx` e `FRONTEND/src/components/SeletorPessoaComissao.tsx`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend `d1f1aeb`, frontend `10abe49`); os arquivos do módulo não têm alterações locais além desses commits. Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `8cf4839`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS, e o frontend só muda o aviso e o cartão da votação e a entrega do PDF, fora deste módulo; o diagrama de classes, o dicionário de classes e as sequências foram revistos sobre esses commits. Os arquivos principais são `BACKEND/src/comissoes/comissoes.controller.ts`, `BACKEND/src/comissoes/comissoes.service.ts`, `BACKEND/src/comissoes/schemas/comissao.schema.ts`, os DTOs em `BACKEND/src/comissoes/dto/`, `FRONTEND/src/app/comissoes/nova.tsx`, `FRONTEND/src/app/comissoes/[id].tsx`, a aba Comissões de `FRONTEND/src/app/(abas)/organizacao.tsx`, `FRONTEND/src/components/SeletorPessoaComissao.tsx` e `FRONTEND/src/utils/validacao.ts`; as alterações feitas por outros módulos foram conferidas em `BACKEND/src/organizacoes/organizacoes.service.ts`, `BACKEND/src/sistema/sistema.service.ts`, `BACKEND/src/reunioes/reunioes.service.ts` e `BACKEND/src/presencas/presencas.service.ts`.

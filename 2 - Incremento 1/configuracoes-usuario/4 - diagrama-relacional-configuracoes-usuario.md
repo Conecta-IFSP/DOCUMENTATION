@@ -1,6 +1,6 @@
 # Diagrama relacional — Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -58,7 +58,7 @@ Os campos do cadastro e do login com Google que ficam no mesmo documento (`verif
 ## Regras de integridade
 
 - `email` é único entre todas as contas, sempre em minúsculas;
-- `TROCA_EMAIL.email_pendente` não pode ser igual ao `email` da própria conta nem ao de outra conta, conferido no pedido e de novo na confirmação;
+- `TROCA_EMAIL.email_pendente` não pode ser igual ao `email` da própria conta, conferido no pedido, nem ao de outra conta, conferido no pedido e de novo na confirmação;
 - em `TROCA_EMAIL` e em `RECUPERACAO_SENHA`, o código só é aceito antes do horário guardado na validade; depois de usado, é apagado;
 - em `RECUPERACAO_SENHA`, o código e o token não existem juntos: a verificação do código apaga o código e grava o token, e um novo pedido apaga o token e grava outro código;
 - `senha_hash` e os campos de código e token guardam só hashes, nunca o valor digitado;

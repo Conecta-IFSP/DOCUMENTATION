@@ -1,23 +1,23 @@
 # Testes — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 27/11/2026
 
 ## Resumo
 
-Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor; os roteiros manuais cobrem as telas, em três emuladores Android, no Expo Go e na versão web. Nada aqui está marcado como aprovado sem ter sido executado.
+Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor; os roteiros manuais cobrem as telas, em três emuladores Android, num Galaxy S24, no Expo Go e na versão web. Nada aqui está marcado como aprovado sem ter sido executado.
 
 ## Ambiente
 
 | Item                | Valor                                                                                     |
 | ------------------- | ------------------------------------------------------------------------------------------- |
-| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026; CT-ATA-22 e CT-ATA-24 a CT-ATA-26 em 25/11/2026; CT-ATA-27 a CT-ATA-29 em 26/11/2026 |
+| Data da execução    | 09/11/2026; CT-ATA-21 a CT-ATA-23 em 24/11/2026; CT-ATA-22 e CT-ATA-24 a CT-ATA-26 em 25/11/2026; CT-ATA-27 a CT-ATA-29 em 26/11/2026; CT-ATA-30 em 27/11/2026 |
 | Node.js / npm       | 24.19.0 / 11.17.0                                                                           |
-| Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local                  |
-| Aplicativo          | branch `homolog`, APK de release gerado para `x86_64` (emuladores) e `arm64-v8a` (Aparelho 4), apontando para a API local |
+| Backend             | branch `homolog` com as alterações do Incremento 3, banco de testes local; no CT-ATA-30, API local com banco de teste |
+| Aplicativo          | branch `homolog`, APK de release gerado para `x86_64` (emuladores) e `arm64-v8a` (Aparelho 4), apontando para a API local; no CT-ATA-30, APK de release `arm64-v8a` dos frontends `10abe49` e `8cf4839` |
 | Aparelho 1          | Emulador Android 16 (API 36), 1080 × 2400, com PIN cadastrado                               |
 | Aparelho 2          | Emulador Android 7.0 (API 24, versão mínima do aplicativo), 720 × 1280, sem bloqueio de tela |
 | Aparelho 3          | Emulador Android 14 (API 34), 1080 × 2400, sem bloqueio de tela, com o APK de release e com o Expo Go 58.0.6 |
-| Aparelho 4          | Galaxy S24, Android 16, com digital e PIN cadastrados, com o APK de release e com o Expo Go 58.0.5 |
+| Aparelho 4          | Galaxy S24, Android 16, com digital e PIN cadastrados, com o APK de release (`arm64-v8a`) e com o Expo Go 58.0.5; em 27/11/2026, ligado a uma API local com banco de teste |
 | Web                 | `npx expo start`, aberto no navegador                                                       |
 | iOS                 | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS                 |
 
@@ -34,8 +34,10 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | 26/11/2026 | BACKEND  | `npm run build` e `npm run lint` | Aprovado, sem diagnóstico                           |
 | 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint` | Sem erro e sem diagnóstico                       |
 | 26/11/2026 (revisão da documentação, backend `caca2d2`) | BACKEND | `npx vitest run src/reunioes/atas-presencas.spec.ts` e `npx vitest run` | 16 testes aprovados no arquivo das atas; 17 arquivos e 234 testes aprovados na suíte, nenhuma falha |
+| 27/11/2026 (revisão da documentação, backend `d1f1aeb`) | BACKEND | `npx vitest run src/reunioes/atas-presencas.spec.ts`, `npx vitest run` e `npm run lint` | 16 testes aprovados no arquivo das atas; 17 arquivos e 246 testes aprovados na suíte, nenhuma falha; lint sem diagnóstico |
+| 27/11/2026 (revisão da documentação, frontend `10abe49`) | FRONTEND | `npx tsc --noEmit` e `npm run lint` | Sem erro e sem diagnóstico |
 
-Em 26/11/2026, o arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts` tem 16 testes. Os das atas estão descritos abaixo (CT-ATA-01 a CT-ATA-11, CT-ATA-27 e CT-ATA-28). CT-ATA-12 é o teste da lista de presença, que também aparece nos testes das reuniões como CT-REU-09; os dois da saída automática estão só nos testes das reuniões (CT-REU-29 e CT-REU-30).
+Em 27/11/2026, o arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts` continua com 16 testes. Os das atas estão descritos abaixo (CT-ATA-01 a CT-ATA-11, CT-ATA-27 e CT-ATA-28). CT-ATA-12 é o teste da lista de presença, que também aparece nos testes das reuniões como CT-REU-09; os dois da saída automática estão só nos testes das reuniões (CT-REU-29 e CT-REU-30).
 
 ## Matriz de testes automatizados
 
@@ -75,7 +77,10 @@ Em 26/11/2026, o arquivo `BACKEND/src/reunioes/atas-presencas.spec.ts` tem 16 te
 | CT-ATA-25 | RF-ATA-04, RNF-ATA-03    | Aparelho 4, APK e Expo Go | Tocar em "Reprovar ata", cancelar o pedido de identidade e depois repetir confirmando com a digital. | Aprovado. Nos dois, o pedido de identidade do aparelho apareceu e, cancelado, a ata seguiu "Em aprovação" sem avaliação nova; no APK, confirmada a digital, a ata ficou "Reprovada" com a avaliação registrada. |
 | CT-ATA-26 | RF-ATA-08                | Aparelho 3, APK     | Tocar em "PDF da ata" numa ata aprovada, fechar o menu de compartilhamento e repetir duas vezes.       | Aprovado. Nas três vezes abriu o menu de compartilhamento do Android com "Ata nº 1-2026.pdf" (40 KB), sem tela de escolha de pasta. Na primeira tentativa logo após instalar o APK, a tela ficou em "Gerando PDF..." até o aplicativo ser reaberto. |
 | CT-ATA-29 | RF-ATA-03, RF-ATA-06, RF-ATA-08 | Aparelho 4, APK | Como presidente, abrir uma ata em aprovação com uma aprovação de 3; levar o prazo para 10 minutos antes no banco de testes; puxar a tela para baixo depois de 1 minuto e tocar em "PDF da ata". | Aprovado. Antes, a linha do prazo mostrou "Responder até 28/11/2026 às 16:41. Sem resposta, a aprovação é automática." em duas linhas. Depois, a ata virou "Ata nº 2/2026", "Aprovada", com os dois outros presentes em "Aprovada pelo fim do prazo em 26/11/2026 às 18:37"; o menu de compartilhamento abriu com "Ata nº 2-2026.pdf", e o documento termina com "Aprovada por Filipe Teste, Maria Teste (pelo fim do prazo) e Carlos Teste (pelo fim do prazo) em 26/11/2026.". |
+| CT-ATA-30 | RF-ATA-08, RNF-ATA-08    | Aparelho 4, APK     | Numa ata aprovada, tocar em "PDF da ata" com o APK do frontend `10abe49` e repetir com o do `8cf4839`, acompanhando o log do aplicativo. | Aprovado em 27/11/2026 no Galaxy S24 (Android 16, APK de release `arm64-v8a`), ligado a uma API local com banco de teste: nos dois frontends, o menu de compartilhamento abriu com "Ata nº 1-2026.pdf", sem erro no log. |
+
+CT-ATA-26 e CT-ATA-29 foram executados com a versão anterior de `entregarPdf`, que esperava o `move` terminar antes de compartilhar. No frontend `795d49b` (26/11/2026), a troca de nome passou para `nomearPdf`, que não esperava o `move`; no `8cf4839` (27/11/2026), `nomearPdf` passou a ser `async` e a esperar o `move`, com a falha dele tratada no `catch` (RF-ATA-08). O CT-ATA-30 executou em aparelho o `10abe49`, ainda sem a espera, e o `8cf4839`.
 
 ## Rastreabilidade
 
-CT-ATA-01 a CT-ATA-11 e CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-05, RF-ATA-07 e RNF-ATA-04; CT-ATA-12 cobre a lista de presença (RF-REU-09); CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata; CT-ATA-24 e CT-ATA-25 cobrem a confirmação de identidade na reprovação; CT-ATA-26 cobre o PDF no aplicativo instalado; CT-ATA-27 e CT-ATA-28 cobrem a aprovação pelo fim do prazo e a recusa de avaliação depois dele; CT-ATA-29 cobre a mesma aprovação nas telas e no PDF.
+CT-ATA-01 a CT-ATA-11 e CT-ATA-13 cobrem RF-ATA-01 a RF-ATA-05, RF-ATA-07 e RNF-ATA-04; CT-ATA-12 cobre a lista de presença (RF-REU-09); CT-ATA-14 a CT-ATA-19 cobrem as telas e os RNFs; CT-ATA-20 está pendente; CT-ATA-21 a CT-ATA-23 cobrem as versões anteriores e o PDF da ata; CT-ATA-24 e CT-ATA-25 cobrem a confirmação de identidade na reprovação; CT-ATA-26 e CT-ATA-30 cobrem o PDF no aplicativo instalado, o CT-ATA-30 já com o `nomearPdf` do frontend `8cf4839`; CT-ATA-27 e CT-ATA-28 cobrem a aprovação pelo fim do prazo e a recusa de avaliação depois dele; CT-ATA-29 cobre a mesma aprovação nas telas e no PDF.

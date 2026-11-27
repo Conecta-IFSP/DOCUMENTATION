@@ -1,6 +1,6 @@
 # Dicionário de classes — Reuniões
 
-> Padrão da disciplina · Módulo REU · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -16,12 +16,21 @@
 | `AcessoPresidente`     | Aplicativo           | Mostrar o botão "Link e gestão de presença" só para o responsável.                                 |
 | `TelaGestaoPresenca`   | Aplicativo           | Gerar, enviar e revogar o link, corrigir horários e mostrar o histórico.                           |
 | `TelaPresencaLink`     | Aplicativo           | Abrir o link de presença e registrar entrada e saída.                                              |
+| `TelaNotificacoes`     | Aplicativo           | Listar os avisos do usuário e, no "Abrir", marcar o aviso como lido e abrir o destino.             |
+| `SinoNotificacoes`     | Aplicativo           | Mostrar no cabeçalho das abas a quantidade de avisos não lidos e abrir a tela "Notificações".      |
+| `Confirmacao`          | Aplicativo (componente) | Diálogo com a pergunta, "Cancelar" e "Confirmar", usado antes de cancelar a reunião, desistir do convite e remover anexo. |
 | `anexos`, `api`, `pdf`, `pdfListaPresenca`, `autenticacaoLocal`, `retornoPresenca` | Aplicativo (serviço) | Escolher, enviar e abrir arquivos; chamar a API; entregar PDFs; pedir a identidade do aparelho; guardar o link aberto antes do login. |
+| `ToastProvider`        | Aplicativo (contexto) | Mostrar o aviso rápido no rodapé da tela, como "Reunião atualizada.".                             |
+| `Router`, `Clipboard`, `File`, `Print`, `Sharing` | Aplicativo (biblioteca) | Navegar entre telas, copiar o link, gravar, enviar, baixar e abrir arquivos, gerar o PDF e abrir o menu de compartilhamento. |
 | `ReunioesController`   | API                  | Receber as rotas `/reunioes` e repassar ao serviço.                                                |
 | `ReunioesService`      | Negócio              | Aplicar autorização, horários, convite, presença, anexos e a saída automática.                     |
 | `PresencasController`  | API                  | Receber as rotas `/presencas` e repassar ao serviço.                                               |
 | `PresencasService`     | Negócio              | Gerar, validar, enviar e revogar o link, registrar presença por ele e corrigir horários.           |
-| `NotificacoesService`  | Negócio              | Gravar as notificações de presença e expirá-las.                                                   |
+| `NotificacoesController` | API                | Receber as rotas `/notificacoes` e repassar ao serviço.                                            |
+| `NotificacoesService`  | Negócio              | Gravar as notificações de presença e expirá-las; ao listar, criar os avisos de convite, horário, cancelamento e ata e marcar o aviso como lido. |
+| `events`, `crypto`, `nodemailer`, `Transporter` | API (biblioteca) | Esperar o fim do envio do anexo, sortear o código do link e enviar os e-mails do link.           |
+| `ReuniaoModel`, `ComissaoModel`, `OrganizacaoModel`, `UsuarioModel`, `NotificacaoModel` | Dados (Model Mongoose) | Ler e gravar os documentos de `reunioes`, `comissoes`, `organizacoes`, `usuarios` e `notificacoes`. |
+| `GridFSBucket`, `GridFSBucketWriteStream` | Dados (driver do MongoDB) | Gravar, ler e apagar o conteúdo dos anexos na área `anexos` do GridFS.                     |
 | `Reuniao`              | Documento            | Representar a reunião guardada no MongoDB.                                                         |
 | `Participante`         | Subdocumento         | Relacionar o convidado, a resposta ao convite e a presença.                                        |
 | `Presenca`             | Subdocumento         | Registrar entrada, saída, situação e origem.                                                       |
@@ -29,8 +38,9 @@
 | `AcessoPresenca`       | Objeto embutido      | Guardar o resumo do código do link de presença e a validade.                                       |
 | `RegistroCorrecao`     | Objeto embutido      | Guardar cada correção de horário, com motivo e valores anteriores.                                 |
 | `Notificacao`          | Documento            | Aviso mostrado na tela "Notificações" de um usuário.                                               |
+| `Comissao`, `Organizacao`, `Usuario` | Documento | Comissão, organização e conta consultadas para autorizar e mostrar nomes (descritas nos módulos COM, ORG e USR). |
 
-`Comissao` e `Usuario` estão descritas nos módulos do Incremento 1; abaixo aparecem só os campos que as reuniões usam. `Ata` e `Votacao`, também gravadas dentro de `Reuniao`, estão nos dicionários das [atas](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md) e da [votação](../../4%20-%20Incremento%203/votacao/3%20-%20dicionario-dados-classes-votacao.md).
+`Comissao`, `Organizacao` e `Usuario` estão descritas nos módulos do Incremento 1; a seção [`Comissao`, `Organizacao` e `Usuario`](#comissao-organizacao-e-usuario) mostra só os campos que as reuniões usam. `Ata` e `Votacao`, também gravadas dentro de `Reuniao`, estão nos dicionários das [atas](../../4%20-%20Incremento%203/atas/3%20-%20dicionario-dados-classes-atas.md) e da [votação](../../4%20-%20Incremento%203/votacao/3%20-%20dicionario-dados-classes-votacao.md).
 
 ## `Reuniao`
 
@@ -73,7 +83,7 @@ Subdocumento de `Participante`, sem `_id` próprio.
 
 | Atributo           | Tipo TypeScript/Mongoose         | Tipo BSON | Obrigatório | Regra                                                                                                   |
 | ------------------ | -------------------------------- | --------- | ----------: | ------------------------------------------------------------------------------------------------------- |
-| `entrada`          | `Date`                           | `date`    |         Sim | Horário do servidor na marcação; `inicio` da reunião quando quem agendou marca a pessoa como presente.  |
+| `entrada`          | `Date`                           | `date`    |         Sim | Horário do servidor na marcação e no link; `inicio` da reunião quando quem agendou marca a pessoa como presente; valor informado na correção. |
 | `saida`            | `Date`                           | `date`    |         Não | Nunca maior que `Reuniao.fim`.                                                                          |
 | `saida_automatica` | `boolean`                        | `bool`    |         Não | Verdadeiro quando o servidor registrou a saída no término; ausente nos demais casos.                    |
 | `situacao`         | `SituacaoPresenca` (enum string) | `string`  |         Sim | `AGUARDANDO`, `CONFIRMADA` ou `RECUSADA`.                                                               |
@@ -116,20 +126,40 @@ Cada item de `Reuniao.historico_presencas`, acrescentado por `PresencasService.c
 | `antes`           | `Presenca` ou nulo | `object`  |         Sim | Entrada, saída, situação e origem anteriores; nulo quando a pessoa não tinha presença.            |
 | `depois`          | `Presenca`         | `object`  |         Sim | Presença gravada: horários informados, `situacao = CONFIRMADA` e `marcada_por = RESPONSAVEL`.      |
 
-## `Notificacao` (campos usados pelo link de presença)
+## `Notificacao`
 
-Documento da coleção `notificacoes`, definido em `BACKEND/src/notificacoes/notificacao.schema.ts`.
+Documento da coleção `notificacoes`, definido em `BACKEND/src/notificacoes/notificacao.schema.ts`, com `criada_em` e `atualizada_em` preenchidos pelo Mongoose (`timestamps`). O aviso `PRESENCA` é gravado por `PresencasService.enviar`; os de `CONVITE`, `HORARIO`, `CANCELAMENTO` e `ATA`, por `NotificacoesService.listar`.
 
-| Atributo     | Tipo TypeScript/Mongoose | Tipo BSON  | Obrigatório | Regra                                                                                     |
-| ------------ | ------------------------ | ---------- | ----------: | ----------------------------------------------------------------------------------------- |
-| `usuario_id` | `Types.ObjectId`         | `objectId` |         Sim | Destinatário.                                                                             |
-| `chave`      | `string`                 | `string`   |         Sim | `PRESENCA:<reunião>:<resumo do código>`; o par `usuario_id` e `chave` é único.            |
-| `tipo`       | `string`                 | `string`   |         Sim | `PRESENCA` para o link.                                                                   |
-| `titulo`     | `string`                 | `string`   |         Sim | Título da reunião.                                                                        |
-| `mensagem`   | `string`                 | `string`   |         Sim | "O responsável solicitou seu registro de presença. Abra para confirmar durante a reunião." |
-| `destino`    | `string`                 | `string`   |         Sim | `/presenca?id=<reunião>&codigo=<código>`.                                                 |
-| `expira_em`  | `Date`                   | `date`     |         Não | `fim` da reunião; vira o horário atual quando o link é trocado ou revogado.               |
-| `lida_em`    | `Date`                   | `date`     |         Não | Preenchido quando o usuário toca em "Abrir".                                              |
+| Atributo        | Tipo TypeScript/Mongoose | Tipo BSON  | Obrigatório | Regra                                                                                     |
+| --------------- | ------------------------ | ---------- | ----------: | ----------------------------------------------------------------------------------------- |
+| `usuario_id`    | `Types.ObjectId`         | `objectId` |         Sim | Destinatário. Indexado.                                                                   |
+| `chave`         | `string`                 | `string`   |         Sim | `<tipo>:<reunião>:<versão>`: no `PRESENCA`, a versão é o resumo do código; no `CONVITE`, `horario_alterado_em` em ISO 8601 ou `1`; no `HORARIO`, `horario_alterado_em`; no `CANCELAMENTO`, `1`; no `ATA`, a versão da ata. O par `usuario_id` e `chave` é único. |
+| `tipo`          | `string`                 | `string`   |         Sim | `PRESENCA`, `CONVITE`, `HORARIO`, `CANCELAMENTO` ou `ATA`. O schema não restringe os valores. |
+| `titulo`        | `string`                 | `string`   |         Sim | Título da reunião.                                                                        |
+| `mensagem`      | `string`                 | `string`   |         Sim | Texto fixo de cada tipo, por exemplo "O responsável solicitou seu registro de presença. Abra para confirmar durante a reunião." no `PRESENCA`. |
+| `destino`       | `string`                 | `string`   |         Sim | `/presenca?id=<reunião>&codigo=<código>` no `PRESENCA`, `/reunioes/registros?id=<reunião>` no `ATA` e `/reunioes/<reunião>` nos demais. |
+| `expira_em`     | `Date`                   | `date`     |         Não | Só no `PRESENCA`: `fim` da reunião; vira o horário atual quando o link é trocado ou revogado. |
+| `lida_em`       | `Date`                   | `date`     |         Não | Preenchido quando o usuário toca em "Abrir".                                              |
+| `criada_em`     | `Date`                   | `date`     |         Sim | Momento da inserção do aviso.                                                             |
+| `atualizada_em` | `Date`                   | `date`     |         Sim | Atualizado a cada `updateOne` ou `updateMany` do aviso, inclusive quando `criar` o encontra já gravado. |
+
+## `Comissao`, `Organizacao` e `Usuario`
+
+Documentos das coleções `comissoes`, `organizacoes` e `usuarios`, descritos por completo nos dicionários de [COM](../../2%20-%20Incremento%201/cadastro-comissao/3%20-%20dicionario-dados-classes-cadastro-comissao.md), [ORG](../../2%20-%20Incremento%201/cadastro-organizacao/3%20-%20dicionario-dados-classes-cadastro-organizacao.md) e [USR](../../2%20-%20Incremento%201/cadastro-usuario/3%20-%20dicionario-dados-classes-cadastro-usuario.md). As reuniões só leem estes campos:
+
+| Classe        | Atributo         | Tipo TypeScript/Mongoose | Uso nas reuniões                                                                                      |
+| ------------- | ---------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `Comissao`    | `_id`            | `Types.ObjectId`         | Gravado em `Reuniao.comissao_id`.                                                                     |
+|               | `nome`           | `string`                 | Mostrado na reunião, na lista de presença e no e-mail do link.                                        |
+|               | `organizacao_id` | `Types.ObjectId`         | Leva à organização cuja aprovação e cujo vínculo são conferidos.                                      |
+|               | `ativo`          | `boolean`                | Precisa ser verdadeiro para agendar e para usar o link de presença.                                   |
+|               | `membros`        | `MembroComissao[]`       | Cada item tem `usuario_id` e `papel`; o de papel `RESPONSAVEL` é o presidente e só integrantes são convidados. |
+| `Organizacao` | `status`         | `StatusOrganizacao`      | Precisa ser `APROVADA`.                                                                               |
+|               | `membros`        | `MembroOrganizacao[]`    | O usuário precisa ter vínculo com `status = APROVADO`.                                                |
+| `Usuario`     | `_id`            | `Types.ObjectId`         | Gravado em `Participante.usuario_id` e `Reuniao.criada_por`.                                          |
+|               | `nome`           | `string`                 | Mostrado na reunião e na lista de presença.                                                           |
+|               | `email`          | `string`                 | Destino do e-mail do link de presença.                                                                |
+|               | `ativo`          | `boolean`                | Precisa ser verdadeiro em toda operação e para receber o link.                                        |
 
 ## Enumerações
 
@@ -180,6 +210,73 @@ Documento da coleção `notificacoes`, definido em `BACKEND/src/notificacoes/not
 | `validarLink`  | reunião, comissão, `codigo`              | nada                   | Exige link gravado, resumo igual, mesmo responsável, mesmos horários e reunião não terminada.   |
 | `editavel`     | reunião                                  | nada                   | Recusa reunião cancelada ou com ata enviada.                                                     |
 | `filtro`       | reunião                                  | filtro                 | Monta o filtro de gravação: `_id`, `AGENDADA`, mesmos `inicio` e `fim` e a mesma ata.           |
+
+## Operações do `NotificacoesService`
+
+| Método              | Parâmetros               | Retorno                         | O que faz                                                                                                          |
+| ------------------- | ------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `criar`             | `usuarioId`, dados       | nada                            | Grava o aviso com `updateOne`, `upsert` e `$setOnInsert`, só se o par `usuario_id` e `chave` ainda não existir.     |
+| `listar`            | `usuarioId`              | `itens` e `nao_lidas`           | Cria os avisos de cancelamento, convite, horário e ata das reuniões do usuário e devolve até 100 avisos não expirados, do mais recente ao mais antigo. |
+| `ler`               | `id`, `usuarioId`        | mensagem                        | Preenche `lida_em` do aviso do próprio usuário; de outro usuário ou inexistente, 404 "Notificação não encontrada".  |
+| `invalidarPresenca` | `reuniaoId`              | nada                            | Muda `expira_em` para o horário atual nos avisos `PRESENCA` da reunião.                                             |
+
+## Atualizadores de estado das telas
+
+Os métodos `definir*` são as funções de atualização devolvidas pelo `useState` do React em cada tela. Cada um troca o valor de um estado e faz a tela ser desenhada de novo; todos têm a forma `(valor) => void`.
+
+| Classe                 | Métodos e tipo do valor                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `TelaAgenda`           | `definirReunioes(Reuniao[])`                                                                                              |
+| `TelaInicio`           | `definirAviso(Aviso \| null)`, `definirOcupado(string \| null)`, `definirReunioes(Reuniao[])`                             |
+| `FormularioReuniao`    | `definirErro(string)`: problema mostrado na faixa do formulário, como o conflito devolvido por `aoSalvar`                 |
+| `TelaReuniao`          | `definirReuniao(Reuniao \| null)`, `definirPresidente(boolean)`, `definirOpcoes(boolean)`: folha "Opções"; `definirConfirmacao(Pendente \| null)`: pergunta com `mensagem` e `acao`; `definirErro(string)`, `definirSucesso(string)` |
+| `TelaRegistrosReuniao` | `definirAba('ata' \| 'presenca')`, `definirLista(ListaPresenca \| null)`, `definirGerandoPdf(boolean)`                    |
+| `AcessoPresidente`     | `definirPermitido(boolean)`: mostra o botão "Link e gestão de presença"                                                    |
+| `TelaGestaoPresenca`   | `definirConfirmacao('GERAR' \| 'REVOGAR' \| null)`, `definirLink(LinkPresenca \| null)`, `definirAlvo(Participante \| null)`: pessoa em correção; `definirHistorico(RegistroCorrecao[])`, `definirSucesso(string)` |
+| `TelaPresencaLink`     | `definirDados(DadosAcesso \| null)`, `definirErro(string)`, `definirSucesso(string)`                                      |
+| `TelaNotificacoes`     | `definirItens(Notificacao[])`                                                                                             |
+
+## Módulos do PDF da lista
+
+| Classe             | Membro                     | Tipo ou assinatura                                  | Regra ou o que faz                                                                                                                                                  |
+| ------------------ | -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pdfListaPresenca` | `gerarPdfLista(reuniao, lista)` | `(Reuniao, ListaPresenca) => Promise<void>`    | Monta o nome "Lista de presença - &lt;título&gt;", com `\ / : * ? " < >` e a barra vertical trocados por "-", e chama `entregarPdf(htmlDaLista(reuniao, lista), nome)`. |
+|                    | `htmlDaLista(reuniao, lista)` | `(Reuniao, ListaPresenca) => string`             | Documento A4 da lista, com todo texto do usuário escapado por `escapar`.                                                                                            |
+|                    | `escapar(texto)`           | `(string) => string`                                | Troca `&`, `<`, `>` e `"` pelas entidades HTML.                                                                                                                     |
+| `pdf`              | `entregarPdf(html, nome)`  | `(string, string) => Promise<void>`                 | Na web, `imprimirNaWeb`; no Expo Go, `Print.printAsync`; no aplicativo instalado, `Print.printToFileAsync`, depois espera `nomearPdf` e só então chama `Sharing.shareAsync` com o endereço devolvido, `application/pdf`, o UTI `com.adobe.pdf` e o título igual a `nome`. |
+|                    | `pdfPelaImpressao()`       | `() => boolean`                                     | Verdadeiro na web e no Expo Go.                                                                                                                                     |
+|                    | `imprimirNaWeb(html)`      | `(string) => void`                                  | Abre uma janela, escreve o documento e chama a impressão; lança erro se a janela não abrir.                                                                         |
+|                    | `nomearPdf(gerado, nome)`  | `(File, string) => Promise<string>`                 | Desde o frontend `8cf4839`, é `async`: cria o `File` "&lt;nome&gt;.pdf" em `Paths.cache`, apaga o de mesmo nome se existir, espera `gerado.move(arquivo)` e devolve `arquivo.uri`. Se qualquer desses passos lançar erro, inclusive o `move`, o `catch` devolve `gerado.uri`, com o nome dado pelo `Print`. |
+
+## Models do Mongoose
+
+Cada model é o `Model` que o NestJS injeta no service com `@InjectModel`. `find`, `findById`, `findOne`, `findOneAndUpdate`, `updateOne` e `updateMany` devolvem uma `Query`; `select`, `populate`, `sort`, `limit`, `lean` e `exec` são dessa `Query` e aparecem na classe do model porque as sequências os chamam na linha de vida dele, na ordem do encadeamento.
+
+| Classe             | Coleção        | Atributo nos services                                                    | Métodos chamados                                                                                          |
+| ------------------ | -------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `ReuniaoModel`     | `reunioes`     | `ReunioesService.reuniaoModel`, `PresencasService.reunioes`, `NotificacoesService.reunioes` | `create(dados)`, `find(filtro)`, `findById(id)`, `findOneAndUpdate(filtro, alteracao, opcoes)`, `updateOne(filtro, alteracao, opcoes)`, `select(campos)`, `populate(caminho, campos)`, `sort(ordem)`, `lean()`, `exec()` |
+| `ComissaoModel`    | `comissoes`    | `ReunioesService.comissaoModel`, `PresencasService.comissoes`            | `findById(id)`                                                                                            |
+| `OrganizacaoModel` | `organizacoes` | `ReunioesService.organizacaoModel`, `PresencasService.organizacoes`      | `findById(id)`                                                                                            |
+| `UsuarioModel`     | `usuarios`     | `ReunioesService.usuarioModel`, `PresencasService.usuarios`              | `find(filtro)`, `findById(id)` (em `validarUsuario`), `select(campos)`, `exec()`                          |
+| `NotificacaoModel` | `notificacoes` | `NotificacoesService.notificacoes`                                       | `find(filtro)`, `findOne(filtro)`, `updateOne(filtro, alteracao, opcoes)`, `updateMany(filtro, alteracao)` (em `invalidarPresenca`), `select(campos)`, `sort(ordem)`, `limit(quantidade)`, `lean()`, `exec()` |
+
+## Bibliotecas, componente e contexto
+
+| Classe                    | Origem                       | Membros usados                                                                                   | O que faz no módulo                                                                                                  |
+| ------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `Confirmacao`             | `FRONTEND/src/components/Confirmacao.tsx` | `mensagem`, `carregando`, `confirmar()`, `cancelar()`                               | Na `TelaReuniao`, `confirmar` chama `confirmacao.acao()`, que executa a ação pedida; `cancelar` fecha sem enviar nada. |
+| `ToastProvider`           | `FRONTEND/src/contexts/ToastContext.tsx` | `mostrarToast(mensagem, tipo, duracao)`: `(string, TipoToast, number) => void`; `tipo` padrão `'informacao'`, `duracao` padrão 4.000 ms | Obtido nas telas por `useToast()`. Mostra "Reunião atualizada." depois da edição. |
+| `Router`                  | `expo-router` (`useRouter`)  | `push(rota)`, `replace(rota)`, `back()`, `canGoBack()`                                            | Abre a reunião criada, volta depois da edição, abre a gestão de presença e o destino das notificações.               |
+| `Clipboard`               | `expo-clipboard`             | `setStringAsync(texto)`: `(string) => Promise<boolean>`                                          | Copia o endereço do link de presença.                                                                                |
+| `File`                    | `expo-file-system` 58        | `File(...partes)`, `uri` e `exists`; `copy(destino)`, `move(destino)` e `upload(url, opcoes)`, que devolvem `Promise`; `delete()`, síncrono; e os estáticos `downloadFileAsync`, `canPreview` e `preview` | Copia e envia o anexo, baixa e abre o anexo no visualizador do aparelho e renomeia o PDF da lista.          |
+| `Print`                   | `expo-print`                 | `printAsync(opcoes)`, `printToFileAsync(opcoes)`                                                 | Abre a tela de impressão (Expo Go) ou grava o PDF A4 no cache e devolve `uri` (aplicativo instalado).                |
+| `Sharing`                 | `expo-sharing`               | `shareAsync(url, opcoes)`: `(string, SharingOptions) => Promise<void>`                            | Abre o menu de compartilhamento do aparelho com o PDF.                                                               |
+| `events`                  | `node:events`                | `once(emissor, evento)`: `(EventEmitter, string) => Promise<unknown[]>`                          | Espera o evento `finish` do envio do anexo ao GridFS.                                                                |
+| `crypto`                  | `node:crypto`                | `randomBytes(tamanho)`: `(number) => Buffer`                                                     | Sorteia os 32 bytes do código do link, escritos em 64 caracteres hexadecimais.                                       |
+| `nodemailer`              | `nodemailer`                 | `createTransport(opcoes)`: devolve um `Transporter`                                              | Cria o envio SMTP com `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER` e `MAIL_PASS`, com tempos-limite de 10, 10 e 20 segundos. |
+| `Transporter`             | `nodemailer`                 | `sendMail(mensagem)`: `(MailOptions) => Promise<SentMessageInfo>`                                | Envia um e-mail por convidado; a falha de um não interrompe os demais.                                               |
+| `GridFSBucket`            | driver do MongoDB (`mongo.GridFSBucket`) | `openUploadStream(nome, opcoes)`, `openDownloadStream(id)`, `delete(id)`             | Criado por `ReunioesService.arquivos()` sobre `conexao.db`, com `bucketName: 'anexos'`; guarda o conteúdo dos anexos. |
+| `GridFSBucketWriteStream` | driver do MongoDB            | `id: ObjectId`, `end(dados)`                                                                     | Fluxo devolvido por `openUploadStream`; `end` grava o conteúdo e `id` vira o `_id` do `Anexo`.                       |
 
 ## DTOs e validação
 

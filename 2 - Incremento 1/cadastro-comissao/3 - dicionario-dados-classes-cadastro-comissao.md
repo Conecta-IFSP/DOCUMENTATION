@@ -1,6 +1,6 @@
 # Dicionário de classes — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -21,6 +21,10 @@
 | `Organizacao`           | Documento            | Organização dona da comissão; usada para conferir vínculos.                                                      |
 | `MembroOrganizacao`     | Subdocumento         | Vínculo de uma pessoa com a organização.                                                                         |
 | `Usuario`               | Documento            | Conta de uma pessoa; usada para conferir se está ativa e para mostrar nome e e-mail.                             |
+| `ComissaoModel`         | Dados (model)        | O model do Mongoose da coleção `comissoes`: busca, cria e grava as comissões.                                    |
+| `OrganizacaoModel`      | Dados (model)        | O model do Mongoose da coleção `organizacoes`, usado para conferir os vínculos.                                  |
+| `UsuarioModel`          | Dados (model)        | O model do Mongoose da coleção `usuarios`, usado para conferir contas e listar as pessoas elegíveis.             |
+| `Router`                | Biblioteca           | O roteador do `expo-router`, que abre a comissão recém-criada.                                                   |
 
 ## `Comissao`
 
@@ -79,19 +83,48 @@ A descrição completa dessas classes está nos dicionários dos módulos de [or
 | `TelaOrganizacao`       | `filtro`                              | `'Todas' \| 'Ativas' \| 'Inativas'`    | Filtro de situação; começa em "Todas".                                                                                 |
 | `TelaOrganizacao`       | `buscaComissao`                       | `string`                               | Texto do campo "Buscar" da aba Comissões.                                                                              |
 | `TelaOrganizacao`       | `carregar()`                          | `Promise<Dados>`                       | Busca a organização, as comissões (`?organizacao_id=`) e as reuniões futuras.                                          |
-| `TelaNovaComissao`      | `salvar()`                            | `Promise<void>`                        | Valida o formulário e envia `POST /comissoes`; no sucesso, abre a comissão criada.                                     |
+| `TelaOrganizacao`       | `definirDados(valor: Dados)`, `definirBuscaComissao(valor: string)`, `definirFiltro(valor: Filtro)` | `void` | Atualizadores do `useState`: guardam o que `carregar` devolveu, o texto da busca e o filtro de situação.               |
+| `TelaNovaComissao`      | `salvar()`                            | `Promise<void>`                        | Valida o formulário e envia `POST /comissoes`; no sucesso, abre a comissão criada com `Router.replace`.                |
+| `TelaNovaComissao`      | `setValue(campo: string, valor: string)` | `void`                              | O `setValue` do formulário (`useForm` do `react-hook-form`): marca a organização escolhida em `organizacao_id`.        |
+| `TelaNovaComissao`      | `onChange(valor: string)`             | `void`                                 | O `field.onChange` do campo `responsavel_id` (`Controller` do `react-hook-form`), passado como `aoAlternar` ao `SeletorPessoaComissao`: grava o responsável escolhido. |
 | `TelaComissao`          | `gerencia`                            | `boolean`                              | Verdadeiro quando a organização da comissão está entre as administradas pelo usuário.                                 |
 | `TelaComissao`          | `aba`                                 | `'reunioes' \| 'equipe'`               | Aba aberta.                                                                                                            |
 | `TelaComissao`          | `folha`                               | `'opcoes' \| 'editar' \| 'adicionar' \| 'responsavel' \| null` | Folha aberta por cima da tela.                                                                |
+| `TelaComissao`          | `buscarReunioes()`                    | `Promise<{ resultado, momento }>`      | Chama `GET /reunioes?comissao_id=` ao abrir e ao voltar para a tela e devolve as reuniões com o horário da consulta, usado para separar "Próximas" e "Anteriores". |
 | `TelaComissao`          | `buscar()` / `aplicar(carga, preencherFormulario)` | `Promise<Carga>` / `void` | Consulta a comissão, as organizações administradas e as pessoas elegíveis, e guarda o resultado.                       |
 | `TelaComissao`          | `executar(acao, mensagem)`            | `Promise<boolean>`                     | Executa uma chamada de alteração, impede outra ao mesmo tempo, mostra a faixa verde ou vermelha e guarda a comissão devolvida. |
 | `TelaComissao`          | `salvarDados()`                       | `Promise<void>`                        | Valida e envia a edição de nome e descrição.                                                                           |
 | `TelaComissao`          | `desativar()`                         | `Promise<Resultado<Comissao>>`         | Chama `DELETE /comissoes/:id` e devolve só a comissão.                                                                 |
 | `TelaComissao`          | `trocarResponsavel(alvo)`             | `void`                                 | Prepara a confirmação da troca de responsável.                                                                         |
+| `TelaComissao`          | `busca`, `erro`, `sucesso`            | `string`                               | Texto da busca da folha "Adicionar integrante" e as mensagens das faixas vermelha e verde. Com `criada=1` na rota, `sucesso` começa com "Comissão cadastrada! Adicione os integrantes." e `aba` com `equipe`. |
+| `TelaComissao`          | `definirAba(valor: string)`, `definirBusca(valor: string)`, `definirComissao(valor: Comissao)`, `definirConfirmacao(valor: AcaoPendente)`, `definirErro(valor: string)`, `definirEscolhido(valor: Integrante)`, `definirFolha(valor: string)`, `definirSucesso(valor: string)` | `void` | Atualizadores do `useState`: trocam a aba, o texto da busca, a comissão mostrada, o diálogo de confirmação (ou o fecham com `null`), as faixas de erro e de sucesso, o integrante cuja folha de opções está aberta e a folha aberta. |
+| `TelaComissao`          | `reset(valores: object)`              | `void`                                 | O `reset` do formulário de edição (`useForm` do `react-hook-form`): preenche nome e descrição atuais antes de abrir "Editar dados". |
+| `SeletorPessoaComissao` | `aoAlternar(id: string)`, `fechar()`  | `void`                                 | `aoAlternar` é a função recebida da tela, chamada quando a pessoa toca num nome; `fechar` fecha a folha depois da escolha quando só uma pessoa pode ser marcada. |
 | `SeletorPessoaComissao` | `pessoas`, `selecionados`             | `PessoaComissao[]`, `string[]`         | Pessoas mostradas e as já marcadas; com mais de seis pessoas, mostra o campo "Buscar".                                 |
 | `validacao`             | `validarNomeComissao(nome)`           | `string \| null`                       | "Informe um nome com pelo menos 2 caracteres." quando o nome aparado tem menos de 2 caracteres.                        |
 | `validacao`             | `validarDescricao(descricao)`         | `string \| null`                       | "A descrição deve ter no máximo 200 caracteres." quando passa de 200.                                                  |
 | `api`                   | `api(caminho, metodo, corpo)`         | `Promise<Resultado<T>>`                | Devolve `{ ok: true, dados }` ou `{ ok: false, erro }`, com a primeira mensagem de erro da API.                        |
+
+## Models do Mongoose
+
+Os três models são `Model<...>` injetados pelo NestJS com `@InjectModel` nos atributos `comissaoModel`, `organizacaoModel` e `usuarioModel` do `ComissoesService`. As consultas devolvem uma `Query`, concluída com `.exec()`. Os métodos encadeados na `Query` (`select`, `populate` e `sort`) aparecem nas notas dos diagramas de sequência, e não como mensagens, porque não são métodos do model.
+
+| Classe             | Estereótipo          | Método                                                          | Retorno                         | O que faz                                                                                                   |
+| ------------------ | -------------------- | --------------------------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `ComissaoModel`    | `<<Model Mongoose>>` | `find(filtro: object)`                                          | `Query<ComissaoDocument[]>`     | Lista as comissões da organização (todas, para o administrador, ou as da equipe do usuário).               |
+|                    |                      | `findById(id: string)`                                          | `Query<ComissaoDocument>`       | Busca a comissão pelo `_id`.                                                                                |
+|                    |                      | `create(dados: object)`                                         | `Promise<ComissaoDocument>`     | Insere a comissão ativa com o responsável; o schema confere o responsável único.                           |
+|                    |                      | `findByIdAndUpdate(id: string, alteracao: object, opcoes: object)` | `Query<ComissaoDocument>`    | Grava nome, descrição ou situação e devolve o documento novo (`returnDocument: 'after'`, `runValidators: true`). |
+|                    |                      | `findOneAndUpdate(filtro: object, alteracao: object, opcoes: object)` | `Query<ComissaoDocument>` | Grava a nova equipe só se `_id`, `ativo` e `membros` ainda são os lidos; devolve `null` quando outra gravação chegou antes. |
+|                    |                      | `populate(caminhos: object[])`                                  | `Promise<ComissaoDocument>`     | Chamado no documento da comissão (`popular`): troca `organizacao_id` e `membros.usuario_id` pelos dados da organização e das pessoas. |
+| `OrganizacaoModel` | `<<Model Mongoose>>` | `findById(id: string)`                                          | `Query<OrganizacaoDocument>`    | Busca a organização para conferir a situação e o vínculo do usuário.                                       |
+|                    |                      | `find(filtro: object)`                                          | `Query<OrganizacaoDocument[]>`  | Lista as organizações `APROVADA` que o usuário administra.                                                 |
+| `UsuarioModel`     | `<<Model Mongoose>>` | `findById(id: string)`                                          | `Query<UsuarioDocument>`        | Confere que a conta existe e está ativa (`validarUsuario`).                                                 |
+|                    |                      | `find(filtro: object)`                                          | `Query<UsuarioDocument[]>`      | Lista as pessoas ativas com vínculo `APROVADO` na organização.                                             |
+
+| Classe   | Estereótipo      | Método               | Retorno | O que faz                                                                                       |
+| -------- | ---------------- | -------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `Router` | `<<biblioteca>>` | `replace(rota: Href)` | `void`  | Abre a comissão criada no lugar da tela de cadastro (`expo-router` 58.0.33).                    |
 
 ## Operações do `ComissoesService`
 

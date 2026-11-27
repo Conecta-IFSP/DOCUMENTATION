@@ -1,21 +1,21 @@
 # Testes — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Revisado em 27/11/2026
 
 ## Resumo
 
-Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor: quem pode ver e gerenciar, quem pode entrar na equipe, o responsável único e a gravação condicionada. Os roteiros manuais do Incremento 1 foram aprovados pela equipe; o roteiro das telas atuais e a execução em iOS estão pendentes. Nada aqui está marcado como aprovado sem ter sido executado.
+Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. Os testes automatizados cobrem as regras do servidor: quem pode ver e gerenciar, quem pode entrar na equipe, o responsável único e a gravação condicionada. Os roteiros manuais do Incremento 1 foram aprovados pela equipe; em 27/11/2026, o cadastro e a desativação foram executados nas telas atuais num Galaxy S24 (CT-COM-33 e CT-COM-34); o roteiro completo das telas atuais (CT-COM-31) e a execução em iOS estão pendentes. Nada aqui está marcado como aprovado sem ter sido executado.
 
 ## Ambiente
 
 | Item              | Valor                                                                                                                                   |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Datas da execução | 23/10/2026 (suíte do backend); 26/11/2026 (suíte do backend e testes do módulo). Roteiros manuais CT-COM-01 a CT-COM-06: Incremento 1, sem data registrada |
-| Node.js / npm     | 24.19.0 / 11.17.0 (execução de 26/11/2026)                                                                                              |
-| Backend           | 23/10/2026: commit `6f2ffc4`. 26/11/2026: branch `homolog` em `caca2d2`, sem alterações locais em `src/comissoes`                    |
-| Aplicativo        | 26/11/2026: branch `homolog` em `6ff2d50`                                                                                               |
+| Datas da execução | 23/10/2026 (suíte do backend); 26/11/2026 e 27/11/2026 (suíte do backend e testes do módulo). Roteiros manuais CT-COM-01 a CT-COM-06: Incremento 1, sem data registrada; CT-COM-33 e CT-COM-34: 27/11/2026 |
+| Node.js / npm     | 24.19.0 / 11.17.0 (execuções de 26/11/2026 e 27/11/2026)                                                                                |
+| Backend           | 23/10/2026: commit `6f2ffc4`. 26/11/2026: branch `homolog` em `caca2d2`, sem alterações locais em `src/comissoes`. 27/11/2026: branch `homolog` em `d1f1aeb`, sem alterações locais |
+| Aplicativo        | 26/11/2026: branch `homolog` em `6ff2d50`. 27/11/2026: branch `homolog` em `10abe49`, com alteração local só em `src/components/VotacoesReuniao.tsx`, fora deste módulo |
 | Banco             | Os testes automatizados não usam banco: os models do Mongoose são substituídos por objetos simulados (`vi.fn`)                          |
-| Aparelhos         | Roteiros CT-COM-01 a CT-COM-06: "ambiente móvel", sem registro do aparelho nem da versão do sistema. iOS: não executado; a equipe não dispõe de computador Apple nem de aparelho iOS |
+| Aparelhos         | Roteiros CT-COM-01 a CT-COM-06: "ambiente móvel", sem registro do aparelho nem da versão do sistema. CT-COM-33 e CT-COM-34: Samsung Galaxy S24, Android 16, com o APK de release arm64, ligado à API local com banco de teste. iOS: não executado; a equipe não dispõe de computador Apple nem de aparelho iOS |
 
 ## Evidência automatizada
 
@@ -28,6 +28,11 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | 26/11/2026 | BACKEND  | `npm run build` e `npm run lint`               | Sem erro e sem diagnóstico                                                                 |
 | 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint`            | Sem erro e sem diagnóstico, incluindo `src/app/comissoes/` e `src/app/(abas)/organizacao.tsx` |
 | 26/11/2026 | FRONTEND | `node --test tests/*.test.cjs`                 | 5 arquivos e 47 testes aprovados; nenhum deles cobre as telas de comissão                  |
+| 27/11/2026 | BACKEND (`d1f1aeb`) | `npx vitest run`                    | 17 arquivos e 246 testes aprovados, nenhuma falha                                          |
+| 27/11/2026 | BACKEND (`d1f1aeb`) | `npx vitest run src/comissoes --reporter=verbose` | 3 arquivos e 40 testes aprovados, com os mesmos nomes da matriz abaixo: 36 em `comissoes.regras.spec.ts`, 3 em `comissoes.controller.spec.ts` e 1 em `comissoes.service.spec.ts` |
+| 27/11/2026 | BACKEND (`d1f1aeb`) | `npm run build` e `npm run lint`    | Sem erro e sem diagnóstico                                                                 |
+| 27/11/2026 | FRONTEND (`10abe49`) | `npx tsc --noEmit` e `npm run lint` | Sem erro e sem diagnóstico                                                                 |
+| 27/11/2026 | FRONTEND (`10abe49`) | `node --test tests/*.test.cjs`     | 5 arquivos e 47 testes aprovados; nenhum deles cobre as telas de comissão                  |
 | —          | BACKEND  | `node test/comissoes-mongo.mjs`                | Não executado: script desatualizado (CT-COM-30)                                            |
 
 Os testes "should be defined" de `comissoes.controller.spec.ts` e `comissoes.service.spec.ts` só conferem que as classes são criadas pelo NestJS; os demais estão na matriz abaixo. Os arquivos ficam em `BACKEND/src/comissoes/`.
@@ -73,9 +78,11 @@ Os testes "should be defined" de `comissoes.controller.spec.ts` e `comissoes.ser
 | CT-COM-06 | RF-COM-09                       | Ambiente móvel, aparelho não registrado | Tentar remover responsável e remover membro.                                                                   | Responsável recusado; membro removido após confirmação.                | Aprovado pela equipe.                                |
 | CT-COM-31 | RF-COM-02, RF-COM-08, RNF-COM-05, RNF-COM-07, RNF-COM-08 | Emulador Android 7.0 (720 × 1280) e Galaxy S24 (APK de release) | Abrir a comissão e alternar as abas "Reuniões" e "Equipe"; abrir "Mais opções", "Editar dados", "Adicionar" e "Trocar responsável"; cancelar cada diálogo de confirmação; confirmar a troca do responsável. | Uma aba por vez, folhas sem texto cortado, nenhuma chamada à API ao cancelar e etiquetas trocadas após confirmar. | Não executado.                                       |
 | CT-COM-32 | RNF-COM-08                      | iOS                                     | Repetir CT-COM-31 em aparelho iOS.                                                                             | Mesmo resultado do Android.                                            | Não executado: sem equipamento Apple disponível.     |
+| CT-COM-33 | RF-COM-03                       | Samsung Galaxy S24, Android 16, APK de release arm64; API local com banco de teste | Em "Nova comissão", preencher o nome, escolher o responsável e tocar em "Cadastrar comissão". | A comissão criada abre na aba "Equipe", com a faixa de sucesso e só o responsável na equipe. | Aprovado em 27/11/2026, no Samsung Galaxy S24 (Android 16) com o APK de release arm64. "Cadastrar comissão" abriu a comissão na aba Equipe, com "Comissão cadastrada! Adicione os integrantes." e "1 integrante". |
+| CT-COM-34 | RF-COM-05, RNF-COM-05           | Samsung Galaxy S24, Android 16, APK de release arm64; API local com banco de teste | Numa comissão ativa, abrir "Mais opções", tocar em "Desativar comissão" e confirmar com "Desativar". | O diálogo pede confirmação; depois, a comissão aparece inativa, com a faixa verde e o aviso de que a equipe só muda depois de reativar. | Aprovado em 27/11/2026, no Samsung Galaxy S24 (Android 16) com o APK de release arm64. O diálogo mostrou "Desativar <nome>? Ela poderá ser reativada depois.", com o nome da comissão; depois de "Desativar", apareceram a etiqueta "Inativa", "Comissão desativada." e "Reative a comissão para alterar a equipe.". |
 
 Os roteiros CT-COM-01 a CT-COM-06 foram executados no Incremento 1, cuja documentação foi conferida em 23/10/2026; a equipe informou a execução dos roteiros de aceitação em ambiente móvel, com todos os cenários aprovados, sem registrar o aparelho nem a data de cada roteiro.
 
 ## Rastreabilidade
 
-CT-COM-01 a CT-COM-06 cobrem RF-COM-01 a RF-COM-09 nas telas; CT-COM-07 a CT-COM-27 cobrem as regras do servidor de RF-COM-01 a RF-COM-09; CT-COM-28 cobre o acesso às rotas (RNF-COM-01); CT-COM-29 cobre a rota auxiliar não usada pelo aplicativo; CT-COM-30 (MongoDB real), CT-COM-31 (telas atuais no Android) e CT-COM-32 (iOS) estão pendentes.
+CT-COM-01 a CT-COM-06 cobrem RF-COM-01 a RF-COM-09 nas telas; CT-COM-07 a CT-COM-27 cobrem as regras do servidor de RF-COM-01 a RF-COM-09; CT-COM-28 cobre o acesso às rotas (RNF-COM-01); CT-COM-29 cobre a rota auxiliar não usada pelo aplicativo; CT-COM-30 (MongoDB real), CT-COM-31 (telas atuais no Android) e CT-COM-32 (iOS) estão pendentes; CT-COM-33 e CT-COM-34 cobrem, no Galaxy S24, o cadastro (RF-COM-03) e a desativação (RF-COM-05) nas telas atuais.

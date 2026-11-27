@@ -1,6 +1,6 @@
 # Dicionário relacional — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -103,10 +103,11 @@ Integrante da equipe de uma comissão, em `comissoes.membros[]`. Aparece porque 
 - O nome único não tem índice: o serviço consulta, antes de gravar, se existe outra organização com o mesmo nome completo, sem diferenciar maiúsculas. Por não ser uma operação única, dois cadastros com o mesmo nome no mesmo instante podem passar os dois (limitação conhecida, não testada).
 - A lista de organizações do usuário filtra por `membros.usuario_id`, que não tem índice; convém criar `{ "membros.usuario_id": 1 }` quando o volume crescer (ainda não criado).
 - Um usuário não aparece duas vezes na mesma organização: o pedido e o convite só acrescentam o vínculo com o filtro "usuário ainda fora de `membros`".
-- A organização não fica sem administrador: o rebaixamento só grava se, no mesmo instante, houver outro vínculo `ADMIN` e `APROVADO`, e a remoção recusa vínculos `ADMIN`.
+- A organização não fica sem administrador: o rebaixamento só grava se, no mesmo instante, houver outro vínculo `ADMIN` e `APROVADO`, e a remoção recusa vínculos `ADMIN`. A regra olha o vínculo, não a conta: se o administrador do sistema desativar pela API a conta do único administrador (o aplicativo não tem essa tela), o que só muda o campo `ativo` da conta, o vínculo continua `ADMIN` e `APROVADO` e ninguém mais consegue gerenciar os membros (limitação conhecida).
 - Toda alteração de vínculo é gravada com `updateOne` cujo filtro repete a situação lida; se outra gravação chegou antes, nada muda e a API responde 409.
 - A exclusão só apaga a organização se, no momento da operação, ela estiver `REVOGADA`; depois apaga as comissões dela. As reuniões dessas comissões não são apagadas.
 - A remoção de um membro tira a pessoa das equipes das comissões com uma atualização direta no banco, que não passa pela regra do schema da comissão "exatamente um responsável"; se a pessoa era a responsável, a comissão fica sem responsável.
+- O módulo de [Informações do sistema](../informacao-sistemas/README.md) também grava nesta coleção, sem passar pelo `OrganizacoesService`: "Popular dados de teste" (RF-SIS-03) insere a organização "Organização de Teste", já `APROVADA`, sem a conferência de nome repetido, de modo que ela pode ficar com o mesmo nome de outra organização (limitação conhecida); e "Resetar sistema" (RF-SIS-04) apaga todos os documentos de `organizacoes`, com os vínculos.
 
 ## Rastreabilidade
 

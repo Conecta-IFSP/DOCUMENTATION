@@ -1,6 +1,6 @@
 # Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Incremento 1 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Incremento 1 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -45,7 +45,7 @@ Não estão implementados: entrar pela biometria do aparelho depois do primeiro 
 
 | Caso de uso | Requisito | Sequência | Testes                                                                      |
 | ----------- | --------- | --------- | --------------------------------------------------------------------------- |
-| UC-USR-01   | RF-USR-01 | SD-USR-01 | CT-USR-01, CT-USR-08, CT-USR-09, CT-USR-11, CT-USR-12, CT-USR-13, CT-USR-24 |
+| UC-USR-01   | RF-USR-01 | SD-USR-01 | CT-USR-01, CT-USR-08, CT-USR-09, CT-USR-11, CT-USR-12, CT-USR-13, CT-USR-24, CT-USR-26 |
 | UC-USR-02   | RF-USR-02 | SD-USR-02 | CT-USR-02, CT-USR-07, CT-USR-14, CT-USR-15, CT-USR-16, CT-USR-24, CT-USR-25 |
 | UC-USR-03   | RF-USR-03 | SD-USR-03 | CT-USR-03, CT-USR-17, CT-USR-24                                             |
 
@@ -53,4 +53,4 @@ CT-USR-04 a CT-USR-06 e CT-USR-18 a CT-USR-23 foram registrados neste módulo, m
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend no commit `caca2d2`, frontend no commit `6ff2d50`; os arquivos do módulo não têm alterações locais). Os arquivos principais são `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.controller.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/login/index.tsx`, `FRONTEND/src/app/login/cadastro.tsx`, `FRONTEND/src/app/login/verificar-cadastro.tsx`, `FRONTEND/src/app/login/google-callback/index.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/services/api.ts`, `FRONTEND/src/services/google.ts` e `FRONTEND/src/utils/validacao.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend no commit `d1f1aeb`, frontend no commit `10abe49`; os arquivos do módulo não têm alterações locais, e desde a conferência anterior, sobre `caca2d2` e `6ff2d50`, só mudaram neles os tipos de votação em `FRONTEND/src/services/api.ts`, que não fazem parte deste módulo). Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `8cf4839`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS, e o frontend só muda o aviso e o cartão da votação e a entrega do PDF, fora deste módulo; o diagrama de classes, o dicionário de classes e as sequências foram revistos sobre esses commits. Os arquivos principais são `BACKEND/src/usuarios/usuarios.controller.ts`, `BACKEND/src/usuarios/usuarios.service.ts`, `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/auth/auth.controller.ts`, `BACKEND/src/auth/auth.service.ts`, `BACKEND/src/auth/jwt-auth.guard.ts`, `BACKEND/src/auth/api-key.guard.ts`, `FRONTEND/src/app/login/index.tsx`, `FRONTEND/src/app/login/cadastro.tsx`, `FRONTEND/src/app/login/verificar-cadastro.tsx`, `FRONTEND/src/app/login/google-callback/index.tsx`, `FRONTEND/src/contexts/SessaoContext.tsx`, `FRONTEND/src/services/api.ts`, `FRONTEND/src/services/google.ts` e `FRONTEND/src/utils/validacao.ts`.

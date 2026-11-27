@@ -8,6 +8,8 @@
 | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `TelaReuniao`        | Aplicativo              | Carregar a reunião, descobrir se o usuário é o presidente, calcular se ele pode votar e mostrar a aba "Votações". |
 | `VotacoesReuniao`    | Aplicativo (componente) | Mostrar as votações, o formulário de abertura com o tipo, as opções de voto, o voto em branco e o nulo, a confirmação e o resultado. |
+| `Confirmacao`        | Aplicativo (componente) | Mostrar o diálogo de confirmação do voto e do encerramento e chamar `confirmar` ou `cancelar`.                    |
+| `Pendente`           | Aplicativo (tipo)       | Guardar a mensagem, o rótulo do botão e a ação da confirmação aberta.                                              |
 | `api`                | Aplicativo (serviço)    | Enviar a requisição HTTP com `X-API-Key` e o token JWT e devolver o resultado ou a mensagem de erro.               |
 | `ReunioesController` | API                     | Receber as rotas HTTP da votação e repassar ao serviço.                                                            |
 | `ReunioesService`    | Negócio                 | Aplicar autorização, horário, presença, voto único e o sigilo conforme o tipo da votação.                         |
@@ -17,8 +19,12 @@
 | `VotoNominal`        | API (saída)             | Linha da lista de quem votou em quê, devolvida só na votação do tipo aberta encerrada.                            |
 | `Votacao`            | Subdocumento            | Guardar assunto, opções, tipo, situação, horários e votos de uma votação.                                          |
 | `Voto`               | Subdocumento            | Registrar a escolha de um participante (opção, branco ou nulo) e o horário.                                        |
+| `ReuniaoModel`, `ComissaoModel`, `UsuarioModel` | Dados (Model Mongoose) | Ler e gravar os documentos de `reunioes` e ler os de `comissoes` e `usuarios`.                      |
+| `Reuniao`, `Participante`, `Presenca` | Dados (documento e subdocumentos) | Reunião em que a votação é gravada, quem participa e a presença que define quem vota.          |
+| `Comissao`, `Usuario` | Dados (documentos)     | Comissão em que se procura o presidente e conta de quem abre, vota e aparece em `votos_nominais`.                 |
+| `SituacaoVotacao`, `ModoVotacao`, `TipoVoto` | Dados (enumerações) | Situação da votação, tipo (aberta ou fechada) e tipo do voto.                                        |
 
-As classes `Reuniao`, `Participante` e `Presenca` estão descritas no [dicionário de classes das reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md), e `Usuario` e `Comissao`, nos módulos do Incremento 1; abaixo aparecem só os campos que a votação usa.
+As classes `Reuniao`, `Participante` e `Presenca` estão descritas por completo no [dicionário de classes das reuniões](../../3%20-%20Incremento%202/reunioes/3%20-%20dicionario-dados-classes-reunioes.md), e `Usuario` e `Comissao`, nos módulos do Incremento 1; abaixo aparecem só os campos que a votação usa.
 
 ## `Votacao`
 
@@ -85,6 +91,57 @@ Item de `VotacaoApresentada.votos_nominais`, montado por `apresentarVotacao`. N�
 | `situacao`       | `SituacaoReuniao` |         Sim | Nada da votação muda com a reunião `CANCELADA`.                             |
 | `comissao_id`    | `ObjectId`        |         Sim | Comissão em que se procura o presidente.                                    |
 
+## `Participante`, `Presenca`, `Comissao` e `Usuario` (campos usados pela votação)
+
+| Classe         | Atributo       | Tipo                | Obrigatório | Regra                                                                                                  |
+| -------------- | -------------- | ------------------- | ----------: | ------------------------------------------------------------------------------------------------------ |
+| `Participante` | `usuario_id`   | `ObjectId`          |         Sim | Referência ao usuário em `usuarios`; só participante da reunião consulta as votações.                 |
+| `Participante` | `convite`      | `RespostaConvite`   |         Sim | Não é conferido pela votação.                                                                          |
+| `Participante` | `presenca`     | `Presenca`          |         Não | Sem presença, o participante não vota.                                                                 |
+| `Presenca`     | `entrada`      | `Date`              |         Sim | Horário em que a entrada foi marcada.                                                                  |
+| `Presenca`     | `saida`        | `Date`              |         Não | Com saída marcada, o participante não vota mais.                                                       |
+| `Presenca`     | `situacao`     | `SituacaoPresenca`  |         Sim | Vota quem está com `AGUARDANDO` ou `CONFIRMADA`; `RECUSADA` não vota.                                  |
+| `Comissao`     | `_id`          | `ObjectId`          |         Sim | Lido por `exigirPresidente` com `ComissaoModel.findById(reuniao.comissao_id)`.                         |
+| `Comissao`     | `ativo`        | `boolean`           |         Sim | Com a comissão inativa, ninguém abre nem encerra votações.                                             |
+| `Comissao`     | `membros`      | `MembroComissao[]`  |         Sim | O presidente é o membro com `papel` igual a `RESPONSAVEL` e o `usuario_id` de quem chama.              |
+| `Usuario`      | `_id`          | `ObjectId`          |         Sim | Comparado com `aberta_por`, `Voto.usuario_id` e `Participante.usuario_id`.                             |
+| `Usuario`      | `nome`         | `string`            |         Sim | Lido pelo `populate` dos participantes e mostrado em `votos_nominais`.                                 |
+| `Usuario`      | `ativo`        | `boolean`           |         Sim | Conferido por `validarUsuario`; conta inativa não usa a votação.                                       |
+
+## Models do Mongoose
+
+Os models são criados pelo `MongooseModule` a partir dos schemas e injetados pelo NestJS no `ReunioesService` com `@InjectModel`. No código, o tipo de cada atributo é `Model<...Document>`; no diagrama, cada model é uma classe com o nome do schema seguido de `Model` e só os métodos chamados pela votação. Cada método devolve uma `Query`, executada com `exec()`.
+
+| Classe          | Guardado em                       | Método                                                | Uso na votação                                                                                                                         |
+| --------------- | --------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `ReuniaoModel`  | `ReunioesService.reuniaoModel`    | `findById(id: string)`                                | `carregar` lê a reunião da rota; sem documento, erro 404 "Reunião não encontrada".                                                    |
+| `ReuniaoModel`  | `ReunioesService.reuniaoModel`    | `findOneAndUpdate(filtro, alteracao, opcoes)`         | `abrirVotacao`, `votar` e `encerrarVotacao` gravam só se o filtro ainda vale no banco, com `returnDocument: 'after'`; sem documento, `responder` lança o conflito 409. |
+| `ComissaoModel` | `ReunioesService.comissaoModel`   | `findById(id: ObjectId)`                              | `exigirPresidente` lê a comissão da reunião; sem documento, erro 404 "Comissão não encontrada".                                       |
+| `UsuarioModel`  | `ReunioesService.usuarioModel`    | `findById(id: string)`                                | `validarUsuario`, chamado por `carregar`, confere se a conta existe e está ativa.                                                     |
+
+## Classe `TelaReuniao` (o que a votação usa)
+
+Componente padrão de `FRONTEND/src/app/reunioes/[id].tsx`, rota `/reunioes/:id`.
+
+| Atributo     | Tipo                               | Obrigatório | Regra                                                                                          |
+| ------------ | ---------------------------------- | ----------: | ---------------------------------------------------------------------------------------------- |
+| `reuniao`    | `Reuniao \| null`                  |         Não | Reunião apresentada pela API; nula até a primeira resposta.                                    |
+| `aba`        | `'presenca' \| 'votacoes' \| 'pauta'` |      Sim | Começa em `presenca`; com `votacoes`, a tela mostra o `VotacoesReuniao`.                       |
+| `presidente` | `boolean`                          |         Sim | Começa falso; verdadeiro com a comissão ativa e o usuário como `RESPONSAVEL`.                  |
+| `salvando`   | `string \| null`                   |         Não | Chave da operação em andamento, como `abrir-votacao` ou `votar-<id da votação>`; nula sem operação. |
+
+| Método                                                    | Retorno            | O que faz                                                                                                                            |
+| --------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `buscar()`                                                | `Promise<void>`    | Lê `GET /reunioes/:id` e, com a comissão, `GET /comissoes/:comissaoId`, e guarda a reunião e se o usuário é o presidente. Repete a cada 30 segundos com a tela aberta. |
+| `executar(chave, acao, mensagem)`                         | `Promise<boolean>` | Não faz nada e devolve falso se outra operação está em andamento; senão guarda a chave em `salvando`, chama `acao` e mostra `mensagem` ou o erro. Devolve verdadeiro quando a API aceitou. |
+| `definirReuniao(valor: Reuniao \| null)`                  | `void`             | Guarda a reunião devolvida pela API.                                                                                                 |
+| `definirAba(valor: Aba)`                                  | `void`             | Troca a aba mostrada; é chamada pelo controle de abas da tela.                                                                       |
+| `definirErro(valor: string)`                              | `void`             | Mostra a faixa de erro com a mensagem devolvida pela API; texto vazio a esconde.                                                     |
+| `definirSucesso(valor: string)`                           | `void`             | Mostra a faixa de sucesso, como "Votação iniciada.", "Voto registrado." ou "Votação encerrada.".                                      |
+| `definirPresidente(valor: boolean)`                       | `void`             | Guarda se o usuário é o presidente da comissão.                                                                                      |
+
+Os métodos `definir…` são as funções de atualização de estado criadas por `useState`; cada uma troca um atributo e faz a tela ser desenhada de novo.
+
 ## Componente `VotacoesReuniao`
 
 Definido em `FRONTEND/src/components/VotacoesReuniao.tsx`. Recebe da `TelaReuniao` as propriedades abaixo.
@@ -108,6 +165,11 @@ O estado `modo` guarda o tipo marcado na folha "Nova votação"; começa em `FEC
 
 | Método                | O que faz                                                                                                                                         |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VotacoesReuniao(reuniao, presidente, emAndamento, motivoSemVoto, salvando, executar)` | Função do componente, com as propriedades da tabela acima; devolve o `JSX.Element` com o botão "Abrir votação", os cartões das votações, a folha "Nova votação" e a `Confirmacao`. |
+| `definirFormulario(valor: boolean)` | Abre (`true`) ou fecha (`false`) a folha "Nova votação".                                                                             |
+| `definirModo(valor: ModoVotacao)` | Marca o tipo escolhido em "Tipo de votação"; é chamada no toque em "Fechada" ou "Aberta".                                              |
+| `definirErroFormulario(valor: string)` | Mostra na folha a faixa com o problema devolvido por `validar`; texto vazio a esconde.                                          |
+| `definirConfirmacao(valor: Pendente \| null)` | Abre a `Confirmacao` com o `Pendente` recebido; com `null`, fecha o diálogo.                                             |
 | `abrirFormulario`     | Limpa os campos, volta as opções para "Sim", "Não" e "Abstenção", volta o tipo para `FECHADA` e abre a folha "Nova votação".                     |
 | `validar`             | Confere assunto (mínimo 3 caracteres), opções preenchidas, pelo menos 2 opções e opções sem repetição; devolve a mensagem do primeiro problema ou texto vazio. |
 | `enviar`              | Chama `validar` e, sem problemas, envia `POST /reunioes/:id/votacoes` com assunto, descrição, opções e `modo`; fecha a folha quando dá certo.     |
@@ -115,6 +177,25 @@ O estado `modo` guarda o tipo marcado na folha "Nova votação"; começa em `FEC
 | `pedirEncerramento`   | Abre a confirmação do encerramento e, confirmada, envia `POST /reunioes/:id/votacoes/:votacaoId/encerrar`.                                       |
 | `renderizarAberta`    | Mostra as opções e os botões "Votar em branco" e "Votar nulo", a faixa `Você votou <escolha>` ou a faixa com o motivo de não poder votar.        |
 | `renderizarResultado` | Mostra cada opção e as linhas "Branco" e "Nulo" com quantidade, porcentagem e barra; destaca a opção mais votada e marca o voto do usuário; com `votos_nominais`, mostra a lista "Quem votou em quê". |
+
+Os métodos `definir…` são as funções de atualização de estado criadas por `useState`.
+
+## Componente `Confirmacao` e tipo `Pendente`
+
+`Confirmacao` é o diálogo de `FRONTEND/src/components/Confirmacao.tsx`, compartilhado com outras telas; abaixo aparecem as propriedades que o `VotacoesReuniao` informa. `Pendente` é o tipo declarado em `VotacoesReuniao.tsx` para o estado `confirmacao`.
+
+| Classe        | Atributo ou método  | Tipo               | Obrigatório | Regra                                                                                                                  |
+| ------------- | ------------------- | ------------------ | ----------: | ---------------------------------------------------------------------------------------------------------------------- |
+| `Confirmacao` | `mensagem`          | `string`           |         Não | `confirmacao?.mensagem`; o diálogo fica visível enquanto há mensagem.                                                  |
+| `Confirmacao` | `rotuloConfirmar`   | `string`           |         Não | "Votar" ou "Encerrar". Padrão: "Confirmar".                                                                            |
+| `Confirmacao` | `perigo`            | `boolean`          |         Não | Verdadeiro no encerramento: o botão de confirmar fica na cor de erro. Padrão: falso.                                  |
+| `Confirmacao` | `carregando`        | `boolean`          |         Sim | Verdadeiro enquanto `salvando` não é nulo; mostra o indicador e impede fechar o diálogo.                              |
+| `Confirmacao` | `confirmar()`       | `void`             |         Sim | Chamado no toque do botão de confirmar; o `VotacoesReuniao` passa uma função que executa `confirmacao.acao()`.        |
+| `Confirmacao` | `cancelar()`        | `void`             |         Sim | Chamado no toque em cancelar; o `VotacoesReuniao` passa uma função que executa `definirConfirmacao(null)`.            |
+| `Pendente`    | `mensagem`          | `string`           |         Sim | "Votar <escolha>? O voto não pode ser alterado depois." ou "Encerrar a votação "<assunto>"? Ninguém mais poderá votar." |
+| `Pendente`    | `rotulo`            | `string`           |         Sim | "Votar" ou "Encerrar".                                                                                                 |
+| `Pendente`    | `perigo`            | `boolean`          |         Não | Verdadeiro só no encerramento.                                                                                          |
+| `Pendente`    | `acao()`            | `Promise<unknown>` |         Sim | Função criada por `pedirVoto` ou `pedirEncerramento`: chama `executar` da `TelaReuniao` com a requisição e, no fim, `definirConfirmacao(null)`. |
 
 ## Enumerações
 
@@ -125,6 +206,17 @@ O estado `modo` guarda o tipo marcado na folha "Nova votação"; começa em `FEC
 | `TipoVoto`        | `OPCAO`, `BRANCO`, `NULO`  | `Voto.tipo` e `VotarDto.tipo`; `BRANCO` e `NULO` também em `meu_voto` e `VotoNominal.voto` |
 
 `ModoVotacao` e `SituacaoVotacao` têm um valor com o mesmo texto, `ABERTA`, com sentidos diferentes: no modo, todos veem quem votou em quê depois do encerramento; na situação, a votação ainda recebe votos.
+
+## Operações do `ReunioesController`
+
+Definido em `BACKEND/src/reunioes/reunioes.controller.ts`, com o atributo `reunioesService: ReunioesService`. Cada método repassa ao serviço o `usuarioId` lido de `req.usuario.sub`; as rotas estão no [diagrama de classes](3%20-%20diagrama-classes-votacao.md).
+
+| Método            | Parâmetros                                  | Retorno            | O que faz                                                         |
+| ----------------- | ------------------------------------------- | ------------------ | ----------------------------------------------------------------- |
+| `abrirVotacao`    | `id`, `AbrirVotacaoDto`, `req`              | `Promise<Reuniao>` | Recebe `POST /reunioes/:id/votacoes` e chama `abrirVotacao`.      |
+| `votar`           | `id`, `votacaoId`, `VotarDto`, `req`        | `Promise<Reuniao>` | Recebe `POST /reunioes/:id/votacoes/:votacaoId/votos` e chama `votar`. |
+| `encerrarVotacao` | `id`, `votacaoId`, `req`                    | `Promise<Reuniao>` | Recebe `POST /reunioes/:id/votacoes/:votacaoId/encerrar` e chama `encerrarVotacao`. |
+| `buscarPorId`     | `id`, `req`                                 | `Promise<Reuniao>` | Recebe `GET /reunioes/:id` e chama `buscarPorId`.                 |
 
 ## Operações do `ReunioesService`
 

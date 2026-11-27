@@ -1,10 +1,10 @@
 # Diagrama de classes — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Revisado em 27/11/2026
 
 ## Resumo
 
-O diagrama mostra as classes que participam do cadastro e da autenticação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, contexto de sessão e módulos do aplicativo), **API** (controllers, services, guards e objetos de entrada) e **Dados** (documento guardado no MongoDB). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código; das classes que também servem a outros módulos, como `AuthService` e `Usuario`, aparecem só os métodos e atributos usados aqui. As classes dos vínculos do usuário com organizações (`Organizacao`, `MembroOrganizacao`, `OrganizacoesService` e as telas de organização) estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
+O diagrama mostra as classes que participam do cadastro e da autenticação, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, contextos de sessão, tema e aviso e módulos do aplicativo), **API** (controllers, services, guards e objetos de entrada) e **Dados** (o model do Mongoose `UsuarioModel`, marcado `<<Model Mongoose>>`, e o documento guardado no MongoDB). As bibliotecas chamadas diretamente nos [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-usuario.md) ficam fora dos pacotes, marcadas `<<biblioteca>>` ou `<<API do navegador>>`, só com os métodos chamados. Toda linha de vida e todo método das sequências aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código; das classes que também servem a outros módulos, como `AuthService` e `Usuario`, aparecem só os métodos e atributos usados aqui. Nas telas e nos contextos, os métodos `definir*` são as funções de atualização do `useState`. As classes dos vínculos do usuário com organizações (`Organizacao`, `MembroOrganizacao`, `OrganizacoesService` e as telas de organização) estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
 
 ## Diagrama
 
@@ -31,6 +31,7 @@ classDiagram
             -carregandoGoogle: boolean
             +entrar() Promise~void~
             +entrarComGoogle() Promise~void~
+            +definirErro(valor: string) void
         }
         class GoogleCallbackWeb {
             +handleCallback() Promise~void~
@@ -44,6 +45,17 @@ classDiagram
             +atualizar() Promise~void~
             +entrar(token: string) Promise~boolean~
             +sair(aviso: string) Promise~void~
+            +definirUsuario(valor: Usuario) void
+        }
+        class TemaProvider {
+            <<context>>
+            -preferencia: PreferenciaTema
+            +definirPreferencia(nova: PreferenciaTema) void
+        }
+        class ToastProvider {
+            <<context>>
+            -toast: ToastAtual
+            +mostrarToast(mensagem: string, tipo: TipoToast, duracao: number) void
         }
         class api {
             <<module>>
@@ -60,6 +72,8 @@ classDiagram
             +exchangeCodeForToken(code: string, redirectUri: string) Promise~Resultado~
             +getGoogleRedirectUri() string
             +getWebCallbackRedirectUri() string
+            -estaNoExpoGo() boolean
+            -configureNativeGoogle(GoogleSignin: GoogleSignin) void
         }
         class validacao {
             <<module>>
@@ -100,6 +114,7 @@ classDiagram
             -usuarioModel: Model~Usuario~
             -jwtService: JwtService
             -configService: ConfigService
+            -registro: Logger
             -transportador: Transporter
             +login(loginDto: LoginDto) Promise~object~
             +loginComGoogle(dto: GoogleLoginDto) Promise~object~
@@ -148,6 +163,14 @@ classDiagram
     }
 
     namespace Dados {
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findOne(filtro: object) Query~UsuarioDocument~
+            +findById(id: string) Query~UsuarioDocument~
+            +create(dados: object) Promise~UsuarioDocument~
+            +deleteOne(filtro: object) Query~DeleteResult~
+            +save() Promise~UsuarioDocument~
+        }
         class Usuario {
             +_id: ObjectId
             +nome: string
@@ -185,17 +208,60 @@ classDiagram
         }
     }
 
+    class Router {
+        <<biblioteca>>
+        +replace(rota: Href) void
+    }
+    class Location {
+        <<API do navegador>>
+        +assign(url: string) void
+    }
+    class GoogleSignin {
+        <<biblioteca>>
+        +configure(opcoes: ConfigureParams) void
+        +hasPlayServices(opcoes: object) Promise~boolean~
+        +signOut() Promise~null~
+        +signIn() Promise~SignInResponse~
+        +getTokens() Promise~GetTokensResponse~
+    }
+    class bcrypt {
+        <<biblioteca>>
+        +hash(dado: string, custo: number) Promise~string~
+        +compare(dado: string, hash: string) Promise~boolean~
+    }
+    class JwtService {
+        <<biblioteca>>
+        +signAsync(payload: object) Promise~string~
+        +verifyAsync(token: string) Promise~UsuarioAutenticado~
+    }
+    class Transporter {
+        <<biblioteca>>
+        +sendMail(mensagem: SendMailOptions) Promise~SentMessageInfo~
+    }
+    class fetch {
+        <<biblioteca>>
+        +fetch(url: string, opcoes: RequestInit) Promise~Response~
+    }
+
     TelaCadastro ..> api : usa
     TelaCadastro ..> validacao : usa
+    TelaCadastro ..> ToastProvider : mostrarToast
+    TelaCadastro ..> Router : replace
     TelaVerificarCadastro ..> api : usa
+    TelaVerificarCadastro ..> ToastProvider : mostrarToast
+    TelaVerificarCadastro ..> Router : replace
     TelaLogin ..> api : usa
     TelaLogin ..> validacao : usa
     TelaLogin ..> google : usa
     TelaLogin ..> SessaoProvider : entrar
+    TelaLogin ..> TemaProvider : definirPreferencia
+    TelaLogin ..> Location : abre o Google na web
     GoogleCallbackWeb ..> google : usa
     GoogleCallbackWeb ..> SessaoProvider : entrar
+    GoogleCallbackWeb ..> Router : replace
     SessaoProvider ..> api : usa
     google ..> api : usa
+    google ..> GoogleSignin : SDK nativo
     api ..> UsuariosController : requisição HTTP
     api ..> AuthController : requisição HTTP
 
@@ -209,9 +275,16 @@ classDiagram
     ApiKeyGuard ..> UsuariosController : protege
     ApiKeyGuard ..> AuthController : protege
     JwtAuthGuard ..> UsuariosController : protege
-    JwtAuthGuard ..> Usuario : confere a conta
-    UsuariosService ..> Usuario : lê e grava
-    AuthService ..> Usuario : lê e grava
+    JwtAuthGuard "1" --> "1" UsuarioModel : usuarios
+    JwtAuthGuard "1" --> "1" JwtService : jwtService
+    UsuariosService "1" --> "1" UsuarioModel : usuarioModel
+    UsuariosService ..> bcrypt : hash
+    AuthService "1" --> "1" UsuarioModel : usuarioModel
+    AuthService "1" --> "1" JwtService : jwtService
+    AuthService "1" --> "0..1" Transporter : transportador
+    AuthService ..> bcrypt : compare
+    AuthService ..> fetch : consulta o Google
+    UsuarioModel ..> Usuario : documentos do schema
     Usuario ..> TipoUsuario : tipo
     Usuario ..> TemaUsuario : tema
     Usuario ..> ProvedorAutenticacao : provedor_autenticacao
@@ -224,9 +297,9 @@ Figura 2 — Diagrama de classes do cadastro e da autenticação, por camada. Fo
 | Ligação                      | Significado                                                             | Exemplo no diagrama                                                                                           |
 | ---------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `UsuariosController --> AuthService`: o controller guarda o serviço no atributo `authService`.                |
-| Seta tracejada (dependência) | Uma classe usa a outra numa chamada, sem guardá-la como atributo.       | `AuthService ..> Usuario`, `TelaLogin ..> api`.                                                                |
+| Seta tracejada (dependência) | Uma classe usa a outra numa chamada, sem guardá-la como atributo.       | `UsuariosService ..> bcrypt`, `TelaLogin ..> api`.                                                             |
 
-Os números nas pontas das associações são as multiplicidades: cada controller tem exatamente uma instância de cada serviço (`1`), e cada serviço é usado por um controller (`1`). Não há herança nem composição entre as classes deste diagrama: `Usuario` não tem subdocumentos.
+Os números nas pontas das associações são as multiplicidades: cada controller tem exatamente uma instância de cada serviço (`1`), e cada serviço é usado por um controller (`1`). `UsuariosService`, `AuthService` e `JwtAuthGuard` guardam o mesmo `UsuarioModel`, injetado pelo NestJS, e o `AuthService` guarda no máximo um `Transporter` (`0..1`), criado na primeira mensagem. O `UsuarioModel` lê e grava os documentos do schema `Usuario`; `save()` é chamado no documento devolvido por `findOne` ou `findById`. Não há herança nem composição entre as classes deste diagrama: `Usuario` não tem subdocumentos.
 
 No código, os atributos opcionais são `senha_hash`, `verificacao_email_codigo_hash`, `verificacao_email_expira_em`, `google_id`, `avatar_url` e `senha_alterada_em`, em `Usuario`; `tema`, em `CreateUsuarioDto`; e todos os campos de `GoogleLoginDto`. Os métodos de `validacao` devolvem o texto do erro ou `null` quando o valor é válido. A obrigatoriedade de cada atributo está no [dicionário de classes](3%20-%20dicionario-dados-classes-cadastro-usuario.md).
 

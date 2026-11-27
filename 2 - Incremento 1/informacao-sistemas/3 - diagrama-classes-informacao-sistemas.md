@@ -4,7 +4,7 @@
 
 ## Resumo
 
-O diagrama mostra as classes que participam das informações do sistema, agrupadas em três pacotes, um por camada: **Aplicativo** (telas, os componentes da própria tela "Sistema", os componentes de diálogo e de campo de texto e os módulos `api`, `ToastContext` e `versao`), **API** (guards, controller, serviço e o objeto de entrada do reset) e **Dados** (documentos guardados no MongoDB que o serviço conta, cria ou apaga). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. O único objeto de entrada é o `ResetarSistemaDto`, corpo do reset; as outras rotas não recebem corpo. O módulo não cria coleção própria.
+O diagrama mostra as classes que participam das informações do sistema, agrupadas em três pacotes, um por camada: **Aplicativo** (telas, os componentes da própria tela "Sistema", os componentes de diálogo e de campo de texto e os módulos `api`, `ToastContext` e `versao`), **API** (guards, controller, serviço e o objeto de entrada do reset) e **Dados** (os models do Mongoose `UsuarioModel`, `OrganizacaoModel`, `ComissaoModel` e `ReuniaoModel`, marcados `<<Model Mongoose>>`, e os documentos guardados no MongoDB que o serviço conta, cria ou apaga). As bibliotecas chamadas diretamente nos [Diagramas de sequência](6%20-%20diagramas-sequencia-informacao-sistemas.md) (`Router`, `os`, `bcrypt` e, do Mongoose e do driver do MongoDB, `Connection`, `Db` e `Collection`) ficam fora dos pacotes, marcadas `<<biblioteca>>`, só com os métodos chamados. Toda linha de vida e todo método das sequências aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. Na `TelaSistema`, os métodos `definir*` são as funções de atualização do `useState`; o `ItemMenu` é o item "Sistema" da tela inicial. O único objeto de entrada é o `ResetarSistemaDto`, corpo do reset; as outras rotas não recebem corpo. O módulo não cria coleção própria.
 
 ## Diagrama
 
@@ -37,6 +37,24 @@ classDiagram
             +resetarSistema() Promise~void~
             -formatarTempoAtivo(segundos: number) string
             -versaoPacote(nome: string) string
+            +definirSobre(valor: Sobre) void
+            +definirStatus(valor: Status) void
+            +definirRelatorios(valor: Relatorios) void
+            +definirCarregando(valor: boolean) void
+            +definirAviso(valor: Aviso) void
+            +definirAcaoEmAndamento(valor: string) void
+            +definirConfirmacaoTeste(valor: boolean) void
+            +definirResetAberto(valor: boolean) void
+            +definirPalavra(valor: string) void
+            +definirSenha(valor: string) void
+            +definirErroReset(valor: string) void
+        }
+        class ItemMenu {
+            <<component>>
+            +titulo: string
+            +descricao: string
+            +icone: IoniconsIconName
+            +aoTocar() void
         }
         class Metrica {
             <<component>>
@@ -93,7 +111,7 @@ classDiagram
         }
         class JwtAuthGuard {
             -jwtService: JwtService
-            -usuarios: Model~Usuario~
+            -usuarios: Model~UsuarioDocument~
             +canActivate(context: ExecutionContext) Promise~boolean~
             -extrairToken(requisicao: Request) string
         }
@@ -113,10 +131,10 @@ classDiagram
             +confirmacao: string
         }
         class SistemaService {
-            -usuarios: Model~Usuario~
-            -organizacoes: Model~Organizacao~
-            -comissoes: Model~Comissao~
-            -reunioes: Model~Reuniao~
+            -usuarios: Model~UsuarioDocument~
+            -organizacoes: Model~OrganizacaoDocument~
+            -comissoes: Model~ComissaoDocument~
+            -reunioes: Model~ReuniaoDocument~
             -conexao: Connection
             +sobre() Promise~object~
             +status() Promise~object~
@@ -132,6 +150,31 @@ classDiagram
     }
 
     namespace Dados {
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findOne(filtro: object) Query~UsuarioDocument~
+            +findById(id: string) Query~UsuarioDocument~
+            +countDocuments(filtro: object) Query~number~
+            +create(dados: object) Promise~UsuarioDocument~
+            +deleteMany(filtro: object) Query~DeleteResult~
+        }
+        class OrganizacaoModel {
+            <<Model Mongoose>>
+            +countDocuments(filtro: object) Query~number~
+            +create(dados: object) Promise~OrganizacaoDocument~
+            +deleteMany(filtro: object) Query~DeleteResult~
+        }
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +countDocuments(filtro: object) Query~number~
+            +create(dados: object) Promise~ComissaoDocument~
+            +deleteMany(filtro: object) Query~DeleteResult~
+        }
+        class ReuniaoModel {
+            <<Model Mongoose>>
+            +countDocuments(filtro: object) Query~number~
+            +deleteMany(filtro: object) Query~DeleteResult~
+        }
         class Usuario {
             +_id: ObjectId
             +nome: string
@@ -216,7 +259,42 @@ classDiagram
         }
     }
 
+    class Router {
+        <<biblioteca>>
+        +push(rota: Href) void
+    }
+    class os {
+        <<biblioteca>>
+        +totalmem() number
+        +freemem() number
+        +cpus() CpuInfo[]
+        +uptime() number
+        +type() string
+        +release() string
+        +arch() string
+    }
+    class bcrypt {
+        <<biblioteca>>
+        +hash(dado: string, custo: number) Promise~string~
+        +compare(dado: string, hash: string) Promise~boolean~
+    }
+    class Connection {
+        <<biblioteca>>
+        +db: Db
+    }
+    class Db {
+        <<biblioteca>>
+        +command(comando: object) Promise~Document~
+        +collection(nome: string) Collection
+    }
+    class Collection {
+        <<biblioteca>>
+        +deleteMany(filtro: object) Promise~DeleteResult~
+    }
+
     TelaInicio ..> TelaSistema : abre
+    TelaInicio ..> ItemMenu : item Sistema
+    TelaInicio ..> Router : push
     TelaSistema ..> Metrica : usa
     TelaSistema ..> LinhaTecnologia : usa
     TelaSistema ..> ColunaRelatorio : usa
@@ -229,15 +307,24 @@ classDiagram
     SistemaController ..> JwtAuthGuard : UseGuards
     SistemaController ..> AdminSistemaGuard : UseGuards
     SistemaController ..> ResetarSistemaDto : recebe
-    JwtAuthGuard ..> Usuario : confere a conta
+    JwtAuthGuard --> "1" UsuarioModel : usuarios
 
     SistemaController --> "1" SistemaService : sistemaService
-    SistemaService ..> Usuario : conta, cria, confere a senha e apaga
-    SistemaService ..> Organizacao : conta, cria e apaga
-    SistemaService ..> Comissao : conta, cria e apaga
-    SistemaService ..> Reuniao : conta e apaga
-    SistemaService ..> Contador : apaga pela conexão
-    SistemaService ..> Notificacao : apaga pela conexão
+    SistemaService --> "1" UsuarioModel : usuarios
+    SistemaService --> "1" OrganizacaoModel : organizacoes
+    SistemaService --> "1" ComissaoModel : comissoes
+    SistemaService --> "1" ReuniaoModel : reunioes
+    SistemaService --> "1" Connection : conexao
+    SistemaService ..> os : métricas do servidor
+    SistemaService ..> bcrypt : hash e compare
+    Connection --> "1" Db : db
+    Db ..> Collection : collection
+    UsuarioModel ..> Usuario : conta, cria, confere a senha e apaga
+    OrganizacaoModel ..> Organizacao : conta, cria e apaga
+    ComissaoModel ..> Comissao : conta, cria e apaga
+    ReuniaoModel ..> Reuniao : conta e apaga
+    Collection ..> Contador : apaga contadores
+    Collection ..> Notificacao : apaga notificacoes
 
     Organizacao "1" *-- "0..*" MembroOrganizacao : membros
     Comissao "1" *-- "1..*" MembroComissao : membros
@@ -262,11 +349,11 @@ Figura 2 — Diagrama de classes das informações do sistema, por camada. Fonte
 | ---------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Losango cheio (composição)   | A parte só existe dentro do todo e é apagada junto com ele.             | `Reuniao *-- Ata`: a ata fica dentro do documento da reunião e some quando o reset apaga a reunião.                       |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `Comissao --> Organizacao`: `organizacao_id` guarda o identificador de um documento de `organizacoes`.                    |
-| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `SistemaService ..> Reuniao`: o serviço só chama `countDocuments` e `deleteMany` no model das reuniões.                  |
+| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `SistemaService ..> os`: o serviço lê memória, processadores e tempo ativo do computador a cada consulta.               |
 
-Os números nas pontas são as multiplicidades. Por exemplo, uma `Comissao` tem pelo menos um membro (`1..*`), porque o schema exige exatamente um `RESPONSAVEL`; uma `Organizacao` pode ter nenhum ou muitos membros (`0..*`); uma `Reuniao` tem no máximo uma ata atual (`0..1`).
+Os números nas pontas são as multiplicidades. Por exemplo, uma `Comissao` tem pelo menos um membro (`1..*`), porque o schema exige exatamente um `RESPONSAVEL`; uma `Organizacao` pode ter nenhum ou muitos membros (`0..*`); uma `Reuniao` tem no máximo uma ata atual (`0..1`). O `SistemaService` guarda uma instância de cada model e a `Connection` (`1`), injetadas pelo NestJS; cada model conta, cria e apaga os documentos do seu schema.
 
-`SistemaService` não usa um model para `Contador`, para `Notificacao` nem para os arquivos do GridFS: apaga as coleções `contadores`, `notificacoes`, `anexos.files` e `anexos.chunks` pela conexão do Mongoose, chamando `conexao.db.collection(nome).deleteMany({})`. A mesma conexão envia ao MongoDB os comandos `ping`, `dbStats` e `buildInfo`. Por isso as ligações com `Contador` e `Notificacao` são de dependência, e os arquivos do GridFS, que não têm classe no código, aparecem apenas no [diagrama relacional](4%20-%20diagrama-relacional-informacao-sistemas.md). A `Ata` aparece só com o campo `situacao`, o único que este módulo usa.
+`SistemaService` não usa um model para `Contador`, para `Notificacao` nem para os arquivos do GridFS: apaga as coleções `contadores`, `notificacoes`, `anexos.files` e `anexos.chunks` pela conexão do Mongoose, chamando `conexao.db.collection(nome).deleteMany({})`: `db` é o `Db` do driver do MongoDB, `collection` devolve a `Collection` e `deleteMany` apaga os documentos dela. O mesmo `Db` envia ao MongoDB os comandos `ping`, `dbStats` e `buildInfo` com `command`. Por isso as ligações com `Contador` e `Notificacao` são de dependência, a partir da `Collection`, e os arquivos do GridFS, que não têm classe no código, aparecem apenas no [diagrama relacional](4%20-%20diagrama-relacional-informacao-sistemas.md). A `Ata` aparece só com o campo `situacao`, o único que este módulo usa.
 
 Os métodos do controller e do serviço devolvem objetos montados na hora, sem classe própria no código; por isso o retorno aparece como `Promise<object>`. Os campos de cada objeto estão no [dicionário de classes](3%20-%20dicionario-dados-classes-informacao-sistemas.md). `Sobre`, `Status`, `Relatorios` e `Aviso`, na `TelaSistema`, são tipos TypeScript do aplicativo, também descritos lá. `Metrica`, `LinhaTecnologia` e `ColunaRelatorio` são componentes declarados no mesmo arquivo da `TelaSistema`; `formatarTempoAtivo`, `versaoPacote` e `TECNOLOGIAS_APP` também ficam nesse arquivo, fora do componente. O `ResetarSistemaDto` é validado pelo `ValidationPipe` antes do controller; o controller repassa ao serviço só a `senha` e o `sub` da requisição.
 
@@ -289,7 +376,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - só a conta com `tipo` igual a `ADMIN_SISTEMA` passa pelo `AdminSistemaGuard`;
 - `SistemaService` lê e grava diretamente nas coleções de outros módulos; ele não tem schema próprio;
 - o reset só chega ao serviço quando o corpo traz `confirmacao` igual a "RESET" e uma `senha` em texto, e só apaga algo depois que `confirmarSenhaAdmin` confere essa senha com o `senha_hash` da conta;
-- o reset apaga `Organizacao`, `Comissao`, `Reuniao` e `Notificacao` por inteiro, com tudo o que está dentro delas, e de `Usuario` só as contas cujo `tipo` não é `ADMIN_SISTEMA`;
+- o reset apaga `Organizacao`, `Comissao`, `Reuniao`, `Contador`, `Notificacao` e os arquivos do GridFS por inteiro, com tudo o que está dentro deles, e de `Usuario` só as contas cujo `tipo` não é `ADMIN_SISTEMA`;
 - o aplicativo nunca calcula os totais: ele mostra o que a API devolve; só as versões das bibliotecas do aplicativo e a versão do aplicativo são lidas no próprio aparelho.
 
 ## Rastreabilidade

@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -52,7 +52,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Senha nova com pelo menos 8 caracteres e ao menos uma letra minúscula, uma maiúscula, um número e um símbolo, conferida na tela e na API.                       |
 | **Medida**        | "senhafraca1", "SENHAFRACA1", "SenhaFraca", "SenhaFraca1" e "Se@1" são recusadas com 400; "Senha@Forte1" é aceita. A tela mostra a regra antes de a pessoa digitar. |
 | **Condição**      | `POST /usuarios` e tela "Criar conta". A mesma regra vale na troca e na redefinição de senha (módulo CFG); o login não a aplica.                                |
-| **Verificação**   | Teste automatizado CT-USR-11 e roteiro CT-USR-12 (APK no Galaxy S24 e chamada à API local).                                                                    |
+| **Verificação**   | Teste automatizado CT-USR-11 e roteiros CT-USR-12 (APK no Galaxy S24 e chamada à API local) e CT-USR-26 (tela "Criar conta" no emulador Android 14, APK x86_64). |
 | **Evidência**     | `BACKEND/src/usuarios/dto/senha-forte.ts`, `BACKEND/src/usuarios/dto/senha-forte.spec.ts` e `FRONTEND/src/utils/validacao.ts` (`validarNovaSenha`).            |
 | **Situação**      | Atendido em 26/11/2026.                                                                                                                                        |
 
@@ -147,10 +147,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                       |
 | **Critério**      | As suítes do backend e do aplicativo passam inteiras antes de cada entrega.                                    |
 | **Medida**        | `npx vitest run` no BACKEND e `node --test tests/*.test.cjs` no FRONTEND sem nenhuma falha.                    |
-| **Condição**      | Código da branch `homolog`: backend `caca2d2` e frontend `6ff2d50`.                                            |
+| **Condição**      | Código da branch `homolog`: backend `d1f1aeb` e frontend `10abe49`.                                            |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-usuario.md).                                           |
-| **Evidência**     | 26/11/2026: BACKEND, 16 arquivos e 227 testes aprovados; FRONTEND, 5 arquivos e 47 testes aprovados.           |
-| **Situação**      | Atendido em 26/11/2026.                                                                                        |
+| **Evidência**     | 27/11/2026: BACKEND, 17 arquivos e 246 testes aprovados; FRONTEND, 5 arquivos e 47 testes aprovados.           |
+| **Situação**      | Atendido em 27/11/2026.                                                                                        |
 
 ## Rastreabilidade
 

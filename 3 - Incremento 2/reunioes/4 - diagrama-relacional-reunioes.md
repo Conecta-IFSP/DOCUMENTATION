@@ -1,10 +1,10 @@
 # Diagrama relacional — Reuniões
 
-> Padrão da disciplina · Módulo REU · Visão lógica dos documentos MongoDB · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Visão lógica dos documentos MongoDB · Revisado em 27/11/2026
 
 ## Resumo
 
-O banco é o MongoDB, que não tem tabelas: participantes, presenças, anexos, link de presença e correções ficam dentro do documento da reunião, na coleção `reunioes`. O diagrama abaixo é uma **visão lógica**: ele separa esses dados em entidades para deixar claras as chaves, as cardinalidades e as restrições. Além de `reunioes`, o módulo usa três coleções: as duas do GridFS, que guardam o conteúdo dos anexos, e `notificacoes`, que recebe os avisos do link de presença.
+O banco é o MongoDB, que não tem tabelas: participantes, presenças, anexos, link de presença e correções ficam dentro do documento da reunião, na coleção `reunioes`. O diagrama abaixo é uma **visão lógica**: ele separa esses dados em entidades para deixar claras as chaves, as cardinalidades e as restrições. Além de `reunioes`, o módulo usa três coleções: as duas do GridFS, que guardam o conteúdo dos anexos, e `notificacoes`, que recebe os avisos das reuniões: pedido de presença, convite, mudança de horário, cancelamento e ata a avaliar.
 
 O documento da reunião também guarda a ata (`ata` e `atas_canceladas`) e as votações (`votacoes`). Essas partes estão nos diagramas relacionais das [atas](../../4%20-%20Incremento%203/atas/4%20-%20diagrama-relacional-atas.md) e da [votação](../../4%20-%20Incremento%203/votacao/4%20-%20diagrama-relacional-votacao.md).
 
@@ -108,6 +108,7 @@ erDiagram
         date expira_em
         date lida_em
         date criada_em
+        date atualizada_em
     }
     COMISSAO {
         ObjectId _id PK
@@ -140,7 +141,7 @@ Figura 4 — Visão lógica relacional das reuniões. Fonte: equipe Conecta+.
 | `PEDACO_GRIDFS`        | coleção `anexos.chunks`                               | Criada e mantida pelo GridFS; o conteúdo dividido em pedaços de 255 KB.                            |
 | `LINK_PRESENCA`        | `reunioes.acesso_presenca`                            | Objeto embutido; no máximo um por reunião. Não aparece nas consultas comuns.                       |
 | `CORRECAO_PRESENCA`    | `reunioes.historico_presencas[]`                      | Item de lista; `posicao` não é gravada: é a posição do item na lista. Não aparece nas consultas comuns. |
-| `NOTIFICACAO`          | coleção `notificacoes`                                | Só os avisos do tipo `PRESENCA` são gravados por este módulo.                                      |
+| `NOTIFICACAO`          | coleção `notificacoes`                                | O aviso `PRESENCA` é gravado no envio do link; os de `CONVITE`, `HORARIO`, `CANCELAMENTO` e `ATA`, quando o usuário consulta as notificações. A reunião só aparece no texto de `chave` e de `destino`, sem chave estrangeira. |
 | `COMISSAO`, `ORGANIZACAO`, `USUARIO` | coleções `comissoes`, `organizacoes` e `usuarios` | Descritas nos módulos do Incremento 1; aqui só os campos usados.                       |
 
 Nas entidades guardadas dentro da reunião, `reuniao_id` aparece no diagrama como parte da chave, mas não existe como campo gravado: ele vem do documento que as contém. O aplicativo nunca acessa as coleções do GridFS diretamente: o servidor lê e grava por meio do `GridFSBucket`.

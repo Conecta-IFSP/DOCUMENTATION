@@ -1,6 +1,6 @@
 # Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Incremento 1 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Incremento 1 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -19,7 +19,7 @@ Uma organização é a instituição onde as comissões funcionam, como um câmp
 - remover o acesso de um membro, cancelar um convite e excluir um pedido recusado;
 - consultar os membros da organização.
 
-Ficam fora deste módulo o cadastro de conta e o login, em [Cadastro de usuário](../cadastro-usuario/README.md); as comissões da organização, em [Cadastro de comissão](../cadastro-comissao/README.md); e as contagens de organizações do painel do sistema, em [Informações do sistema](../informacao-sistemas/README.md).
+Ficam fora deste módulo o cadastro de conta e o login, em [Cadastro de usuário](../cadastro-usuario/README.md); as comissões da organização, em [Cadastro de comissão](../cadastro-comissao/README.md); e as contagens de organizações do painel do sistema, a criação da organização de teste e o reset, que apaga todas as organizações, em [Informações do sistema](../informacao-sistemas/README.md).
 
 ## Atores
 
@@ -56,7 +56,7 @@ Ficam fora deste módulo o cadastro de conta e o login, em [Cadastro de usuário
 | UC-ORG-07   | RF-ORG-07 | SD-ORG-07 | CT-ORG-05, CT-ORG-14, CT-ORG-15            |
 | UC-ORG-08   | RF-ORG-08 | SD-ORG-08 | CT-ORG-06, CT-ORG-16                       |
 | UC-ORG-09   | RF-ORG-09 | SD-ORG-09 | CT-ORG-17, CT-ORG-18, CT-ORG-19, CT-ORG-28 |
-| UC-ORG-10   | RF-ORG-10 | SD-ORG-10 | CT-ORG-05, CT-ORG-20, CT-ORG-28            |
+| UC-ORG-10   | RF-ORG-10 | SD-ORG-10 | CT-ORG-05, CT-ORG-20, CT-ORG-28, CT-ORG-31 |
 | UC-ORG-11   | RF-ORG-11 | SD-ORG-11 | CT-ORG-06, CT-ORG-21                       |
 | UC-ORG-12   | RF-ORG-12 | SD-ORG-12 | CT-ORG-06, CT-ORG-22, CT-ORG-23, CT-ORG-28 |
 | UC-ORG-13   | RF-ORG-13 | SD-ORG-13 | CT-ORG-24, CT-ORG-25, CT-ORG-28            |
@@ -66,4 +66,4 @@ CT-ORG-27 verifica a autenticação e a autorização comuns a todas as rotas (R
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026: backend no commit `caca2d2` e frontend no commit `6ff2d50`. Os arquivos deste módulo não têm alterações locais, exceto `FRONTEND/src/app/(abas)/inicio.tsx`, cuja alteração local (confirmação de identidade ao marcar a entrada numa reunião) não mexe nas partes de organização; a última mudança no backend do módulo é a do commit `6f2ffc4`. Os arquivos principais são `BACKEND/src/organizacoes/organizacoes.controller.ts`, `BACKEND/src/organizacoes/organizacoes.service.ts`, `BACKEND/src/organizacoes/schemas/organizacao.schema.ts`, `BACKEND/src/organizacoes/dto/*`, `BACKEND/src/organizacoes/usuario-ativo.guard.ts`, `BACKEND/src/auth/admin-sistema.guard.ts`, `FRONTEND/src/app/organizacoes/cadastro.tsx`, `FRONTEND/src/app/organizacoes/participar.tsx`, `FRONTEND/src/app/organizacoes/aprovacao.tsx`, `FRONTEND/src/app/(abas)/organizacoes.tsx`, `FRONTEND/src/app/(abas)/organizacao.tsx` e `FRONTEND/src/app/(abas)/inicio.tsx`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026: backend no commit `d1f1aeb` e frontend no commit `10abe49`. Os arquivos deste módulo não têm alterações locais; a última mudança em `BACKEND/src/organizacoes` é a do commit `6f2ffc4`, e as últimas de `FRONTEND/src/app/(abas)/inicio.tsx` (confirmação de identidade ao marcar a entrada numa reunião e descrição do item "Sistema") não mexem nas partes de organização. Reconferidos na mesma data sobre o backend `6e0d3f5` e o frontend `8cf4839`: o backend só acrescenta ao `.env.example` as variáveis `TEST_USERS_PASSWORD` e `TEST_USER_*`, do módulo SIS, e o frontend só muda o aviso e o cartão da votação e a entrega do PDF, fora deste módulo; o diagrama de classes, o dicionário de classes e as sequências foram revistos sobre esses commits. Os arquivos principais são `BACKEND/src/organizacoes/organizacoes.controller.ts`, `BACKEND/src/organizacoes/organizacoes.service.ts`, `BACKEND/src/organizacoes/schemas/organizacao.schema.ts`, `BACKEND/src/organizacoes/dto/*`, `BACKEND/src/organizacoes/usuario-ativo.guard.ts`, `BACKEND/src/auth/admin-sistema.guard.ts`, `FRONTEND/src/app/organizacoes/cadastro.tsx`, `FRONTEND/src/app/organizacoes/participar.tsx`, `FRONTEND/src/app/organizacoes/aprovacao.tsx`, `FRONTEND/src/app/(abas)/organizacoes.tsx`, `FRONTEND/src/app/(abas)/organizacao.tsx` e `FRONTEND/src/app/(abas)/inicio.tsx`.

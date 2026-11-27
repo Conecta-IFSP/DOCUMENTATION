@@ -1,10 +1,10 @@
 # Diagrama de classes — Relatório individual
 
-> Padrão da disciplina · Módulo REL · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REL · Revisado em 27/11/2026
 
 ## Resumo
 
-O diagrama mostra as classes que participam do relatório individual, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (tela, módulos, tipos do aplicativo e as bibliotecas do Expo e do navegador chamadas pela exportação), **API** (guards, controller, service e objeto de entrada) e **Dados** (documentos do MongoDB lidos pelo relatório). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código ou nas bibliotecas que ele chama; os módulos sem classe, como `api` e `relatorioIndividual`, aparecem com o estereótipo `<<module>>`, e os tipos TypeScript com `<<type>>`.
+O diagrama mostra as classes que participam do relatório individual, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (tela, módulos e tipos do aplicativo), **API** (guards, controller, service e objeto de entrada) e **Dados** (os models do Mongoose, marcados `<<Model Mongoose>>`, e os documentos do MongoDB lidos pelo relatório). As bibliotecas chamadas diretamente nos [Diagramas de sequência](6%20-%20diagramas-sequencia-relatorio-individual.md) ficam fora dos pacotes, marcadas `<<biblioteca>>` (Mongoose, Expo) ou `<<API do navegador>>`, só com os membros usados. Toda linha de vida e todo método das sequências aparecem aqui, e cada classe está descrita no [Dicionário de classes](3%20-%20dicionario-dados-classes-relatorio-individual.md). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código ou nas bibliotecas que ele chama; os módulos sem classe, como `api` e `relatorioIndividual`, aparecem com o estereótipo `<<module>>`, e os tipos TypeScript com `<<type>>`.
 
 ## Diagrama
 
@@ -56,33 +56,6 @@ classDiagram
         class pdf {
             <<module>>
             +pdfPelaImpressao() boolean
-        }
-        class Print {
-            <<expo-print>>
-            +printAsync(opcoes: PrintOptions) Promise~void~
-            +printToFileAsync(opcoes: FilePrintOptions) Promise~FilePrintResult~
-        }
-        class Sharing {
-            <<expo-sharing>>
-            +isAvailableAsync() Promise~boolean~
-            +shareAsync(url: string, opcoes: SharingOptions) Promise~void~
-        }
-        class File {
-            <<expo-file-system>>
-            +uri: string
-            +File(...uris: string[])
-            +create() void
-            +write(conteudo: string) Promise~void~
-            +base64() Promise~string~
-        }
-        class window {
-            <<navegador>>
-            +document: Document
-            +URL: URL
-            +open(url: string, alvo: string) Window | null
-            +focus() void
-            +print() void
-            +close() void
         }
         class RelatorioIndividual {
             <<type>>
@@ -158,6 +131,23 @@ classDiagram
     }
 
     namespace Dados {
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~UsuarioDocument~
+            +findOne(filtro: FilterQuery) Query~UsuarioDocument~
+        }
+        class ReuniaoModel {
+            <<Model Mongoose>>
+            +find(filtro: FilterQuery) Query~ReuniaoDocument[]~
+        }
+        class OrganizacaoModel {
+            <<Model Mongoose>>
+            +find(filtro: FilterQuery) Query~OrganizacaoDocument[]~
+        }
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +find(filtro: FilterQuery) Query~ComissaoDocument[]~
+        }
         class Usuario {
             +_id: ObjectId
             +nome: string
@@ -211,20 +201,6 @@ classDiagram
             +usuario_id: ObjectId
             +papel: PapelComissao
         }
-        class Model {
-            <<mongoose>>
-            +find(filtro: FilterQuery) Query
-            +findById(id: string) Query
-            +findOne(filtro: FilterQuery) Query
-        }
-        class Query {
-            <<mongoose>>
-            +select(campos: string) Query
-            +populate(opcoes: PopulateOptions) Query
-            +sort(ordem: object) Query
-            +lean() Query
-            +exec() Promise~unknown~
-        }
         class SituacaoPresenca {
             <<enumeration>>
             AGUARDANDO
@@ -240,6 +216,61 @@ classDiagram
         }
     }
 
+    class Query {
+        <<biblioteca>>
+        +select(campos: string) Query
+        +populate(opcoes: PopulateOptions) Query
+        +sort(ordem: object) Query
+        +lean() Query
+        +exec() Promise~unknown~
+    }
+    class Print {
+        <<biblioteca>>
+        +printAsync(opcoes: PrintOptions) Promise~void~
+        +printToFileAsync(opcoes: FilePrintOptions) Promise~FilePrintResult~
+    }
+    class Sharing {
+        <<biblioteca>>
+        +isAvailableAsync() Promise~boolean~
+        +shareAsync(url: string, opcoes: SharingOptions) Promise~void~
+    }
+    class File {
+        <<biblioteca>>
+        +uri: string
+        +File(...uris: string[])
+        +create() void
+        +write(conteudo: string) Promise~void~
+        +base64() Promise~string~
+    }
+    class Window {
+        <<API do navegador>>
+        +document: Document
+        +open(url: string, alvo: string) Window | null
+        +focus() void
+        +print() void
+        +close() void
+    }
+    class Document {
+        <<API do navegador>>
+        +body: HTMLElement
+        +open() Document
+        +write(html: string) void
+        +close() void
+        +createElement(etiqueta: string) HTMLElement
+    }
+    class URL {
+        <<API do navegador>>
+        +createObjectURL(objeto: Blob) string$
+        +revokeObjectURL(url: string) void$
+    }
+    class HTMLAnchorElement {
+        <<API do navegador>>
+        +href: string
+        +download: string
+        +click() void
+        +remove() void
+    }
+
     TelaRelatorioIndividual ..> api : consulta
     TelaRelatorioIndividual ..> relatorioIndividual : formata
     TelaRelatorioIndividual ..> exportarRelatorioIndividual : exporta
@@ -249,7 +280,11 @@ classDiagram
     exportarRelatorioIndividual ..> Print : usa
     exportarRelatorioIndividual ..> Sharing : usa
     exportarRelatorioIndividual ..> File : usa
-    exportarRelatorioIndividual ..> window : usa na web
+    exportarRelatorioIndividual ..> Window : abre a janela na web
+    exportarRelatorioIndividual ..> Document : escreve o HTML e cria o link
+    exportarRelatorioIndividual ..> URL : endereço do CSV na web
+    exportarRelatorioIndividual ..> HTMLAnchorElement : baixa o CSV
+    Window ..> Document : document
     RelatorioIndividual "1" *-- "0..*" ParticipacaoIndividual : reunioes
     api ..> RelatoriosController : requisição HTTP
 
@@ -258,13 +293,19 @@ classDiagram
     RelatoriosController ..> UsuarioComumGuard : protegido por
     RelatoriosController --> "1" RelatoriosService : relatorios
     RelatoriosController ..> RelatorioIndividualDto : recebe
-    RelatoriosService ..> Usuario : lê
-    RelatoriosService ..> Reuniao : lê
-    RelatoriosService ..> Organizacao : lê
-    RelatoriosService ..> Comissao : lê
-    JwtAuthGuard ..> Usuario : confere a conta
-    RelatoriosService ..> Model : consulta
-    Model ..> Query : devolve
+    RelatoriosService "1" --> "1" UsuarioModel : usuarios
+    RelatoriosService "1" --> "1" ReuniaoModel : reunioes
+    RelatoriosService "1" --> "1" OrganizacaoModel : organizacoes
+    RelatoriosService "1" --> "1" ComissaoModel : comissoes
+    JwtAuthGuard "1" --> "1" UsuarioModel : usuarios
+    UsuarioModel ..> Usuario : documentos do schema
+    ReuniaoModel ..> Reuniao : documentos do schema
+    OrganizacaoModel ..> Organizacao : documentos do schema
+    ComissaoModel ..> Comissao : documentos do schema
+    UsuarioModel ..> Query : devolve
+    ReuniaoModel ..> Query : devolve
+    OrganizacaoModel ..> Query : devolve
+    ComissaoModel ..> Query : devolve
 
     Reuniao "1" *-- "0..*" Participante : participantes
     Participante "1" *-- "0..1" Presenca : presenca
@@ -287,11 +328,13 @@ Figura 2 — Diagrama de classes do relatório individual, por camada. Fonte: eq
 | ---------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Losango cheio (composição)   | A parte só existe dentro do todo e é apagada junto com ele.             | `Organizacao *-- MembroOrganizacao`: o vínculo é gravado dentro do documento da organização.              |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `Comissao --> Organizacao`: `organizacao_id` guarda o identificador de um documento de `organizacoes`.    |
-| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `RelatoriosService ..> Comissao`: o serviço só lê as comissões.                                            |
+| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `ComissaoModel ..> Comissao`: o model lê os documentos do schema `Comissao`.                               |
 
-Os números nas pontas são as multiplicidades. Por exemplo, uma `Comissao` tem pelo menos um membro (`1..*`), porque precisa ter exatamente um responsável; um `Participante` tem no máximo uma `Presenca` (`0..1`); e um relatório tem qualquer quantidade de participações (`0..*`), inclusive nenhuma.
+Os números nas pontas são as multiplicidades. Por exemplo, uma `Comissao` tem pelo menos um membro (`1..*`), porque precisa ter exatamente um responsável; um `Participante` tem no máximo uma `Presenca` (`0..1`); um relatório tem qualquer quantidade de participações (`0..*`), inclusive nenhuma; e o `RelatoriosService` guarda exatamente um model de cada coleção (`1`), injetado pelo NestJS.
 
-`Model` e `Query` são as classes do Mongoose usadas nas leituras: os atributos `usuarios`, `reunioes`, `organizacoes` e `comissoes` do serviço são instâncias de `Model`, e `find`, `findById` e `findOne` devolvem uma `Query`, na qual são chamados `select`, `populate`, `sort`, `lean` e `exec`. Os métodos `definir…` da tela são as funções de atualização de estado criadas por `useState`.
+`UsuarioModel`, `ReuniaoModel`, `OrganizacaoModel` e `ComissaoModel` são os models do Mongoose guardados nos atributos `usuarios`, `reunioes`, `organizacoes` e `comissoes` do serviço (o `JwtAuthGuard` guarda o mesmo `UsuarioModel` em `usuarios`); no código, o tipo de cada atributo é `Model<...Document>`. Cada model mostra só os métodos chamados por este módulo: `findById` e `findOne` em `UsuarioModel` e `find` nos outros três. Esses métodos devolvem uma `Query`, e é na `Query` que o serviço chama `select`, `populate`, `sort`, `lean` e `exec`; por isso, nas sequências, essas chamadas vão para a linha de vida `Query`. Os métodos `definir…` da tela são as funções de atualização de estado criadas por `useState`.
+
+Na web, a exportação usa as classes do navegador: `Window` para o objeto global `window` e para a janela aberta por `window.open`; `Document` para `janela.document`, no PDF, e para `document`, no CSV; `URL` para os métodos estáticos `createObjectURL` e `revokeObjectURL`, sublinhados no diagrama; e `HTMLAnchorElement` para o link criado por `document.createElement('a')`.
 
 O objeto devolvido pela API não tem classe própria no servidor: o tipo é deduzido pelo TypeScript a partir do que `RelatoriosService.individual` monta. O tipo `RelatorioIndividual` do aplicativo descreve exatamente esse objeto e por isso aparece como retorno do controller e do service. Os campos `usuario`, `vinculos`, `periodo` e `resumo` são objetos escritos dentro do próprio tipo, sem nome; no diagrama, eles aparecem com o caminho do campo, como `usuario.nome` e `vinculos?.organizacoes[].papel`, em que `[]` indica um item da lista. Os valores `pdf | csv` são os dois textos aceitos como formato de exportação. O `?` indica campo opcional: `vinculos` é opcional no aplicativo para que ele funcione com um servidor que ainda não envia vínculos. As enumerações não mostradas (`TipoUsuario`, `SituacaoReuniao`, `RespostaConvite`, `OrigemPresenca`, `StatusOrganizacao`, `PapelOrganizacao` e `PapelComissao`) estão no [dicionário de classes](3%20-%20dicionario-dados-classes-relatorio-individual.md).
 
@@ -309,7 +352,7 @@ As rotas HTTP não são métodos; por isso ficam nesta tabela, e não no diagram
 - o usuário do relatório vem sempre do token (`req.usuario.sub`); `RelatorioIndividualDto` não tem campo de usuário;
 - `ParticipacaoIndividual` não existe no banco: é calculada a partir de uma `Reuniao` e da `Presenca` do usuário nela;
 - os vínculos dependem de `Organizacao.status`, `MembroOrganizacao.status`, `Comissao.ativo` e da presença do usuário em `Comissao.membros`;
-- a exportação usa só o objeto já carregado na tela; `Print`, `Sharing` e `File` são usados no celular e `window` na web.
+- a exportação usa só o objeto já carregado na tela; `Print`, `Sharing` e `File` são usados no celular, e `Window`, `Document`, `URL` e `HTMLAnchorElement`, na web.
 
 ## Rastreabilidade
 

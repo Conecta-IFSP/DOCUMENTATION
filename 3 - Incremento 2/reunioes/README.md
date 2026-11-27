@@ -1,6 +1,6 @@
 # Reuniões
 
-> Padrão da disciplina · Módulo REU · Incremento 2 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Incremento 2 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -15,7 +15,8 @@ O presidente da comissão agenda as reuniões da comissão, escolhe quem convida
 - gerar, enviar e revogar o link de presença, e registrar presença por ele;
 - corrigir horários de entrada e saída, com motivo e histórico;
 - consultar a lista de presença e gerar o PDF dela;
-- anexar, baixar e remover arquivos da pauta.
+- anexar, baixar e remover arquivos da pauta;
+- avisar os participantes, na tela "Notificações", do convite, da mudança de horário, do cancelamento e do pedido de presença.
 
 Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Incremento%203/atas/README.md), e as votações, descritas em [Votação na reunião](../../4%20-%20Incremento%203/votacao/README.md). A presença registrada aqui é a entrada dos dois: ela define quem aprova a ata e quem vota.
 
@@ -44,22 +45,22 @@ Ficam fora deste módulo a ata, descrita em [Atas de reunião](../../4%20-%20Inc
 
 | Caso de uso | Requisito | Sequência | Testes                                                       |
 | ----------- | --------- | --------- | ------------------------------------------------------------ |
-| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26        |
+| UC-REU-01   | RF-REU-01 | SD-REU-01 | CT-REU-01, CT-REU-14, CT-REU-15, CT-REU-23, CT-REU-26, CT-REU-41 |
 | UC-REU-02   | RF-REU-02 | SD-REU-02 | CT-REU-02, CT-REU-15                                         |
 | UC-REU-03   | RF-REU-03 | SD-REU-03 | CT-REU-03, CT-REU-15, CT-REU-17                              |
-| UC-REU-04   | RF-REU-04 | SD-REU-04 | CT-REU-04, CT-REU-16                                         |
+| UC-REU-04   | RF-REU-04 | SD-REU-04 | CT-REU-04, CT-REU-16, CT-REU-41                              |
 | UC-REU-05   | RF-REU-05 | SD-REU-05 | CT-REU-05, CT-REU-16, CT-REU-27                              |
 | UC-REU-06   | RF-REU-06 | SD-REU-06 | CT-REU-06, CT-REU-17, CT-REU-27, CT-REU-40                   |
 | UC-REU-07   | RF-REU-07 | SD-REU-07 | CT-REU-07, CT-REU-17, CT-REU-27, CT-REU-29, CT-REU-31        |
 | UC-REU-08   | RF-REU-08 | SD-REU-08 | CT-REU-08, CT-REU-17                                         |
-| UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32        |
-| UC-REU-13   | RF-REU-13 | SD-REU-13 | CT-REU-21, CT-REU-24                                         |
+| UC-REU-09   | RF-REU-09 | SD-REU-09 | CT-REU-09, CT-REU-18, CT-REU-30, CT-REU-31, CT-REU-32, CT-REU-42 |
+| UC-REU-13   | RF-REU-13 | SD-REU-13 | CT-REU-21, CT-REU-24, CT-REU-41                              |
 | UC-REU-14   | RF-REU-14 | SD-REU-14 | CT-REU-22, CT-REU-25                                         |
 | UC-REU-15   | RF-REU-15 | SD-REU-15 | CT-REU-22, CT-REU-25                                         |
 | UC-REU-16   | RF-REU-16 | SD-REU-16 | CT-REU-22, CT-REU-25                                         |
 | UC-REU-17   | RF-REU-17 | SD-REU-17 | CT-REU-13, CT-REU-33, CT-REU-37, CT-REU-38                   |
 | UC-REU-18   | RF-REU-18 | SD-REU-18 | CT-REU-37, CT-REU-38                                         |
-| UC-REU-19   | RF-REU-19 | SD-REU-19 | CT-REU-34, CT-REU-38                                         |
+| UC-REU-19   | RF-REU-19 | SD-REU-19 | CT-REU-34, CT-REU-38, CT-REU-41                              |
 | UC-REU-20   | RF-REU-20 | SD-REU-20 | CT-REU-35, CT-REU-38                                         |
 | UC-REU-21   | RF-REU-21 | SD-REU-21 | CT-REU-36, CT-REU-38                                         |
 | UC-REU-22   | RF-REU-22 | SD-REU-22 | CT-REU-36, CT-REU-38                                         |
@@ -68,6 +69,6 @@ Os números 10, 11 e 12 não são usados neste módulo, nem como caso de uso nem
 
 ## Base de conferência
 
-BACKEND e FRONTEND na branch `homolog`, conferidos em 26/11/2026 (backend `811cf02`, frontend `8fc0a5a`; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/services/anexos.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
+BACKEND e FRONTEND na branch `homolog`, conferidos em 27/11/2026 (backend `6e0d3f5`, que sobre o `d1f1aeb` só acrescenta variáveis ao `.env.example`, e frontend `8cf4839`; o pedido de identidade em `marcarEntrada`, em `FRONTEND/src/app/(abas)/inicio.tsx`, entrou em `3a2ece4`; `nomearPdf`, em `FRONTEND/src/services/pdf.ts`, entrou em `795d49b` e passou a esperar o `move` antes do compartilhamento em `8cf4839`). Os arquivos principais são `BACKEND/src/reunioes/reunioes.service.ts`, `BACKEND/src/reunioes/reunioes.controller.ts`, `BACKEND/src/reunioes/schemas/reuniao.schema.ts`, `BACKEND/src/reunioes/anexos.ts`, `BACKEND/src/presencas/presencas.service.ts`, `BACKEND/src/presencas/presencas.controller.ts`, `BACKEND/src/notificacoes/notificacoes.service.ts`, `BACKEND/src/notificacoes/notificacoes.controller.ts`, `FRONTEND/src/app/reunioes/[id].tsx`, `FRONTEND/src/app/reunioes/registros.tsx`, `FRONTEND/src/app/reunioes/acesso.tsx`, `FRONTEND/src/app/presenca.tsx`, `FRONTEND/src/app/notificacoes.tsx`, `FRONTEND/src/app/(abas)/agenda.tsx`, `FRONTEND/src/app/(abas)/inicio.tsx`, `FRONTEND/src/components/FormularioReuniao.tsx`, `FRONTEND/src/components/SinoNotificacoes.tsx`, `FRONTEND/src/services/anexos.ts`, `FRONTEND/src/services/pdf.ts` e `FRONTEND/src/services/pdfListaPresenca.ts`.
 
 A entrega do Incremento 2 foi conferida em 23/10/2026 sobre FRONTEND `792fab4` e BACKEND `6f2ffc4`.

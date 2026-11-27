@@ -1,10 +1,10 @@
 # Diagramas de sequência — Reuniões
 
-> Padrão da disciplina · Módulo REU · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Revisado em 27/11/2026
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api`, `anexos`, `pdf`, `pdfListaPresenca` e `autenticacaoLocal`, os controllers, os services e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa. Regras que não são métodos, como comparar horários, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-reunioes.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o componente `Confirmacao`, o contexto `ToastProvider`, os módulos `api`, `anexos`, `pdf`, `pdfListaPresenca` e `autenticacaoLocal`, os controllers, os services, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Clipboard`, `File`, `Print`, `Sharing`, `GridFSBucket`, `GridFSBucketWriteStream`, `events`, `crypto`, `nodemailer` e `Transporter`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-reunioes.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `arquivo.delete()` ou `envio.end(dados)`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Os retornos voltam pela cadeia, na ordem inversa. Regras que não são métodos, como comparar horários, e o conteúdo dos filtros e das alterações enviados ao banco aparecem em notas; nas mensagens, eles são os parâmetros `filtro`, `alteracao` e `opcoes`.
 
 Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota. Para não repetir, os diagramas mostram `carregar(id, usuarioId)` do `ReunioesService` só com a leitura da reunião; antes dela, o método chama `validarId(id)` e `validarUsuario(usuarioId)`, que lê o usuário com `UsuarioModel.findById`. Da mesma forma, `carregar(id, usuarioId, presidente)` do `PresencasService` aparece completo só no SD-REU-17.
 
@@ -23,6 +23,7 @@ sequenceDiagram
     participant CM as ComissaoModel
     participant OM as OrganizacaoModel
     participant M as ReuniaoModel
+    participant R as Router
     U->>F: salvar()
     Note over F: validarTituloReuniao, validarHora, validarTermino e validarLocal<br/>conferem os campos antes do envio
     F->>F: calcularHorario(dados)
@@ -53,7 +54,8 @@ sequenceDiagram
         N->>X: enviarAnexo(reuniaoId, anexo)
         X-->>N: resultado
     end
-    N->>N: router.replace(rota)
+    N->>R: replace(rota)
+    Note over N,R: rota = tela da reunião criada, com o id devolvido pela API
     N-->>F: null
 ```
 
@@ -140,15 +142,19 @@ sequenceDiagram
     autonumber
     actor U as Presidente
     participant T as TelaReuniao
+    participant K as Confirmacao
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
     U->>T: definirOpcoes(true)
+    Note over U,T: O presidente toca em "Mais opções" e depois em "Cancelar reunião"
     U->>T: definirConfirmacao(pendente)
-    Note over U,T: O presidente toca em "Cancelar reunião" e confirma a pergunta
-    U->>T: confirmacao.acao()
-    T->>T: executar("cancelar", acao, "Reunião cancelada.")
+    T->>K: Confirmacao(mensagem, confirmar, cancelar)
+    Note over U,K: "Cancelar a reunião" seguido do título, com Cancelar e Confirmar
+    U->>K: confirmar()
+    Note over K,T: confirmar chama confirmacao.acao, que chama executar
+    K->>T: executar("cancelar", acao, "Reunião cancelada.")
     T->>A: api("/reunioes/:id", "PATCH", { situacao: "CANCELADA" })
     Note over A,C: PATCH /reunioes/:id
     A->>C: atualizar(id, dto, req)
@@ -185,6 +191,7 @@ sequenceDiagram
     actor U as Participante
     participant G as TelaAgenda
     participant T as TelaReuniao
+    participant K as Confirmacao
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
@@ -197,12 +204,16 @@ sequenceDiagram
         T->>A: api("/reunioes/:id/convite", "PATCH", { aceito: true })
     else recusar ou desistir na tela da reunião
         U->>T: recusarConvite()
-        opt convite já aceito
+        alt convite já aceito
             T->>T: definirConfirmacao(pendente)
-            Note over U,T: "Avisar que você não vai mais participar desta reunião?"
-            U->>T: confirmacao.acao()
+            T->>K: Confirmacao(mensagem, confirmar, cancelar)
+            Note over U,K: "Avisar que você não vai mais participar desta reunião?"
+            U->>K: confirmar()
+            Note over K,T: confirmar chama confirmacao.acao, que chama executar
+            K->>T: executar("recusar", acao, "Convite recusado.")
+        else convite pendente
+            T->>T: executar("recusar", acao, "Convite recusado.")
         end
-        T->>T: executar("recusar", acao, "Convite recusado.")
         T->>A: api("/reunioes/:id/convite", "PATCH", { aceito: false })
     end
     Note over A,C: PATCH /reunioes/:id/convite
@@ -433,6 +444,7 @@ sequenceDiagram
     participant P as pdfListaPresenca
     participant D as pdf
     participant I as Print
+    participant FS as File
     participant H as Sharing
     U->>T: definirAba("presenca")
     T->>T: carregarLista()
@@ -464,20 +476,29 @@ sequenceDiagram
         I-->>D: concluído
     else Aplicativo instalado
         D->>I: printToFileAsync({ html, width: 595, height: 842 })
-        I-->>D: uri
-        Note over D: gerado = File com a uri devolvida
+        I-->>D: impresso
+        D->>FS: File(impresso.uri)
+        FS-->>D: gerado
         D->>D: nomearPdf(gerado, nome)
-        Note over D: arquivo = File em Paths.cache com o nome seguido de .pdf
-        opt arquivo.exists
-            D->>D: arquivo.delete()
+        Note over D: nomearPdf é async e entregarPdf espera o endereço que ela devolve
+        D->>FS: File(Paths.cache, nomeArquivo)
+        FS-->>D: arquivo
+        Note over D,FS: nomeArquivo = nome seguido de .pdf
+        opt arquivo.exists verdadeiro
+            D->>FS: delete()
+            Note over D,FS: delete é chamado em arquivo
         end
-        D->>D: gerado.move(arquivo)
-        alt sem erro
-            Note over D: endereco = arquivo.uri
-        else delete ou move lançou erro
-            Note over D: endereco = gerado.uri, sem trocar o nome
+        D->>FS: move(arquivo)
+        Note over D,FS: move é chamado em gerado e nomearPdf espera a Promise dele
+        alt File, exists, delete e move sem erro
+            FS-->>D: concluído
+            Note over D: endereco = arquivo.uri, com o nome novo
+        else um desses passos lançou erro, inclusive o move
+            FS-->>D: erro
+            Note over D: o catch de nomearPdf devolve endereco = gerado.uri, com o nome dado pelo Print
         end
-        D->>H: shareAsync(endereco, { mimeType: "application/pdf" })
+        D->>H: shareAsync(endereco, opcoes)
+        Note over D,H: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome.<br/>O compartilhamento só começa depois que nomearPdf termina
         H-->>D: concluído
     end
     D-->>P: concluído
@@ -493,6 +514,8 @@ sequenceDiagram
     actor U as Presidente
     participant F as FormularioReuniao
     participant E as TelaEditarReuniao
+    participant TP as ToastProvider
+    participant R as Router
     participant A as api
     participant C as ReunioesController
     participant S as ReunioesService
@@ -513,8 +536,11 @@ sequenceDiagram
     M-->>S: reuniao
     S->>S: exigirAgendada(reuniao)
     Note over S: Recusa reuniao.fim já passado
-    S->>S: lerData(dto.inicio, "Informe um início válido")
-    S->>S: lerData(dto.fim, "Informe um término válido")
+    opt dto com inicio e fim
+        Note over S: Cada um só é lido quando veio no dto. O formulário não os envia<br/>quando a reunião já começou, e então valem os da reunião
+        S->>S: lerData(dto.inicio, "Informe um início válido")
+        S->>S: lerData(dto.fim, "Informe um término válido")
+    end
     opt data, horário ou dia inteiro mudaram
         Note over S: Recusa se reuniao.inicio já passou
         S->>S: validarHorario(inicio, fim)
@@ -533,7 +559,15 @@ sequenceDiagram
         A-->>E: resultado
         E-->>F: null
         F->>E: aoConcluir()
-        E->>E: mostrarToast("Reunião atualizada.", "sucesso")
+        E->>TP: mostrarToast("Reunião atualizada.", "sucesso")
+        E->>R: canGoBack()
+        R-->>E: podeVoltar
+        alt podeVoltar verdadeiro
+            E->>R: back()
+        else sem tela anterior
+            E->>R: replace(rota)
+            Note over E,R: rota = tela da reunião editada
+        end
     else reunião mudou durante a edição
         S-->>C: ConflictException
         C-->>A: 409 "A reunião mudou. Atualize a tela."
@@ -552,10 +586,13 @@ sequenceDiagram
     participant T as TelaReuniao
     participant X as anexos
     participant A as api
+    participant FS as File
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
     participant G as GridFSBucket
+    participant W as GridFSBucketWriteStream
+    participant EV as events
     U->>T: adicionarAnexos()
     T->>X: escolherArquivos()
     X-->>T: escolhidos
@@ -565,9 +602,13 @@ sequenceDiagram
         T->>X: enviarAnexo(reuniaoId, arquivo)
         X->>A: acessoAutenticado(caminho)
         A-->>X: acesso
-        X->>X: copia.upload(acesso.url, opcoes)
-        Note over X,C: POST /reunioes/:id/anexos, multipart, campo arquivo, até 10 MB.<br/>Na web, enviarAnexo usa api(caminho, "POST", formulario)
-        X->>C: adicionarAnexo(id, arquivo, req)
+        Note over X,FS: Na web, enviarAnexo usa api(caminho, "POST", formulario).<br/>No aparelho, copia = File com o nome original numa pasta temporária do cache
+        X->>FS: copy(copia)
+        Note over X,FS: copy é chamado no File de arquivo.uri
+        FS-->>X: concluído
+        X->>FS: upload(acesso.url, opcoes)
+        Note over FS,C: POST /reunioes/:id/anexos, multipart, campo arquivo, até 10 MB
+        FS->>C: adicionarAnexo(id, arquivo, req)
         C->>S: adicionarAnexo(id, arquivo, usuarioId)
         S->>S: carregarComoDono(id, usuarioId)
         S->>M: findById(id)
@@ -577,8 +618,10 @@ sequenceDiagram
         S->>S: arquivos()
         S->>G: openUploadStream(nome, { metadata })
         G-->>S: envio
-        S->>G: envio.end(arquivo.buffer)
-        S->>S: once(envio, "finish")
+        S->>W: end(arquivo.buffer)
+        Note over S,W: end é chamado em envio
+        S->>EV: once(envio, "finish")
+        EV-->>S: concluído
         Note over S,M: filtro: _id, AGENDADA e décima posição de anexos inexistente.<br/>alteracao: $push do anexo com _id igual a envio.id
         S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
         M-->>S: atualizada
@@ -587,7 +630,9 @@ sequenceDiagram
         end
         S->>S: responder(atualizada, usuarioId, conflito)
         S-->>C: reuniao
-        C-->>X: 201 reuniao
+        C-->>FS: 201 reuniao
+        FS-->>X: resposta
+        Note over X: resultado = ok verdadeiro e a reunião lida de resposta.body
         X-->>T: resultado
         T->>T: definirReuniao(resultado.dados)
     end
@@ -639,6 +684,7 @@ sequenceDiagram
     autonumber
     actor U as Presidente
     participant T as TelaReuniao
+    participant K as Confirmacao
     participant X as anexos
     participant A as api
     participant C as ReunioesController
@@ -647,9 +693,11 @@ sequenceDiagram
     participant G as GridFSBucket
     U->>T: confirmarRemocao(item)
     T->>T: definirConfirmacao(pendente)
-    Note over U,T: O presidente confirma a remoção do anexo
-    U->>T: confirmacao.acao()
-    T->>T: executar("anexo", acao, "Anexo removido.")
+    T->>K: Confirmacao(mensagem, confirmar, cancelar)
+    Note over U,K: "Remover o anexo" seguido do nome do arquivo
+    U->>K: confirmar()
+    Note over K,T: confirmar chama confirmacao.acao, que chama executar
+    K->>T: executar("anexo", acao, "Anexo removido.")
     T->>X: removerAnexo(reuniaoId, anexoId)
     X->>A: api("/reunioes/:id/anexos/:anexoId", "DELETE")
     Note over A,C: DELETE /reunioes/:id/anexos/:anexoId
@@ -688,6 +736,7 @@ sequenceDiagram
     participant M as ReuniaoModel
     participant CM as ComissaoModel
     participant OM as OrganizacaoModel
+    participant CR as crypto
     participant N as NotificacoesService
     opt já há link ativo
         U->>T: definirConfirmacao("GERAR")
@@ -710,7 +759,9 @@ sequenceDiagram
     Note over S: Exige comissão ativa, o usuário com papel RESPONSAVEL,<br/>organização APROVADA e vínculo APROVADO
     S->>S: editavel(reuniao)
     Note over S: Recusa horário atual maior ou igual a fim
-    S->>S: randomBytes(32)
+    S->>CR: randomBytes(32)
+    CR-->>S: bytes
+    Note over S: codigo = bytes em hexadecimal, com 64 caracteres
     S->>S: url(id, codigo)
     S->>S: filtro(reuniao)
     S->>S: hash(codigo)
@@ -775,6 +826,7 @@ sequenceDiagram
     participant N as NotificacoesService
     participant NM as NotificacaoModel
     participant E as nodemailer
+    participant TR as Transporter
     alt copiar o link
         U->>T: agir(acao)
         T->>K: setStringAsync(link.url)
@@ -806,9 +858,16 @@ sequenceDiagram
             Note over S: Sem MAIL_HOST, MAIL_USER ou MAIL_PASS, responde 503
             S->>E: createTransport(opcoes)
             E-->>S: smtp
+            Note over S,TR: smtp é o Transporter devolvido por createTransport
             loop cada convidado
-                S->>E: smtp.sendMail(mensagem)
-                E-->>S: enviado ou falha
+                S->>TR: sendMail(mensagem)
+                alt e-mail aceito pelo servidor SMTP
+                    TR-->>S: info
+                    Note over S: soma 1 em enviados
+                else falha no envio
+                    TR-->>S: erro
+                    Note over S: o catch ignora o erro, sem expor o endereço nem o detalhe do SMTP
+                end
             end
         end
         S-->>C: { mensagem }
@@ -816,6 +875,67 @@ sequenceDiagram
         A-->>T: resultado
         T->>T: definirSucesso(resultado.dados.mensagem)
     end
+```
+
+Consulta e leitura dos avisos pelo convidado, na tela "Notificações". A consulta também cria os avisos de convite, horário, cancelamento e ata das reuniões do usuário:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Participante
+    participant T as TelaNotificacoes
+    participant A as api
+    participant C as NotificacoesController
+    participant N as NotificacoesService
+    participant M as ReuniaoModel
+    participant NM as NotificacaoModel
+    participant R as Router
+    U->>T: carregar(ativa)
+    T->>A: api("/notificacoes")
+    Note over A,C: GET /notificacoes. O sino do cabeçalho das abas faz a mesma chamada<br/>ao ser exibido e a cada 30 segundos, para mostrar nao_lidas
+    A->>C: listar(req)
+    C->>N: listar(usuarioId)
+    Note over N,M: filtro: participantes.usuario_id igual ao usuário
+    N->>M: find(filtro)
+    N->>M: select("titulo participantes inicio fim situacao horario_alterado_em ata")
+    N->>M: lean()
+    N->>M: exec()
+    M-->>N: reunioes
+    loop cada reunião e cada aviso que se aplica a ela
+        Note over N: CANCELAMENTO na reunião cancelada, e nenhum outro dela. Senão, CONVITE com convite PENDENTE<br/>antes do fim, HORARIO com horario_alterado_em e ATA para o aprovador que ainda não avaliou
+        N->>N: criar(usuarioId, dados)
+        N->>NM: updateOne({ usuario_id, chave }, { $setOnInsert: dados }, { upsert: true })
+        NM-->>N: resultado
+    end
+    Note over N,NM: filtro: usuario_id do usuário e expira_em ausente ou futuro
+    N->>NM: find(filtro)
+    N->>NM: select("titulo mensagem destino tipo lida_em criada_em")
+    N->>NM: sort({ criada_em: -1, _id: -1 })
+    N->>NM: limit(100)
+    N->>NM: lean()
+    N->>NM: exec()
+    NM-->>N: itens
+    N-->>C: { itens, nao_lidas }
+    C-->>A: 200 notificacoes
+    A-->>T: resultado
+    T->>T: definirItens(r.dados.itens)
+    U->>T: abrir(item)
+    T->>A: api("/notificacoes/:id/lida", "PATCH")
+    Note over A,C: PATCH /notificacoes/:id/lida
+    A->>C: ler(id, req)
+    C->>N: ler(id, usuarioId)
+    N->>NM: findOne({ _id: id, usuario_id })
+    NM-->>N: notificacao
+    Note over N: Sem aviso do próprio usuário, responde 404 "Notificação não encontrada"
+    opt lida_em vazio
+        N->>NM: updateOne(filtro, { $set: { lida_em } })
+        NM-->>N: resultado
+    end
+    N-->>C: { mensagem: "Notificação marcada como lida" }
+    C-->>A: 200 mensagem
+    A-->>T: resultado
+    Note over T: Só abre destinos que começam com /presenca? ou /reunioes/
+    T->>R: push(item.destino)
 ```
 
 ## SD-REU-20 — Registrar presença pelo link
@@ -868,6 +988,7 @@ sequenceDiagram
         S->>S: validarLink(reuniao, comissao, codigo)
         Note over S: Recusa antes de inicio, convite diferente de ACEITO, entrada repetida<br/>e saída sem entrada CONFIRMADA ou já marcada
         S->>S: filtro(reuniao)
+        S->>S: hash(dto.codigo)
         Note over S,M: filtro: reunião no estado lido, mesmo hash, horário do banco entre inicio e fim<br/>e participante no estado lido. alteracao: $set da presença CONFIRMADA com marcada_por LINK<br/>ou da saída, e $inc presencas_revisao
         S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
         M-->>S: atualizado
@@ -925,6 +1046,7 @@ sequenceDiagram
     autonumber
     actor U as Presidente
     participant P as AcessoPresidente
+    participant R as Router
     participant T as TelaGestaoPresenca
     participant A as api
     participant C as PresencasController
@@ -933,8 +1055,10 @@ sequenceDiagram
     P->>A: api("/presencas/:id/gestao")
     A-->>P: resultado
     P->>P: definirPermitido(resultado.ok)
-    U->>P: router.push(rota)
-    P->>T: TelaGestaoPresenca()
+    Note over U,P: Com permitido verdadeiro, o presidente toca em "Link e gestão de presença"
+    P->>R: push(rota)
+    Note over P,R: rota = /reunioes/acesso com o id da reunião
+    R->>T: TelaGestaoPresenca()
     T->>T: carregar(continuar)
     T->>A: api("/presencas/:id/gestao")
     Note over A,C: GET /presencas/:id/gestao

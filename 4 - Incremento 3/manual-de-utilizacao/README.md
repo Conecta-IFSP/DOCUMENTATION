@@ -1,6 +1,6 @@
 # Manual de utilização
 
-> Padrão da disciplina · Módulo MAN · Requisito R4 do Incremento 3 · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo MAN · Requisito R4 do Incremento 3 · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -40,14 +40,14 @@ Ficam fora deste módulo a edição das perguntas e do manual pelo próprio apli
 
 | Caso de uso                       | Requisito | Sequência | Requisitos não funcionais                       | Testes                                                   |
 | --------------------------------- | --------- | --------- | ----------------------------------------------- | -------------------------------------------------------- |
-| UC-MAN-01 — Consultar Ajuda       | RF-MAN-01 | SD-MAN-01 | RNF-MAN-01, 02, 05, 06, 07, 08, 09              | CT-MAN-01 a CT-MAN-08, CT-MAN-12, CT-MAN-13              |
+| UC-MAN-01 — Consultar Ajuda       | RF-MAN-01 | SD-MAN-01 | RNF-MAN-01, 02, 05, 06, 07, 08, 09              | CT-MAN-01 a CT-MAN-08, CT-MAN-12, CT-MAN-13, CT-MAN-19, CT-MAN-20 |
 | UC-MAN-02 — Abrir manual em PDF   | RF-MAN-02 | SD-MAN-02 | RNF-MAN-01, 02, 03, 04, 05, 06, 07, 08, 10      | CT-MAN-11, CT-MAN-14 a CT-MAN-18                         |
 
 CT-MAN-09 e CT-MAN-10 ficam registrados em [Testes](7%20-%20testes-manual-de-utilizacao.md) como execuções de 13/11/2026 sobre o FRONTEND `66806e4`, em que o botão abria o manual no navegador; eles não cobrem o RF-MAN-02 da base conferida.
 
 ## Base de conferência
 
-FRONTEND na branch `homolog`, conferido em 26/11/2026 em `8fc0a5a`, commit que deixou em quatro passos a pergunta `conta-email-senha`. O manual entrou no pacote do aplicativo em `fa1ba7a`, e o texto do PDF foi revisado em `93fa767`. Os arquivos principais são `FRONTEND/src/app/ajuda.tsx`, `FRONTEND/src/app/manual.tsx`, `FRONTEND/src/components/ManualPdf.tsx`, `FRONTEND/src/constants/ajuda.ts`, `FRONTEND/src/utils/busca-ajuda.ts`, `FRONTEND/src/components/Sanfona.tsx`, `FRONTEND/assets/manual/manual.pdf`, `FRONTEND/assets/pdfjs/`, `FRONTEND/metro.config.js` e `FRONTEND/tests/busca-ajuda.test.cjs`. O BACKEND não é usado pelo R4.
+FRONTEND na branch `homolog`, conferido em 27/11/2026 em `10abe49`, commit que mudou o texto de quatro perguntas do tópico Votação para o voto em branco, o voto nulo e o tipo da votação (fechada ou aberta), sem mudar as telas da Ajuda e do manual. Também em 27/11/2026, os diagramas de classes e de sequência foram revistos sobre o FRONTEND `8cf4839`, cujos commits depois de `10abe49` não mudam nenhum arquivo do R4, e os roteiros CT-MAN-01, CT-MAN-17, CT-MAN-19, CT-MAN-20 e CT-MAN-15 foram executados num emulador Android 14 com o APK release. A revisão anterior, de 26/11/2026, conferiu `8fc0a5a`, commit que deixou em quatro passos a pergunta `conta-email-senha`. O manual entrou no pacote do aplicativo em `fa1ba7a`, e o texto do PDF foi revisado em `93fa767`. Os arquivos principais são `FRONTEND/src/app/ajuda.tsx`, `FRONTEND/src/app/manual.tsx`, `FRONTEND/src/components/ManualPdf.tsx`, `FRONTEND/src/constants/ajuda.ts`, `FRONTEND/src/utils/busca-ajuda.ts`, `FRONTEND/src/components/Sanfona.tsx`, `FRONTEND/assets/manual/manual.pdf`, `FRONTEND/assets/pdfjs/`, `FRONTEND/metro.config.js` e `FRONTEND/tests/busca-ajuda.test.cjs`. O BACKEND não é usado pelo R4.
 
 ## Repositórios
 

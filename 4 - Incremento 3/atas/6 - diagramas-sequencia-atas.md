@@ -1,10 +1,10 @@
 # Diagramas de sequência — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 27/11/2026
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-atas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, o módulo `api`, o `ReunioesController`, o `ReunioesService` e os models do Mongoose. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de versão, aparecem em notas.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-atas.md), com o mesmo número. As linhas de vida são classes e módulos que existem no código: as telas do aplicativo, os módulos `api`, `autenticacaoLocal`, `diferenca`, `reunioes`, `pdfAta` e `pdf`, o `ReunioesController`, o `ReunioesService`, os models do Mongoose e as bibliotecas chamadas diretamente (`Router`, `Print`, `File`, `Sharing` e, na web, `Window` e `Document`). Todas estão no [diagrama de classes](3%20-%20diagrama-classes-atas.md), com os métodos chamados aqui. Quando o método é de um objeto guardado numa variável, como `arquivo.delete()`, a mensagem vai para a linha de vida da classe desse objeto e a nota diz qual é a variável. O retorno `resposta` é o `Resultado` devolvido por `api`: `ok` verdadeiro e `dados` no sucesso, ou `ok` falso e `erro` com a mensagem da API. Toda mensagem é a chamada de um método existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Regras que não são métodos, como comparações de versão, aparecem em notas.
 
 Em todos os diagramas, a chamada do módulo `api` ao controller é uma requisição HTTP que passa antes por `ApiKeyGuard`, `JwtAuthGuard` e `UsuarioComumGuard`; a rota está indicada na nota.
 
@@ -19,7 +19,8 @@ sequenceDiagram
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
-    U->>T: handleSubmit(dados)
+    U->>T: handleSubmit(aoValidar)
+    Note over U,T: O presidente toca em "Salvar". aoValidar recebe o conteudo validado pelo formulário<br/>e monta corpo com o conteudo aparado e versao igual a ata.versao, ou 0 sem ata
     T->>T: gravar("/ata", "PATCH", corpo, "Rascunho salvo.")
     T->>A: api("/reunioes/:id/ata", "PATCH", corpo)
     Note over A,C: PATCH /reunioes/:id/ata
@@ -35,17 +36,21 @@ sequenceDiagram
     Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
     alt reunião encontrada pelo filtro
-        M-->>S: reuniao atualizada
+        M-->>S: atualizada
         S->>S: responder(atualizada, usuarioId, conflito)
         S-->>C: reuniao
         C-->>A: 200 reuniao
-        A-->>T: Resultado com a reuniao
+        A-->>T: resposta
+        Note over A,T: resposta.ok verdadeiro e resposta.dados com a reunião
+        T->>T: definirReuniao(resposta.dados)
         T->>T: definirSucesso("Rascunho salvo.")
     else outra gravação ou uma mudança de presença chegou antes
         M-->>S: null
+        S->>S: responder(null, usuarioId, conflito)
         S-->>C: ConflictException
-        C-->>A: 409 A ata mudou
-        A-->>T: Resultado com o erro
+        C-->>A: 409 "A ata mudou. Atualize antes de continuar."
+        A-->>T: resposta
+        Note over A,T: resposta.ok falso e resposta.erro com a mensagem da API
         T->>T: definirErro(resposta.erro)
     end
 ```
@@ -86,11 +91,11 @@ sequenceDiagram
     S->>S: gravarAta(reuniao, ata, usuarioId)
     Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
-    M-->>S: reuniao atualizada
+    M-->>S: atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
     C-->>A: 201 reuniao
-    A-->>T: Resultado com a reuniao
+    A-->>T: resposta
     T->>T: definirSucesso("Ata enviada para aprovação.")
     Note over S,T: Sem documento encontrado (ata ou presença mudou), responder lança ConflictException<br/>e a tela mostra 409 "A ata mudou. Atualize antes de continuar."
 ```
@@ -140,11 +145,11 @@ sequenceDiagram
     S->>S: gravarAta(reuniao, ata, usuarioId)
     Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
-    M-->>S: reuniao atualizada
+    M-->>S: atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
     C-->>A: 201 reuniao
-    A-->>T: Resultado com a reuniao
+    A-->>T: resposta
     T->>T: definirSucesso("Ata aprovada.")
 ```
 
@@ -215,11 +220,11 @@ sequenceDiagram
     S->>S: gravarAta(reuniao, ata, usuarioId)
     Note over S,M: filtro = _id da reunião, situacao AGENDADA, ata igual à lida e presencas_revisao igual à lida<br/>alteracao = $set da nova ata. opcoes = returnDocument after e runValidators
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
-    M-->>S: reuniao atualizada
+    M-->>S: atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
     C-->>A: 201 reuniao
-    A-->>T: Resultado com a reuniao
+    A-->>T: resposta
     T->>T: definirSucesso("Ata reprovada. Ela voltou para correção.")
 ```
 
@@ -250,11 +255,11 @@ sequenceDiagram
     Note over S: Recusa ata fora de REPROVADA
     Note over S,M: filtro = _id da reunião, situacao AGENDADA e ata igual à lida<br/>alteracao = $push da ata reprovada em atas_canceladas como CANCELADA e $set do novo rascunho
     S->>M: findOneAndUpdate(filtro, alteracao, opcoes)
-    M-->>S: reuniao atualizada
+    M-->>S: atualizada
     S->>S: responder(atualizada, usuarioId, conflito)
     S-->>C: reuniao
     C-->>A: 201 reuniao
-    A-->>T: Resultado com a reuniao
+    A-->>T: resposta
     T->>T: definirSucesso("Nova versão criada. Corrija o texto e envie de novo.")
 ```
 
@@ -265,7 +270,7 @@ sequenceDiagram
     autonumber
     actor U as Participante
     participant T as TelaRegistrosReuniao
-    participant R as reunioes (utilitário)
+    participant R as reunioes
     participant D as diferenca
     participant A as api
     participant C as ReunioesController
@@ -283,18 +288,20 @@ sequenceDiagram
     S->>S: apresentar(reuniao, usuarioId)
     S-->>C: reuniao
     C-->>A: 200 reuniao
-    A-->>T: Resultado com a reuniao
+    A-->>T: resposta
     T->>T: definirReuniao(resposta.dados)
     T->>A: api("/comissoes/:id")
     Note over A: GET /comissoes/:id, rota do módulo de comissões
-    A-->>T: Resultado com a comissão
+    A-->>T: comissao
     Note over T: responsavel = comissão ativa e usuário com papel RESPONSAVEL
     T->>T: definirResponsavel(responsavel)
     T->>R: situacaoDaAta(ata)
-    R-->>T: texto e tom da etiqueta
+    R-->>T: situacao
+    Note over T,R: situacao = texto e tom da etiqueta da ata
     opt ata em aprovação com versão cancelada anterior
         T->>D: mudancas(textoAnterior, ata.conteudo)
-        D-->>T: trechos novos e removidos
+        D-->>T: listaMudancas
+        Note over T,D: listaMudancas = trechos novos e removidos de cada parágrafo
     end
 ```
 
@@ -309,6 +316,7 @@ sequenceDiagram
     participant C as ReunioesController
     participant S as ReunioesService
     participant M as ReuniaoModel
+    participant R as Router
     U->>T: carregar()
     T->>A: api("/reunioes/atas/pendentes")
     Note over A,C: GET /reunioes/atas/pendentes
@@ -320,13 +328,17 @@ sequenceDiagram
     S->>M: select("titulo comissao_id ata.situacao ata.prazo")
     S->>M: populate("comissao_id", "nome")
     S->>M: sort({ "ata.prazo": 1 })
+    S->>M: exec()
     M-->>S: reunioes
-    S-->>C: atas pendentes
-    C-->>A: 200 lista
-    A-->>T: Resultado com a lista
+    S-->>C: pendentes
+    Note over S,C: pendentes = cada reunião convertida com toObject
+    C-->>A: 200 pendentes
+    A-->>T: atasPendentes
+    Note over A,T: atasPendentes.dados com a lista, quando atasPendentes.ok
     T->>T: definirAtas(atasPendentes.dados)
     Note over U,T: O usuário toca em uma ata da lista
-    T->>T: router.push({ pathname: "/reunioes/registros", params: { id: item._id } })
+    T->>R: push(rota)
+    Note over T,R: rota = /reunioes/registros com o id da reunião tocada
 ```
 
 ## SD-ATA-08 — Gerar PDF da ata
@@ -337,42 +349,63 @@ sequenceDiagram
     actor U as Participante
     participant T as TelaRegistrosReuniao
     participant P as pdfAta
+    participant R as reunioes
     participant D as pdf
+    participant W as Window
+    participant DC as Document
     participant I as Print
+    participant FS as File
     participant C as Sharing
-    participant J as Janela do navegador
     U->>T: baixarPdf()
     T->>T: definirGerandoPdf(true)
     T->>P: gerarPdfAta(reuniao)
     P->>P: htmlDaAta(reuniao)
+    P->>R: numeroDaAta(reuniao.ata)
+    R-->>P: numero
+    Note over P,R: numero = Ata nº N/AAAA. nome = numero com a barra trocada por hífen
     P->>D: entregarPdf(html, nome)
     alt Web
         D->>D: imprimirNaWeb(html)
-        D->>J: open("", "_blank")
-        D->>J: write(html)
-        D->>J: print()
-        Note over J: Abre o diálogo de impressão do navegador
+        D->>W: open("", "_blank")
+        W-->>D: janela
+        Note over D,W: Sem janela, lança "Permita abrir uma nova janela para gerar o PDF."
+        D->>DC: open()
+        D->>DC: write(html)
+        D->>DC: close()
+        Note over D,DC: Document = janela.document
+        D->>W: focus()
+        D->>W: print()
+        Note over D,W: focus e print são chamados em janela, que abre o diálogo de impressão do navegador
     else Expo Go
         D->>I: printAsync({ html, width: 595, height: 842 })
         Note over I: Abre a tela de impressão do sistema, com a opção de salvar em PDF
         I-->>D: concluído
     else Aplicativo instalado
         D->>I: printToFileAsync({ html, width: 595, height: 842 })
-        I-->>D: uri
-        Note over D: gerado = File com a uri devolvida
+        I-->>D: impresso
+        D->>FS: File(impresso.uri)
+        FS-->>D: gerado
         D->>D: nomearPdf(gerado, nome)
-        Note over D: arquivo = File em Paths.cache com o nome seguido de .pdf
-        opt arquivo.exists
-            D->>D: arquivo.delete()
+        Note over D: nomearPdf é async e entregarPdf espera o endereço que ela devolve
+        D->>FS: File(Paths.cache, nomeArquivo)
+        FS-->>D: arquivo
+        Note over D,FS: nomeArquivo = nome seguido de .pdf, por exemplo Ata nº 1-2026.pdf
+        opt arquivo.exists verdadeiro
+            D->>FS: delete()
+            Note over D,FS: delete é chamado em arquivo
         end
-        D->>D: gerado.move(arquivo)
-        alt sem erro
-            Note over D: endereco = arquivo.uri
-        else delete ou move lançou erro
-            Note over D: endereco = gerado.uri, sem trocar o nome
+        D->>FS: move(arquivo)
+        Note over D,FS: move é chamado em gerado e nomearPdf espera a Promise dele
+        alt File, exists, delete e move sem erro
+            FS-->>D: concluído
+            Note over D: endereco = arquivo.uri, com o nome novo
+        else um desses passos lançou erro, inclusive o move
+            FS-->>D: erro
+            Note over D: o catch de nomearPdf devolve endereco = gerado.uri, com o nome dado pelo Print
         end
-        D->>C: shareAsync(endereco, { mimeType: "application/pdf" })
-        Note over C: Abre o menu de compartilhamento do aparelho
+        Note over D,C: opcoes = mimeType application/pdf, UTI com.adobe.pdf e dialogTitle igual a nome
+        D->>C: shareAsync(endereco, opcoes)
+        Note over C: Abre o menu de compartilhamento do aparelho, só depois que nomearPdf termina
         C-->>D: concluído
     end
     D-->>P: concluído

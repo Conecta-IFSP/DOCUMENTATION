@@ -21,7 +21,7 @@ Siglas dos módulos: `USR` cadastro/autenticação; `ORG` organizações e vínc
 
 ## 3. Estrutura de cada módulo
 
-O modelo é o documento de requisitos de exemplo da disciplina (material "Aula 1 - Revisão", slide "Exemplo de documento de requisitos"). Cada pasta de módulo possui dez documentos, com o nome do módulo em `kebab-case`:
+O modelo é o documento de requisitos de exemplo da disciplina (material "Aula 1 - Revisão", slide "Exemplo de documento de requisitos"). Cada pasta de módulo possui dez documentos e o diagrama de casos de uso em SVG, com o nome do módulo em `kebab-case`:
 
 ```text
 README.md
@@ -34,11 +34,12 @@ README.md
 5 - requisitos-nao-funcionais-<modulo>.md
 6 - diagramas-sequencia-<modulo>.md
 7 - testes-<modulo>.md
+diagrama-casos-uso-<modulo>.svg
 ```
 
 | Ordem | Documento                 | Conteúdo obrigatório                                                                      |
 | ----: | ------------------------- | ----------------------------------------------------------------------------------------- |
-|     — | `README.md`               | resumo, escopo, atores, índice e rastreabilidade                                          |
+|     — | `README.md`               | resumo, escopo, atores, índice, rastreabilidade e base de conferência                     |
 |     1 | casos de uso              | diagrama de casos de uso em UML, papel de cada ator e requisitos funcionais de usuário    |
 |     2 | requisitos funcionais     | cada caso de uso como requisito funcional de sistema, apenas no formulário padrão         |
 |     3 | diagrama de classes       | classes por camada, com tipos nos atributos e nos métodos, e ligações com multiplicidade  |
@@ -49,7 +50,7 @@ README.md
 |     6 | diagramas de sequência    | um diagrama por requisito funcional, com mensagens numeradas                              |
 |     7 | testes                    | ambiente, comando, cenário, resultado esperado e resultado obtido                         |
 
-Todos os módulos seguem esta versão do padrão, conferida em 26/11/2026: **USR**, **ORG**, **COM**, **CFG** e **SIS** (Incremento 1), **REU** (Incremento 2) e **ATA**, **MAN**, **VOT** e **REL** (Incremento 3). Os vínculos entre usuário e organização (entrar por código, convites, análise de pedidos, papéis e remoção) ficam no módulo ORG; o USR trata só de cadastro e autenticação.
+Todos os módulos usam esta versão do padrão desde 26/11/2026: **USR**, **ORG**, **COM**, **CFG** e **SIS** (Incremento 1), **REU** (Incremento 2) e **ATA**, **MAN**, **VOT** e **REL** (Incremento 3). Os vínculos entre usuário e organização (entrar por código, convites, análise de pedidos, papéis e remoção) ficam no módulo ORG; o USR trata só de cadastro e autenticação. As pendências encontradas na conferência de 27/11/2026 estão em [Tratamento das avaliações](TRATAMENTO-AVALIACAO.md).
 
 ## 4. Casos de uso e requisitos de usuário
 
@@ -105,6 +106,7 @@ Evitam-se expressões vagas como "rápido", "adequado" ou "seguro". Quando ainda
 - As classes são agrupadas em pacotes, um por camada: **Aplicativo**, **API** e **Dados**.
 - Todo atributo tem tipo. Todo método tem o tipo de cada parâmetro e o tipo do retorno.
 - Só entram classes e métodos que existem no código; rotas HTTP ficam em tabela à parte, não como nome de método.
+- Toda linha de vida e todo método usados nos diagramas de sequência do módulo aparecem no diagrama de classes, inclusive os models do Mongoose e as bibliotecas chamadas diretamente.
 - "Frontend", "Backend", "Banco" e "JSON" não são classes.
 - **Composição** (losango cheio) para dados gravados dentro de outro documento; **associação** (seta cheia) para referência por identificador a um documento de outra coleção; **herança** (triângulo vazio) entre classes; **dependência** (seta tracejada) para uso em uma chamada. Toda composição e associação leva multiplicidade nas duas pontas.
 
@@ -127,7 +129,7 @@ Para cada identificador, o dicionário diz **quem o cria, em que formato, com qu
 
 ## 8. Segurança e transparência
 
-- A chave `X-API-Key` identifica o aplicativo, mas, por estar em variável `EXPO_PUBLIC_*`, não é um segredo forte: ela pode ser extraída do bundle. A autorização de usuário continua sendo responsabilidade do JWT e dos guards.
+- A chave `X-API-Key` identifica o aplicativo, mas, por estar na variável `EXPO_PUBLIC_API_ACCESS_TOKEN`, não é um segredo forte: ela pode ser extraída do bundle. A autorização de usuário continua sendo responsabilidade do JWT e dos guards.
 - Senhas, hashes, tokens, códigos e credenciais SMTP nunca são copiados para a documentação.
 - Arquivos `.env` reais não são documentados nem versionados; somente nomes e finalidade das variáveis são descritos.
 - Limitações e falhas conhecidas devem ser registradas de maneira explícita.
@@ -140,11 +142,11 @@ Toda revisão deve registrar os commits do frontend e backend usados como fonte,
 
 Todo documento técnico possui:
 
-- um único título de nível 1 no formato `<Artefato> — <Módulo>`;
+- um único título de nível 1 no formato `<Artefato> — <Módulo>`; no `README.md` do módulo, o título é só o nome do módulo;
 - identificação `Padrão da disciplina · Módulo <SIGLA>` e a data da revisão;
 - seção `Resumo` antes do conteúdo técnico;
 - seção de rastreabilidade ou referência rastreável no conteúdo;
 - linguagem no presente para o que está implementado;
 - marcação explícita de qualquer medição ou teste ainda pendente.
 
-O `README.md` de cada módulo usa sempre as seções `Resumo`, `Escopo`, `Índice padronizado`, `Rastreabilidade` e `Base de conferência`.
+O `README.md` de cada módulo usa sempre as seções `Resumo`, `Escopo`, `Atores`, `Índice padronizado`, `Rastreabilidade` e `Base de conferência`.

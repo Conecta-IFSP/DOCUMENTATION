@@ -1,10 +1,10 @@
 # Diagramas de sequência — Manual de utilização
 
-> Padrão da disciplina · Módulo MAN · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo MAN · Revisado em 27/11/2026
 
 ## Resumo
 
-Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md), com o mesmo número. As linhas de vida são telas, componentes e módulos que existem no código do aplicativo e as bibliotecas que eles chamam. Toda mensagem é a chamada de uma função existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. O que não é uma função, como a leitura de uma constante ou uma regra de comparação, aparece em notas. Todas as funções chamadas estão no [Diagrama de classes](3%20-%20diagrama-classes-manual-de-utilizacao.md), com os tipos dos parâmetros e do retorno.
+Há um diagrama para cada requisito de [Requisitos funcionais](2%20-%20requisitos-funcionais-manual-de-utilizacao.md), com o mesmo número. As linhas de vida são telas, componentes e módulos que existem no código do aplicativo e as bibliotecas que eles chamam. Toda mensagem é a chamada de uma função existente, com seus parâmetros, e as mensagens são numeradas na ordem em que acontecem. Cada mensagem vai para a linha de vida dona da função: o toque num botão é a chamada de `aoTocar` do `Botao`, e `getPage` e `render` são chamados no documento e na página da PDF.js. O que não é uma função, como a leitura de uma constante ou uma regra de comparação, aparece em notas, e os retornos são o nome do valor devolvido. Todas as linhas de vida e funções chamadas estão no [Diagrama de classes](3%20-%20diagrama-classes-manual-de-utilizacao.md), com os tipos dos parâmetros e do retorno.
 
 As telas Ajuda e "Manual de utilização" não enviam requisições à API do Conecta+. Por isso nenhum diagrama tem `api`, guards, controller, service ou model.
 
@@ -13,11 +13,14 @@ As telas Ajuda e "Manual de utilização" não enviam requisições à API do Co
 | `TelaAjuda`      | `src/app/ajuda.tsx` (`TelaAjuda`, `primeiraPerguntaDo`, `definirBusca`, `rolarParaTopico`, `alternar` e `voltar`)   |
 | `buscaAjuda`     | `src/utils/busca-ajuda.ts` (`filtrarTopicosAjuda` e `normalizarBusca`)                                               |
 | `Sanfona`        | `src/components/Sanfona.tsx` (`alternar` e a propriedade `aoAlternar`)                                               |
+| `Botao`          | `src/components/Botao.tsx` (a propriedade `aoTocar`, chamada pelo `onPress`); em SD-MAN-02, um para "Ver manual completo (PDF)" e outro para "Tentar de novo" |
 | `Router`         | biblioteca `expo-router` (`push`, `back`, `replace` e `canGoBack`)                                                   |
 | `TelaManual`     | `src/app/manual.tsx`                                                                                                 |
 | `ManualPdf`, `Visualizador`, `leitorManual` | `src/components/ManualPdf.tsx`                                                                         |
 | `paginaDoManual` | funções da página HTML montada por `montarHtml`, executadas dentro da `WebView`                                     |
 | `Asset`, `File`, `WebView`, `pdfjsLib` | bibliotecas `expo-asset`, `expo-file-system`, `react-native-webview` e PDF.js 3.11.174                        |
+| `PDFDocumentProxy`, `PDFPageProxy` | documento devolvido por `pdfjsLib.getDocument` e página devolvida por `getPage`, da PDF.js 3.11.174            |
+| `ReactNativeWebView` | objeto `window.ReactNativeWebView`, que a `react-native-webview` coloca na página para ela enviar mensagens à tela |
 
 ## SD-MAN-01 — Consultar Ajuda
 
@@ -54,9 +57,10 @@ sequenceDiagram
         Note over U,T: A tela mostra "N perguntas encontradas" ou, sem resultado,<br/>"Nenhuma pergunta encontrada." e o EstadoVazio
     end
     U->>S: alternar()
-    S->>T: aoAlternar(aberta)
-    T->>T: alternar(perguntaId, aberta)
-    Note over T: aberta true acrescenta perguntaId ao conjunto abertas, false retira
+    S->>S: aoAlternar(proxima)
+    Note over S,T: proxima é o inverso de aberta. aoAlternar é a função que a TelaAjuda passou<br/>à Sanfona, e ela chama alternar com o id da pergunta
+    S->>T: alternar(perguntaId, proxima)
+    Note over T: Com proxima true, acrescenta perguntaId ao conjunto abertas, com false, retira
     T->>S: Sanfona(pergunta, resposta, selo, aberta, aoAlternar, primeira)
     Note over U,S: A resposta aparece em parágrafo ou em passos numerados
     U->>T: voltar()
@@ -71,7 +75,7 @@ sequenceDiagram
     end
 ```
 
-Para fechar a resposta, o usuário toca de novo na pergunta: as mensagens a partir de `alternar()` se repetem com `aberta` igual a `false`.
+Para fechar a resposta, o usuário toca de novo na pergunta: as mensagens a partir de `alternar()` se repetem com `proxima` igual a `false`.
 
 ## SD-MAN-02 — Abrir manual em PDF
 
@@ -79,19 +83,24 @@ Para fechar a resposta, o usuário toca de novo na pergunta: as mensagens a part
 sequenceDiagram
     autonumber
     actor U as Usuário
-    participant T as TelaAjuda
+    participant BM as Botao (Ver manual completo)
     participant R as Router
     participant M as TelaManual
     participant P as ManualPdf
     participant V as Visualizador
+    participant BT as Botao (Tentar de novo)
     participant L as leitorManual
     participant AT as Asset
     participant F as File
     participant W as WebView
     participant G as paginaDoManual
     participant J as pdfjsLib
-    U->>T: aoTocar()
-    T->>R: push("/manual")
+    participant D as PDFDocumentProxy
+    participant PG as PDFPageProxy
+    participant RN as ReactNativeWebView
+    Note over U,BM: No fim da TelaAjuda, o Botao "Ver manual completo (PDF)" recebe em aoTocar<br/>uma função que chama router.push
+    U->>BM: aoTocar()
+    BM->>R: push("/manual")
     R->>M: TelaManual()
     M->>P: ManualPdf()
     P->>V: Visualizador(aoTentarDeNovo)
@@ -114,8 +123,11 @@ sequenceDiagram
         L->>F: base64()
         F-->>L: pdfBase64
         L->>F: text()
-        F-->>L: codigo da PDF.js e do processo auxiliar
-        L->>L: montarHtml(pdfBase64, pdfJs, worker, corFundo)
+        F-->>L: codigoPdfJs
+        L->>F: text()
+        F-->>L: codigoWorker
+        Note over L,F: base64 é lido do arquivo do PDF, e text, dos dois arquivos da PDF.js
+        L->>L: montarHtml(pdfBase64, codigoPdfJs, codigoWorker, corFundo)
         L->>L: escaparScript(codigo)
     end
     L-->>V: conteudo
@@ -131,33 +143,40 @@ sequenceDiagram
     opt processo auxiliar não criado, com erro ou sem resposta em 3 segundos
         G->>G: rodarWorkerNaThreadPrincipal()
     end
-    G->>J: getDocument({ data, isEvalSupported: false })
+    G->>J: getDocument({ data: bytes, isEvalSupported: false })
     J-->>G: documento
-    loop cada página, de 1 até o total
-        G->>J: getPage(numero)
-        J-->>G: pagina
-        Note over G: escala: largura da tela menos 16 pixels, vezes a densidade limitada a 2
-        G->>J: render({ canvasContext, viewport })
-        J-->>G: concluído
+    Note over G,J: documento é o PDFDocumentProxy entregue pela promise da tarefa de carga
+    loop cada página, de 1 até documento.numPages
+        G->>D: getPage(numero)
+        D-->>G: pagina
+        Note over G,PG: escala = largura da tela menos 16 pixels, vezes a densidade limitada a 2,<br/>dividida pela largura da página em getViewport com scale 1
+        G->>PG: getViewport({ scale: escala })
+        PG-->>G: viewport
+        G->>PG: render({ canvasContext: contexto, viewport })
+        PG-->>G: tarefa
+        Note over G,PG: A página espera tarefa.promise antes de converter o desenho
         G->>G: canvasParaUrl(canvas)
         G->>G: renovarVigia()
         G->>G: enviar({ tipo: "progresso", pagina, total })
-        G->>W: postMessage(mensagem)
+        Note over G,RN: texto = JSON.stringify(mensagem)
+        G->>RN: postMessage(texto)
+        Note over W,RN: A react-native-webview leva o texto até a WebView,<br/>que chama onMessage, ligada a aoReceberMensagem
         W->>V: aoReceberMensagem(evento)
         Note over V: Mostra "Carregando página N+1 de T" enquanto faltam páginas
     end
     G->>G: enviar({ tipo: "pronto", total })
-    G->>W: postMessage(mensagem)
+    G->>RN: postMessage(texto)
     W->>V: aoReceberMensagem(evento)
     opt falha ao abrir ou desenhar, ou 30 segundos sem página nova com a tela visível
         G->>G: falhar(erro)
-        G->>W: postMessage(mensagem)
+        G->>G: enviar({ tipo: "erro", detalhe })
+        G->>RN: postMessage(texto)
         W->>V: aoReceberMensagem(evento)
         V->>V: falhar(detalhe)
-        Note over V: EstadoVazio com a mensagem de erro e o botão "Tentar de novo"
-        U->>V: aoTentarDeNovo()
-        Note over P,V: proxima = função que soma 1 ao valor anterior de tentativa
-        V->>P: definirTentativa(proxima)
+        Note over V,BT: EstadoVazio com a mensagem de erro e o Botao "Tentar de novo"
+        U->>BT: aoTocar()
+        Note over P,BT: aoTocar é a função aoTentarDeNovo criada pelo ManualPdf.<br/>proxima = função que soma 1 ao valor anterior de tentativa
+        BT->>P: definirTentativa(proxima)
         Note over P,V: A chave do Visualizador muda e ele é montado de novo
     end
 ```

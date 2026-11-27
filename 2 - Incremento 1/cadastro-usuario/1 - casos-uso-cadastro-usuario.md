@@ -1,6 +1,6 @@
 # Casos de uso — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Revisado em 27/11/2026
 
 ## Resumo
 

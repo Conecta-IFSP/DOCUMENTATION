@@ -1,6 +1,6 @@
 # Dicionário de classes — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -11,6 +11,8 @@
 | `TelaLogin`              | Aplicativo           | A tela "Entrar": login com senha e botão do Google.                                                                 |
 | `GoogleCallbackWeb`      | Aplicativo           | A página da web que recebe a volta do Google e conclui o login.                                                     |
 | `SessaoProvider`         | Aplicativo (contexto)| A sessão do aplicativo: guarda quem está conectado e revalida a conta.                                              |
+| `TemaProvider`           | Aplicativo (contexto)| A aparência do aplicativo: guarda a preferência de tema e a aplica.                                                 |
+| `ToastProvider`          | Aplicativo (contexto)| O aviso rápido (toast) mostrado por alguns segundos no alto da tela.                                                |
 | `api`                    | Aplicativo (serviço) | O único ponto de saída para a API: monta a chamada com chave e token e guarda o token no aparelho.                  |
 | `google`                 | Aplicativo (serviço) | A conversa com o Google: SDK nativo no celular e troca do código na web.                                            |
 | `validacao`              | Aplicativo (serviço) | As regras de preenchimento conferidas na tela antes de enviar.                                                      |
@@ -20,7 +22,15 @@
 | `AuthService`            | Negócio              | Confere senha e código, conversa com o Google, emite o token e envia e-mails.                                       |
 | `ApiKeyGuard`            | API (proteção)       | Barra toda chamada sem a chave do aplicativo.                                                                       |
 | `JwtAuthGuard`           | API (proteção)       | Confere o token e se a conta continua ativa.                                                                        |
+| `UsuarioModel`           | Dados (model)        | O model do Mongoose da coleção `usuarios`: busca, cria, grava e apaga documentos `Usuario`.                         |
 | `Usuario`                | Documento            | Uma conta de pessoa no Conecta+.                                                                                    |
+| `Router`                 | Biblioteca           | O roteador do `expo-router`, que troca a tela aberta.                                                               |
+| `Location`               | API do navegador     | O endereço da aba do navegador (`window.location`), usado para abrir a página do Google na web.                     |
+| `GoogleSignin`           | Biblioteca           | O SDK nativo de login do Google, de `@react-native-google-signin/google-signin`.                                    |
+| `bcrypt`                 | Biblioteca           | Gera e confere o hash das senhas.                                                                                   |
+| `JwtService`             | Biblioteca           | O serviço do `@nestjs/jwt` que assina e confere o token de acesso.                                                  |
+| `Transporter`            | Biblioteca           | O transportador do Nodemailer que envia o e-mail pelo servidor SMTP.                                                |
+| `fetch`                  | Biblioteca           | A função global `fetch` do Node.js, usada pela API para falar com o Google.                                         |
 
 As classes dos vínculos do usuário com organizações (`Organizacao`, `MembroOrganizacao`, `OrganizacoesController`, `OrganizacoesService`, os guards `UsuarioAtivoGuard` e `UsuarioComumGuard` e as telas de organização) estão documentadas no módulo [Cadastro de organização](../cadastro-organizacao/README.md).
 
@@ -63,11 +73,13 @@ Documento da coleção `usuarios`, definido em `BACKEND/src/usuarios/schemas/usu
 | ----------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TelaCadastro`          | `senhaVisivel`, `confirmacaoVisivel` (`boolean`, começam `false`); `erro` (`string`). | `criarConta()`: valida os quatro campos e chama `POST /usuarios`; no sucesso, abre `TelaVerificarCadastro` com o e-mail.                                   |
 | `TelaVerificarCadastro` | `codigo` (`string`, até 7 caracteres); `erro` (`string`); `carregando` (`boolean`). | `verificar()`: exige 7 caracteres e chama `POST /auth/verificar-cadastro`; no sucesso, volta para `TelaLogin`.                                             |
-| `TelaLogin`             | `senhaVisivel` (`boolean`); `erro` (`string`); `carregandoGoogle` (`boolean`).    | `entrar()`: valida e-mail e senha, chama `POST /auth/login` e `SessaoProvider.entrar`. `entrarComGoogle()`: SDK nativo no celular, redirecionamento na web. |
-| `GoogleCallbackWeb`     | —                                                                                | `handleCallback()`: lê `code` do endereço, chama `exchangeCodeForToken` e `SessaoProvider.entrar` e abre `/inicio`; em erro, volta para `/login`.           |
-| `SessaoProvider`        | `usuario` (perfil ou `null`); `carregando` (`boolean`); `erro`, `aviso` (`string`). | `entrar(token)`: guarda o token e busca `GET /usuarios/me`; devolve `true` no sucesso. `atualizar()`: revalida o perfil (ao abrir, ao voltar ao app, ao trocar de tela e a cada 30 s). `sair(aviso)`: apaga o token. |
+| `TelaLogin`             | `senhaVisivel` (`boolean`); `erro` (`string`); `carregandoGoogle` (`boolean`).    | `entrar()`: valida e-mail e senha, chama `POST /auth/login` e `SessaoProvider.entrar`. `entrarComGoogle()`: SDK nativo no celular, `Location.assign` com o endereço do Google na web. `definirErro(valor: string): void`: troca o texto da faixa de erro (atualizador do `useState`). |
+| `GoogleCallbackWeb`     | —                                                                                | `handleCallback()`: lê `code` do endereço, chama `exchangeCodeForToken` e `SessaoProvider.entrar` e abre `/inicio` com `Router.replace`; em erro, volta para `/login`. |
+| `SessaoProvider`        | `usuario` (perfil ou `null`); `carregando` (`boolean`); `erro`, `aviso` (`string`). | `entrar(token)`: guarda o token e busca `GET /usuarios/me`; devolve `true` no sucesso. `atualizar()`: revalida o perfil (ao abrir, ao voltar ao app, ao trocar de tela e a cada 30 s). `sair(aviso)`: apaga o token. `definirUsuario(valor: Usuario): void`: guarda o perfil recebido (atualizador do `useState`); com `null`, a sessão volta para o login. |
+| `TemaProvider`          | `preferencia` (`PreferenciaTema`: `sistema`, `claro` ou `escuro`; começa `sistema`). | `definirPreferencia(nova: PreferenciaTema): void`: aplica a aparência escolhida e a grava no aparelho. No login, a tela a chama com o `tema` da conta. |
+| `ToastProvider`         | `toast` (`ToastAtual`: `id`, `mensagem` e `tipo`, ou `null`).                    | `mostrarToast(mensagem: string, tipo: TipoToast, duracao: number): void`: mostra o aviso; `tipo` é `sucesso`, `erro` ou `informacao` (padrão), e `duracao` é 4000 ms quando não informada. |
 | `api`                   | Constantes `CHAVE_TOKEN = 'conecta_mais_token'`, endereço da API e chave do aplicativo, lidos das variáveis `EXPO_PUBLIC_API_URL` e `EXPO_PUBLIC_API_ACCESS_TOKEN`. | `api(caminho, metodo, corpo)`: faz o `fetch` com `X-API-Key` e `Authorization: Bearer`; devolve `{ ok: true, dados }` ou `{ ok: false, erro }`; em 401 de rota privada, apaga o token e avisa a sessão. `salvarToken`, `obterToken`, `removerToken`: `SecureStore` no celular, `localStorage` na web. |
-| `google`                | Identificadores públicos dos clientes Google, lidos de variáveis `EXPO_PUBLIC_GOOGLE_*`. | `signInWithGoogleNative()`: escolha de conta pelo SDK; devolve `{ cancelled, idToken }`. `loginComIdTokenGoogle(idToken)` e `exchangeCodeForToken(code, redirectUri)`: chamam `POST /auth/google`. |
+| `google`                | Identificadores públicos dos clientes Google, lidos de variáveis `EXPO_PUBLIC_GOOGLE_*`. | `signInWithGoogleNative()`: escolha de conta pelo SDK; devolve `{ cancelled, idToken }`. `loginComIdTokenGoogle(idToken)` e `exchangeCodeForToken(code, redirectUri)`: chamam `POST /auth/google`. Funções internas: `estaNoExpoGo(): boolean` diz se o app roda no Expo Go, onde o SDK nativo não existe; `configureNativeGoogle(GoogleSignin): void` chama `GoogleSignin.configure` uma única vez. |
 | `validacao`             | Constantes `TAMANHO_MINIMO_SENHA = 8` e `REGRA_SENHA`.                           | Cada função devolve o texto do erro ou `null`. Ver a tabela de validações abaixo.                                                                             |
 
 ## Operações dos services e guards
@@ -85,9 +97,37 @@ Documento da coleção `usuarios`, definido em `BACKEND/src/usuarios/schemas/usu
 | `AuthService`         | `validarIdTokenGoogle`    | `idToken`, `clientID`                               | dados do token               | Consulta o Google e confere destinatário, emissor e validade.                                                                 |
 | `AuthService`         | `gerarCodigoVerificacao`  | —                                                   | texto de 7 caracteres        | Sorteia 7 caracteres entre A–Z e 0–9.                                                                                         |
 | `AuthService`         | `hashToken`               | `token`                                             | texto de 64 caracteres       | Calcula o SHA-256 em hexadecimal.                                                                                             |
-| `AuthService`         | `enviarEmail`             | mensagem, ação em caso de falha                     | —                            | Envia sem esperar; na falha, registra o aviso no log e executa a ação (no cadastro, apagar a conta).                          |
+| `AuthService`         | `enviarEmail`             | mensagem, ação em caso de falha                     | —                            | Envia sem esperar, pelo transportador de `criarTransportador`; na falha, registra o aviso no log com o `Logger` guardado em `registro` e executa a ação (no cadastro, apagar a conta). |
+| `AuthService`         | `gerarRespostaLogin`      | conta                                               | `{ access_token, usuario }`  | Assina o token com `sub`, `email` e `tipo` e monta a resposta do login pelo Google.                                           |
+| `AuthService`         | `smtpConfigurado`         | —                                                   | `boolean`                    | Diz se `MAIL_HOST`, `MAIL_USER` e `MAIL_PASS` estão configurados.                                                             |
+| `AuthService`         | `criarTransportador`      | —                                                   | transportador do Nodemailer  | Cria o transportador uma vez e o reaproveita: com o servidor de e-mail configurado, usa `MAIL_HOST` e `MAIL_PORT` (padrão 587, conexão segura direta na 465), com 10 segundos para conectar e 20 segundos sem resposta; sem ele, usa um transportador que não envia a mensagem. |
 | `ApiKeyGuard`         | `canActivate`             | contexto da requisição                              | `true` ou erro               | Libera `OPTIONS` e as duas rotas de volta do Google; nas demais, compara `X-API-Key` com `API_ACCESS_TOKEN` em tempo constante (`timingSafeEqual`). |
 | `JwtAuthGuard`        | `canActivate`             | contexto da requisição                              | `true` ou erro               | Confere o token, a conta ativa e `senha_alterada_em`; atualiza `tipo` e `email` da requisição com os valores do banco.        |
+
+## Model do Mongoose e bibliotecas
+
+O `UsuarioModel` é o `Model<UsuarioDocument>` que o NestJS injeta com `@InjectModel(Usuario.name)` nos atributos `usuarioModel` (`UsuariosService` e `AuthService`) e `usuarios` (`JwtAuthGuard`). As consultas devolvem uma `Query`, concluída com `.exec()`; quando a consulta usa `.select`, os diagramas de sequência mostram isso em nota. As bibliotecas abaixo aparecem só com os métodos chamados nos diagramas de sequência.
+
+| Classe          | Estereótipo            | Método                                          | Retorno                         | O que faz                                                                                                                   |
+| --------------- | ---------------------- | ----------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `UsuarioModel`  | `<<Model Mongoose>>`   | `findOne(filtro: object)`                       | `Query<UsuarioDocument>`        | Busca a primeira conta que atende ao filtro (`{ email }`, `{ google_id }` ou `_id` com `ativo: true`); `null` se não há.     |
+|                 |                        | `findById(id: string)`                          | `Query<UsuarioDocument>`        | Busca a conta pelo `_id`.                                                                                                   |
+|                 |                        | `create(dados: object)`                         | `Promise<UsuarioDocument>`      | Insere a conta nova; o Mongoose preenche `_id`, `criado_em` e `atualizado_em`.                                             |
+|                 |                        | `deleteOne(filtro: object)`                     | `Query<DeleteResult>`           | Apaga a conta ainda não confirmada quando o e-mail de confirmação falha.                                                   |
+|                 |                        | `save()`                                        | `Promise<UsuarioDocument>`      | Chamado no documento devolvido por `findOne` ou `findById`: grava os campos alterados e atualiza `atualizado_em`.            |
+| `Router`        | `<<biblioteca>>`       | `replace(rota: Href)`                           | `void`                          | Troca a tela aberta sem deixar a anterior na pilha (`expo-router` 58.0.33).                                                 |
+| `Location`      | `<<API do navegador>>` | `assign(url: string)`                           | `void`                          | Abre o endereço na mesma aba do navegador (`window.location.assign`).                                                       |
+| `GoogleSignin`  | `<<biblioteca>>`       | `configure(opcoes: ConfigureParams)`            | `void`                          | Informa o `webClientId` e, no iOS, o `iosClientId`.                                                                         |
+|                 |                        | `hasPlayServices(opcoes: object)`               | `Promise<boolean>`              | No Android, confere o Google Play Services e oferece a atualização.                                                         |
+|                 |                        | `signOut()`                                     | `Promise<null>`                 | Esquece a conta escolhida antes, para que a pessoa escolha de novo.                                                         |
+|                 |                        | `signIn()`                                      | `Promise<SignInResponse>`       | Abre a escolha de conta do Google; a resposta diz se a pessoa escolheu ou cancelou.                                         |
+|                 |                        | `getTokens()`                                   | `Promise<GetTokensResponse>`    | Devolve o `idToken` da conta escolhida.                                                                                     |
+| `bcrypt`        | `<<biblioteca>>`       | `hash(dado: string, custo: number)`             | `Promise<string>`               | Gera o hash da senha; o cadastro usa custo 10.                                                                              |
+|                 |                        | `compare(dado: string, hash: string)`           | `Promise<boolean>`              | Diz se a senha informada corresponde ao hash gravado.                                                                       |
+| `JwtService`    | `<<biblioteca>>`       | `signAsync(payload: object)`                    | `Promise<string>`               | Assina o token de acesso com `sub`, `email` e `tipo`, com a chave `JWT_SECRET`.                                             |
+|                 |                        | `verifyAsync(token: string)`                    | `Promise<UsuarioAutenticado>`   | Confere a assinatura e a validade do token e devolve `sub`, `email`, `tipo` e `iat`.                                        |
+| `Transporter`   | `<<biblioteca>>`       | `sendMail(mensagem: SendMailOptions)`           | `Promise<SentMessageInfo>`      | Envia o e-mail pelo servidor SMTP; a promessa falha quando o servidor recusa ou não responde.                                |
+| `fetch`         | `<<biblioteca>>`       | `fetch(url: string, opcoes: RequestInit)`       | `Promise<Response>`             | Faz a requisição HTTP ao Google (troca do `code` e conferência do `id_token`). A `Response` é a da Fetch API do Node.js.     |
 
 ## DTOs e validação
 

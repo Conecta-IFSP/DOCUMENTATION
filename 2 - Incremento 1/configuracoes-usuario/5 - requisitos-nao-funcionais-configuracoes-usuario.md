@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Configurações de usuário
 
-> Padrão da disciplina · Módulo CFG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo CFG · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -42,9 +42,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | A senha, os códigos e o token de redefinição só são gravados depois de passar por uma função de hash, e os hashes não saem do servidor.                                                                                                                          |
 | **Medida**        | `senha_hash` contém um hash bcrypt de custo 10; `reset_senha_codigo_hash`, `reset_senha_token_hash` e `email_pendente_codigo_hash` contêm SHA-256 de 64 caracteres hexadecimais; os quatro têm `select: false` e não aparecem nas respostas de `GET /usuarios/me` e `PATCH /usuarios/me`. |
 | **Condição**      | Troca de senha, troca de e-mail e recuperação de conta.                                                                                                                                                                                                           |
-| **Verificação**   | Inspeção de `usuario.schema.ts`, `UsuariosService.alterarSenha` e `AuthService.hashToken`, em 26/11/2026; teste CT-CFG-09, que confere a gravação depois da troca.                                                                                                |
+| **Verificação**   | Inspeção de `usuario.schema.ts`, `UsuariosService.alterarSenha` e `AuthService.hashToken`, em 27/11/2026; teste CT-CFG-09, que confere a gravação depois da troca.                                                                                                |
 | **Evidência**     | `BACKEND/src/usuarios/schemas/usuario.schema.ts`, `BACKEND/src/usuarios/usuarios.service.ts` e `BACKEND/src/auth/auth.service.ts`.                                                                                                                                |
-| **Situação**      | Atendido por inspeção em 26/11/2026. Não há teste automatizado que leia o documento gravado no MongoDB.                                                                                                                                                           |
+| **Situação**      | Atendido por inspeção em 27/11/2026. Não há teste automatizado que leia o documento gravado no MongoDB.                                                                                                                                                           |
 
 ### RNF-CFG-02 — Códigos de uso único e com validade
 
@@ -54,7 +54,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O código da troca de e-mail e o da recuperação são sorteados, valem por tempo limitado e só podem ser usados uma vez.                                                                                                                            |
 | **Medida**        | Código de 7 caracteres entre 36 possíveis (cerca de 78 bilhões de combinações), aceito até 30 minutos depois do pedido e apagado no primeiro uso certo; um novo pedido invalida o anterior. O token de redefinição tem 64 caracteres hexadecimais, é aceito uma vez e até o fim dos mesmos 30 minutos. |
 | **Condição**      | Rotas `POST /usuarios/me/email/confirmar`, `POST /auth/verificar-recuperacao` e `POST /auth/redefinir-senha`.                                                                                                                                    |
-| **Verificação**   | Inspeção das constantes `DURACAO_CODIGO_VERIFICACAO_MS` e `DURACAO_TOKEN_RECUPERACAO_MS` e dos métodos de `AuthService`, em 26/11/2026; roteiros CT-CFG-02 e CT-CFG-04.                                                                          |
+| **Verificação**   | Inspeção das constantes `DURACAO_CODIGO_VERIFICACAO_MS` e `DURACAO_TOKEN_RECUPERACAO_MS` e dos métodos de `AuthService`, em 27/11/2026; roteiros CT-CFG-02 e CT-CFG-04.                                                                          |
 | **Evidência**     | `BACKEND/src/auth/auth.service.ts`.                                                                                                                                                                                                              |
 | **Situação**      | Atendido por inspeção. A recusa depois de 30 minutos não foi cronometrada em teste. Não há limite de tentativas erradas por conta: limitação conhecida, não implementada.                                                                        |
 
@@ -66,9 +66,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | O pedido de recuperação responde da mesma forma para e-mail cadastrado, não cadastrado ou de conta desativada.                                                                                            |
 | **Medida**        | `POST /auth/recuperar-conta` devolve sempre 201 com "Se existir uma conta ativa para este e-mail, enviaremos as instruções de recuperação.", e o e-mail só é enviado à conta ativa.                        |
 | **Condição**      | Recuperação de conta. Na troca de e-mail, que exige sessão aberta, a API informa "Já existe um usuário com este email", porque a pessoa precisa saber por que o endereço foi recusado.                    |
-| **Verificação**   | Inspeção de `AuthService.solicitarRecuperacao`, em 26/11/2026; CT-CFG-12 confere a mensagem com conta existente.                                                                                          |
+| **Verificação**   | Inspeção de `AuthService.solicitarRecuperacao`, em 27/11/2026; CT-CFG-12 confere a mensagem com conta existente.                                                                                          |
 | **Evidência**     | `BACKEND/src/auth/auth.service.ts`.                                                                                                                                                                       |
-| **Situação**      | Atendido por inspeção em 26/11/2026. Não há teste automatizado com e-mail não cadastrado.                                                                                                                 |
+| **Situação**      | Atendido por inspeção em 27/11/2026. Não há teste automatizado com e-mail não cadastrado.                                                                                                                 |
 
 ### RNF-CFG-04 — Fim das sessões depois da troca de senha
 
@@ -92,7 +92,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Botão "Salvar" da folha "Editar nome", linhas "E-mail" e "Senha" da tela "Perfil" e botão "Salvar senha" da recuperação. Escolher o tema não pede confirmação (não implementado; ver RF-CFG-05).                                                                                                  |
 | **Verificação**   | Inspeção de `autenticacao-local.ts`, `TelaPerfil.salvarNome`, `TelaPerfil.abrirProtegida` e `TelaRecuperarConta.redefinir`; roteiro CT-CFG-17 para o nome. A mesma função `autenticarComDispositivo` foi verificada nas atas, no emulador Android 16 com PIN (CT-ATA-17) e no Galaxy S24 com digital (CT-ATA-25).        |
 | **Evidência**     | `FRONTEND/src/services/autenticacao-local.ts`, `FRONTEND/src/app/perfil.tsx` e `FRONTEND/src/app/login/recuperar-conta.tsx`.                                                                                                                                      |
-| **Situação**      | Implementado. O pedido ao salvar o nome foi incluído em 26/11/2026, e o roteiro CT-CFG-17 está a executar. Para e-mail e senha, roteiro próprio deste módulo com cancelamento do pedido não registrado; iOS não executado.                                                                                                                                                       |
+| **Situação**      | Implementado. O pedido ao salvar o nome foi incluído em 26/11/2026; o roteiro CT-CFG-17 foi executado em parte no mesmo dia, no Galaxy S24: o cancelamento do pedido não gravou o nome, e a confirmação com a digital ou o PIN não foi executada. Para e-mail e senha, roteiro próprio deste módulo com cancelamento do pedido não registrado; iOS não executado.                                                                                                                                                       |
 
 ### RNF-CFG-06 — Resposta sem esperar o e-mail
 
@@ -104,7 +104,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Servidor de e-mail lento, fora do ar ou recusando a autenticação.                                                                                                                                         |
 | **Verificação**   | Teste automatizado CT-CFG-12.                                                                                                                                                                             |
 | **Evidência**     | `AuthService.enviarEmail` e `AuthService.criarTransportador`, em `BACKEND/src/auth/auth.service.ts`.                                                                                                      |
-| **Situação**      | Atendido em 26/11/2026. O tempo de resposta em milissegundos não foi medido.                                                                                                                              |
+| **Situação**      | Atendido em 27/11/2026. O tempo de resposta em milissegundos não foi medido.                                                                                                                              |
 
 ### RNF-CFG-07 — Mensagens em português
 
@@ -114,9 +114,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Todo texto mostrado ao usuário neste módulo, inclusive os erros de validação vindos da API, está em português do Brasil.                                                                                 |
 | **Medida**        | Todos os decoradores de validação dos 7 DTOs do módulo têm mensagem própria em português; nenhuma mensagem padrão do class-validator, que é em inglês, chega à tela. Toda exceção lançada pelos serviços e pelo `JwtAuthGuard` tem texto em português. |
 | **Condição**      | Entradas inválidas nas telas "Perfil", "Trocar e-mail", "Alterar senha" e "Recuperar conta", e chamadas com JSON válido feitas direto à API.                                                             |
-| **Verificação**   | Inspeção dos DTOs, de `UsuariosService`, `AuthService` e `JwtAuthGuard`, em 26/11/2026; CT-CFG-11 confere a recusa da senha fraca.                                                                       |
+| **Verificação**   | Inspeção dos DTOs, de `UsuariosService`, `AuthService` e `JwtAuthGuard`, em 27/11/2026; CT-CFG-11 confere a recusa da senha fraca.                                                                       |
 | **Evidência**     | `BACKEND/src/usuarios/dto/*.ts`, `BACKEND/src/auth/dto/*.ts` e `FRONTEND/src/utils/validacao.ts`.                                                                                                         |
-| **Situação**      | Atendido por inspeção em 26/11/2026.                                                                                                                                                                      |
+| **Situação**      | Atendido por inspeção em 27/11/2026.                                                                                                                                                                      |
 
 ### RNF-CFG-08 — Navegação pelo teclado
 
@@ -138,9 +138,9 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | As telas deste módulo funcionam no tema claro e no escuro, sem cor fixa no código.                                                                                       |
 | **Medida**        | Nenhuma cor literal (hexadecimal ou `rgb`) nas telas e componentes do módulo: todas vêm de `useTema().tema.cores`.                                                       |
 | **Condição**      | Tema do aplicativo em Claro, em Escuro e em Sistema.                                                                                                                      |
-| **Verificação**   | Busca por cores literais em `perfil.tsx`, `alterar-senha.tsx`, `trocar-email.tsx`, `recuperar-conta.tsx`, `CampoTexto.tsx` e `FaixaAviso.tsx`, sem ocorrência, em 26/11/2026; roteiro CT-CFG-05. |
+| **Verificação**   | Busca por cores literais em `perfil.tsx`, `alterar-senha.tsx`, `trocar-email.tsx`, `recuperar-conta.tsx`, `CampoTexto.tsx` e `FaixaAviso.tsx`, sem ocorrência, em 27/11/2026; roteiro CT-CFG-05. |
 | **Evidência**     | `FRONTEND/src/contexts/TemaContext.tsx` e as telas citadas.                                                                                                               |
-| **Situação**      | Atendido por inspeção em 26/11/2026. A conferência visual nos dois temas está registrada só no CT-CFG-05, sem data nem aparelho.                                         |
+| **Situação**      | Atendido por inspeção em 27/11/2026. A conferência visual nos dois temas está registrada só no CT-CFG-05, sem data nem aparelho.                                         |
 
 ### RNF-CFG-10 — Portabilidade
 
@@ -161,10 +161,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Organizacional › Entrega                                                                                                                         |
 | **Critério**      | As suítes automatizadas do backend e do aplicativo passam inteiras antes de cada entrega.                                                        |
 | **Medida**        | `npx vitest run` no BACKEND e `node --test tests/*.test.cjs` no FRONTEND sem nenhuma falha; `npm run lint`, `npm run build` e `npx tsc --noEmit` sem erro. |
-| **Condição**      | Branch `homolog` com as alterações de 26/11/2026.                                                                                               |
+| **Condição**      | Branch `homolog`: backend `d1f1aeb` e frontend `10abe49`.                                                                                        |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-configuracoes-usuario.md).                                                                        |
-| **Evidência**     | Na última execução de 26/11/2026: BACKEND com 17 arquivos e 234 testes aprovados; FRONTEND com 5 arquivos e 47 testes aprovados.                |
-| **Situação**      | Atendido em 26/11/2026.                                                                                                                          |
+| **Evidência**     | Na execução de 27/11/2026: BACKEND com 17 arquivos e 246 testes aprovados e `npm run lint` sem erro; FRONTEND com 5 arquivos e 47 testes aprovados e `npx tsc --noEmit` e `npm run lint` sem erro. |
+| **Situação**      | Atendido em 27/11/2026 nos testes, no lint e na checagem de tipos. O `npm run build` do backend foi executado por último em 26/11/2026, sem erro. |
 
 ## Rastreabilidade
 

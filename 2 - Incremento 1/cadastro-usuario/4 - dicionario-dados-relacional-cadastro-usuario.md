@@ -1,6 +1,6 @@
 # Dicionário relacional — Cadastro de usuário
 
-> Padrão da disciplina · Módulo USR · Campos do diagrama relacional · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo USR · Campos do diagrama relacional · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -28,7 +28,7 @@ Guarda uma conta de pessoa: os dados de identificação, a forma de entrar e as 
 | `tipo`                          | Texto com valores fixos        | Não           | Não             | Não               | `USUARIO` (padrão) ou `ADMIN_SISTEMA`.                     | Diferencia a conta comum do administrador do sistema.                                         |
 | `tema`                          | Texto com valores fixos        | Não           | Não             | Não               | `claro`, `escuro` ou `sistema` (padrão).                   | Aparência preferida.                                                                          |
 | `verificacao_email_codigo_hash` | Texto (64 caracteres)          | Sim           | Não             | Não               | Oculto; SHA-256 em hexadecimal.                            | Resumo do código de confirmação; existe do cadastro até a confirmação pelo código (o login Google não o apaga). |
-| `verificacao_email_expira_em`   | Data e hora (`date`, UTC)      | Sim           | Não             | Não               | Oculto; envio + 30 minutos.                                | Fim da validade do código.                                                                    |
+| `verificacao_email_expira_em`   | Data e hora (`date`, UTC)      | Sim           | Não             | Não               | Oculto; gravação do código + 30 minutos.                   | Fim da validade do código.                                                                    |
 | `email_verificado`              | Booleano                       | Não           | Não             | Não               | Padrão verdadeiro; o cadastro local grava falso.           | Diz se o e-mail foi confirmado; sem ele não há login com senha.                               |
 | `ativo`                         | Booleano                       | Não           | Não             | Não               | Padrão verdadeiro.                                         | Conta desativada não entra e perde a sessão aberta.                                           |
 | `google_id`                     | Texto                          | Sim           | Não             | Não               | Oculto; único entre as contas que o têm.                   | Liga a conta à conta Google.                                                                  |
@@ -44,9 +44,9 @@ As entidades dos vínculos do usuário com organizações (`ORGANIZACAO` e `MEMB
 
 ## Restrições e como são garantidas
 
-- **E-mail único.** O banco tem um índice único em `usuarios.email`. Como o e-mail é gravado em minúsculas e sem espaços nas pontas, "Ana@Exemplo.com" e "ana@exemplo.com" contam como o mesmo. O cadastro confere antes de gravar e responde 409 se já existir.
+- **E-mail único.** O banco tem um índice único em `usuarios.email`. Como o e-mail é gravado em minúsculas e sem espaços nas pontas, "Ana@Exemplo.com" e "ana@exemplo.com" contam como o mesmo. O cadastro confere antes de gravar e responde 409 se já existir. Se dois cadastros com o mesmo e-mail chegarem ao mesmo tempo, os dois passam pela conferência e o índice recusa o segundo, que recebe 500 em vez de 409 (limitação).
 - **Conta Google única.** O índice de `usuarios.google_id` é único e esparso: contas sem `google_id` ficam fora dele, e duas contas não podem ter o mesmo. O login pelo Google tem uma conferência para recusar ligar um e-mail que já está ligado a outra conta Google, mas ela não funciona: a busca pelo e-mail não lê o campo oculto `google_id`, e o valor gravado é substituído pelo novo (limitação do RF-USR-03).
-- **Dados sensíveis.** `senha_hash`, `verificacao_email_codigo_hash`, `verificacao_email_expira_em`, `google_id` e `avatar_url` são ocultos (`select: false`): não vêm nas consultas, nem nas respostas da API, a menos que o código os peça com `select('+campo')`.
+- **Dados sensíveis.** `senha_hash`, `verificacao_email_codigo_hash`, `verificacao_email_expira_em`, `google_id` e `avatar_url` são ocultos: não vêm nas consultas, nem nas respostas da API, a menos que a consulta peça cada um deles pelo nome.
 
 ## Rastreabilidade
 

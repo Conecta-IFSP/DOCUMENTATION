@@ -1,6 +1,6 @@
 # Testes — Reuniões
 
-> Padrão da disciplina · Módulo REU · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo REU · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -10,21 +10,26 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 
 | Item             | Valor                                                                                                                      |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Datas            | 23/10/2026 (entrega do Incremento 2); 09/11, 10/11, 25/11 e 26/11/2026 (Incremento 3)                                       |
-| Node.js / npm    | 24.19.0 / 11.17.0 na execução de 26/11/2026                                                                                |
-| Backend          | branch `homolog`; em 26/11/2026, `caca2d2`                                                                                     |
-| Aplicativo       | branch `homolog`; em 26/11/2026, `4f03c20`                                                                                     |
+| Datas            | 23/10/2026 (entrega do Incremento 2); 09/11, 10/11, 25/11, 26/11 e 27/11/2026 (Incremento 3)                                |
+| Node.js / npm    | 24.19.0 / 11.17.0 nas execuções de 26/11 e 27/11/2026                                                                      |
+| Backend          | branch `homolog`; em 26/11/2026, `caca2d2`; em 27/11/2026, `d1f1aeb` nos testes automatizados; no roteiro em aparelho de 27/11/2026 (CT-REU-42), API local com banco de teste |
+| Aplicativo       | branch `homolog`; em 26/11/2026, `4f03c20`; em 27/11/2026, `10abe49` nos testes automatizados e `8cf4839` no CT-REU-42       |
 | Banco de testes  | MongoDB local em `127.0.0.1:27019`; o roteiro cria um banco `conecta_teste_presenca_<sorteio>` e o apaga ao terminar        |
 | Aparelho 1       | Emulador Android 16 (API 36), 1080 × 2400, com PIN de tela                                                                 |
 | Aparelho 2       | Emulador Android 7.0 (API 24, versão mínima do aplicativo), 720 × 1280, com PIN de tela                                    |
 | Aparelho 3       | Emulador Android 14 (API 34), com o Expo Go 58.0.6                                                                         |
-| Aparelho 4       | Galaxy S24, Android 16, com o APK de release e com o Expo Go 58.0.5                                                        |
+| Aparelho 4       | Galaxy S24, Android 16, com o APK de release (`arm64-v8a`) e com o Expo Go 58.0.5; em 27/11/2026, ligado a uma API local com banco de teste |
 | iOS              | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS                                                 |
 
 ## Evidência automatizada
 
 | Data       | Projeto             | Comando                                       | Resultado                                                                 |
 | ---------- | ------------------- | --------------------------------------------- | ------------------------------------------------------------------------- |
+| 27/11/2026 | BACKEND `d1f1aeb`   | `npx vitest run`                              | 17 arquivos e 246 testes aprovados, nenhuma falha                         |
+| 27/11/2026 | BACKEND `d1f1aeb`   | `npx vitest run src/reunioes`                 | 4 arquivos e 80 testes aprovados (35 de `reunioes.regras.spec.ts` e 7 de `anexos.spec.ts`) |
+| 27/11/2026 | BACKEND `d1f1aeb`   | `node test/presencas-notificacoes-mongo.mjs`  | Aprovado ("PASSOU"), com MongoDB local e o `dist` gerado de `d1f1aeb`     |
+| 27/11/2026 | BACKEND `d1f1aeb`   | `npm run lint` e `npx tsc -p tsconfig.build.json --noEmit` | Sem diagnóstico e sem erro; o `npm run build` não foi repetido |
+| 27/11/2026 | FRONTEND `10abe49`  | `npx tsc --noEmit`, `npm run lint` e `node --test tests/*.test.cjs` | Sem erro e sem diagnóstico; 5 arquivos e 47 testes aprovados (4 de `horarios.test.cjs`) |
 | 26/11/2026 | BACKEND             | `npx vitest run`                              | 16 arquivos e 227 testes aprovados, nenhuma falha                         |
 | 26/11/2026 | BACKEND             | `npx vitest run src/reunioes`                 | 4 arquivos e 67 testes aprovados                                          |
 | 26/11/2026 | BACKEND             | `node test/presencas-notificacoes-mongo.mjs`  | Aprovado ("PASSOU"), com MongoDB local e a API montada com os guards reais |
@@ -65,6 +70,7 @@ Os arquivos de teste do módulo são `BACKEND/src/reunioes/reunioes.regras.spec.
 | CT-REU-35 | RF-REU-20, RNF-REU-04, RNF-REU-15 | Consultar o link como pessoa de fora e como convidado; registrar entrada com convite recusado; duas entradas simultâneas; saída duas vezes; entrada numa reunião futura. | 403; 200 sem criar presença; 400; uma 201 e uma 409, com presença `CONFIRMADA` e `marcada_por = LINK`; 201 e 409; 400. | `test/presencas-notificacoes-mongo.mjs`, executado em 26/11/2026                                                                                                                                                       |
 | CT-REU-36 | RF-REU-21, RF-REU-22, RNF-REU-16  | Corrigir como membro, com motivo em branco, com saída antes da entrada, corretamente e de novo com a revisão antiga; ler o histórico como responsável e como membro; corrigir depois do envio da ata. | 403; 400; 400; 200; 409; um registro com o responsável e as entradas anterior e nova; 403 para o membro; 400 com a ata enviada. | `test/presencas-notificacoes-mongo.mjs`, executado em 26/11/2026                                                                                                                         |
 | CT-REU-37 | RF-REU-17, RF-REU-18, RNF-REU-15  | Gerar um novo link e usar o antigo; revogar e usar o novo; mudar o horário de uma reunião futura com link.            | O código antigo recebe 400 e as notificações `PRESENCA` deixam de aparecer; depois de revogado, 400; depois da mudança de horário, 400.   | `test/presencas-notificacoes-mongo.mjs`, executado em 26/11/2026                                                                                                                                                                                            |
+| CT-REU-41 | RF-REU-01, RF-REU-04, RF-REU-13, RF-REU-19 | Com o convidado num convite pendente de uma reunião futura, consultar `GET /notificacoes`; gravar `horario_alterado_em` e um novo `fim` direto no banco e consultar de novo; gravar `situacao = CANCELADA` direto no banco e consultar; deixar uma ata em aprovação com o convidado entre os aprovadores e consultar. | A primeira consulta traz um aviso `CONVITE`; depois da mudança de horário, um `HORARIO`; depois do cancelamento, um `CANCELAMENTO`; com a ata em aprovação, um `ATA`. | `test/presencas-notificacoes-mongo.mjs`, executado em 27/11/2026 |
 
 CT-REU-10, CT-REU-11 e CT-REU-12 não têm teste próprio neste módulo: os testes da ata são CT-ATA-01 a CT-ATA-13, no módulo ATA.
 
@@ -88,7 +94,8 @@ CT-REU-10, CT-REU-11 e CT-REU-12 não têm teste próprio neste módulo: os test
 | CT-REU-38 | RF-REU-17 a RF-REU-22, RNF-REU-14          | Aparelho 4, APK             | Como responsável, gerar o link, copiá-lo e notificar os convidados; como convidado, abrir a notificação, registrar entrada e saída com a digital; como responsável, corrigir a saída de um participante e conferir o histórico; revogar o link. | O link abre a tela "Confirmar presença"; entrada e saída ficam confirmadas; a correção aparece em "Histórico de correções"; depois de revogado, o link mostra "Link inválido, revogado ou expirado. Solicite um novo ao responsável.". | Não executado. |
 | CT-REU-39 | RF-REU-01 a RF-REU-22, RNF-REU-07          | iOS                         | Repetir os roteiros manuais em aparelho iOS.                                                                                  | Mesmo comportamento do Android.                                                                                        | Não executado: sem equipamento Apple disponível. |
 | CT-REU-40 | RF-REU-06, RNF-REU-14                      | Aparelho 4, APK, com bloqueio de tela | Com uma reunião em andamento e a entrada ainda não marcada, tocar em "Marcar entrada" no cartão "Agora" da tela inicial e cancelar o pedido do aparelho; tocar de novo e confirmar com a digital ou o PIN. | O pedido de identidade do aparelho aparece nas duas vezes; no cancelamento, a faixa "Não foi possível confirmar sua identidade." aparece e nada é gravado; na confirmação, a entrada é registrada e o botão passa a mostrar "Aguardando confirmação" (ou "Presente", para quem agendou). | Parcialmente executado em 26/11/2026, Galaxy S24, APK: "Marcar entrada" no cartão "Agora" abriu o pedido de identidade do aparelho; cancelado, a tela inicial mostrou "Não foi possível confirmar sua identidade." e a reunião continuou sem presença registrada. A confirmação com a digital não foi executada. |
+| CT-REU-42 | RF-REU-09, RNF-REU-07                      | Aparelho 4, APK, FRONTEND `8cf4839` | Numa reunião encerrada, abrir "Registros", ir à aba "Presença", tocar em "PDF da lista" e acompanhar o log do aplicativo. | O menu de compartilhamento do Android abre com "Lista de presença - &lt;título&gt;.pdf" e o log não mostra erro. | Aprovado em 27/11/2026 no Galaxy S24 (Android 16, APK de release `arm64-v8a`), ligado a uma API local com banco de teste: o menu de compartilhamento do Android abriu com o arquivo "Lista de presença - Calendário de provas.pdf", sem erro no log. |
 
 ## Rastreabilidade
 
-CT-REU-01 a CT-REU-09, CT-REU-14, CT-REU-21 a CT-REU-23, CT-REU-29 e CT-REU-30 cobrem RF-REU-01 a RF-REU-09 e RF-REU-13 a RF-REU-16 com testes de unidade; CT-REU-13 e CT-REU-33 a CT-REU-37 cobrem a autorização e RF-REU-17 a RF-REU-22 com o roteiro contra MongoDB local; CT-REU-15 a CT-REU-20 são os roteiros registrados pela equipe na entrega do Incremento 2; CT-REU-24 a CT-REU-28, CT-REU-31 e CT-REU-32 cobrem as telas no Incremento 3; CT-REU-38 e CT-REU-39 estão pendentes, e CT-REU-40 foi executado em parte (falta confirmar com a digital).
+CT-REU-01 a CT-REU-09, CT-REU-14, CT-REU-21 a CT-REU-23, CT-REU-29 e CT-REU-30 cobrem RF-REU-01 a RF-REU-09 e RF-REU-13 a RF-REU-16 com testes de unidade; CT-REU-13 e CT-REU-33 a CT-REU-37 cobrem a autorização e RF-REU-17 a RF-REU-22 com o roteiro contra MongoDB local, e CT-REU-41, com o mesmo roteiro, os avisos de convite, horário, cancelamento e ata; CT-REU-15 a CT-REU-20 são os roteiros registrados pela equipe na entrega do Incremento 2; CT-REU-24 a CT-REU-28, CT-REU-31 e CT-REU-32 cobrem as telas no Incremento 3, e CT-REU-42, o PDF da lista no frontend `8cf4839`; CT-REU-38 e CT-REU-39 estão pendentes, e CT-REU-40 foi executado em parte (falta confirmar com a digital).

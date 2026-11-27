@@ -1,6 +1,6 @@
 # Casos de uso — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Revisado em 27/11/2026
 
 ## Resumo
 

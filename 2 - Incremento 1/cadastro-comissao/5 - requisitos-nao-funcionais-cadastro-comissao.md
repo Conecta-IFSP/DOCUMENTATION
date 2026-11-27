@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -86,7 +86,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | Desativar, reativar, trocar o responsável e remover integrante abrem um diálogo de confirmação; nada é enviado à API antes de a pessoa confirmar.                                          |
 | **Medida**        | As 4 ações mostram o diálogo (`Confirmacao`) com o nome da comissão ou da pessoa e os botões "Cancelar" e a ação ("Desativar", "Reativar", "Confirmar" ou "Remover"); desativar e remover aparecem em vermelho. "Cancelar" fecha o diálogo sem chamada à API. |
 | **Condição**      | Tela da comissão, com a comissão ativa (desativar, trocar, remover) ou inativa (reativar).                                                                                                 |
-| **Verificação**   | Inspeção de `FRONTEND/src/app/comissoes/[id].tsx` em 26/11/2026; o roteiro CT-COM-06 registrou a remoção após confirmação. O roteiro CT-COM-31 inclui o cancelamento de cada diálogo.      |
+| **Verificação**   | Inspeção de `FRONTEND/src/app/comissoes/[id].tsx` em 26/11/2026; o roteiro CT-COM-06 registrou a remoção após confirmação, e o CT-COM-34, em 27/11/2026, o diálogo da desativação no Galaxy S24. O roteiro CT-COM-31 inclui o cancelamento de cada diálogo. |
 | **Evidência**     | `TelaComissao`: estado `confirmacao` e funções `trocarResponsavel` e `executar`.                                                                                                           |
 | **Situação**      | Atendido por inspeção; o roteiro de cancelamento em aparelho (CT-COM-31) está pendente.                                                                                                    |
 
@@ -135,8 +135,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**        | `npx vitest run` sem nenhuma falha; os três arquivos de teste de `BACKEND/src/comissoes/` aprovados.             |
 | **Condição**      | Código da branch `homolog`.                                                                                      |
 | **Verificação**   | Execução registrada em [Testes](7%20-%20testes-cadastro-comissao.md).                                            |
-| **Evidência**     | 16 arquivos e 227 testes aprovados em 26/11/2026, dos quais 3 arquivos e 40 testes do módulo.                    |
-| **Situação**      | Atendido em 26/11/2026. O script com MongoDB real (CT-COM-30) está desatualizado e falha; correção pendente.     |
+| **Evidência**     | 17 arquivos e 246 testes aprovados em 27/11/2026 (backend `d1f1aeb`), dos quais 3 arquivos e 40 testes do módulo. |
+| **Situação**      | Atendido em 27/11/2026. O script com MongoDB real (CT-COM-30) está desatualizado e não foi executado; correção pendente. |
 
 ## Rastreabilidade
 

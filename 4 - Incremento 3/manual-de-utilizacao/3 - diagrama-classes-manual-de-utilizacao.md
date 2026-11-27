@@ -1,10 +1,10 @@
 # Diagrama de classes — Manual de utilização
 
-> Padrão da disciplina · Módulo MAN · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo MAN · Revisado em 27/11/2026
 
 ## Resumo
 
-O conteúdo da Ajuda e o manual em PDF são estáticos: fazem parte do pacote do aplicativo e não vêm do servidor. Por isso o R4 só tem classes no pacote **Aplicativo**; os pacotes **API** e **Dados**, usados nos outros módulos, ficam vazios, porque não há controller, service, rota nem documento no banco. As bibliotecas externas usadas aparecem fora do pacote, marcadas como `<<biblioteca>>`. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código e são os mesmos chamados nos [Diagramas de sequência](6%20-%20diagramas-sequencia-manual-de-utilizacao.md).
+O conteúdo da Ajuda e o manual em PDF são estáticos: fazem parte do pacote do aplicativo e não vêm do servidor. Por isso o R4 só tem classes no pacote **Aplicativo**; os pacotes **API** e **Dados**, usados nos outros módulos, ficam vazios, porque não há controller, service, model, rota nem documento no banco. As bibliotecas externas usadas aparecem fora do pacote, marcadas como `<<biblioteca>>`, só com os membros usados. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. Toda linha de vida e todo método chamado nos [Diagramas de sequência](6%20-%20diagramas-sequencia-manual-de-utilizacao.md) aparecem aqui, inclusive as funções de estado `definir…` das telas, as propriedades de função dos componentes, como `aoTocar` e `aoAlternar`, e os objetos da PDF.js e da `react-native-webview` usados pela página do manual. Cada classe está descrita no [Dicionário de classes](3%20-%20dicionario-dados-classes-manual-de-utilizacao.md).
 
 Os tipos são os do TypeScript. `readonly T[]` é uma lista que não pode ser alterada, e `?` indica um campo opcional.
 
@@ -151,6 +151,7 @@ classDiagram
             <<componente>>
             -tentativa: number
             +ManualPdf() JSX.Element
+            +definirTentativa(proxima: SetStateAction‹number›) void
         }
         class Visualizador {
             <<componente>>
@@ -190,6 +191,16 @@ classDiagram
             +rolagem?: boolean
             +divisor?: boolean
         }
+        class Botao {
+            <<componente>>
+            +titulo: string
+            +aoTocar() void
+        }
+        class EstadoVazio {
+            <<componente>>
+            +icone: IoniconsIconName
+            +mensagem: string
+        }
     }
 
     class WebView {
@@ -199,6 +210,10 @@ classDiagram
         +onError(evento: WebViewErrorEvent) void
         +onContentProcessDidTerminate() void
         +onRenderProcessGone() void
+    }
+    class ReactNativeWebView {
+        <<biblioteca>>
+        +postMessage(dados: string) void
     }
     class Asset {
         <<biblioteca>>
@@ -216,16 +231,33 @@ classDiagram
         <<biblioteca>>
         +getDocument(fonte: object) PDFDocumentLoadingTask
     }
+    class PDFDocumentProxy {
+        <<biblioteca>>
+        +numPages: number
+        +getPage(numero: number) Promise‹PDFPageProxy›
+    }
+    class PDFPageProxy {
+        <<biblioteca>>
+        +getViewport(parametros: object) PageViewport
+        +render(parametros: object) RenderTask
+    }
 
     TelaManual ..> TelaComCabecalho : cabeçalho Manual de utilização
     TelaManual ..> ManualPdf : mostra
     ManualPdf ..> Visualizador : monta com a chave cor e tentativa
     Visualizador ..> leitorManual : obterConteudo
     Visualizador ..> WebView : mostra a página
+    Visualizador ..> EstadoVazio : mensagem de erro
+    Visualizador ..> Botao : Tentar de novo
     leitorManual ..> Asset : lê os recursos
     leitorManual ..> File : lê base64 e texto
     WebView ..> paginaDoManual : executa
-    paginaDoManual ..> pdfjsLib : abre e desenha o PDF
+    paginaDoManual ..> pdfjsLib : abre o PDF
+    pdfjsLib ..> PDFDocumentProxy : getDocument entrega
+    paginaDoManual ..> PDFDocumentProxy : pede cada página
+    paginaDoManual ..> PDFPageProxy : desenha no canvas
+    paginaDoManual ..> ReactNativeWebView : envia as mensagens
+    ReactNativeWebView ..> WebView : entrega em onMessage
 ```
 
 Figura 4 — Diagrama de classes do leitor do manual. Fonte: equipe Conecta+.
@@ -251,14 +283,16 @@ Este módulo não tem associação (seta cheia) nem herança (triângulo vazio):
 | `buscaAjuda`                                            | `src/utils/busca-ajuda.ts`                                              | O hífen foi retirado do nome porque o diagrama não o aceita.                                                                                       |
 | `ajuda`, `TopicoAjuda`, `PerguntaAjuda`, `PerfilAjuda`  | `src/constants/ajuda.ts`                                                | `PerfilAjuda` é declarado como o tipo `'responsavel' \| 'todos'`; aparece como enumeração porque só aceita esses dois valores.                    |
 | `TelaManual`                                            | `src/app/manual.tsx`                                                    | Rota `/manual`.                                                                                                                                    |
-| `ManualPdf`, `Visualizador`                             | `src/components/ManualPdf.tsx`                                          | `Visualizador` é um componente interno do arquivo; só `ManualPdf` é exportado.                                                                    |
+| `ManualPdf`, `Visualizador`                             | `src/components/ManualPdf.tsx`                                          | `Visualizador` é um componente interno do arquivo; só `ManualPdf` é exportado. `definirTentativa` é a função que altera o estado `tentativa`.      |
 | `leitorManual`                                          | `src/components/ManualPdf.tsx`                                          | Nome dado no diagrama às funções e ao cache declarados no nível do arquivo, fora dos componentes.                                                 |
 | `paginaDoManual`                                        | `src/components/ManualPdf.tsx`, dentro do texto montado por `montarHtml` | Funções JavaScript da página HTML que roda dentro da `WebView`.                                                                                   |
 | `Router`, `WebView`, `Asset`, `File`, `pdfjsLib`        | bibliotecas `expo-router`, `react-native-webview`, `expo-asset`, `expo-file-system` e PDF.js 3.11.174 (`assets/pdfjs/`) | Ficam fora do pacote Aplicativo porque não são código do projeto.                                                       |
+| `ReactNativeWebView`                                    | biblioteca `react-native-webview`                                       | Objeto `window.ReactNativeWebView` que a biblioteca coloca na página da `WebView`; `enviar` chama o `postMessage` dele.                           |
+| `PDFDocumentProxy`, `PDFPageProxy`                      | PDF.js 3.11.174 (`assets/pdfjs/`)                                       | Documento aberto por `getDocument` e página devolvida por `getPage`, usados por `renderizar`.                                                     |
 
 ## Rastreabilidade
 
 | Requisito                         | Classes envolvidas                                                                                                                           |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | RF-MAN-01 — Consultar Ajuda       | `TelaAjuda`, `ajuda`, `TopicoAjuda`, `PerguntaAjuda`, `PerfilAjuda`, `buscaAjuda`, `Sanfona`, `CampoTexto`, `EstadoVazio`, `Router`          |
-| RF-MAN-02 — Abrir manual em PDF   | `TelaAjuda`, `Botao`, `Router`, `TelaManual`, `TelaComCabecalho`, `ManualPdf`, `Visualizador`, `leitorManual`, `paginaDoManual`, `WebView`, `Asset`, `File`, `pdfjsLib` |
+| RF-MAN-02 — Abrir manual em PDF   | `TelaAjuda`, `Botao`, `Router`, `TelaManual`, `TelaComCabecalho`, `ManualPdf`, `Visualizador`, `EstadoVazio`, `leitorManual`, `paginaDoManual`, `WebView`, `ReactNativeWebView`, `Asset`, `File`, `pdfjsLib`, `PDFDocumentProxy`, `PDFPageProxy` |

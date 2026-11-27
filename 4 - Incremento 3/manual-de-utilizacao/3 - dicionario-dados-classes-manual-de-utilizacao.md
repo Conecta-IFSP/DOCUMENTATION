@@ -1,6 +1,6 @@
 # Dicionário de classes — Manual de utilização
 
-> Padrão da disciplina · Módulo MAN · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo MAN · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -20,6 +20,18 @@ Descreve cada classe do [Diagrama de classes](3%20-%20diagrama-classes-manual-de
 | `Visualizador`      | Aplicativo (componente)| Preparar a página do manual, mostrá-la na `WebView` e tratar o progresso e as falhas.              |
 | `leitorManual`      | Aplicativo (módulo)    | Ler os recursos, montar a página HTML e guardá-la em memória.                                      |
 | `paginaDoManual`    | Aplicativo (script)    | Desenhar as páginas do PDF dentro da `WebView` e avisar a tela.                                    |
+| `CampoTexto`        | Aplicativo (componente)| Mostrar o campo Buscar e repassar o texto digitado.                                                |
+| `EstadoVazio`       | Aplicativo (componente)| Mostrar um ícone e uma mensagem quando não há conteúdo: busca sem resultado ou falha do manual.    |
+| `Botao`             | Aplicativo (componente)| Mostrar os botões "Ver manual completo (PDF)" e "Tentar de novo" e chamar `aoTocar` no toque.      |
+| `TelaComCabecalho`  | Aplicativo (componente)| Mostrar o cabeçalho com título e seta de voltar em volta do conteúdo da tela.                      |
+| `Router`            | Biblioteca             | Trocar de tela: abrir `/manual`, voltar e substituir a tela atual.                                 |
+| `WebView`           | Biblioteca             | Mostrar a página HTML do manual e entregar as mensagens dela à tela.                               |
+| `ReactNativeWebView`| Biblioteca             | Levar as mensagens da página do manual até a `WebView`.                                            |
+| `Asset`             | Biblioteca             | Localizar no pacote do aplicativo os recursos do manual e da PDF.js.                               |
+| `File`              | Biblioteca             | Ler os recursos locais como base64 ou texto.                                                       |
+| `pdfjsLib`          | Biblioteca             | Abrir o PDF a partir dos bytes.                                                                    |
+| `PDFDocumentProxy`  | Biblioteca             | Representar o PDF aberto e entregar cada página.                                                   |
+| `PDFPageProxy`      | Biblioteca             | Calcular o tamanho de uma página e desenhá-la num `canvas`.                                        |
 
 ---
 
@@ -47,7 +59,7 @@ Representa uma pergunta frequente e a sua resposta. Existe apenas dentro da list
 | `resposta` | `string \| readonly string[]` |         Sim | Um texto é exibido como parágrafo; uma lista é exibida como passos numerados. Também é considerada pela busca. |
 | `perfil`   | `PerfilAjuda`                 |         Sim | Indica se a pergunta trata de uma ação exclusiva do responsável da comissão.                                   |
 
-**Regras.** O `id` é único em todo o arquivo, e não apenas no tópico. O padrão de escrita limita a resposta em lista a 4 passos, com uma ação curta por passo, e a resposta em texto a 2 ou 3 frases; o código não verifica; na contagem de 26/11/2026, sobre `8fc0a5a`, nenhuma lista passa de 4 passos. A resposta descreve só o que o aplicativo faz, com os nomes de botões e telas que aparecem para o usuário.
+**Regras.** O `id` é único em todo o arquivo, e não apenas no tópico. O padrão de escrita limita a resposta em lista a 4 passos, com uma ação curta por passo, e a resposta em texto a 2 ou 3 frases; o código não verifica; nas contagens de 26/11/2026, sobre `8fc0a5a`, e de 27/11/2026, sobre `10abe49`, nenhuma lista passa de 4 passos e nenhuma resposta em texto passa de 3 frases. A resposta descreve só o que o aplicativo faz, com os nomes de botões e telas que aparecem para o usuário.
 
 ## 3. Enumeração `PerfilAjuda`
 
@@ -69,7 +81,7 @@ Representa o arquivo `src/constants/ajuda.ts`, que declara os tipos acima e as c
 | `TOPICOS_AJUDA` | `readonly TopicoAjuda[]`              | Todo o conteúdo da tela Ajuda, na ordem de exibição.                                              |
 | `SELO_PERFIL`   | `Record<PerfilAjuda, string \| null>` | Texto do selo de cada perfil: `responsavel` → `'Responsável'`; `todos` → `null`, sem selo.        |
 
-Conteúdo de `TOPICOS_AJUDA` conferido em 26/11/2026:
+Conteúdo de `TOPICOS_AJUDA` conferido em 26/11/2026 e de novo em 27/11/2026, sobre `10abe49`:
 
 | `id`           | `titulo`                 | `icone`                  | Perguntas | Com perfil `responsavel` | Respostas em lista |
 | -------------- | ------------------------ | ------------------------ | --------: | -----------------------: | -----------------: |
@@ -142,6 +154,7 @@ Definidas em `src/components/ManualPdf.tsx`.
 | -------------- | ------------------------------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ManualPdf`    | `tentativa`                                            | `number`                 | Começa em 0 e soma 1 a cada "Tentar de novo".                                                                                                                             |
 | `ManualPdf`    | `ManualPdf()`                                          | `JSX.Element`            | Monta `Visualizador` com a chave `<cor de fundo>-<tentativa>`, o que o monta do zero quando o tema ou a tentativa mudam.                                                 |
+| `ManualPdf`    | `definirTentativa(proxima: SetStateAction<number>)`    | `void`                   | Função de atualização do estado `tentativa`, criada por `useState`. A função `aoTentarDeNovo`, passada ao `Visualizador` e ao botão "Tentar de novo", chama `definirTentativa` com uma função que soma 1 ao valor anterior. |
 | `Visualizador` | `conteudo`                                             | `Conteudo \| null`       | Página HTML preparada; nulo enquanto prepara.                                                                                                                             |
 | `Visualizador` | `estado`                                               | `Estado`                 | Fase da exibição: `preparando`, `renderizando` (com `pagina` e `total`), `pronto` ou `erro`. Começa em `preparando`.                                                     |
 | `Visualizador` | `Visualizador(aoTentarDeNovo)`                         | `JSX.Element`            | Chama `obterConteudo` ao ser montado e mostra a `WebView`, o aviso "Abrindo o manual…", a pílula de progresso ou a tela de erro.                                         |
@@ -177,8 +190,47 @@ Funções JavaScript escritas dentro do texto montado por `montarHtml`, executad
 | `base64ParaBytes(base64)`                | Converte o PDF em base64 numa lista de bytes.                                                                                                                                   |
 | `canvasParaUrl(canvas)`                  | Converte o desenho da página em imagem JPEG com qualidade 0,85.                                                                                                                |
 | `renovarVigia()`                         | Reinicia o limite de 30 segundos; com a página oculta, só renova; vencido com a página visível, chama `falhar`.                                                                |
-| `enviar(mensagem)`                       | Envia a mensagem à tela com `window.ReactNativeWebView.postMessage`.                                                                                                            |
+| `enviar(mensagem)`                       | Converte a mensagem em texto com `JSON.stringify` e o envia à tela com `window.ReactNativeWebView.postMessage`; fora da `WebView`, sem esse objeto, não envia nada.            |
 | `falhar(erro)`                           | Envia uma única mensagem `erro` e desliga o vigia.                                                                                                                              |
+
+## 12. Componentes compartilhados
+
+Componentes de `src/components/` usados também por outras telas. Abaixo aparecem só as propriedades usadas pela Ajuda e pelo manual.
+
+| Componente         | Propriedade                       | Tipo                                  | Obrigatório | Uso neste módulo                                                                                                     |
+| ------------------ | --------------------------------- | ------------------------------------- | ----------: | -------------------------------------------------------------------------------------------------------------------- |
+| `CampoTexto`       | `rotulo`                          | `string`                              |         Sim | "Buscar".                                                                                                            |
+| `CampoTexto`       | `icone`                           | `IoniconsIconName`                    |         Não | `search-outline`.                                                                                                    |
+| `CampoTexto`       | `compacto`                        | `boolean`                             |         Não | Verdadeiro: o campo fica mais baixo e o rótulo, na cor do texto.                                                     |
+| `CampoTexto`       | `value`                           | `string`                              |         Não | O estado `busca` da `TelaAjuda`.                                                                                     |
+| `CampoTexto`       | `onChangeText(texto: string)`     | `void`                                |         Não | `definirBusca`, chamado a cada letra digitada. A ação final "Limpar busca" chama `definirBusca('')`.                |
+| `EstadoVazio`      | `icone`                           | `IoniconsIconName`                    |         Sim | `search-outline` na busca sem resultado; `document-text-outline` na falha do manual.                                |
+| `EstadoVazio`      | `mensagem`                        | `string`                              |         Sim | A orientação para tentar outra palavra ou consultar o manual; ou "Não foi possível abrir o manual. Tente de novo; se continuar, consulte as perguntas da Ajuda.". |
+| `Botao`            | `titulo`                          | `string`                              |         Sim | "Ver manual completo (PDF)", na `TelaAjuda`, e "Tentar de novo", no `Visualizador`.                                 |
+| `Botao`            | `icone`                           | `IoniconsIconName`                    |         Não | `document-outline` e `refresh`.                                                                                      |
+| `Botao`            | `variante`                        | `'primario' \| 'secundario' \| 'perigo'` |      Não | `secundario` nos dois botões. Padrão: `primario`.                                                                    |
+| `Botao`            | `pilula`                          | `boolean`                             |         Não | Verdadeiro nos dois botões: formato de pílula.                                                                       |
+| `Botao`            | `aoTocar()`                       | `void`                                |         Sim | Chamada pelo `onPress` do botão. Na Ajuda, executa `router.push('/manual')`; no manual, é a `aoTentarDeNovo` do `ManualPdf`. |
+| `TelaComCabecalho` | `titulo`                          | `string`                              |         Sim | "Ajuda" e "Manual de utilização".                                                                                    |
+| `TelaComCabecalho` | `rolagem`                         | `boolean`                             |         Não | Falso no manual, porque a `WebView` rola por conta própria. Padrão: verdadeiro.                                      |
+| `TelaComCabecalho` | `divisor`                         | `boolean`                             |         Não | Verdadeiro no manual: linha abaixo do cabeçalho. Padrão: falso.                                                      |
+
+A `TelaAjuda` também passa ao `TelaComCabecalho` a função `voltar`, em `aoVoltar`, e a referência da rolagem, usada por `rolarParaTopico`.
+
+## 13. Bibliotecas
+
+Classes externas que aparecem como linha de vida nos [Diagramas de sequência](6%20-%20diagramas-sequencia-manual-de-utilizacao.md). Não são código do projeto; o diagrama de classes mostra só os membros usados.
+
+| Classe               | Origem                                                    | Membros usados                                                                                      | Uso neste módulo                                                                                                                                        |
+| -------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Router`             | `expo-router`, objeto devolvido por `useRouter()`         | `push(rota): void`, `back(): void`, `replace(rota): void`, `canGoBack(): boolean`                    | `push('/manual')` abre o manual; `voltar` da Ajuda usa `canGoBack`, `back` e `replace('/inicio')` ou `replace('/login')`.                              |
+| `WebView`            | `react-native-webview`                                    | `source`, `onMessage(evento)`, `onError(evento)`, `onContentProcessDidTerminate()`, `onRenderProcessGone()` | Mostra a página do manual; `onMessage` é ligada a `aoReceberMensagem`, e as três de erro chamam `falhar` do `Visualizador`.                      |
+| `ReactNativeWebView` | `react-native-webview`, objeto `window.ReactNativeWebView` criado na página | `postMessage(dados: string): void`                                                | `enviar` passa a mensagem em texto JSON; a biblioteca a entrega à `WebView`, que chama `onMessage`.                                                    |
+| `Asset`              | `expo-asset`                                              | `fromModule(modulo): Asset`, `downloadAsync(): Promise<Asset>`, `localUri: string \| null`           | `lerAsset` obtém `manual.pdf`, `pdf.min.js.txt` e `pdf.worker.min.js.txt` do pacote do aplicativo.                                                     |
+| `File`               | `expo-file-system`                                        | `new File(uri)`, `base64(): Promise<string>`, `text(): Promise<string>`                              | Abre cada recurso pelo endereço local; lê o PDF em base64 e os dois códigos da PDF.js como texto.                                                      |
+| `pdfjsLib`           | PDF.js 3.11.174, arquivo `assets/pdfjs/pdf.min.js.txt`    | `getDocument(fonte): PDFDocumentLoadingTask`                                                         | `abrirDocumento` chama `getDocument({ data: bytes, isEvalSupported: false })` e espera a `promise` da tarefa, que entrega o `PDFDocumentProxy`.        |
+| `PDFDocumentProxy`   | PDF.js 3.11.174                                           | `numPages: number`, `getPage(numero): Promise<PDFPageProxy>`                                         | `renderizar` lê o total de páginas e pede cada página, de 1 até `numPages`.                                                                            |
+| `PDFPageProxy`       | PDF.js 3.11.174                                           | `getViewport(parametros): PageViewport`, `render(parametros): RenderTask`                           | `getViewport({ scale: 1 })` dá a largura da página para o cálculo da escala; `getViewport({ scale: escala })` dá o tamanho do desenho; `render({ canvasContext, viewport })` desenha a página no `canvas`, e a página espera a `promise` da `RenderTask`. |
 
 ## Como os identificadores são criados
 
@@ -186,4 +238,4 @@ Os únicos identificadores do R4 são o `id` do tópico e o `id` da pergunta, te
 
 ## Rastreabilidade
 
-`TopicoAjuda`, `PerguntaAjuda`, `PerfilAjuda`, `ajuda`, `TelaAjuda`, `Sanfona` e `buscaAjuda` atendem ao RF-MAN-01. `TelaManual`, `ManualPdf`, `Visualizador`, `leitorManual` e `paginaDoManual` atendem ao RF-MAN-02.
+`TopicoAjuda`, `PerguntaAjuda`, `PerfilAjuda`, `ajuda`, `TelaAjuda`, `Sanfona`, `buscaAjuda`, `CampoTexto`, `EstadoVazio` e `Router` atendem ao RF-MAN-01. `Botao`, `Router`, `TelaManual`, `TelaComCabecalho`, `ManualPdf`, `Visualizador`, `EstadoVazio`, `leitorManual`, `paginaDoManual`, `WebView`, `ReactNativeWebView`, `Asset`, `File`, `pdfjsLib`, `PDFDocumentProxy` e `PDFPageProxy` atendem ao RF-MAN-02.

@@ -1,6 +1,6 @@
 # Dicionário de classes — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Complementa o diagrama de classes · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Complementa o diagrama de classes · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -17,7 +17,7 @@
 | `validacao`                 | Aplicativo (serviço) | Confere os campos no aparelho antes do envio e formata o código de acesso.                                    |
 | `OrganizacoesController`    | API                  | Recebe as rotas HTTP de `/organizacoes` e repassa ao serviço com o usuário do token.                          |
 | `OrganizacoesService`       | Negócio              | Aplica as regras de situação, vínculo, papel, código e gravação protegida.                                    |
-| `JwtAuthGuard`              | API                  | Exige um token JWT válido de uma conta ativa.                                                                 |
+| `JwtAuthGuard`              | API                  | Exige um token JWT válido de uma conta ativa, emitido depois da última troca de senha.                       |
 | `UsuarioAtivoGuard`         | API                  | Relê a conta no banco e substitui o tipo do token pelo tipo gravado.                                          |
 | `UsuarioComumGuard`         | API                  | Recusa a conta `ADMIN_SISTEMA` nas rotas de usuário comum.                                                    |
 | `AdminSistemaGuard`         | API                  | Aceita só a conta `ADMIN_SISTEMA` nas rotas de moderação.                                                     |
@@ -26,6 +26,10 @@
 | `MembroOrganizacao`         | Subdocumento         | O vínculo de uma pessoa com a organização: papel, situação e datas.                                           |
 | `Usuario`                   | Documento            | Conta de usuário, usada para identificar criador, convidado e membros.                                        |
 | `Comissao`                  | Documento            | Comissão da organização, apagada na exclusão e alterada na remoção de membro.                                 |
+| `OrganizacaoModel`          | Dados (model)        | O model do Mongoose da coleção `organizacoes`.                                                                |
+| `UsuarioModel`              | Dados (model)        | O model do Mongoose da coleção `usuarios`, usado para conferir contas.                                        |
+| `ComissaoModel`             | Dados (model)        | O model do Mongoose da coleção `comissoes`, usado na exclusão da organização e na remoção de membro.          |
+| `organizacaoSchema`         | Dados (módulo)       | As funções exportadas por `organizacao.schema.ts`; aqui, o sorteio do código de acesso.                      |
 
 As classes `Usuario` e `Comissao` estão descritas nos módulos [Cadastro de usuário](../cadastro-usuario/3%20-%20dicionario-dados-classes-cadastro-usuario.md) e [Cadastro de comissão](../cadastro-comissao/3%20-%20dicionario-dados-classes-cadastro-comissao.md); abaixo aparecem só os campos que este módulo usa.
 
@@ -140,10 +144,13 @@ Cada método recebe os parâmetros da rota, o corpo já validado pelo DTO e a re
 | Classe                      | Operação                    | O que faz                                                                                                                              |
 | --------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `TelaCadastroOrganizacao`   | `enviar()`                  | Valida o formulário e envia `POST /organizacoes`; no sucesso, guarda os dados em `enviada` e mostra "Solicitação enviada".            |
+|                             | `definirErro(valor: string)`, `definirEnviada(valor: DadosOrganizacao)` | Atualizadores do `useState`, com retorno `void`: a mensagem de erro da API e os dados enviados, que trocam o formulário pela confirmação. |
 | `TelaEntrarComCodigo`       | `enviar()`                  | Valida o código e envia `POST /organizacoes/entrar`; no sucesso, guarda o pedido em `enviado` e mostra "Pedido enviado".              |
+|                             | `definirEnviado(valor: Pedido)` | Atualizador do `useState`, com retorno `void`: guarda o pedido devolvido pela API.                                                 |
 | `TelaOrganizacoes`          | `carregar(continuar)`       | Busca organizações, comissões e reuniões e, nas administradas, os membros; `continuar` evita gravar o estado de uma tela já fechada.  |
 |                             | `atualizar()`               | Recarrega ao puxar a lista para baixo.                                                                                                 |
 |                             | `responder(organizacao, aceitar)` | Envia a resposta ao convite e recarrega.                                                                                         |
+|                             | `definirOrganizacoes(valor: Organizacao[])`, `definirAviso(valor: Aviso)` | Atualizadores do `useState`, com retorno `void`: guardam a lista montada por `carregar` e a faixa de aviso.     |
 | `TelaOrganizacao`           | `carregar()`                | Lê a organização na lista do usuário e, se ele administra, os membros e o código (`Dados`).                                           |
 |                             | `aprovar(membro)`           | Aprova um pedido ou um pedido recusado, sem diálogo.                                                                                   |
 |                             | `pedir(pendente)`           | Abre o diálogo `Confirmacao` com a mensagem, o rótulo e a ação guardados em `Pendente`.                                                |
@@ -153,15 +160,38 @@ Cada método recebe os parâmetros da rota, o corpo já validado pelo DTO e a re
 |                             | `pedirNovoCodigo()`         | Fecha a folha "Convidar" e pede confirmação para gerar um novo código.                                                                |
 |                             | `opcoesDe(membro)`          | Monta as opções da folha de cada pessoa conforme o vínculo e o número de administradores.                                             |
 |                             | `caminho(usuarioId, sufixo)`| Monta a rota `/organizacoes/{id}/membros/{usuarioId}` com o sufixo (`/papel`).                                                        |
+|                             | `definirDados(valor: Dados)`, `definirAviso(valor: Aviso)`, `definirMenu(valor: Membro)`, `definirConvidarAberto(valor: boolean)`, `definirEmail(valor: string)` | Atualizadores do `useState`, todos com retorno `void`: guardam o que `carregar` devolveu, a faixa de aviso (`tom` e `mensagem`), a pessoa cuja folha de opções está aberta, se a folha "Convidar" está aberta e o e-mail digitado nela. |
 | `TelaGerenciarOrganizacoes` | `carregar(termoBusca)`      | Busca as organizações, descartando respostas de consultas mais antigas.                                                               |
 |                             | `atualizar(id, dados)`      | Envia `PATCH` e troca o cartão pelo devolvido; retorna `true` no sucesso.                                                              |
 |                             | `salvarEdicao()`            | Valida e envia nome, cidade e descrição.                                                                                               |
 |                             | `excluir(organizacao)`      | Envia `DELETE` e tira o cartão da lista.                                                                                               |
 |                             | `confirmarAcao()`           | Executa a ação guardada em `acaoPendente` (revogar ou excluir) e fecha o diálogo.                                                     |
+|                             | `definirOrganizacoes(valor: SetStateAction<Organizacao[]>)`, `definirBusca(valor: string)`, `definirEditandoId(valor: string)`, `definirAcaoPendente(valor: AcaoPendente)`, `definirErro(valor: string)` | Atualizadores do `useState`, todos com retorno `void`. `definirOrganizacoes` recebe a lista nova ou uma função que troca ou retira um item da lista atual; `definirBusca` dispara a consulta 350 ms depois da última tecla; `definirEditandoId` abre (com o `_id`) ou fecha (com `null`) a edição; `definirAcaoPendente` abre o diálogo de revogar ou excluir (`organizacao` e `tipo`) ou o fecha com `null`. |
+|                             | `reset(valores: object)`    | O `reset` do formulário de edição (`edicao`, criado com `useForm` do `react-hook-form`): preenche nome, cidade e descrição atuais. Retorno `void`. |
 | `TelaInicio`                | `carregar(continuar)`       | Busca organizações, reuniões e atas pendentes; conta pedidos nas organizações administradas.                                           |
 |                             | `responder(convite, aceito)`| Responde convite de organização ou de reunião.                                                                                         |
 | `validacao`                 | `validarNomeOrganizacao`, `validarCidade`, `validarDescricao`, `validarCodigo`, `validarEmail` | Devolvem o texto do erro ou `null` quando o valor é válido. |
 |                             | `mascararCodigo(texto)`     | Deixa só letras e números em maiúsculas, até 10, com hífen depois do quinto.                                                          |
+
+## Models do Mongoose e módulo do schema
+
+Os três models são `Model<...>` injetados pelo NestJS com `@InjectModel` nos atributos `organizacaoModel`, `usuarioModel` e `comissaoModel` do `OrganizacoesService`; o `UsuarioAtivoGuard` recebe o `UsuarioModel` no atributo `usuarios`. As consultas devolvem uma `Query`, concluída com `.exec()`. Os métodos encadeados na `Query` (`select`, `populate`, `sort` e `lean`) aparecem nas notas dos diagramas de sequência, e não como mensagens, porque não são métodos do model.
+
+| Classe              | Estereótipo          | Método                                                    | Retorno                           | O que faz                                                                                                        |
+| ------------------- | -------------------- | --------------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `OrganizacaoModel`  | `<<Model Mongoose>>` | `create(dados: object)`                                   | `Promise<OrganizacaoDocument>`    | Insere a organização; o schema sorteia `codigo_acesso` e preenche `criado_em` e `atualizado_em`.               |
+|                     |                      | `exists(filtro: object)`                                  | `Query<object>`                   | Devolve o `_id` da primeira organização com o mesmo nome, ou `null`.                                             |
+|                     |                      | `find(filtro: object)`                                    | `Query<OrganizacaoDocument[]>`    | Lista as organizações do usuário (`membros.usuario_id`) ou, para o administrador do sistema, as que têm o termo no nome. |
+|                     |                      | `findById(id: string)`                                    | `Query<OrganizacaoDocument>`      | Busca a organização pelo `_id`.                                                                                  |
+|                     |                      | `findOne(filtro: object)`                                 | `Query<OrganizacaoDocument>`      | Busca a organização `APROVADA` com o código de acesso informado.                                                |
+|                     |                      | `findByIdAndUpdate(id: string, dados: object, opcoes: object)` | `Query<OrganizacaoDocument>` | Grava os campos recebidos e devolve o documento novo (`new: true`), conferindo o schema (`runValidators: true`). |
+|                     |                      | `updateOne(filtro: object, alteracao: object, opcoes: object)` | `Query<UpdateResult>`        | Grava um vínculo ou o código só se o filtro ainda valer; `modifiedCount` diz se gravou. `opcoes` traz `arrayFilters` quando a alteração é num item de `membros`. |
+|                     |                      | `deleteOne(filtro: object)`                               | `Query<DeleteResult>`             | Apaga a organização só se ela estiver `REVOGADA`; `deletedCount` diz se apagou.                                |
+| `UsuarioModel`      | `<<Model Mongoose>>` | `findById(id: string)`                                    | `Query<UsuarioDocument>`          | Confere a conta de quem cadastra ou pede entrada.                                                                |
+|                     |                      | `findOne(filtro: object)`                                 | `Query<UsuarioDocument>`          | Localiza a conta ativa pelo e-mail do convite.                                                                   |
+| `ComissaoModel`     | `<<Model Mongoose>>` | `updateMany(filtro: object, alteracao: object)`           | `Query<UpdateResult>`             | Tira a pessoa da equipe de todas as comissões da organização (`$pull` em `membros`).                             |
+|                     |                      | `deleteMany(filtro: object)`                              | `Query<DeleteResult>`             | Apaga as comissões da organização excluída.                                                                      |
+| `organizacaoSchema` | `<<module>>`         | `gerarCodigoAcesso()`                                     | `string`                          | Sorteia 10 caracteres de `ALFABETO_CODIGO` com `randomInt` do `node:crypto`. É o valor padrão de `codigo_acesso` e é chamado por `gerarNovoCodigo`. |
 
 ## Rastreabilidade
 

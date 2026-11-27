@@ -1,6 +1,6 @@
 # Casos de uso — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 27/11/2026
 
 ## Resumo
 

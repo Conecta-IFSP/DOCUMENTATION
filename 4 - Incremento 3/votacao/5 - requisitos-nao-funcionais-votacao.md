@@ -38,11 +38,11 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | ----------------- | -------- |
 | **Classificação** | Externo › Legal › Segurança |
 | **Critério**      | Só o membro da comissão com papel `RESPONSAVEL`, em comissão ativa, abre ou encerra votações. |
-| **Medida**        | Qualquer outra conta recebe HTTP 403 com a mensagem "Apenas o responsável da comissão pode gerenciar votações", e nada é gravado. Na tela, os botões "Abrir votação" e "Encerrar votação" não aparecem para quem não é presidente. |
+| **Medida**        | O participante da reunião que não é `RESPONSAVEL` da comissão recebe HTTP 403 com a mensagem "Apenas o responsável da comissão pode gerenciar votações"; o `RESPONSAVEL` de comissão inativa recebe HTTP 400 com "Reative a comissão antes de gerenciar votações"; quem não está entre os participantes recebe HTTP 403 com "Você não participa desta reunião". Em todos os casos, nada é gravado. Na tela, os botões "Abrir votação" e "Encerrar votação" não aparecem para quem não é presidente. |
 | **Condição**      | Rotas `POST /reunioes/:id/votacoes` e `POST /reunioes/:id/votacoes/:votacaoId/encerrar`. |
 | **Verificação**   | Testes automatizados CT-VOT-02 e CT-VOT-07. |
 | **Evidência**     | `ReunioesService.exigirPresidente` e `BACKEND/src/reunioes/votacoes.spec.ts`. |
-| **Situação**      | Atendido em 13/11/2026; testes aprovados de novo em 26/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; testes aprovados de novo em 26/11/2026 e em 27/11/2026. |
 
 ### RNF-VOT-02 — Autorização para votar
 
@@ -54,7 +54,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Rota `POST /reunioes/:id/votacoes/:votacaoId/votos`. |
 | **Verificação**   | Teste automatizado CT-VOT-05. |
 | **Evidência**     | `ReunioesService.votar`: conferência antes da gravação e condição sobre a presença repetida no filtro do `findOneAndUpdate`. |
-| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. |
 
 ### RNF-VOT-03 — Voto único
 
@@ -66,7 +66,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Condição**      | Qualquer sequência de chamadas à rota de voto. |
 | **Verificação**   | Teste automatizado CT-VOT-05; inspeção do controller (só há `POST` para votos). |
 | **Evidência**     | `ReunioesService.votar` e `ReunioesController`. |
-| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026. |
+| **Situação**      | Atendido em 13/11/2026; teste aprovado de novo em 26/11/2026 e em 27/11/2026. |
 
 ### RNF-VOT-04 — Sigilo do voto conforme o tipo da votação
 
@@ -100,7 +100,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Critério**      | As condições de voto e de encerramento são conferidas de novo pelo MongoDB no mesmo comando que grava. |
 | **Medida**        | O voto só é gravado se, no instante da gravação, a votação ainda está `ABERTA`, o usuário ainda não está em `votos` e a presença ainda permite votar; o encerramento só é gravado se a votação ainda está `ABERTA`. Caso contrário, a API devolve 409 "A votação mudou. Atualize a tela." e nada é gravado. |
 | **Condição**      | Dois votos do mesmo usuário, ou um voto e um encerramento, chegando ao mesmo tempo. |
-| **Verificação**   | Testes automatizados CT-VOT-04, que confere o filtro e o `arrayFilters` enviados ao banco, e CT-VOT-07. Teste com requisições paralelas contra um MongoDB real: pendente. |
+| **Verificação**   | Testes automatizados CT-VOT-04, que confere no filtro a condição de o usuário ainda não estar em `votos` e o `arrayFilters` enviados ao banco, e CT-VOT-07, que confere no filtro a votação ainda `ABERTA`; as demais condições do filtro do voto foram conferidas por inspeção. Teste com requisições paralelas contra um MongoDB real: pendente. |
 | **Evidência**     | Filtros de `findOneAndUpdate` em `ReunioesService.votar` e `ReunioesService.encerrarVotacao`. |
 | **Situação**      | Atendido por inspeção e teste de unidade em 13/11/2026; medição com requisições paralelas pendente. |
 
@@ -158,6 +158,7 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 - Um presidente de comissão que não foi incluído entre os participantes da reunião não consegue abrir votação nela ("Você não participa desta reunião").
 - Quando a reunião é cancelada durante uma votação aberta, a votação continua apresentada como "Em andamento", sem resultado, até o término previsto da reunião. O presidente ainda vê "Encerrar votação", mas a API recusa com "Esta reunião foi cancelada"; os demais veem a faixa "Esta reunião foi cancelada." no lugar das opções.
 - Quando a API recusa a abertura de uma votação, a folha "Nova votação" continua aberta e a mensagem fica na faixa vermelha da tela da reunião, atrás da folha.
+- A tela só recalcula se a reunião está em andamento quando consulta a reunião (a cada 30 segundos ou ao ser puxada para baixo). Logo depois do término, até a próxima consulta, o presidente ainda pode ver "Abrir votação" e o cartão ainda pode mostrar as opções; a API recusa com "Esta reunião já terminou" ou "Esta votação está encerrada".
 - Não há limite para a quantidade de votações por reunião além do tamanho máximo de um documento do MongoDB (16 MB).
 - O tipo da votação (fechada ou aberta) é escolhido na abertura e não pode ser trocado depois.
 - Na votação do tipo aberta, o nome de cada votante vem da lista de participantes da reunião. Se o votante deixar de ser participante (o organizador pode tirar convidados ao editar a reunião antes do término) ou a conta dele não existir mais, o voto continua contado e a lista "Quem votou em quê" mostra "Usuário indisponível" no lugar do nome.

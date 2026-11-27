@@ -1,6 +1,6 @@
 # Testes — Cadastro de organização
 
-> Padrão da disciplina · Módulo ORG · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ORG · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -10,11 +10,12 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 
 | Item                      | Valor                                                                                                                         |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Data da execução          | Roteiros manuais CT-ORG-01 a CT-ORG-06: registrados em 23/10/2026. Testes automatizados: 23/10/2026 e 26/11/2026.             |
-| Backend                   | Branch `homolog`: commit `6f2ffc4` em 23/10/2026; commit `99b6b4f`, com alterações locais fora deste módulo, em 26/11/2026; testes repetidos sobre o commit `caca2d2` na revisão de 26/11/2026. |
-| Aplicativo                | Branch `homolog`: commit `792fab4` em 23/10/2026; commit `a53acce` em 26/11/2026; conferido sobre o commit `6ff2d50` na revisão de 26/11/2026. |
+| Data da execução          | Roteiros manuais CT-ORG-01 a CT-ORG-06: registrados em 23/10/2026; CT-ORG-31: 27/11/2026. Testes automatizados: 23/10/2026, 26/11/2026 e 27/11/2026. |
+| Backend                   | Branch `homolog`: commit `6f2ffc4` em 23/10/2026; commit `99b6b4f`, com alterações locais fora deste módulo, em 26/11/2026; testes repetidos sobre o commit `caca2d2` na revisão de 26/11/2026 e sobre o commit `d1f1aeb`, sem alterações locais, na revisão de 27/11/2026. |
+| Aplicativo                | Branch `homolog`: commit `792fab4` em 23/10/2026; commit `a53acce` em 26/11/2026; conferido sobre o commit `6ff2d50` na revisão de 26/11/2026 e sobre o commit `10abe49` na revisão de 27/11/2026. |
 | Testes automatizados      | Vitest, com os models do Mongoose substituídos por dublês e, nas rotas, o servidor NestJS de teste com `supertest`. Não usam banco de dados. |
-| Roteiros manuais          | Executados pela equipe em ambiente móvel; o aparelho e a versão do sistema não foram anotados no registro.                    |
+| Roteiros manuais          | CT-ORG-01 a CT-ORG-06: executados pela equipe em ambiente móvel; o aparelho e a versão do sistema não foram anotados no registro. |
+| Aparelho                  | CT-ORG-31: Samsung Galaxy S24, Android 16, com o APK de release arm64, ligado à API local com banco de teste.                 |
 | iOS                       | Não executado: a equipe não dispõe de computador Apple nem de aparelho iOS.                                                   |
 
 ## Evidência automatizada
@@ -29,8 +30,11 @@ Registra o que foi executado, quando, em qual ambiente e qual foi o resultado. O
 | 26/11/2026 | FRONTEND | `npx tsc --noEmit` e `npm run lint`                  | Sem erro e sem diagnóstico                                                                          |
 | 26/11/2026 | FRONTEND | `node --test tests/*.test.cjs`                       | 5 arquivos e 47 testes aprovados; nenhum deles é deste módulo                                       |
 | 26/11/2026 | BACKEND `caca2d2` | `npx vitest run src/auth src/usuarios src/organizacoes --reporter=verbose` | 9 arquivos e 120 testes aprovados, 74 deles nos 3 arquivos deste módulo; os nomes citados na matriz abaixo conferem com a saída |
+| 27/11/2026 | BACKEND `d1f1aeb` | `npx vitest run`                            | 17 arquivos e 246 testes aprovados, nenhuma falha                                                   |
+| 27/11/2026 | BACKEND `d1f1aeb` | `npx vitest run src/organizacoes --reporter=verbose` | 3 arquivos e 74 testes aprovados: 57 em `organizacoes.service.spec.ts`, 16 em `organizacoes-acesso.spec.ts` e 1 em `organizacoes.controller.spec.ts`; os nomes citados na matriz abaixo conferem com a saída |
+| 27/11/2026 | FRONTEND `10abe49` | `node --test tests/*.test.cjs`             | 5 arquivos e 47 testes aprovados; nenhum deles é deste módulo                                       |
 
-Os arquivos de teste do módulo ficam em `BACKEND/src/organizacoes/`. O teste do controller ("should be defined") só confere que a classe é montada. Nenhum dos scripts `BACKEND/test/*-mongo.mjs` testa este módulo: não há teste das organizações contra um MongoDB real.
+Os arquivos de teste do módulo ficam em `BACKEND/src/organizacoes/`. O teste do controller ("should be defined") só confere que a classe é montada. Nenhum dos scripts `BACKEND/test/*-mongo.mjs` testa este módulo: eles só usam o schema `Organizacao` para montar os dados de outros testes, e não há teste do `OrganizacoesService` contra um MongoDB real.
 
 ## Matriz de testes automatizados
 
@@ -73,9 +77,10 @@ Os testes "Serviço" estão em `BACKEND/src/organizacoes/organizacoes.service.sp
 | CT-ORG-28 | RF-ORG-04, RF-ORG-06, RF-ORG-09, RF-ORG-10, RF-ORG-12, RF-ORG-13, RNF-ORG-05 | Android                | Em cada ação com diálogo (revogar, excluir, recusar pedido, gerar código, tornar administrador, tornar membro, remover acesso, cancelar convite e excluir pedido), tocar primeiro em "Cancelar" e depois confirmar; em seguida, aprovar um pedido recusado pelo menu "Pedidos recusados". | "Cancelar" não muda nada; a confirmação executa a ação e mostra a faixa verde; o pedido recusado passa a "Membros". | Não executado: roteiro pendente.                                                 |
 | CT-ORG-29 | RNF-ORG-07                        | Emulador Android 7.0, 720 × 1280  | Abrir "Criar organização", "Entrar com código", a folha "Convidar", a edição em "Gerenciar organizações" e as buscas, com os campos vazios.                  | Nenhum texto de exemplo ultrapassa a borda do campo.                   | Não executado: conferência pendente.                                             |
 | CT-ORG-30 | RNF-ORG-08                        | iOS                               | Repetir CT-ORG-01 a CT-ORG-06 em aparelho iOS.                                                                                                               | Mesmos resultados do Android.                                          | Não executado: sem equipamento Apple disponível.                                 |
+| CT-ORG-31 | RF-ORG-10, RNF-ORG-05             | Samsung Galaxy S24, Android 16, APK de release arm64; API local com banco de teste | Como administrador da organização, abrir "Convidar", tocar em "Gerar novo código", confirmar com "Gerar" e fechar a folha. | O diálogo pede confirmação; depois de "Gerar", a folha "Convidar" reabre com outro código e a tela da organização mostra "Novo código gerado.". | Aprovado em 27/11/2026, no Samsung Galaxy S24 (Android 16) com o APK de release arm64. "Gerar novo código" mostrou o diálogo "Gerar um novo código? O código atual deixa de funcionar."; depois de "Gerar", a folha "Convidar" reabriu com outro código; ao fechar a folha, a faixa "Novo código gerado." estava na tela da organização. |
 
 Os cenários e resultados de CT-ORG-01 a CT-ORG-06 estão como foram registrados pela equipe. A busca do CT-ORG-02 compara apenas o nome da organização (RF-ORG-02); a recusa da exclusão no CT-ORG-04 é a resposta 409 "Revogue a organização antes de excluí-la", e o aplicativo só mostra o botão "Excluir" em organização revogada.
 
 ## Rastreabilidade
 
-CT-ORG-01 a CT-ORG-06 são os roteiros manuais executados pela equipe; CT-ORG-07 a CT-ORG-27 são os testes automatizados, que cobrem RF-ORG-01 a RF-ORG-14 e RNF-ORG-01 a RNF-ORG-04 e RNF-ORG-06; CT-ORG-28 a CT-ORG-30 estão pendentes e cobrem a confirmação das ações destrutivas, a tela pequena e o iOS. A relação de cada caso de uso com os seus testes está no [README](README.md#rastreabilidade).
+CT-ORG-01 a CT-ORG-06 são os roteiros manuais executados pela equipe; CT-ORG-07 a CT-ORG-27 são os testes automatizados, que cobrem RF-ORG-01 a RF-ORG-14 e RNF-ORG-01 a RNF-ORG-04 e RNF-ORG-06; CT-ORG-28 a CT-ORG-30 estão pendentes e cobrem a confirmação das ações destrutivas, a tela pequena e o iOS; CT-ORG-31 cobre, no Galaxy S24, a confirmação e a troca do código de acesso. A relação de cada caso de uso com os seus testes está no [README](README.md#rastreabilidade).

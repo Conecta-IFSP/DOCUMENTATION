@@ -1,6 +1,6 @@
 # Requisitos não funcionais — Atas de reunião
 
-> Padrão da disciplina · Módulo ATA · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo ATA · Revisado em 27/11/2026
 
 ## Resumo
 
@@ -123,10 +123,10 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Classificação** | Produto › Portabilidade |
 | **Critério**    | O fluxo completo funciona do Android 7.0 (API 24, o mínimo do aplicativo) ao Android 16, e no iOS.                                                |
 | **Medida**      | Escrever, enviar, aprovar, reprovar, criar nova versão e gerar o PDF, sem erro e sem texto cortado.                                              |
-| **Condição**    | Emuladores Android 16 (1080 × 2400) e Android 7.0 (720 × 1280).                                                                                  |
-| **Verificação** | Roteiros CT-ATA-14 a CT-ATA-19.                                                                                                                  |
-| **Evidência**   | Capturas de tela da execução de 09/11/2026.                                                                                                      |
-| **Situação**    | Atendido no Android. iOS não executado por falta de equipamento; validação pendente.                                                             |
+| **Condição**    | Emuladores Android 16 (1080 × 2400), Android 14 e Android 7.0 (720 × 1280), e Galaxy S24 com Android 16.                                         |
+| **Verificação** | Roteiros CT-ATA-14 a CT-ATA-19; para o PDF no aplicativo instalado, CT-ATA-26, CT-ATA-29 e CT-ATA-30.                                            |
+| **Evidência**   | Capturas de tela da execução de 09/11/2026; registros de 25/11, 26/11 e 27/11/2026 em [Testes](7%20-%20testes-atas.md).                          |
+| **Situação**    | Atendido no Android. iOS não executado por falta de equipamento; validação pendente. O PDF no aplicativo instalado foi conferido em CT-ATA-26 e CT-ATA-29, antes do frontend `795d49b`, e em CT-ATA-30, em 27/11/2026 no Galaxy S24, nos frontends `10abe49` e `8cf4839`; neste último, a versão atual, `nomearPdf` espera o `move` antes do compartilhamento, e nos dois o menu abriu com "Ata nº 1-2026.pdf", sem erro no log. |
 
 ### RNF-ATA-09 — Legibilidade nos dois temas
 
@@ -149,8 +149,8 @@ A classificação segue a árvore de Sommerville usada na disciplina: requisitos
 | **Medida**      | `npm test` sem nenhuma falha, incluindo os testes das atas.                                                     |
 | **Condição**    | Código da branch `homolog` com as alterações do Incremento 3.                                                   |
 | **Verificação** | Execução registrada em [Testes](7%20-%20testes-atas.md).                                                        |
-| **Evidência**   | 14 arquivos e 204 testes aprovados em 09/11/2026; na revisão de 26/11/2026, 17 arquivos e 234 testes aprovados com `npx vitest run`. |
-| **Situação**    | Atendido em 09/11/2026.                                                                                         |
+| **Evidência**   | 14 arquivos e 204 testes aprovados em 09/11/2026; na revisão de 26/11/2026, 17 arquivos e 234 testes aprovados com `npx vitest run`; na revisão de 27/11/2026 (backend `d1f1aeb`), 17 arquivos e 246 testes aprovados. |
+| **Situação**    | Atendido em 09/11/2026; última execução sem falha em 27/11/2026.                                                |
 
 ## Rastreabilidade
 

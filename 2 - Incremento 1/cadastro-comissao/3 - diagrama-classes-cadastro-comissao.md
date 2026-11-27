@@ -1,10 +1,10 @@
 # Diagrama de classes — Cadastro de comissão
 
-> Padrão da disciplina · Módulo COM · Revisado em 26/11/2026
+> Padrão da disciplina · Módulo COM · Revisado em 27/11/2026
 
 ## Resumo
 
-O diagrama mostra as classes que participam do cadastro de comissões, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componente e módulos do aplicativo), **API** (controller, service e objetos de entrada) e **Dados** (documentos guardados no MongoDB). Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código.
+O diagrama mostra as classes que participam do cadastro de comissões, agrupadas em três pacotes, um por camada do sistema: **Aplicativo** (telas, componente e módulos do aplicativo), **API** (controller, service e objetos de entrada) e **Dados** (os models do Mongoose `ComissaoModel`, `OrganizacaoModel` e `UsuarioModel`, marcados `<<Model Mongoose>>`, e os documentos guardados no MongoDB). O `Router` do `expo-router`, chamado diretamente pela tela de cadastro, fica fora dos pacotes, marcado `<<biblioteca>>`. Toda linha de vida e todo método dos [Diagramas de sequência](6%20-%20diagramas-sequencia-cadastro-comissao.md) aparecem aqui. Cada atributo traz o seu tipo, e cada método traz o tipo dos parâmetros e do retorno. Toda classe e todo método do diagrama existem no código. Nas telas, os métodos `definir*` são as funções de atualização do `useState`, e `reset`, `setValue` e `onChange` são os do formulário do `react-hook-form` que as sequências chamam.
 
 ## Diagrama
 
@@ -19,6 +19,9 @@ classDiagram
             -buscaComissao: string
             +carregar() Promise~Dados~
             +atualizar() Promise~void~
+            +definirDados(valor: Dados) void
+            +definirBuscaComissao(valor: string) void
+            +definirFiltro(valor: Filtro) void
         }
         class TelaNovaComissao {
             -organizacoes: Organizacao[]
@@ -26,6 +29,8 @@ classDiagram
             -seletor: boolean
             -erro: string
             +salvar() Promise~void~
+            +setValue(campo: string, valor: string) void
+            +onChange(valor: string) void
         }
         class TelaComissao {
             -comissao: Comissao
@@ -35,6 +40,11 @@ classDiagram
             -folha: string
             -escolhido: Integrante
             -confirmacao: AcaoPendente
+            -reunioes: Reuniao[]
+            -busca: string
+            -erro: string
+            -sucesso: string
+            +buscarReunioes() Promise~object~
             +buscar() Promise~Carga~
             +aplicar(carga: Carga, preencherFormulario: boolean) void
             +atualizar() Promise~void~
@@ -42,6 +52,15 @@ classDiagram
             +salvarDados() Promise~void~
             +desativar() Promise~Resultado~
             +trocarResponsavel(alvo: PessoaComissao) void
+            +definirAba(valor: string) void
+            +definirBusca(valor: string) void
+            +definirComissao(valor: Comissao) void
+            +definirConfirmacao(valor: AcaoPendente) void
+            +definirErro(valor: string) void
+            +definirEscolhido(valor: Integrante) void
+            +definirFolha(valor: string) void
+            +definirSucesso(valor: string) void
+            +reset(valores: object) void
         }
         class SeletorPessoaComissao {
             <<component>>
@@ -133,6 +152,25 @@ classDiagram
     }
 
     namespace Dados {
+        class ComissaoModel {
+            <<Model Mongoose>>
+            +find(filtro: object) Query~ComissaoDocument[]~
+            +findById(id: string) Query~ComissaoDocument~
+            +create(dados: object) Promise~ComissaoDocument~
+            +findByIdAndUpdate(id: string, alteracao: object, opcoes: object) Query~ComissaoDocument~
+            +findOneAndUpdate(filtro: object, alteracao: object, opcoes: object) Query~ComissaoDocument~
+            +populate(caminhos: object[]) Promise~ComissaoDocument~
+        }
+        class OrganizacaoModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~OrganizacaoDocument~
+            +find(filtro: object) Query~OrganizacaoDocument[]~
+        }
+        class UsuarioModel {
+            <<Model Mongoose>>
+            +findById(id: string) Query~UsuarioDocument~
+            +find(filtro: object) Query~UsuarioDocument[]~
+        }
         class Comissao {
             +_id: ObjectId
             +nome: string
@@ -173,6 +211,11 @@ classDiagram
         }
     }
 
+    class Router {
+        <<biblioteca>>
+        +replace(rota: Href) void
+    }
+
     TelaOrganizacao ..> api : usa
     TelaNovaComissao ..> api : usa
     TelaNovaComissao ..> validacao : usa
@@ -180,6 +223,7 @@ classDiagram
     TelaComissao ..> api : usa
     TelaComissao ..> validacao : usa
     TelaComissao ..> SeletorPessoaComissao : mostra
+    TelaNovaComissao ..> Router : replace
     api ..> ComissoesController : requisição HTTP
 
     ComissoesController --> "1" ComissoesService : comissoesService
@@ -188,9 +232,12 @@ classDiagram
     ComissoesController ..> AddMembroComissaoDto : recebe
     ComissoesController ..> DefinirResponsavelDto : recebe
     ComissoesController ..> UpdateMembroComissaoDto : recebe
-    ComissoesService ..> Comissao : lê e grava
-    ComissoesService ..> Organizacao : confere o vínculo
-    ComissoesService ..> Usuario : confere a conta
+    ComissoesService --> "1" ComissaoModel : comissaoModel
+    ComissoesService --> "1" OrganizacaoModel : organizacaoModel
+    ComissoesService --> "1" UsuarioModel : usuarioModel
+    ComissaoModel ..> Comissao : documentos do schema
+    OrganizacaoModel ..> Organizacao : documentos do schema
+    UsuarioModel ..> Usuario : documentos do schema
 
     Comissao "1" *-- "1..*" MembroComissao : membros
     Comissao "0..*" --> "1" Organizacao : organizacao_id
@@ -208,9 +255,9 @@ Figura 2 — Diagrama de classes do cadastro de comissão, por camada. Fonte: eq
 | ---------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Losango cheio (composição)   | A parte só existe dentro do todo e é apagada junto com ele.             | `Comissao *-- MembroComissao`: cada integrante é gravado dentro do documento da comissão, sem identificador próprio. |
 | Seta cheia (associação)      | Uma classe guarda uma referência a outra, que existe por conta própria. | `MembroComissao --> Usuario`: `usuario_id` guarda o identificador de um documento de `usuarios`.             |
-| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `ComissoesService ..> Organizacao`: o serviço lê a organização para conferir o vínculo do usuário.           |
+| Seta tracejada (dependência) | Uma classe usa a outra em uma chamada, sem guardá-la como atributo.     | `TelaNovaComissao ..> Router`: a tela abre a comissão criada com `replace`.                                  |
 
-Os números nas pontas são as multiplicidades. Uma `Comissao` tem ao menos um `MembroComissao` (`1..*`), porque o responsável é obrigatório, e pertence a exatamente uma `Organizacao` (`1`); uma organização pode ter qualquer quantidade de comissões (`0..*`). Cada `MembroComissao` aponta para exatamente um `Usuario`, e um usuário pode estar em várias comissões.
+Os números nas pontas são as multiplicidades. Uma `Comissao` tem ao menos um `MembroComissao` (`1..*`), porque o responsável é obrigatório, e pertence a exatamente uma `Organizacao` (`1`); uma organização pode ter qualquer quantidade de comissões (`0..*`). Cada `MembroComissao` aponta para exatamente um `Usuario`, e um usuário pode estar em várias comissões. O `ComissoesService` guarda uma instância de cada model (`1`), injetada pelo NestJS, e cada model lê e grava os documentos do seu schema; `populate` é chamado no documento da comissão já lido.
 
 No código, são opcionais: `descricao`, em `Comissao` e em `CreateComissaoDto`; `nome`, `descricao` e `ativo`, em `UpdateComissaoDto`; e `papel`, em `AddMembroComissaoDto`. `validarNomeComissao` e `validarDescricao` devolvem o texto do erro ou `null` quando o valor é válido. `Organizacao`, `MembroOrganizacao` e `Usuario` aparecem só com os campos que este módulo usa; a descrição completa está nos módulos de [organização](../cadastro-organizacao/README.md) e de [usuário](../cadastro-usuario/README.md).
 
